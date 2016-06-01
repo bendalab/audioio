@@ -10,8 +10,7 @@ and winsound at the bottom of this file.
 
 import os
 import numpy as np
-import pyaudio
-import ossaudiodev
+from audiomodules import *
 
 
 handle = None
@@ -35,7 +34,8 @@ class PlayAudio(object):
         """Play audio data.
 
         Args:
-            data (array): the data to be played
+            data (array): the data to be played, either 1-D array for single channel output,
+                          or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
         """
         if self.handle is None:
@@ -80,6 +80,8 @@ class PlayAudio(object):
         Installation:
           sudo apt-get install libportaudio2 python-pyaudio
         """
+        if not audio_modules['pyaudio']:
+            raise ImportError
         oldstderr = os.dup(2)
         os.close(2)
         tmpfile = 'tmpfile.tmp'
@@ -92,13 +94,15 @@ class PlayAudio(object):
         os.remove(tmpfile)
         self._do_play = self._play_pyaudio
         self.close = self._close_pyaudio
+        return self
     
     def _play_pyaudio(self, data, rate):
         """
         Play audio data using the pyaudio module.
 
         Args:
-            data (array): the data to be played
+            data (array): the data to be played, either 1-D array for single channel output,
+                          or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
         """
         channels = 1
@@ -140,17 +144,21 @@ class PlayAudio(object):
           Enable an oss emulation via alsa by installing
           sudo apt-get install osspd
         """
+        if not audio_modules['ossaudiodev']:
+            raise ImportError
         self.handle = True
         self.osshandle = None
         self._do_play = self._play_ossaudiodev
         self.close = self._close_ossaudiodev
+        return self
     
     def _play_ossaudiodev(self, data, rate):
         """
         Play audio data using the ossaudiodev module.
 
         Args:
-            data (array): the data to be played
+            data (array): the data to be played, either 1-D array for single channel output,
+                          or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
         """
         channels = 1
@@ -178,6 +186,22 @@ class PlayAudio(object):
         """Initialize the audio module."""
         self.open_pyaudio()
         #self.open_ossaudiodev()
+        return self
+        # list of implemented play functions:
+        audio_open = [
+            ['pyaudio', self.open_pyaudio],
+            ['ossaudiodev', self.open_ossaudiodev],
+            ]
+        # open audio device by trying various modules:
+        for lib, open_device in audio_open:
+            if not audio_modules[lib]:
+                continue
+            try:
+                open_device()
+                break
+            except:
+                warnings.warn('failed to open audio module %s' % lib)
+        return self
 
 
 open_audio = PlayAudio
@@ -187,7 +211,8 @@ def play(data, rate):
     """Play audio data.
 
     Args:
-        data (array): the data to be played
+        data (array): the data to be played, either 1-D array for single channel output,
+                      or 2-day array with first axis time and second axis channel 
         rate (float): the sampling rate in Hertz
     """
     global handle
