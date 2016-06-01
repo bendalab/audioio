@@ -27,6 +27,7 @@ https://docs.python.org/3/library/mm.html
 
 import os
 import numpy as np
+from cStringIO import StringIO
 from audiomodules import *
 
 
@@ -98,6 +99,8 @@ class PlayAudio(object):
         """Initialize audio output via pyaudio module.
 
         Documentation:
+        see also:
+          https://mail.python.org/pipermail/tutor/2012-September/091529.html
 
         Installation:
           sudo apt-get install libportaudio2 python-pyaudio
@@ -134,6 +137,7 @@ class PlayAudio(object):
                                        rate=int(rate), output=True)
         rawdata = data - np.mean(data, axis=0)
         rawdata /= np.max(rawdata)*2.0
+        # TODO: implement with callback
         # somehow more than twice as many data are needed:
         if channels > 1:
             rawdata = np.vstack((rawdata, np.zeros((11*len(rawdata)/10, channels))))
@@ -204,12 +208,61 @@ class PlayAudio(object):
             self.osshandle.close()
         self.osshandle = None
 
+        
+    def open_winsound(self):
+        """Initialize audio output via winsound module.
+
+        The winsound module is part of the python standard library.
+
+        Documentation:
+          https://mail.python.org/pipermail/tutor/2012-September/091529.html
+        """
+        if not audio_modules['winsound'] or not not audio_modules['wave']:
+            raise ImportError
+        self.handle = True
+        self._do_play = self._play_winsound
+        self.close = self._close_winsound
+        return self
+    
+    def _play_winsound(self, data, rate):
+        """
+        Play audio data using the winsound module.
+
+        Args:
+            data (array): the data to be played, either 1-D array for single channel output,
+                          or 2-day array with first axis time and second axis channel 
+            rate (float): the sampling rate in Hertz
+        """
+        channels = 1
+        if len(data.shape) > 1:
+            channels = data.shape[1]
+        rawdata = data - np.mean(data, axis=0)
+        rawdata /= np.max(rawdata)*2.0
+        rawdata = np.array(np.round(2.0**15*rawdata)).astype('i2')
+        # write data as wav file to memory:
+        # TODO: check this code!!!
+        f = StringIO()
+        w = wave.open(f, 'w')
+        w.setnchannels(channels)
+        w.setsampwidth(2) # 2 bytes
+        w.setframerate(int(rate))
+        # TODO: how does this handle 2-d arrays?
+        w.writeframes(rawdata)
+        # play file:
+        winsound.PlaySound(f.getvalue(), winsound.SND_MEMORY)
+        
+    def _close_winsound(self):
+        """Close audio output using winsound module. """
+        self.handle = None
+
+
     def open(self):
         """Initialize the audio module with the best module available."""
         # list of implemented play functions:
         audio_open = [
             ['pyaudio', self.open_pyaudio],
             ['ossaudiodev', self.open_ossaudiodev],
+            ['winsound', self.open_winsound]
             ]
         # open audio device by trying various modules:
         for lib, open_device in audio_open:
@@ -259,40 +312,22 @@ def beep(duration, frequency, rate=44100.0, ramp=0.1):
         handle = PlayAudio()
     handle.beep(duration, frequency, rate, ramp)
 
-
-"""
-from:
-winsound: https://mail.python.org/pipermail/tutor/2012-September/091529.html
-
-this has also information on usage of pyaudio
-
-    import wave
-    import winsound
-    from cStringIO import StringIO
-
-    def get_wave(data):
-        f = StringIO()
-        w = wave.open(f, 'w')
-        w.setnchannels(1) # mono
-        w.setsampwidth(2) # 2 bytes
-        w.setframerate(48000) # samples/second
-        w.writeframes(data)
-        return f.getvalue()
-
-
-Then play the sound like this (_untested_):
-
-
-    wave_data = get_wave(data)
-    windsound.PlaySound(wave_data, winsound.SND_MEMORY)
-"""
-
-
-
+    
 if __name__ == "__main__":
 
-    beep(1.0, 440.0*2.0**(2.0/12.0))
+    print('play mono beep 1')
+    audio = PlayAudio()
+    audio.beep(1.0, 440.0)
+    audio.close()
+    
+    print('play mono beep 2')
+    with open_audio() as audio:
+        audio.beep(1.0, 440.0*2.0**(1.0/12.0))
 
+    print('play mono beep 3')
+    beep(1.0, 440.0*2.0**(2.0/12.0))
+            
+    print('play stereo beep')
     duration = 1.0
     rate = 44100.0
     time = np.arange(0.0, duration, 1.0/rate)
@@ -300,15 +335,3 @@ if __name__ == "__main__":
     data[:,0] = np.sin(2.0*np.pi*440.0*time)
     data[:,1] = 0.25*np.sin(2.0*np.pi*700.0*time)
     play(data, rate)
-    exit()
-
-    
-    audio = PlayAudio()
-    audio.beep(1.0, 440.0)
-    audio.close()
-    
-    with open_audio() as audio:
-        audio.beep(1.0, 440.0*2.0**(1.0/12.0))
-
-    beep(1.0, 440.0*2.0**(2.0/12.0))
-            
