@@ -85,6 +85,7 @@ class PlayAudio(object):
         tmpfile = 'tmpfile.tmp'
         os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
         self.handle = pyaudio.PyAudio()
+        self.stream = None
         os.close(2)
         os.dup(oldstderr)
         os.close(oldstderr)
@@ -100,19 +101,29 @@ class PlayAudio(object):
             data (array): the data to be played
             rate (float): the sampling rate in Hertz
         """
-        stream = self.handle.open(format=pyaudio.paInt16, channels=1,
-                                  rate=int(rate), output=True)
-        rawdata = data - np.mean(data)
+        channels = 1
+        if len(data.shape) > 1:
+            channels = data.shape[1]
+        self.stream = self.handle.open(format=pyaudio.paInt16, channels=channels,
+                                       rate=int(rate), output=True)
+        rawdata = data - np.mean(data, axis=0)
         rawdata /= np.max(rawdata)*2.0
         # somehow more than twice as many data are needed:
-        rawdata = np.hstack((rawdata, np.zeros(11*len(rawdata)/10)))
+        if channels > 1:
+            rawdata = np.vstack((rawdata, np.zeros((11*len(rawdata)/10, channels))))
+        else:
+            rawdata = np.hstack((rawdata, np.zeros(11*len(rawdata)/10)))
         ad = np.array(np.round(2.0**15*rawdata)).astype('i2')
-        stream.write(ad)
-        stream.stop_stream()
-        stream.close()
+        self.stream.write(ad)
+        self.stream.stop_stream()
+        self.stream.close()
+        self.stream = None
 
     def _close_pyaudio(self):
         """Close audio output using pyaudio module. """
+        if self.stream is not None:
+            self.stream.close()
+        self.stream = None
         self.handle.terminate()           
 
         
@@ -130,6 +141,7 @@ class PlayAudio(object):
           sudo apt-get install osspd
         """
         self.handle = True
+        self.osshandle = None
         self._do_play = self._play_ossaudiodev
         self.close = self._close_ossaudiodev
     
@@ -141,19 +153,26 @@ class PlayAudio(object):
             data (array): the data to be played
             rate (float): the sampling rate in Hertz
         """
-        ad = ossaudiodev.open('w')
-        ad.setfmt(ossaudiodev.AFMT_S16_LE)
-        ad.channels(1)
-        ad.speed(int(rate))
-        rawdata = data - np.mean(data)
+        channels = 1
+        if len(data.shape) > 1:
+            channels = data.shape[1]
+        self.osshandle = ossaudiodev.open('w')
+        self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
+        self.osshandle.channels(channels)
+        self.osshandle.speed(int(rate))
+        rawdata = data - np.mean(data, axis=0)
         rawdata /= np.max(rawdata)*2.0
         rawdata = np.array(np.round(2.0**15*rawdata)).astype('i2')
-        ad.writeall(rawdata)
-        ad.close()
+        self.osshandle.writeall(rawdata)
+        self.osshandle.close()
+        self.osshandle = None
 
     def _close_ossaudiodev(self):
         """Close audio output using ossaudiodev module. """
         self.handle = None
+        if self.osshandle is not None:
+            self.osshandle.close()
+        self.osshandle = None
 
     def open(self):
         """Initialize the audio module."""
@@ -237,6 +256,19 @@ Then play the sound like this (_untested_):
 
 
 if __name__ == "__main__":
+
+    beep(1.0, 440.0*2.0**(2.0/12.0))
+
+    duration = 1.0
+    rate = 44100.0
+    time = np.arange(0.0, duration, 1.0/rate)
+    data = np.zeros((len(time),2))
+    data[:,0] = np.sin(2.0*np.pi*440.0*time)
+    data[:,1] = 0.25*np.sin(2.0*np.pi*700.0*time)
+    play(data, rate)
+    exit()
+
+    
     audio = PlayAudio()
     audio.beep(1.0, 440.0)
     audio.close()
