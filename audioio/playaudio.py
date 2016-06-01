@@ -1,11 +1,28 @@
 """
 Play numpy arrays as audio.
 
+Globally defined functions
+
+play(data, rate)
+beep(duration, frequeny, rate)
+
+use a global instance of PlayAudio.
+
+Alternatively you may use the PlayAudio module directly, like this:
+
+with open_audio() as audio:
+    audio.beep(1.0, 440.0)
+
+or withour context management:
+
+audio = PlayAudio()
+audio.beep(1.0, 440.0)
+audio.close()
+
+
 See also:
 https://wiki.python.org/moin/Audio/
 https://docs.python.org/3/library/mm.html
-
-and winsound at the bottom of this file.
 """
 
 import os
@@ -13,21 +30,25 @@ import numpy as np
 from audiomodules import *
 
 
+# default audio device handler:
 handle = None
 
 
 class PlayAudio(object):
     
     def __init__(self):
+        """Initialize module for playing audio."""
         self.handle = None
         self.close = self._close
         self._do_play = self._play
         self.open()
 
     def _close(self):
+        """Terminate module for playing audio."""
         pass
 
-    def _play(self):
+    def _play(self, data, rate):
+        """Default implementation of playing sound: does nothing."""
         pass
 
     def play(self, data, rate):
@@ -63,6 +84,7 @@ class PlayAudio(object):
         self.play(data, rate)
 
     def __del__(self):
+        """Terminate the audio module."""
         self.close()
 
     def __enter__(self):
@@ -124,7 +146,7 @@ class PlayAudio(object):
         self.stream = None
 
     def _close_pyaudio(self):
-        """Close audio output using pyaudio module. """
+        """Terminate pyaudio module. """
         if self.stream is not None:
             self.stream.close()
         self.stream = None
@@ -183,10 +205,7 @@ class PlayAudio(object):
         self.osshandle = None
 
     def open(self):
-        """Initialize the audio module."""
-        self.open_pyaudio()
-        #self.open_ossaudiodev()
-        return self
+        """Initialize the audio module with the best module available."""
         # list of implemented play functions:
         audio_open = [
             ['pyaudio', self.open_pyaudio],
@@ -210,6 +229,8 @@ open_audio = PlayAudio
 def play(data, rate):
     """Play audio data.
 
+    Create an PlayAudio instance on the globale variable handle.
+
     Args:
         data (array): the data to be played, either 1-D array for single channel output,
                       or 2-day array with first axis time and second axis channel 
@@ -225,6 +246,8 @@ def beep(duration, frequency, rate=44100.0, ramp=0.1):
     """
     Play a tone of a given duration and frequency.
 
+    Create an PlayAudio instance on the globale variable handle.
+
     Args:
         duration (float): the duration of the tone in seconds
         frequency (float): the frequency of the tone in Hertz
@@ -236,20 +259,6 @@ def beep(duration, frequency, rate=44100.0, ramp=0.1):
         handle = PlayAudio()
     handle.beep(duration, frequency, rate, ramp)
 
-    
-"""
-    Alternative:
-    OSS audio module:
-    https://docs.python.org/2/library/ossaudiodev.html
-    
-import numpy as np
-
-rate = 44000.0
-time = np.arange(0.0, 2.0, 1/rate)
-data = np.sin(2.0*np.pi*440.0*time)
-adata = np.array(np.int16(data*2**14), dtype=np.int16)
-
-"""
 
 """
 from:
