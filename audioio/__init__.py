@@ -1,3 +1,3 @@
-import audioio.audiomodules
-import audioio
+__all__ = ['audiomodules', 'audioloader', 'playaudio']
+from audioio import *
 
