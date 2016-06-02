@@ -26,6 +26,7 @@ https://docs.python.org/3/library/mm.html
 """
 
 import os
+import time
 import numpy as np
 from cStringIO import StringIO
 from audiomodules import *
@@ -117,38 +118,49 @@ class PlayAudio(object):
         os.dup(oldstderr)
         os.close(oldstderr)
         os.remove(tmpfile)
+        self.index = 0
+        self.data = None
         self._do_play = self._play_pyaudio
         self.close = self._close_pyaudio
         return self
+
+    def _callback_pyaudio(self, in_data, frame_count, time_info, status):
+        """Callback for pyaudio for supplying output with data."""
+        if self.index < len(self.data):
+            n = frame_count*self.channels
+            out_data = self.data[self.index:self.index+n].tostring()
+            self.index += n
+            return (out_data, pyaudio.paContinue)
+        else:
+            return (None, pyaudio.paComplete)
     
     def _play_pyaudio(self, data, rate):
-        """
-        Play audio data using the pyaudio module.
+        """Play audio data using the pyaudio module.
 
         Args:
             data (array): the data to be played, either 1-D array for single channel output,
                           or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
         """
-        channels = 1
+        # data:
+        self.channels = 1
         if len(data.shape) > 1:
-            channels = data.shape[1]
-        self.stream = self.handle.open(format=pyaudio.paInt16, channels=channels,
-                                       rate=int(rate), output=True)
+            self.channels = data.shape[1]
         rawdata = data - np.mean(data, axis=0)
         rawdata /= np.max(rawdata)*2.0
-        # TODO: implement with callback
-        # somehow more than twice as many data are needed:
-        if channels > 1:
-            rawdata = np.vstack((rawdata, np.zeros((11*len(rawdata)/10, channels))))
-        else:
-            rawdata = np.hstack((rawdata, np.zeros(11*len(rawdata)/10)))
-        ad = np.array(np.round(2.0**15*rawdata)).astype('i2')
-        self.stream.write(ad)
+        self.data = np.array(np.round(2.0**15*rawdata)).ravel().astype('i2')
+        self.index = 0
+        # play:
+        self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
+                                       rate=int(rate), output=True,
+                                       stream_callback=self._callback_pyaudio)
+        self.stream.start_stream()
+        while self.stream.is_active():
+            time.sleep(0.01)
         self.stream.stop_stream()
         self.stream.close()
         self.stream = None
-
+        
     def _close_pyaudio(self):
         """Terminate pyaudio module. """
         if self.stream is not None:
@@ -330,8 +342,8 @@ if __name__ == "__main__":
     print('play stereo beep')
     duration = 1.0
     rate = 44100.0
-    time = np.arange(0.0, duration, 1.0/rate)
-    data = np.zeros((len(time),2))
-    data[:,0] = np.sin(2.0*np.pi*440.0*time)
-    data[:,1] = 0.25*np.sin(2.0*np.pi*700.0*time)
+    t = np.arange(0.0, duration, 1.0/rate)
+    data = np.zeros((len(t),2))
+    data[:,0] = np.sin(2.0*np.pi*440.0*t)
+    data[:,1] = 0.25*np.sin(2.0*np.pi*700.0*t)
     play(data, rate)
