@@ -1,12 +1,12 @@
 """
 Play numpy arrays as audio.
 
-Globally defined functions
+The globally defined functions
 
 play(data, rate)
 beep(duration, frequeny)
 
-use a global instance of PlayAudio.
+use a global instance of the PlayAudio class.
 
 Alternatively you may use the PlayAudio class directly, like this:
 
@@ -44,7 +44,7 @@ from audiomodules import *
 handle = None
 
 
-def note2freq(note):
+def note2freq(note, a4freq=440.0):
     """Converts textual note to frequency
 
     Args:
@@ -54,7 +54,8 @@ def note2freq(note):
                      The optional second character is either a 'b'
                      or a '#' to decrease or increase by half a note.
                      The last character specifies the octave.
-                     'a4' is 440 Hz.
+                     'a4' is defined by a4freq.
+      a4freq (float): the frequency of a4.
 
     Returns:
       freq (float): the frequency of the note in Hertz.
@@ -88,7 +89,6 @@ def note2freq(note):
         octave -= 1
     tone += 12*(octave-4)
     # frequency:
-    a4freq = 440.0
     freq = a4freq * 2.0**(tone/12.0)
     return freq
 
@@ -124,7 +124,7 @@ class PlayAudio(object):
             self.open()
         self._do_play(data, rate, scale)
 
-    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.1):
+    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05):
         """Play a pure tone of a given duration and frequency.
 
         Args:
@@ -136,6 +136,7 @@ class PlayAudio(object):
             rate (float): the sampling rate in Hertz
             ramp (float): ramp time in seconds
         """
+        self.channels = 1
         # frequency
         if isinstance(frequency, str):
             frequency = note2freq(frequency)
@@ -145,8 +146,10 @@ class PlayAudio(object):
         # ramp:
         nr = int(np.round(ramp*rate))
         for k in range(nr) :
-            data[k] *= float(k)/float(nr)
-            data[len(data)-k-1] *= float(k)/float(nr)
+            data[k] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+            data[len(data)-k-1] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+        # final click for testing:
+        #data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
         # play:
         self.play(data, rate, scale=1.0)
 
@@ -191,13 +194,21 @@ class PlayAudio(object):
 
     def _callback_pyaudio(self, in_data, frame_count, time_info, status):
         """Callback for pyaudio for supplying output with data."""
+        n = frame_count*self.channels
         if self.index < len(self.data):
-            n = frame_count*self.channels
-            out_data = self.data[self.index:self.index+n].tostring()
+            out_data = self.data[self.index:self.index+n]
+            if len(out_data) < n:
+                out_data = np.hstack((out_data, np.zeros(n-len(out_data), dtype='i2')))
             self.index += n
             return (out_data, pyaudio.paContinue)
         else:
-            return (None, pyaudio.paComplete)
+            # we need to play more to make sure everything is played!
+            out_data = np.zeros(n, dtype='i2')
+            self.index += n
+            flag = pyaudio.paContinue
+            if self.index >= len(self.data) + 4*n:
+                flag = pyaudio.paComplete
+            return (out_data, flag)
     
     def _play_pyaudio(self, data, rate, scale=None):
         """Play audio data using the pyaudio module.
@@ -384,7 +395,7 @@ def play(data, rate, scale=None):
     handle.play(data, rate, scale)
 
     
-def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.1):
+def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05):
     """
     Play a tone of a given duration and frequency.
 
@@ -409,7 +420,7 @@ if __name__ == "__main__":
 
     print('play mono beep 1')
     audio = PlayAudio()
-    audio.beep(1.0, 440.0, 0.25)
+    audio.beep(1.0, 440.0)
     audio.close()
     
     print('play mono beep 2')
@@ -417,7 +428,7 @@ if __name__ == "__main__":
         audio.beep(1.0, 'b4', 0.75)
 
     print('play mono beep 3')
-    beep(1.0, 'c5')
+    beep(1.0, 'c5', 0.25)
             
     print('play stereo beep')
     duration = 1.0
@@ -427,3 +438,14 @@ if __name__ == "__main__":
     data[:,0] = np.sin(2.0*np.pi*note2freq('a4')*t)
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     play(data, rate)
+
+    print('play notes')
+    o = 3
+    for oo in range(3):
+        for t in range(7):
+            if t == 2:
+                o += 1
+            tone = '%s%d' % (chr(ord('a')+t), o)
+            print('%s %6.1f Hz' % (tone, note2freq(tone)))
+            beep(0.5, tone)
+    
