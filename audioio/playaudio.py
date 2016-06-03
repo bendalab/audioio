@@ -125,7 +125,7 @@ class PlayAudio(object):
             self.open()
         self._do_play(data, rate, scale, blocking)
 
-    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05, blocking=True):
+    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, fade=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
         Args:
@@ -135,7 +135,7 @@ class PlayAudio(object):
                                 See note2freq() for details
             amplitude (float): the ampliude of the tone from 0.0 to 1.0
             rate (float): the sampling rate in Hertz
-            ramp (float): ramp time in seconds
+            fade (float): time for fading in and out in seconds
             blocking (boolean): if False do not block. 
         """
         self.channels = 1
@@ -145,8 +145,8 @@ class PlayAudio(object):
         # sine wave:
         time = np.arange(0.0, duration, 1.0/rate)
         data = amplitude*np.sin(2.0*np.pi*frequency*time)
-        # ramp:
-        nr = int(np.round(ramp*rate))
+        # fade in and out:
+        nr = int(np.round(fade*rate))
         for k in range(nr) :
             data[k] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
             data[len(data)-k-1] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
@@ -415,7 +415,7 @@ def play(data, rate, scale=None, blocking=True):
     handle.play(data, rate, scale, blocking)
 
     
-def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05, blocking=True):
+def beep(duration, frequency, amplitude=1.0, rate=44100.0, fade=0.05, blocking=True):
     """
     Play a tone of a given duration and frequency.
 
@@ -428,13 +428,13 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05, blocking=T
                             See note2freq() for details
         amplitude (float): the ampliude of the tone from 0.0 to 1.0
         rate (float): the sampling rate in Hertz
-        ramp (float): ramp time in seconds
+        fade (float): time for fading in and out in seconds
         blocking (boolean): if False do not block. 
     """
     global handle
     if handle is None:
         handle = PlayAudio()
-    handle.beep(duration, frequency, amplitude, rate, ramp, blocking)
+    handle.beep(duration, frequency, amplitude, rate, fade, blocking)
 
     
 if __name__ == "__main__":
