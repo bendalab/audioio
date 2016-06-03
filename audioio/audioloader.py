@@ -6,7 +6,7 @@ Loads the whole file by trying different modules until it succeeds to load the d
 
 data = AudioLoader('audio/file.wav', 60.0)
 or
-with open_audio('audio/file.wav', 60.0) as data:
+with open_audio_loader('audio/file.wav', 60.0) as data:
 Create an AudioLoader object that loads chuncks of 60 seconds long data on demand.
 data can be used like a read-only numpy array.
 """
@@ -14,7 +14,7 @@ data can be used like a read-only numpy array.
 import warnings
 import os.path
 import numpy as np
-from audiomodules import *
+from audiomodules import audio_modules
 
 
 def load_wave(filepath, verbose=0):
@@ -365,8 +365,8 @@ class AudioLoader(object):
 
     Usage:
 
-        import audioloader as al
-        with al.open_audio(filepath, 60.0, 10.0) as data:
+        import audioio as aio
+        with aio.open_audio_loader(filepath, 60.0, 10.0) as data:
             # do something with the content of the file:
             x = data[0:10000]
             y = data[10000:20000]
@@ -374,29 +374,29 @@ class AudioLoader(object):
 
     For using a specific module:
     
-        data = al.AudioLoader()
+        data = aio.AudioLoader()
         with data.open_audioread(filepath, 60.0, 10.0):
             # do something ...
 
     Normal open and close:
 
-        data = al.AudioLoader(filepath, 60.0)
+        data = aio.AudioLoader(filepath, 60.0)
         x = data[:,:]  # read the whole file
         data.close()
         
     that is the same as:
 
-        data = al.AudioLoader()
+        data = aio.AudioLoader()
         data.open(filepath, 60.0)
 
     or for a specific module:
 
-        data = al.AudioLoader()
+        data = aio.AudioLoader()
         data.open_soundfile(filepath, 60.0)
 
     See output of
     
-        al.list_modules()
+        aio.list_modules()
 
     for supported and available modules.
     
@@ -1036,7 +1036,7 @@ class AudioLoader(object):
         return self
 
 
-open_audio = AudioLoader
+open_audio_loader = AudioLoader
                 
 
 if __name__ == "__main__":
@@ -1079,7 +1079,7 @@ if __name__ == "__main__":
     #data.open_audioread(filepath, 2.0, 1.0, 2)
     #data = AudioLoader(filepath, 8.0, 3.0, 2)
     #with data.open_soundfile(filepath, 2.0, 1.0, 2):
-    with open_audio(filepath, 2.0, 1.0, 1) as data:
+    with open_audio_loader(filepath, 2.0, 1.0, 1) as data:
         print('samplerate: %g' % data.samplerate)
         print('channels: %d %d' % (data.channels, data.shape[1]))
         print('frames: %d %d' % (len(data), data.shape[0]))

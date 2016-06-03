@@ -10,7 +10,7 @@ use a global instance of PlayAudio.
 
 Alternatively you may use the PlayAudio module directly, like this:
 
-with open_audio() as audio:
+with open_audio_player() as audio:
     audio.beep(1.0, 440.0)
 
 or withour context management:
@@ -29,7 +29,7 @@ import os
 import time
 import numpy as np
 from cStringIO import StringIO
-from audiomodules import *
+from audiomodules import audio_modules
 
 
 # default audio device handler:
@@ -288,7 +288,7 @@ class PlayAudio(object):
         return self
 
 
-open_audio = PlayAudio
+open_audio_player = PlayAudio
                 
 
 def play(data, rate):
@@ -333,7 +333,7 @@ if __name__ == "__main__":
     audio.close()
     
     print('play mono beep 2')
-    with open_audio() as audio:
+    with open_audio_player() as audio:
         audio.beep(1.0, 440.0*2.0**(1.0/12.0))
 
     print('play mono beep 3')
