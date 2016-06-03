@@ -14,7 +14,7 @@ data can be used like a read-only numpy array.
 import warnings
 import os.path
 import numpy as np
-from audiomodules import audio_modules
+from audiomodules import *
 
 
 def load_wave(filepath, verbose=0):

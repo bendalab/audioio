@@ -29,7 +29,7 @@ import os
 import time
 import numpy as np
 from cStringIO import StringIO
-from audiomodules import audio_modules
+from audiomodules import *
 
 
 # default audio device handler:
