@@ -28,7 +28,10 @@ https://docs.python.org/3/library/mm.html
 import os
 import time
 import numpy as np
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from audiomodules import *
 
 
@@ -82,7 +85,7 @@ class PlayAudio(object):
         data = amplitude*np.sin(2.0*np.pi*frequency*time)
         # ramp:
         nr = int(np.round(ramp*rate))
-        for k in xrange(nr) :
+        for k in range(nr) :
             data[k] *= float(k)/float(nr)
             data[len(data)-k-1] *= float(k)/float(nr)
         # play:
