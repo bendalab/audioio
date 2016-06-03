@@ -151,12 +151,17 @@ class PlayAudio(object):
     def __init__(self):
         """Initialize module for playing audio."""
         self.handle = None
-        self.close = self._close
         self._do_play = self._play
+        self.close = self._close
+        self.stop = self._stop
         self.open()
 
     def _close(self):
         """Terminate module for playing audio."""
+        pass
+
+    def _stop(self):
+        """Stop playing."""
         pass
 
     def _play(self, data, rate, scale=None, blocking=True):
@@ -176,11 +181,22 @@ class PlayAudio(object):
         """
         if self.handle is None:
             self.open()
+        else:
+            self.stop()
         self.rate = rate
         self.channels = 1
         if len(data.shape) > 1:
             self.channels = data.shape[1]
-        self._do_play(data, rate, scale, blocking)
+        # convert data:
+        rawdata = data - np.mean(data, axis=0)
+        if scale is None:
+            maxd = np.abs(np.max(rawdata))
+            mind = np.abs(np.min(rawdata))
+            scale = 1.0/max((mind, maxd))
+        rawdata *= scale
+        self.data = np.array(rawdata*(2**15-1), dtype='i2')
+        self.index = 0
+        self._do_play(blocking)
 
     def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, fadetime=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
@@ -218,7 +234,8 @@ class PlayAudio(object):
     def __exit__(self, type, value, tb):
         self.__del__()
         return value
-        
+
+            
     def open_pyaudio(self):
         """Initialize audio output via pyaudio module.
 
@@ -245,6 +262,7 @@ class PlayAudio(object):
         self.data = None
         self._do_play = self._play_pyaudio
         self.close = self._close_pyaudio
+        self.stop = self._stop_pyaudio
         return self
 
     def _callback_pyaudio(self, in_data, frames, time_info, status):
@@ -254,6 +272,7 @@ class PlayAudio(object):
             flag = pyaudio.paComplete
         if self.index < len(self.data):
             out_data = self.data[self.index:self.index+frames]
+            self.index += len(out_data)
             # zero padding:
             if len(out_data) < frames:
                 if len(self.data.shape) > 1:
@@ -261,7 +280,6 @@ class PlayAudio(object):
                       np.zeros((frames-len(out_data), self.channels), dtype='i2')))
                 else:
                     out_data = np.hstack((out_data, np.zeros(frames-len(out_data), dtype='i2')))
-            self.index += frames
             return (out_data, flag)
         else:
             # we need to play more to make sure everything is played!
@@ -294,28 +312,15 @@ class PlayAudio(object):
             self.stream.close()
             self.stream = None
     
-    def _play_pyaudio(self, data, rate, scale=None, blocking=True):
+    def _play_pyaudio(self, rate, blocking=True):
         """Play audio data using the pyaudio module.
 
         Args:
-            data (array): the data to be played, either 1-D array for single channel output,
-                          or 2-day array with first axis time and second axis channel 
-            rate (float): the sampling rate in Hertz
-            scale (float): multiply data with scale before playing.
-                           If None scale it to the maximum value, if 1.0 do not scale.
             blocking (boolean): if False do not block. 
         """
-        self._stop_pyaudio()
-        # data:
-        rawdata = data - np.mean(data, axis=0)
-        if scale is None:
-            scale = 1.0/np.max(rawdata)
-        rawdata *= scale
-        self.data = np.array(np.round((2.0**15-1.0)*rawdata)).astype('i2')
-        self.index = 0
         # play:
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
-                                       rate=int(rate), output=True,
+                                       rate=int(self.rate), output=True,
                                        stream_callback=self._callback_pyaudio)
         self.run = True
         self.stream.start_stream()
@@ -331,6 +336,8 @@ class PlayAudio(object):
         """Terminate pyaudio module."""
         self._stop_pyaudio()
         self.handle.terminate()           
+        self._do_play = self._play
+        self.stop = self._stop
 
         
     def open_ossaudiodev(self):
@@ -352,30 +359,23 @@ class PlayAudio(object):
         self.osshandle = None
         self._do_play = self._play_ossaudiodev
         self.close = self._close_ossaudiodev
+        self.stop = self._stop
         return self
     
-    def _play_ossaudiodev(self, data, rate, scale=None, blocking=True):
+    def _play_ossaudiodev(self, blocking=True):
         """
         Play audio data using the ossaudiodev module.
 
         Args:
-            data (array): the data to be played, either 1-D array for single channel output,
-                          or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
-            scale (float): multiply data with scale before playing.
-                           If None scale it to the maximum value, if 1.0 do not scale.
             blocking (boolean): ignored. Non-blocking is not supported.
         """
         self.osshandle = ossaudiodev.open('w')
         self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
         self.osshandle.channels(self.channels)
-        self.osshandle.speed(int(rate))
-        rawdata = data - np.mean(data, axis=0)
-        if scale is None:
-            scale = 1.0/np.max(rawdata)
-        rawdata *= scale
-        rawdata = np.array(np.round((2.0**15-1.0)*rawdata)).astype('i2')
-        self.osshandle.writeall(rawdata)
+        self.osshandle.speed(int(self.rate))
+        self.osshandle.writeall(self.data)
+        time.sleep(0.2)
         self.osshandle.close()
         self.osshandle = None
 
@@ -385,6 +385,8 @@ class PlayAudio(object):
         if self.osshandle is not None:
             self.osshandle.close()
         self.osshandle = None
+        self._do_play = self._play
+        self.stop = self._stop
 
         
     def open_winsound(self):
@@ -400,40 +402,33 @@ class PlayAudio(object):
         self.handle = True
         self._do_play = self._play_winsound
         self.close = self._close_winsound
+        self.stop = self._stop
         return self
     
-    def _play_winsound(self, data, rate, scale=None, blocking=True):
+    def _play_winsound(self, blocking=True):
         """
         Play audio data using the winsound module.
 
         Args:
-            data (array): the data to be played, either 1-D array for single channel output,
-                          or 2-day array with first axis time and second axis channel 
-            rate (float): the sampling rate in Hertz
-            scale (float): multiply data with scale before playing.
-                           If None scale it to the maximum value, if 1.0 do not scale.
             blocking (boolean): ignored. Non-blocking is not supported.
         """
-        rawdata = data - np.mean(data, axis=0)
-        if scale is None:
-            scale = 1.0/np.max(rawdata)
-        rawdata *= scale
-        rawdata = np.array(np.round((2.0**15-1.0)*rawdata)).astype('i2')
         # write data as wav file to memory:
         # TODO: check this code!!!
         f = StringIO()
         w = wave.open(f, 'w')
         w.setnchannels(self.channels)
         w.setsampwidth(2) # 2 bytes
-        w.setframerate(int(rate))
+        w.setframerate(int(self.rate))
         # TODO: how does this handle 2-d arrays?
-        w.writeframes(rawdata)
+        w.writeframes(self.data)
         # play file:
         winsound.PlaySound(f.getvalue(), winsound.SND_MEMORY)
         
     def _close_winsound(self):
         """Close audio output using winsound module. """
         self.handle = None
+        self._do_play = self._play
+        self.stop = self._stop
 
 
     def open(self):
