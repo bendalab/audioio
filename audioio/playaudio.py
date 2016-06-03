@@ -24,6 +24,9 @@ to the appropriate frequency.
 The beep() functions also accept notes for the frequency argument,
 and use note2freq() to get the right frequency.
 
+Data can be multiplied with a squared-sine for fading in and out with
+fade_in(), fade_out(), and fade().
+
 See also:
 https://wiki.python.org/moin/Audio/
 https://docs.python.org/3/library/mm.html
@@ -93,6 +96,56 @@ def note2freq(note, a4freq=440.0):
     return freq
 
 
+def fade_in(data, rate, fadetime):
+    """
+    Fade the signal in.
+
+    The first fadetime seconds of the data are multiplied with a squared sine.
+    
+    Args:
+      data (array): the data to be faded in, either 1-D array for single channel output,
+                    or 2-day array with first axis time and second axis channel 
+      rate (float): the sampling rate in Hertz
+      fadetime (float): time for fading in and out in seconds
+    """
+    nr = int(np.round(fadetime*rate))
+    for k in range(nr) :
+        data[k] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+
+        
+def fade_out(data, rate, fadetime):
+    """
+    Fade the signal out.
+
+    The last fadetime seconds of the data are multiplied with a squared sine.
+    
+    Args:
+      data (array): the data to be faded out, either 1-D array for single channel output,
+                    or 2-day array with first axis time and second axis channel 
+      rate (float): the sampling rate in Hertz
+      fadetime (float): time for fading in and out in seconds
+    """
+    nr = int(np.round(fadetime*rate))
+    for k in range(nr) :
+        data[len(data)-k-1] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+
+
+def fade(data, rate, fadetime):
+    """
+    Fade the signal in and out.
+
+    The first and last fadetime seconds of the data are multiplied with a squared sine.
+        
+    Args:
+      data (array): the data to be faded, either 1-D array for single channel output,
+                    or 2-day array with first axis time and second axis channel 
+      rate (float): the sampling rate in Hertz
+      fadetime (float): time for fading in and out in seconds
+    """
+    fade_in(data, rate, fadetime)
+    fade_out(data, rate, fadetime)
+
+
 class PlayAudio(object):
     
     def __init__(self):
@@ -123,9 +176,13 @@ class PlayAudio(object):
         """
         if self.handle is None:
             self.open()
+        self.rate = rate
+        self.channels = 1
+        if len(data.shape) > 1:
+            self.channels = data.shape[1]
         self._do_play(data, rate, scale, blocking)
 
-    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, fade=0.05, blocking=True):
+    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, fadetime=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
         Args:
@@ -135,10 +192,9 @@ class PlayAudio(object):
                                 See note2freq() for details
             amplitude (float): the ampliude of the tone from 0.0 to 1.0
             rate (float): the sampling rate in Hertz
-            fade (float): time for fading in and out in seconds
+            fadetime (float): time for fading in and out in seconds
             blocking (boolean): if False do not block. 
         """
-        self.channels = 1
         # frequency
         if isinstance(frequency, str):
             frequency = note2freq(frequency)
@@ -146,10 +202,7 @@ class PlayAudio(object):
         time = np.arange(0.0, duration, 1.0/rate)
         data = amplitude*np.sin(2.0*np.pi*frequency*time)
         # fade in and out:
-        nr = int(np.round(fade*rate))
-        for k in range(nr) :
-            data[k] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
-            data[len(data)-k-1] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+        fade(data, rate, fadetime)
         # final click for testing:
         #data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
         # play:
@@ -194,28 +247,45 @@ class PlayAudio(object):
         self.close = self._close_pyaudio
         return self
 
-    def _callback_pyaudio(self, in_data, frame_count, time_info, status):
+    def _callback_pyaudio(self, in_data, frames, time_info, status):
         """Callback for pyaudio for supplying output with data."""
-        n = frame_count*self.channels
         flag = pyaudio.paContinue
         if not self.run:
             flag = pyaudio.paComplete
         if self.index < len(self.data):
-            out_data = self.data[self.index:self.index+n]
-            if len(out_data) < n:
-                out_data = np.hstack((out_data, np.zeros(n-len(out_data), dtype='i2')))
-            self.index += n
+            out_data = self.data[self.index:self.index+frames]
+            # zero padding:
+            if len(out_data) < frames:
+                if len(self.data.shape) > 1:
+                    out_data = np.vstack((out_data,
+                      np.zeros((frames-len(out_data), self.channels), dtype='i2')))
+                else:
+                    out_data = np.hstack((out_data, np.zeros(frames-len(out_data), dtype='i2')))
+            self.index += frames
             return (out_data, flag)
         else:
             # we need to play more to make sure everything is played!
-            out_data = np.zeros(n, dtype='i2')
-            self.index += n
-            if self.index >= len(self.data) + 4*n:
+            out_data = np.zeros(frames*self.channels, dtype='i2')
+            self.index += frames
+            if self.index >= len(self.data) + 4*frames:
                 flag = pyaudio.paComplete
             return (out_data, flag)
 
     def _stop_pyaudio(self):
         if self.stream is not None:
+            if self.stream.is_active():
+                # fade out:
+                fadetime = 0.1
+                nr = int(np.round(fadetime*self.rate))
+                index = self.index+nr
+                if nr > len(self.data) - index:
+                    nr = len(self.data) - index
+                else:
+                    self.data[index+nr:] = 0
+                if nr > 0:
+                    for k in range(nr) :
+                        self.data[index+(nr-k-1)] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+                time.sleep(2*fadetime)
             if self.stream.is_active():
                 self.run = False
                 while self.stream.is_active():
@@ -235,18 +305,15 @@ class PlayAudio(object):
                            If None scale it to the maximum value, if 1.0 do not scale.
             blocking (boolean): if False do not block. 
         """
+        self._stop_pyaudio()
         # data:
-        self.channels = 1
-        if len(data.shape) > 1:
-            self.channels = data.shape[1]
         rawdata = data - np.mean(data, axis=0)
         if scale is None:
             scale = 1.0/np.max(rawdata)
         rawdata *= scale
-        self.data = np.array(np.round((2.0**15-1.0)*rawdata)).ravel().astype('i2')
+        self.data = np.array(np.round((2.0**15-1.0)*rawdata)).astype('i2')
         self.index = 0
         # play:
-        self._stop_pyaudio()
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
                                        rate=int(rate), output=True,
                                        stream_callback=self._callback_pyaudio)
@@ -299,12 +366,9 @@ class PlayAudio(object):
                            If None scale it to the maximum value, if 1.0 do not scale.
             blocking (boolean): ignored. Non-blocking is not supported.
         """
-        channels = 1
-        if len(data.shape) > 1:
-            channels = data.shape[1]
         self.osshandle = ossaudiodev.open('w')
         self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
-        self.osshandle.channels(channels)
+        self.osshandle.channels(self.channels)
         self.osshandle.speed(int(rate))
         rawdata = data - np.mean(data, axis=0)
         if scale is None:
@@ -350,9 +414,6 @@ class PlayAudio(object):
                            If None scale it to the maximum value, if 1.0 do not scale.
             blocking (boolean): ignored. Non-blocking is not supported.
         """
-        channels = 1
-        if len(data.shape) > 1:
-            channels = data.shape[1]
         rawdata = data - np.mean(data, axis=0)
         if scale is None:
             scale = 1.0/np.max(rawdata)
@@ -362,7 +423,7 @@ class PlayAudio(object):
         # TODO: check this code!!!
         f = StringIO()
         w = wave.open(f, 'w')
-        w.setnchannels(channels)
+        w.setnchannels(self.channels)
         w.setsampwidth(2) # 2 bytes
         w.setframerate(int(rate))
         # TODO: how does this handle 2-d arrays?
@@ -415,7 +476,7 @@ def play(data, rate, scale=None, blocking=True):
     handle.play(data, rate, scale, blocking)
 
     
-def beep(duration, frequency, amplitude=1.0, rate=44100.0, fade=0.05, blocking=True):
+def beep(duration, frequency, amplitude=1.0, rate=44100.0, fadetime=0.05, blocking=True):
     """
     Play a tone of a given duration and frequency.
 
@@ -428,13 +489,13 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0, fade=0.05, blocking=T
                             See note2freq() for details
         amplitude (float): the ampliude of the tone from 0.0 to 1.0
         rate (float): the sampling rate in Hertz
-        fade (float): time for fading in and out in seconds
+        fadetime (float): time for fading in and out in seconds
         blocking (boolean): if False do not block. 
     """
     global handle
     if handle is None:
         handle = PlayAudio()
-    handle.beep(duration, frequency, amplitude, rate, fade, blocking)
+    handle.beep(duration, frequency, amplitude, rate, fadetime, blocking)
 
     
 if __name__ == "__main__":
@@ -447,6 +508,7 @@ if __name__ == "__main__":
     print('play mono beep 2')
     with open_audio_player() as audio:
         audio.beep(1.0, 'b4', 0.75, blocking=False)
+        print('  done')
         time.sleep(0.5)
     time.sleep(0.5)
 
@@ -462,8 +524,8 @@ if __name__ == "__main__":
     data = np.zeros((len(t),2))
     data[:,0] = np.sin(2.0*np.pi*note2freq('a4')*t)
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
+    fade(data, rate, 0.1)
     play(data, rate)
-    exit()
 
     print('play notes')
     o = 3
