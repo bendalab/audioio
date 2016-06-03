@@ -19,6 +19,10 @@ audio = PlayAudio()
 audio.beep(1.0, 440.0)
 audio.close()
 
+The note2freq() function converts a musical note, like 'f#4',
+to the appropriate frequency.
+The beep() functions also accept notes for the frequency argument,
+and use note2freq() to get the rigth frequency.
 
 See also:
 https://wiki.python.org/moin/Audio/
@@ -26,6 +30,7 @@ https://docs.python.org/3/library/mm.html
 """
 
 import os
+import warnings
 import time
 import numpy as np
 try:
@@ -37,6 +42,55 @@ from audiomodules import *
 
 # default audio device handler:
 handle = None
+
+
+def note2freq(note):
+    """Converts textual note to frequency
+
+    Args:
+      note (string): a musical note like 'a4', 'f#3', 'eb5'.
+                     The first character is the note, it can be
+                     'a', 'b', 'c', 'd', 'e', 'f', 'g'.
+                     The optional second character is either a 'b'
+                     or a '#' to decrease or increase by half a note.
+                     The last character specifies the octave.
+                     'a4' is 440 Hz.
+
+    Returns:
+      freq (float): the frequency of the note in Hertz.
+    """
+    freq = 440.0
+    tone = 0
+    octave = 4
+    if not isinstance(note, str) or len(note) == 0:
+        warnings.warn('no note specified')
+        return freq
+    if note[0] < 'a' or note[0] > 'g':
+        warnings.warn('invalid note %s' % note[0])
+        return freq
+    # note:
+    index = 0
+    tonemap = [0, 2, 3, 5, 7, 8, 10]
+    tone = tonemap[ord(note[index]) - ord('a')]
+    index += 1
+    # flat or sharp:
+    if index < len(note):
+        if note[index] == 'b':
+            tone -= 1
+            index += 1
+        elif note[index] == '#':
+            tone += 1
+            index += 1
+    # octave:
+    if index < len(note) and note[index] >= '0' and note[index] <= '9':
+        octave = ord(note[index]) - ord('0')
+    if tone >= 3:
+        octave -= 1
+    tone += 12*(octave-4)
+    # frequency:
+    a4freq = 440.0
+    freq = a4freq * 2.0**(tone/12.0)
+    return freq
 
 
 class PlayAudio(object):
@@ -71,15 +125,20 @@ class PlayAudio(object):
         self._do_play(data, rate, scale)
 
     def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.1):
-        """Play a tone of a given duration and frequency.
+        """Play a pure tone of a given duration and frequency.
 
         Args:
             duration (float): the duration of the tone in seconds
             frequency (float): the frequency of the tone in Hertz
+            frequency (string): a musical note like 'f#5'.
+                                See note2freq() for details
             amplitude (float): the ampliude of the tone from 0.0 to 1.0
             rate (float): the sampling rate in Hertz
             ramp (float): ramp time in seconds
         """
+        # frequency
+        if isinstance(frequency, str):
+            frequency = note2freq(frequency)
         # sine wave:
         time = np.arange(0.0, duration, 1.0/rate)
         data = amplitude*np.sin(2.0*np.pi*frequency*time)
@@ -334,6 +393,8 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.1):
     Args:
         duration (float): the duration of the tone in seconds
         frequency (float): the frequency of the tone in Hertz
+        frequency (string): a musical note like 'f#5'.
+                            See note2freq() for details
         amplitude (float): the ampliude of the tone from 0.0 to 1.0
         rate (float): the sampling rate in Hertz
         ramp (float): ramp time in seconds
@@ -353,16 +414,16 @@ if __name__ == "__main__":
     
     print('play mono beep 2')
     with open_audio_player() as audio:
-        audio.beep(1.0, 440.0*2.0**(1.0/12.0), 0.75)
+        audio.beep(1.0, 'b4', 0.75)
 
     print('play mono beep 3')
-    beep(1.0, 440.0*2.0**(2.0/12.0))
+    beep(1.0, 'c5')
             
     print('play stereo beep')
     duration = 1.0
     rate = 44100.0
     t = np.arange(0.0, duration, 1.0/rate)
     data = np.zeros((len(t),2))
-    data[:,0] = np.sin(2.0*np.pi*440.0*t)
-    data[:,1] = 0.25*np.sin(2.0*np.pi*700.0*t)
+    data[:,0] = np.sin(2.0*np.pi*note2freq('a4')*t)
+    data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     play(data, rate)
