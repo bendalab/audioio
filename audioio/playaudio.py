@@ -4,7 +4,7 @@ Play numpy arrays as audio.
 Globally defined functions
 
 play(data, rate)
-beep(duration, frequeny, rate)
+beep(duration, frequeny)
 
 use a global instance of PlayAudio.
 
@@ -67,18 +67,19 @@ class PlayAudio(object):
             self.open()
         self._do_play(data, rate, scale)
 
-    def beep(self, duration, frequency, rate=44100.0, ramp=0.1):
+    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.1):
         """Play a tone of a given duration and frequency.
 
         Args:
             duration (float): the duration of the tone in seconds
             frequency (float): the frequency of the tone in Hertz
+            amplitude (float): the ampliude of the tone from 0.0 to 1.0
             rate (float): the sampling rate in Hertz
             ramp (float): ramp time in seconds
         """
         # sine wave:
         time = np.arange(0.0, duration, 1.0/rate)
-        data = np.sin(2.0*np.pi*frequency*time)
+        data = amplitude*np.sin(2.0*np.pi*frequency*time)
         # ramp:
         nr = int(np.round(ramp*rate))
         for k in xrange(nr) :
@@ -321,7 +322,7 @@ def play(data, rate, scale=None):
     handle.play(data, rate, scale)
 
     
-def beep(duration, frequency, rate=44100.0, ramp=0.1):
+def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.1):
     """
     Play a tone of a given duration and frequency.
 
@@ -330,25 +331,26 @@ def beep(duration, frequency, rate=44100.0, ramp=0.1):
     Args:
         duration (float): the duration of the tone in seconds
         frequency (float): the frequency of the tone in Hertz
+        amplitude (float): the ampliude of the tone from 0.0 to 1.0
         rate (float): the sampling rate in Hertz
         ramp (float): ramp time in seconds
     """
     global handle
     if handle is None:
         handle = PlayAudio()
-    handle.beep(duration, frequency, rate, ramp)
+    handle.beep(duration, frequency, amplitude, rate, ramp)
 
     
 if __name__ == "__main__":
 
     print('play mono beep 1')
     audio = PlayAudio()
-    audio.beep(1.0, 440.0)
+    audio.beep(1.0, 440.0, 0.25)
     audio.close()
     
     print('play mono beep 2')
     with open_audio_player() as audio:
-        audio.beep(1.0, 440.0*2.0**(1.0/12.0))
+        audio.beep(1.0, 440.0*2.0**(1.0/12.0), 0.75)
 
     print('play mono beep 3')
     beep(1.0, 440.0*2.0**(2.0/12.0))
