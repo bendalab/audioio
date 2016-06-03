@@ -8,12 +8,12 @@ beep(duration, frequeny, rate)
 
 use a global instance of PlayAudio.
 
-Alternatively you may use the PlayAudio module directly, like this:
+Alternatively you may use the PlayAudio class directly, like this:
 
 with open_audio_player() as audio:
     audio.beep(1.0, 440.0)
 
-or withour context management:
+or without context management:
 
 audio = PlayAudio()
 audio.beep(1.0, 440.0)
@@ -49,21 +49,23 @@ class PlayAudio(object):
         """Terminate module for playing audio."""
         pass
 
-    def _play(self, data, rate):
+    def _play(self, data, rate, scale=None):
         """Default implementation of playing sound: does nothing."""
         pass
 
-    def play(self, data, rate):
+    def play(self, data, rate, scale=None):
         """Play audio data.
 
         Args:
             data (array): the data to be played, either 1-D array for single channel output,
                           or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
+            scale (float): multiply data with scale before playing.
+                           If None scale it to the maximum value, if 1.0 do not scale.
         """
         if self.handle is None:
             self.open()
-        self._do_play(data, rate)
+        self._do_play(data, rate, scale)
 
     def beep(self, duration, frequency, rate=44100.0, ramp=0.1):
         """Play a tone of a given duration and frequency.
@@ -83,7 +85,7 @@ class PlayAudio(object):
             data[k] *= float(k)/float(nr)
             data[len(data)-k-1] *= float(k)/float(nr)
         # play:
-        self.play(data, rate)
+        self.play(data, rate, scale=1.0)
 
     def __del__(self):
         """Terminate the audio module."""
@@ -134,21 +136,25 @@ class PlayAudio(object):
         else:
             return (None, pyaudio.paComplete)
     
-    def _play_pyaudio(self, data, rate):
+    def _play_pyaudio(self, data, rate, scale=None):
         """Play audio data using the pyaudio module.
 
         Args:
             data (array): the data to be played, either 1-D array for single channel output,
                           or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
+            scale (float): multiply data with scale before playing.
+                           If None scale it to the maximum value, if 1.0 do not scale.
         """
         # data:
         self.channels = 1
         if len(data.shape) > 1:
             self.channels = data.shape[1]
         rawdata = data - np.mean(data, axis=0)
-        rawdata /= np.max(rawdata)*2.0
-        self.data = np.array(np.round(2.0**15*rawdata)).ravel().astype('i2')
+        if scale is None:
+            scale = 1.0/np.max(rawdata)
+        rawdata *= scale
+        self.data = np.array(np.round((2.0**15-1.0)*rawdata)).ravel().astype('i2')
         self.index = 0
         # play:
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
@@ -190,7 +196,7 @@ class PlayAudio(object):
         self.close = self._close_ossaudiodev
         return self
     
-    def _play_ossaudiodev(self, data, rate):
+    def _play_ossaudiodev(self, data, rate, scale=None):
         """
         Play audio data using the ossaudiodev module.
 
@@ -198,6 +204,8 @@ class PlayAudio(object):
             data (array): the data to be played, either 1-D array for single channel output,
                           or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
+            scale (float): multiply data with scale before playing.
+                           If None scale it to the maximum value, if 1.0 do not scale.
         """
         channels = 1
         if len(data.shape) > 1:
@@ -207,8 +215,10 @@ class PlayAudio(object):
         self.osshandle.channels(channels)
         self.osshandle.speed(int(rate))
         rawdata = data - np.mean(data, axis=0)
-        rawdata /= np.max(rawdata)*2.0
-        rawdata = np.array(np.round(2.0**15*rawdata)).astype('i2')
+        if scale is None:
+            scale = 1.0/np.max(rawdata)
+        rawdata *= scale
+        rawdata = np.array(np.round((2.0**15-1.0)*rawdata)).astype('i2')
         self.osshandle.writeall(rawdata)
         self.osshandle.close()
         self.osshandle = None
@@ -236,7 +246,7 @@ class PlayAudio(object):
         self.close = self._close_winsound
         return self
     
-    def _play_winsound(self, data, rate):
+    def _play_winsound(self, data, rate, scale=None):
         """
         Play audio data using the winsound module.
 
@@ -244,13 +254,17 @@ class PlayAudio(object):
             data (array): the data to be played, either 1-D array for single channel output,
                           or 2-day array with first axis time and second axis channel 
             rate (float): the sampling rate in Hertz
+            scale (float): multiply data with scale before playing.
+                           If None scale it to the maximum value, if 1.0 do not scale.
         """
         channels = 1
         if len(data.shape) > 1:
             channels = data.shape[1]
         rawdata = data - np.mean(data, axis=0)
-        rawdata /= np.max(rawdata)*2.0
-        rawdata = np.array(np.round(2.0**15*rawdata)).astype('i2')
+        if scale is None:
+            scale = 1.0/np.max(rawdata)
+        rawdata *= scale
+        rawdata = np.array(np.round((2.0**15-1.0)*rawdata)).astype('i2')
         # write data as wav file to memory:
         # TODO: check this code!!!
         f = StringIO()
@@ -291,7 +305,7 @@ class PlayAudio(object):
 open_audio_player = PlayAudio
                 
 
-def play(data, rate):
+def play(data, rate, scale=None):
     """Play audio data.
 
     Create an PlayAudio instance on the globale variable handle.
@@ -304,7 +318,7 @@ def play(data, rate):
     global handle
     if handle is None:
         handle = PlayAudio()
-    handle.play(data, rate)
+    handle.play(data, rate, scale)
 
     
 def beep(duration, frequency, rate=44100.0, ramp=0.1):
