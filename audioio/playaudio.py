@@ -16,13 +16,13 @@ with open_audio_player() as audio:
 or without context management:
 
 audio = PlayAudio()
-audio.beep(1.0, 440.0)
+audio.beep(1.0, 'a4')
 audio.close()
 
 The note2freq() function converts a musical note, like 'f#4',
 to the appropriate frequency.
 The beep() functions also accept notes for the frequency argument,
-and use note2freq() to get the rigth frequency.
+and use note2freq() to get the right frequency.
 
 See also:
 https://wiki.python.org/moin/Audio/
@@ -45,12 +45,12 @@ handle = None
 
 
 def note2freq(note, a4freq=440.0):
-    """Converts textual note to frequency
+    """Converts textual note to the corresponding frequency.
 
     Args:
       note (string): a musical note like 'a4', 'f#3', 'eb5'.
                      The first character is the note, it can be
-                     'a', 'b', 'c', 'd', 'e', 'f', 'g'.
+                     'a', 'b', 'c', 'd', 'e', 'f', or 'g'.
                      The optional second character is either a 'b'
                      or a '#' to decrease or increase by half a note.
                      The last character specifies the octave.
@@ -60,7 +60,7 @@ def note2freq(note, a4freq=440.0):
     Returns:
       freq (float): the frequency of the note in Hertz.
     """
-    freq = 440.0
+    freq = a4freq
     tone = 0
     octave = 4
     if not isinstance(note, str) or len(note) == 0:
@@ -106,11 +106,11 @@ class PlayAudio(object):
         """Terminate module for playing audio."""
         pass
 
-    def _play(self, data, rate, scale=None):
-        """Default implementation of playing sound: does nothing."""
+    def _play(self, data, rate, scale=None, blocking=True):
+        """Default implementation of playing a sound: does nothing."""
         pass
 
-    def play(self, data, rate, scale=None):
+    def play(self, data, rate, scale=None, blocking=True):
         """Play audio data.
 
         Args:
@@ -119,12 +119,13 @@ class PlayAudio(object):
             rate (float): the sampling rate in Hertz
             scale (float): multiply data with scale before playing.
                            If None scale it to the maximum value, if 1.0 do not scale.
+            blocking (boolean): if False do not block. 
         """
         if self.handle is None:
             self.open()
-        self._do_play(data, rate, scale)
+        self._do_play(data, rate, scale, blocking)
 
-    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05):
+    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
         Args:
@@ -135,6 +136,7 @@ class PlayAudio(object):
             amplitude (float): the ampliude of the tone from 0.0 to 1.0
             rate (float): the sampling rate in Hertz
             ramp (float): ramp time in seconds
+            blocking (boolean): if False do not block. 
         """
         self.channels = 1
         # frequency
@@ -151,7 +153,7 @@ class PlayAudio(object):
         # final click for testing:
         #data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
         # play:
-        self.play(data, rate, scale=1.0)
+        self.play(data, rate, scale=1.0, blocking=blocking)
 
     def __del__(self):
         """Terminate the audio module."""
@@ -195,22 +197,34 @@ class PlayAudio(object):
     def _callback_pyaudio(self, in_data, frame_count, time_info, status):
         """Callback for pyaudio for supplying output with data."""
         n = frame_count*self.channels
+        flag = pyaudio.paContinue
+        if not self.run:
+            flag = pyaudio.paComplete
         if self.index < len(self.data):
             out_data = self.data[self.index:self.index+n]
             if len(out_data) < n:
                 out_data = np.hstack((out_data, np.zeros(n-len(out_data), dtype='i2')))
             self.index += n
-            return (out_data, pyaudio.paContinue)
+            return (out_data, flag)
         else:
             # we need to play more to make sure everything is played!
             out_data = np.zeros(n, dtype='i2')
             self.index += n
-            flag = pyaudio.paContinue
             if self.index >= len(self.data) + 4*n:
                 flag = pyaudio.paComplete
             return (out_data, flag)
+
+    def _stop_pyaudio(self):
+        if self.stream is not None:
+            if self.stream.is_active():
+                self.run = False
+                while self.stream.is_active():
+                    time.sleep(0.01)
+                self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
     
-    def _play_pyaudio(self, data, rate, scale=None):
+    def _play_pyaudio(self, data, rate, scale=None, blocking=True):
         """Play audio data using the pyaudio module.
 
         Args:
@@ -219,6 +233,7 @@ class PlayAudio(object):
             rate (float): the sampling rate in Hertz
             scale (float): multiply data with scale before playing.
                            If None scale it to the maximum value, if 1.0 do not scale.
+            blocking (boolean): if False do not block. 
         """
         # data:
         self.channels = 1
@@ -231,21 +246,23 @@ class PlayAudio(object):
         self.data = np.array(np.round((2.0**15-1.0)*rawdata)).ravel().astype('i2')
         self.index = 0
         # play:
+        self._stop_pyaudio()
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
                                        rate=int(rate), output=True,
                                        stream_callback=self._callback_pyaudio)
+        self.run = True
         self.stream.start_stream()
-        while self.stream.is_active():
-            time.sleep(0.01)
-        self.stream.stop_stream()
-        self.stream.close()
-        self.stream = None
+        if blocking:
+            while self.stream.is_active():
+                time.sleep(0.01)
+            self.run = False
+            self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
         
     def _close_pyaudio(self):
-        """Terminate pyaudio module. """
-        if self.stream is not None:
-            self.stream.close()
-        self.stream = None
+        """Terminate pyaudio module."""
+        self._stop_pyaudio()
         self.handle.terminate()           
 
         
@@ -270,7 +287,7 @@ class PlayAudio(object):
         self.close = self._close_ossaudiodev
         return self
     
-    def _play_ossaudiodev(self, data, rate, scale=None):
+    def _play_ossaudiodev(self, data, rate, scale=None, blocking=True):
         """
         Play audio data using the ossaudiodev module.
 
@@ -280,6 +297,7 @@ class PlayAudio(object):
             rate (float): the sampling rate in Hertz
             scale (float): multiply data with scale before playing.
                            If None scale it to the maximum value, if 1.0 do not scale.
+            blocking (boolean): ignored. Non-blocking is not supported.
         """
         channels = 1
         if len(data.shape) > 1:
@@ -320,7 +338,7 @@ class PlayAudio(object):
         self.close = self._close_winsound
         return self
     
-    def _play_winsound(self, data, rate, scale=None):
+    def _play_winsound(self, data, rate, scale=None, blocking=True):
         """
         Play audio data using the winsound module.
 
@@ -330,6 +348,7 @@ class PlayAudio(object):
             rate (float): the sampling rate in Hertz
             scale (float): multiply data with scale before playing.
                            If None scale it to the maximum value, if 1.0 do not scale.
+            blocking (boolean): ignored. Non-blocking is not supported.
         """
         channels = 1
         if len(data.shape) > 1:
@@ -379,7 +398,7 @@ class PlayAudio(object):
 open_audio_player = PlayAudio
                 
 
-def play(data, rate, scale=None):
+def play(data, rate, scale=None, blocking=True):
     """Play audio data.
 
     Create an PlayAudio instance on the globale variable handle.
@@ -388,14 +407,15 @@ def play(data, rate, scale=None):
         data (array): the data to be played, either 1-D array for single channel output,
                       or 2-day array with first axis time and second axis channel 
         rate (float): the sampling rate in Hertz
+        blocking (boolean): if False do not block. 
     """
     global handle
     if handle is None:
         handle = PlayAudio()
-    handle.play(data, rate, scale)
+    handle.play(data, rate, scale, blocking)
 
     
-def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05):
+def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05, blocking=True):
     """
     Play a tone of a given duration and frequency.
 
@@ -409,11 +429,12 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0, ramp=0.05):
         amplitude (float): the ampliude of the tone from 0.0 to 1.0
         rate (float): the sampling rate in Hertz
         ramp (float): ramp time in seconds
+        blocking (boolean): if False do not block. 
     """
     global handle
     if handle is None:
         handle = PlayAudio()
-    handle.beep(duration, frequency, amplitude, rate, ramp)
+    handle.beep(duration, frequency, amplitude, rate, ramp, blocking)
 
     
 if __name__ == "__main__":
@@ -425,10 +446,14 @@ if __name__ == "__main__":
     
     print('play mono beep 2')
     with open_audio_player() as audio:
-        audio.beep(1.0, 'b4', 0.75)
+        audio.beep(1.0, 'b4', 0.75, blocking=False)
+        time.sleep(0.5)
+    time.sleep(0.5)
 
     print('play mono beep 3')
-    beep(1.0, 'c5', 0.25)
+    beep(1.0, 'c5', 0.25, blocking=False)
+    print('  done')
+    time.sleep(0.5)
             
     print('play stereo beep')
     duration = 1.0
@@ -438,6 +463,7 @@ if __name__ == "__main__":
     data[:,0] = np.sin(2.0*np.pi*note2freq('a4')*t)
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     play(data, rate)
+    exit()
 
     print('play notes')
     o = 3
