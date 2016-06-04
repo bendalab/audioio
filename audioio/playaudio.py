@@ -164,7 +164,7 @@ class PlayAudio(object):
         """Stop playing."""
         pass
 
-    def _play(self, data, rate, scale=None, blocking=True):
+    def _play(self, blocking=True):
         """Default implementation of playing a sound: does nothing."""
         pass
 
@@ -312,7 +312,7 @@ class PlayAudio(object):
             self.stream.close()
             self.stream = None
     
-    def _play_pyaudio(self, rate, blocking=True):
+    def _play_pyaudio(self, blocking=True):
         """Play audio data using the pyaudio module.
 
         Args:
@@ -359,32 +359,35 @@ class PlayAudio(object):
         self.osshandle = None
         self._do_play = self._play_ossaudiodev
         self.close = self._close_ossaudiodev
-        self.stop = self._stop
+        self.stop = self._stop_ossaudiodev
         return self
-    
+
+    def _stop_ossaudiodev(self):
+        if self.osshandle is not None:
+            self.osshandle.reset()
+            self.osshandle.close()
+            self.osshandle = None
+        
     def _play_ossaudiodev(self, blocking=True):
         """
         Play audio data using the ossaudiodev module.
 
         Args:
-            rate (float): the sampling rate in Hertz
-            blocking (boolean): ignored. Non-blocking is not supported.
+            blocking (boolean): ignored. Non-blocking mode not supported.
         """
         self.osshandle = ossaudiodev.open('w')
         self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
         self.osshandle.channels(self.channels)
         self.osshandle.speed(int(self.rate))
         self.osshandle.writeall(self.data)
-        time.sleep(0.2)
+        time.sleep(0.5)
         self.osshandle.close()
         self.osshandle = None
 
     def _close_ossaudiodev(self):
         """Close audio output using ossaudiodev module. """
+        self._stop_ossaudiodev()
         self.handle = None
-        if self.osshandle is not None:
-            self.osshandle.close()
-        self.osshandle = None
         self._do_play = self._play
         self.stop = self._stop
 
@@ -504,13 +507,13 @@ if __name__ == "__main__":
     with open_audio_player() as audio:
         audio.beep(1.0, 'b4', 0.75, blocking=False)
         print('  done')
-        time.sleep(0.5)
+        time.sleep(0.3)
     time.sleep(0.5)
 
     print('play mono beep 3')
     beep(1.0, 'c5', 0.25, blocking=False)
     print('  done')
-    time.sleep(0.5)
+    time.sleep(0.3)
             
     print('play stereo beep')
     duration = 1.0
