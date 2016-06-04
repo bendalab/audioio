@@ -425,10 +425,12 @@ class PlayAudio(object):
         f = StringIO()
         w = wave.open(f, 'w')
         w.setnchannels(self.channels)
-        w.setsampwidth(2) # 2 bytes
+        w.setsampwidth(2) # 2 byte integers
         w.setframerate(int(self.rate))
+        w.setnframes(len(self.data))
         # TODO: how does this handle 2-d arrays?
-        w.writeframes(self.data)
+        w.writeframesraw(self.data.tostring())
+        w.close() # TODO: close here or after PlaySound?
         # play file:
         winsound.PlaySound(f.getvalue(), winsound.SND_MEMORY)
         
