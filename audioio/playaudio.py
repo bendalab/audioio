@@ -198,7 +198,8 @@ class PlayAudio(object):
         self.index = 0
         self._do_play(blocking)
 
-    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0, fadetime=0.05, blocking=True):
+    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0,
+             fadetime=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
         Args:
@@ -219,7 +220,7 @@ class PlayAudio(object):
         data = amplitude*np.sin(2.0*np.pi*frequency*time)
         # fade in and out:
         fade(data, rate, fadetime)
-        # final click for testing:
+        ## final click for testing:
         #data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
         # play:
         self.play(data, rate, scale=1.0, blocking=blocking)
@@ -283,9 +284,12 @@ class PlayAudio(object):
             return (out_data, flag)
         else:
             # we need to play more to make sure everything is played!
+            # This is because of an ALSA bug and might be fixed in newer versions,
+            # see http://music.columbia.edu/pipermail/portaudio/2012-May/013959.html
             out_data = np.zeros(frames*self.channels, dtype='i2')
             self.index += frames
-            if self.index >= len(self.data) + 4*frames:
+            latency = int(self.stream.get_output_latency()*self.rate)
+            if self.index >= len(self.data) + 2*latency:
                 flag = pyaudio.paComplete
             return (out_data, flag)
 
@@ -334,6 +338,7 @@ class PlayAudio(object):
         
     def _close_pyaudio(self):
         """Terminate pyaudio module."""
+        print('close')
         self._stop_pyaudio()
         self.handle.terminate()           
         self._do_play = self._play
@@ -474,7 +479,8 @@ def play(data, rate, scale=None, blocking=True):
     handle.play(data, rate, scale, blocking)
 
     
-def beep(duration, frequency, amplitude=1.0, rate=44100.0, fadetime=0.05, blocking=True):
+def beep(duration, frequency, amplitude=1.0, rate=44100.0,
+         fadetime=0.05, blocking=True):
     """
     Play a tone of a given duration and frequency.
 
