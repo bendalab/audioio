@@ -40,6 +40,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
+from multiprocessing import Process
 from audiomodules import *
 
 
@@ -362,6 +363,8 @@ class PlayAudio(object):
             raise ImportError
         self.handle = True
         self.osshandle = None
+        self.run = False
+        self.play_thread = None
         self._do_play = self._play_ossaudiodev
         self.close = self._close_ossaudiodev
         self.stop = self._stop_ossaudiodev
@@ -369,25 +372,45 @@ class PlayAudio(object):
 
     def _stop_ossaudiodev(self):
         if self.osshandle is not None:
+            self.run = False
             self.osshandle.reset()
+            if self.play_thread is not None:
+                if self.play_thread.is_alive():
+                    self.play_thread.join()
+                self.play_thread = None
             self.osshandle.close()
             self.osshandle = None
+
+    def _run_play_ossaudiodev(self):
+        self.osshandle.writeall(self.data)
+        if self.run:
+            time.sleep(0.5)
+            self.osshandle.close()
+            self.osshandle = None
+            self.run = False
         
     def _play_ossaudiodev(self, blocking=True):
         """
         Play audio data using the ossaudiodev module.
 
         Args:
-            blocking (boolean): ignored. Non-blocking mode not supported.
+            blocking (boolean): if False do not block. 
         """
         self.osshandle = ossaudiodev.open('w')
         self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
         self.osshandle.channels(self.channels)
         self.osshandle.speed(int(self.rate))
-        self.osshandle.writeall(self.data)
-        time.sleep(0.5)
-        self.osshandle.close()
-        self.osshandle = None
+        if blocking:
+            self.run = True
+            self.osshandle.writeall(self.data)
+            time.sleep(0.5)
+            self.osshandle.close()
+            self.run = False
+            self.osshandle = None
+        else:
+            self.play_thread = Process(target=self._run_play_ossaudiodev)
+            self.run = True
+            self.play_thread.start()
 
     def _close_ossaudiodev(self):
         """Close audio output using ossaudiodev module. """
@@ -506,6 +529,7 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0,
     
 if __name__ == "__main__":
 
+    disable_module('pyaudio')
     print('play mono beep 1')
     audio = PlayAudio()
     audio.beep(1.0, 440.0)
