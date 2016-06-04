@@ -295,6 +295,7 @@ class PlayAudio(object):
             return (out_data, flag)
 
     def _stop_pyaudio(self):
+        """Stop any ongoing activity of the pyaudio module."""
         if self.stream is not None:
             if self.stream.is_active():
                 # fade out:
@@ -371,6 +372,7 @@ class PlayAudio(object):
         return self
 
     def _stop_ossaudiodev(self):
+        """Stop any ongoing activity of the ossaudiodev module."""
         if self.osshandle is not None:
             self.run = False
             self.osshandle.reset()
@@ -382,6 +384,7 @@ class PlayAudio(object):
             self.osshandle = None
 
     def _run_play_ossaudiodev(self):
+        """Play the data using the ossaudiodev module."""
         self.osshandle.writeall(self.data)
         if self.run:
             time.sleep(0.5)
@@ -433,20 +436,25 @@ class PlayAudio(object):
         self.handle = True
         self._do_play = self._play_winsound
         self.close = self._close_winsound
-        self.stop = self._stop
+        self.stop = self._stop_winsound
         return self
+
+    def _stop_winsound(self):
+        """Stop any ongoing activity of the winsound module."""
+        winsound.PlaySound(None, winsound.SND_MEMORY)
+    
     
     def _play_winsound(self, blocking=True):
         """
         Play audio data using the winsound module.
 
         Args:
-            blocking (boolean): ignored. Non-blocking is not supported.
+            blocking (boolean): if False do not block. 
         """
         # write data as wav file to memory:
         # TODO: check this code!!!
-        f = StringIO()
-        w = wave.open(f, 'w')
+        self.data_buffer = StringIO()
+        w = wave.open(self.data_buffer, 'w')
         w.setnchannels(self.channels)
         w.setsampwidth(2) # 2 byte integers
         w.setframerate(int(self.rate))
@@ -455,10 +463,15 @@ class PlayAudio(object):
         w.writeframesraw(self.data.tostring())
         w.close() # TODO: close here or after PlaySound?
         # play file:
-        winsound.PlaySound(f.getvalue(), winsound.SND_MEMORY)
+        if blocking:
+            winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
+        else:
+            winsound.PlaySound(self.data_buffer.getvalue(),
+                               winsound.SND_MEMORY | winsound.SND_ASYNC)
         
     def _close_winsound(self):
         """Close audio output using winsound module. """
+        self._stop_winsound()
         self.handle = None
         self._do_play = self._play
         self.stop = self._stop
@@ -529,7 +542,6 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0,
     
 if __name__ == "__main__":
 
-    disable_module('pyaudio')
     print('play mono beep 1')
     audio = PlayAudio()
     audio.beep(1.0, 440.0)
