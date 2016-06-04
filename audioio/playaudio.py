@@ -211,7 +211,11 @@ class PlayAudio(object):
             amplitude (float): the ampliude of the tone from 0.0 to 1.0
             rate (float): the sampling rate in Hertz
             fadetime (float): time for fading in and out in seconds
-            blocking (boolean): if False do not block. 
+            blocking (boolean): if False do not block.
+
+        see also:
+          https://mail.python.org/pipermail/tutor/2012-September/091529.html
+          for fourier series based construction of waveforms.  
         """
         # frequency
         if isinstance(frequency, str):
@@ -242,11 +246,10 @@ class PlayAudio(object):
         """Initialize audio output via pyaudio module.
 
         Documentation:
-        see also:
-          https://mail.python.org/pipermail/tutor/2012-September/091529.html
+          https://people.csail.mit.edu/hubert/pyaudio/
 
         Installation:
-          sudo apt-get install libportaudio2 python-pyaudio
+          sudo apt-get install libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
         """
         if not audio_modules['pyaudio']:
             raise ImportError
@@ -429,6 +432,7 @@ class PlayAudio(object):
         The winsound module is part of the python standard library.
 
         Documentation:
+          https://docs.python.org/2/library/winsound.html
           https://mail.python.org/pipermail/tutor/2012-September/091529.html
         """
         if not audio_modules['winsound'] or not not audio_modules['wave']:
@@ -503,12 +507,14 @@ open_audio_player = PlayAudio
 def play(data, rate, scale=None, blocking=True):
     """Play audio data.
 
-    Create an PlayAudio instance on the globale variable handle.
+    Create an PlayAudio instance on the global variable handle.
 
     Args:
         data (array): the data to be played, either 1-D array for single channel output,
                       or 2-day array with first axis time and second axis channel 
         rate (float): the sampling rate in Hertz
+        scale (float): multiply data with scale before playing.
+                       If None scale it to the maximum value, if 1.0 do not scale.
         blocking (boolean): if False do not block. 
     """
     global handle
