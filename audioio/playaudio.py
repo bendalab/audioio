@@ -110,8 +110,12 @@ def fade_in(data, rate, fadetime):
       fadetime (float): time for fading in and out in seconds
     """
     nr = int(np.round(fadetime*rate))
-    for k in range(nr) :
-        data[k] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+    x = np.arange(float(nr))/float(nr) # 0 to pi/2
+    y = np.sin(0.5*np.pi*x)**2.0
+    if len(data.shape) > 1:
+        data[:nr, :] *= y[:, None]
+    else:
+        data[:nr] *= y
 
         
 def fade_out(data, rate, fadetime):
@@ -127,8 +131,12 @@ def fade_out(data, rate, fadetime):
       fadetime (float): time for fading in and out in seconds
     """
     nr = int(np.round(fadetime*rate))
-    for k in range(nr) :
-        data[len(data)-k-1] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+    x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi
+    y = np.sin(0.5*np.pi*x)**2.0
+    if len(data.shape) > 1:
+        data[-nr:, :] *= y[:, None]
+    else:
+        data[-nr:] *= y
 
 
 def fade(data, rate, fadetime):
