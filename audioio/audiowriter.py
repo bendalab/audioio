@@ -98,6 +98,90 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
         encoding = encoding.upper()
 
     soundfile.write(filepath, data, int(samplerate), format=format, subtype=encoding)
+
+def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
+    """
+    Write audio data using the wavefile module.
+    
+    Documentation:
+        https://github.com/vokimon/python-wavefile
+
+    Args:
+        filepath (string): Full path and name of the file to write.
+        data (array): 1d- or 2d-array with the data (first index time, second index channel,
+                      floats within -1.0 and 1.0 .
+        samplerate (float): Sampling rate of the data in Hertz.
+        format (string or None): File format as in wavefile.Format.
+        encoding (string or None): Encoding of the data as in wavefile.Format.
+
+    Exceptions:
+        ImportError: if the wave module is not installed
+        *: if writing of the data failed
+    """
+    if not audio_modules['wavefile']:
+        raise ImportError
+
+    if format is not None:
+        format = format.upper()
+    format = getattr(wavefile.Format, format)
+
+    if encoding == '':
+        encoding = None
+    if encoding is not None:
+        encoding = encoding.upper()
+    encoding = getattr(wavefile.Format, encoding)
+        
+    channels = 1
+    if len(data.shape) > 1:
+        channels = data.shape[1]
+        
+    with wavefile.WaveWriter(filepath, channels=channels, samplerate=int(samplerate),
+                             format=format|encoding) as w:
+        w.write(data)
+
+def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
+    """
+    Write audio data using the audiolab module.
+
+    Documentation:
+        http://cournape.github.io/audiolab/
+        https://github.com/cournape/audiolab
+
+    Args:
+        filepath (string): Full path and name of the file to write.
+        data (array): 1d- or 2d-array with the data (first index time, second index channel,
+                      floats within -1.0 and 1.0 .
+        samplerate (float): Sampling rate of the data in Hertz.
+        format (string or None): File format like the SF_FORMAT_ constants of libsndfile.
+        encoding (string or None): Encoding of the data like the SF_FORMAT_ constants of libsndfile.
+
+    Exceptions:
+        ImportError: if the wave module is not installed
+        *: if writing of the data failed
+    """
+    if not audio_modules['audiolab']:
+        raise ImportError
+
+    if format is not None:
+        format = format.lower()
+    format = format.replace('pcm_', 'pcm')
+    if format == 'float': format = 'float32'
+    if format == 'double': format = 'float64'
+
+    if encoding == '':
+        encoding = None
+    if encoding is not None:
+        encoding = encoding.lower()
+        
+    channels = 1
+    if len(data.shape) > 1:
+        channels = data.shape[1]
+
+    af = audiolab.Sndfile(filepath, 'w', format=audiolab.Format(format, encoding),
+                          channels=channels, samplerate=int(samplerate))
+    af.write_frames(data)
+    af.close()
+
     
 def write_audio(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -114,6 +198,8 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
 
     audio_writer = [
         ['soundfile', write_soundfile],
+        ['wavefile', write_wavefile],
+        ['audiolab', write_audiolab],
         ['wave', write_wave],
         ]
 
