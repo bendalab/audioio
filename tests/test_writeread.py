@@ -57,7 +57,7 @@ def test_write_read():
 
         print('')
         print('audioio')
-        for encoding in ['PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', '']:
+        for encoding in ['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'IMA_ADPCM', '']:
             if encoding == '' or encoding in aw.available_encodings(format):
                 print(encoding)
             aw.write_audio(filename, data, samplerate, format=format, encoding=encoding)
