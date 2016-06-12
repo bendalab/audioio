@@ -288,7 +288,7 @@ def formats_soundfile():
     if not audio_modules['soundfile']:
         return []
     else:
-        return list(soundfile.available_formats())
+        return sorted(list(soundfile.available_formats()))
             
 def encodings_soundfile(format):
     """Encodings of an audio file format supported by the pysoundfile module.
@@ -302,7 +302,7 @@ def encodings_soundfile(format):
     if not audio_modules['soundfile']:
         return []
     else:
-        return list(soundfile.available_subtypes(format))
+        return sorted(list(soundfile.available_subtypes(format)))
         
 def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -352,7 +352,7 @@ def formats_wavefile():
              and v & wavefile.Format.TYPEMASK > 0
              and v != wavefile.Format.TYPEMASK ):
             formats.append(attr)
-    return formats
+    return sorted(formats)
 
 def encodings_wavefile(format):
     """Encodings supported by the wavefile module.
@@ -374,7 +374,7 @@ def encodings_wavefile(format):
              and v & wavefile.Format.SUBMASK > 0
              and v != wavefile.Format.SUBMASK ):
             encodings.append(attr)
-    return encodings
+    return sorted(encodings)
     
 def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -426,7 +426,7 @@ def formats_audiolab():
     if not audio_modules['scikits.audiolab']:
         return []
     formats = [f.upper() for f in audiolab.available_file_formats()]
-    return formats
+    return sorted(formats)
 
 def encodings_audiolab(format):
     """Encodings of an audio file format supported by the scikits.audiolab module.
@@ -441,13 +441,13 @@ def encodings_audiolab(format):
         return []
     try:
         encodings = []
-        for encoding in audiolab.available_encodings(format):
+        for encoding in audiolab.available_encodings(format.lower()):
             if encoding[0:3] == 'pcm':
                 encoding = 'pcm_' + encoding[3:]
             if encoding == 'float32': encoding = 'float'
             if encoding == 'float64': encoding = 'double'
             encodings.append(encoding.upper())
-        return encodings
+        return sorted(encodings)
     except ValueError:
         return []
 
