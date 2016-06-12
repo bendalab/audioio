@@ -1,16 +1,52 @@
 """
-Functions for writing audio data to files.
+Functions for writing numpy arrays of floats to audio files.
 
 write_audio('audio/file.wav', data, samplerate)
 
 Writes the whole file at once with an installed audio module that
 supports the requested file format.
+
+available_formats()
+available_encodings()
+return lists of supported formats and encodings.
+
+We recommend pysoundfile for best results:
+Installation:
+    sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
+    sudo pip install pysoundfile
 """
  
 import warnings
 from audiomodules import *
 
 
+def formats_wave():
+    """Audio file formats supported by the wave module.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    if not audio_modules['wave']:
+        return []
+    else:
+        return ['WAV']
+
+def encodings_wave(format):
+    """Encodings of an audio file format supported by the wave module.
+
+    Args:
+      format (str): The file format.
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    if not audio_modules['wave']:
+        return []
+    elif format.upper() != 'WAV':
+        return []
+    else:
+        return ['PCM_32', 'PCM_16', 'PCM_U8']
+    
 def write_wave(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the wave module from pythons standard libray.
@@ -25,7 +61,7 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
         samplerate (float): Sampling rate of the data in Hertz.
         format (string or None): File format, only 'WAV' is supported.
         encoding (string or None): Encoding of the data:
-                                   'PCM_32', PCM_24', PCM_16', or 'PCM_U8'
+                                   'PCM_32', PCM_16', or 'PCM_U8'
 
     Exceptions:
         ImportError: if the wave module is not installed
@@ -67,9 +103,210 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     wf.writeframes(buffer.tostring())
     wf.close()
 
+
+def formats_ewave():
+    """Audio file formats supported by the ewave module.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    if not audio_modules['ewave']:
+        return []
+    else:
+        return ['WAV', 'WAVEX']
+
+def encodings_ewave(format):
+    """Encodings of an audio file format supported by the ewave module.
+
+    Args:
+      format (str): The file format.
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    if not audio_modules['ewave']:
+        return []
+    elif format.upper() != 'WAV' and format.upper() != 'WAVEX':
+        return []
+    else:
+        return ['PCM_64', 'PCM_32', 'PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE']
+    
+def write_ewave(filepath, data, samplerate, format=None, encoding=None):
+    """
+    Write audio data using the ewave module from pythons standard libray.
+
+    Documentation:
+        https://github.com/melizalab/py-ewave
+
+    Args:
+        filepath (string): Full path and name of the file to write.
+        data (array): 1d- or 2d-array with the data (first index time, second index channel,
+                      floats within -1.0 and 1.0 .
+        samplerate (float): Sampling rate of the data in Hertz.
+        format (string or None): File format, only 'WAV' is supported.
+        encoding (string or None): Encoding of the data:
+                                   'PCM_64', 'PCM_32', PCM_16', 'PCM_U8', "FLOAT', 'DOUBLE'
+
+    Exceptions:
+        ImportError: if the wave module is not installed
+        *: if writing of the data failed
+    """
+    if not audio_modules['ewave']:
+        raise ImportError
+
+    if format is not None and format.upper() != 'WAV' and format.upper() != 'WAVEX':
+        warnings.warn('file format %s not supported by wave-module' % format)
+        return
+
+    wave_encodings = {'PCM_64': ['l', 'i8', 8],
+                      'PCM_32': ['i', 'i4', 4],
+                      'PCM_16': ['h', 'i2', 2],
+                      'PCM_U8': ['b', 'u1', 1],
+                      'FLOAT': ['f', 'f'],
+                      'DOUBLE': ['d', 'd'] }
+    if encoding == '':
+        encoding = None
+    if encoding is None:
+        encoding = 'PCM_16'
+    encoding = encoding.upper()
+    if not encoding in wave_encodings:
+        warnings.warn('file encoding %s not supported by wave-module' % format)
+        return
+
+    channels = 1
+    if len(data.shape) > 1:
+        channels = data.shape[1]
+
+    with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
+                    dtype=wave_encoding[encoding][0], nchannels=channels) as wf:
+        dtype = wave_encoding[encoding][1]
+        sampwidth = wave_encoding[encoding][2]
+        if dtype[0] == 'i':
+            buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
+        elif dtype[0] == 'u':
+            buffer = np.array((data+1.0)*2**(sampwidth*8-1), dtype=dtype)
+        elif np.dtype(dtype) != data.dtype:
+            buffer = np.array(data, dtype=dtype)
+        else:
+            buffer = data
+        wf.write(buffer)
+
+
+def formats_wavfile():
+    """Audio file formats supported by the scipy.io.wavfile module.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    if not audio_modules['scipy.io.wavfile']:
+        return []
+    else:
+        return ['WAV']
+
+def encodings_wavfile(format):
+    """Encodings of an audio file format supported by the scipy.io.wavfile module.
+
+    Args:
+      format (str): The file format.
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    if not audio_modules['scipy.io.wavfile']:
+        return []
+    elif format.upper() != 'WAV':
+        return []
+    else:
+        return ['PCM_32', 'PCM_16', 'FLOAT', 'DOUBLE']
+    
+def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
+    """
+    Write audio data using the scipy.io.wavfile module.
+    
+    Documentation:
+        http://docs.scipy.org/doc/scipy/reference/io.html
+
+    Args:
+        filepath (string): Full path and name of the file to write.
+        data (array): 1d- or 2d-array with the data (first index time, second index channel,
+                      floats within -1.0 and 1.0 .
+        samplerate (float): Sampling rate of the data in Hertz.
+        format (string or None): File format, only 'WAV' is supported.
+        encoding (string or None): Encoding of the data:
+                                   'PCM_32', PCM_16', 'FLOAT', or 'DOUBLE'
+
+    Exceptions:
+        ImportError: if the wave module is not installed
+        *: if writing of the data failed
+    """
+    if not audio_modules['scipy.io.wavfile']:
+        raise ImportError
+
+    if format is not None and format.upper() != 'WAV':
+        warnings.warn('file format %s not supported by scipy.io.wavfile-module' % format)
+        return
+
+    wave_encodings = {'PCM_32': [4, 'i4'],
+                      'PCM_16': [2, 'i2'],
+                      'FLOAT': [4, 'f'],
+                      'DOUBLE': [8, 'd'] }
+    if encoding == '':
+        encoding = None
+    if encoding is None:
+        encoding = 'PCM_16'
+    encoding = encoding.upper()
+    if not encoding in wave_encodings:
+        warnings.warn('file encoding %s not supported by wave-module' % format)
+        return
+    sampwidth = wave_encodings[encoding][0]
+    dtype = wave_encodings[encoding][1]
+    
+    wavfile.write(filepath, samplerate, data)
+    
+    wf = wave.open(filepath, 'w')   # 'with' is not supported by wave
+    channels = 1
+    if len(data.shape) > 1:
+        channels = data.shape[1]
+    wf.setnchannels(channels)
+    wf.setnframes(len(data))
+    wf.setframerate(int(samplerate))
+    wf.setsampwidth(sampwidth)
+    if sampwidth == 1:
+        buffer = np.array((data+1.0)*128, dtype=dtype)
+    else:
+        buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
+    wf.writeframes(buffer.tostring())
+    wf.close()
+
+
+def formats_soundfile():
+    """Audio file formats supported by the pysoundfile module.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    if not audio_modules['soundfile']:
+        return []
+    else:
+        return list(soundfile.available_formats())
+            
+def encodings_soundfile(format):
+    """Encodings of an audio file format supported by the pysoundfile module.
+
+    Args:
+      format (str): The file format.
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    if not audio_modules['soundfile']:
+        return []
+    else:
+        return list(soundfile.available_subtypes(format))
+        
 def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     """
-    Write audio data using the pysoundfile module.
+    Write audio data using the pysoundfile module (based on libsndfile).
     
     Documentation:
         http://pysoundfile.readthedocs.org
@@ -99,9 +336,49 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
 
     soundfile.write(filepath, data, int(samplerate), format=format, subtype=encoding)
 
+
+def formats_wavefile():
+    """Audio file formats supported by the wavefile module.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    if not audio_modules['wavefile']:
+        return []
+    formats = []
+    for attr in dir(wavefile.Format):
+        v = getattr(wavefile.Format, attr)
+        if ( isinstance(v, int)
+             and v & wavefile.Format.TYPEMASK > 0
+             and v != wavefile.Format.TYPEMASK ):
+            formats.append(attr)
+    return formats
+
+def encodings_wavefile(format):
+    """Encodings supported by the wavefile module.
+
+    Args:
+      format (str): The file format (ignored).
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    if not audio_modules['wavefile']:
+        return []
+    if not format.upper() in formats_wavefile():
+        return []
+    encodings = []
+    for attr in dir(wavefile.Format):
+        v = getattr(wavefile.Format, attr)
+        if ( isinstance(v, int)
+             and v & wavefile.Format.SUBMASK > 0
+             and v != wavefile.Format.SUBMASK ):
+            encodings.append(attr)
+    return encodings
+    
 def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     """
-    Write audio data using the wavefile module.
+    Write audio data using the wavefile module (based on libsndfile).
     
     Documentation:
         https://github.com/vokimon/python-wavefile
@@ -139,9 +416,44 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
                              format=format|encoding) as w:
         w.write(data)
 
+
+def formats_audiolab():
+    """Audio file formats supported by the scikits.audiolab module.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    if not audio_modules['scikits.audiolab']:
+        return []
+    formats = [f.upper() for f in audiolab.available_file_formats()]
+    return formats
+
+def encodings_audiolab(format):
+    """Encodings of an audio file format supported by the scikits.audiolab module.
+
+    Args:
+      format (str): The file format.
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    if not audio_modules['scikits.audiolab']:
+        return []
+    try:
+        encodings = []
+        for encoding in audiolab.available_encodings(format):
+            if encoding[0:3] == 'pcm':
+                encoding = 'pcm_' + encoding[3:]
+            if encoding == 'float32': encoding = 'float'
+            if encoding == 'float64': encoding = 'double'
+            encodings.append(encoding.upper())
+        return encodings
+    except ValueError:
+        return []
+
 def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
     """
-    Write audio data using the audiolab module.
+    Write audio data using the scikits.audiolab module (based on libsndfile).
 
     Documentation:
         http://cournape.github.io/audiolab/
@@ -159,19 +471,19 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
         ImportError: if the wave module is not installed
         *: if writing of the data failed
     """
-    if not audio_modules['audiolab']:
+    if not audio_modules['scikits.audiolab']:
         raise ImportError
 
     if format is not None:
         format = format.lower()
-    format = format.replace('pcm_', 'pcm')
-    if format == 'float': format = 'float32'
-    if format == 'double': format = 'float64'
 
     if encoding == '':
         encoding = None
     if encoding is not None:
         encoding = encoding.lower()
+    encoding = encoding.replace('pcm_', 'pcm')
+    if encoding == 'float': encoding = 'float32'
+    if encoding == 'double': encoding = 'float64'
         
     channels = 1
     if len(data.shape) > 1:
@@ -182,7 +494,44 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
     af.write_frames(data)
     af.close()
 
-    
+
+def available_formats():
+    """Audio file formats supported by any of the installed audio modules.
+
+    Returns:
+      formats (list of strings): List of supported file formats as strings.
+    """
+    audio_formats = [formats_wave, formats_ewave, formats_wavfile,
+                     formats_soundfile, formats_wavefile, formats_audiolab]
+    formats = set()
+    for formats_func in audio_formats:
+        formats |= set(formats_func())
+    return sorted(list(formats))
+
+def available_encodings(format):
+    """Encodings of an audio file format supported by any of the installed audio modules.
+
+    Args:
+      format (str): The file format.
+
+    Returns:
+      encodings (list of strings): List of supported encodings as strings.
+    """
+    audio_encodings = [encodings_wave, encodings_ewave, encodings_wavfile,
+                        encodings_soundfile, encodings_audiolab, encodings_wavefile]
+    first_sndfilelib_inx = 3
+    wavefile_inx = 5
+    got_sndfile = False
+    encodings = set()
+    for e_inx, encodings_func in enumerate(audio_encodings):
+        if e_inx == wavefile_inx and got_sndfile:
+            continue
+        encs = encodings_func(format)
+        if e_inx >= first_sndfilelib_inx and len(encs) > 0:
+            got_sndfile = True
+        encodings |= set(encs)
+    return sorted(list(encodings))
+
 def write_audio(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data to file.
@@ -198,9 +547,11 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
 
     audio_writer = [
         ['soundfile', write_soundfile],
+        ['scikits.audiolab', write_audiolab],
         ['wavefile', write_wavefile],
-        ['audiolab', write_audiolab],
         ['wave', write_wave],
+        ['ewave', write_ewave],
+        ['scipy.io.wavfile', write_wavfile]
         ]
 
     if len(filepath) == 0:
