@@ -17,6 +17,7 @@ Installation:
 """
  
 import warnings
+import numpy as np
 from audiomodules import *
 
 
@@ -71,19 +72,19 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
         raise ImportError
 
     if format is not None and format.upper() != 'WAV':
-        warnings.warn('file format %s not supported by wave-module' % format)
+        raise ValueError('file format %s not supported by wave-module' % format)
         return
 
     wave_encodings = {'PCM_32': [4, 'i4'],
                       'PCM_16': [2, 'i2'],
                       'PCM_U8': [1, 'u1'] }
-    if encoding == '':
-        encoding = None
     if encoding is None:
+        encoding = ''
+    if len(encoding) == 0:
         encoding = 'PCM_16'
     encoding = encoding.upper()
     if not encoding in wave_encodings:
-        warnings.warn('file encoding %s not supported by wave-module' % format)
+        raise ValueError('file encoding %s not supported by wave-module' % encoding)
         return
     sampwidth = wave_encodings[encoding][0]
     dtype = wave_encodings[encoding][1]
@@ -129,7 +130,7 @@ def encodings_ewave(format):
     elif format.upper() != 'WAV' and format.upper() != 'WAVEX':
         return []
     else:
-        return ['PCM_64', 'PCM_32', 'PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE']
+        return ['PCM_64', 'PCM_32', 'PCM_16', 'PCM_U8']
     
 def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -144,8 +145,7 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
                       floats within -1.0 and 1.0 .
         samplerate (float): Sampling rate of the data in Hertz.
         format (string or None): File format, only 'WAV' is supported.
-        encoding (string or None): Encoding of the data:
-                                   'PCM_64', 'PCM_32', PCM_16', 'PCM_U8', "FLOAT', 'DOUBLE'
+        encoding (string or None): Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'PCM_U8'
 
     Exceptions:
         ImportError: if the wave module is not installed
@@ -155,22 +155,20 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         raise ImportError
 
     if format is not None and format.upper() != 'WAV' and format.upper() != 'WAVEX':
-        warnings.warn('file format %s not supported by wave-module' % format)
+        raise ValueError('file format %s not supported by ewave-module' % format)
         return
 
-    wave_encodings = {'PCM_64': ['l', 'i8', 8],
-                      'PCM_32': ['i', 'i4', 4],
-                      'PCM_16': ['h', 'i2', 2],
-                      'PCM_U8': ['b', 'u1', 1],
-                      'FLOAT': ['f', 'f'],
-                      'DOUBLE': ['d', 'd'] }
+    ewave_encodings = {'PCM_64': ['l', 'i8', 8],
+                       'PCM_32': ['i', 'i4', 4],
+                       'PCM_16': ['h', 'i2', 2],
+                       'PCM_U8': ['b', 'u1', 1] }
     if encoding == '':
         encoding = None
     if encoding is None:
         encoding = 'PCM_16'
     encoding = encoding.upper()
-    if not encoding in wave_encodings:
-        warnings.warn('file encoding %s not supported by wave-module' % format)
+    if not encoding in ewave_encodings:
+        raise ValueError('file encoding %s not supported by ewave-module' % format)
         return
 
     channels = 1
@@ -178,9 +176,9 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         channels = data.shape[1]
 
     with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
-                    dtype=wave_encoding[encoding][0], nchannels=channels) as wf:
-        dtype = wave_encoding[encoding][1]
-        sampwidth = wave_encoding[encoding][2]
+                    dtype=ewave_encodings[encoding][0], nchannels=channels) as wf:
+        dtype = ewave_encodings[encoding][1]
+        sampwidth = ewave_encodings[encoding][2]
         if dtype[0] == 'i':
             buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
         elif dtype[0] == 'u':
@@ -217,7 +215,7 @@ def encodings_wavfile(format):
     elif format.upper() != 'WAV':
         return []
     else:
-        return ['PCM_32', 'PCM_16', 'FLOAT', 'DOUBLE']
+        return ['PCM_16']
     
 def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -232,8 +230,7 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
                       floats within -1.0 and 1.0 .
         samplerate (float): Sampling rate of the data in Hertz.
         format (string or None): File format, only 'WAV' is supported.
-        encoding (string or None): Encoding of the data:
-                                   'PCM_32', PCM_16', 'FLOAT', or 'DOUBLE'
+        encoding (string or None): Encoding of the data: PCM_16
 
     Exceptions:
         ImportError: if the wave module is not installed
@@ -243,20 +240,17 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
         raise ImportError
 
     if format is not None and format.upper() != 'WAV':
-        warnings.warn('file format %s not supported by scipy.io.wavfile-module' % format)
+        raise ValueError('file format %s not supported by scipy.io.wavfile-module' % format)
         return
 
-    wave_encodings = {'PCM_32': [4, 'i4'],
-                      'PCM_16': [2, 'i2'],
-                      'FLOAT': [4, 'f'],
-                      'DOUBLE': [8, 'd'] }
+    wave_encodings = {'PCM_16': [2, 'i2']}
     if encoding == '':
         encoding = None
     if encoding is None:
         encoding = 'PCM_16'
     encoding = encoding.upper()
     if not encoding in wave_encodings:
-        warnings.warn('file encoding %s not supported by wave-module' % format)
+        raise ValueError('file encoding %s not supported by scipy.io.wavfile-module' % format)
         return
     sampwidth = wave_encodings[encoding][0]
     dtype = wave_encodings[encoding][1]
@@ -398,23 +392,32 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['wavefile']:
         raise ImportError
 
-    if format is not None:
-        format = format.upper()
-    format = getattr(wavefile.Format, format)
+    if format is None:
+        format = ''
+    if len(format) == 0:
+        format = filepath.split('.')[-1]
+        # TODO: we need a mapping from file extensions to formats and default encoding!
+    format = format.upper()
+    format_value = getattr(wavefile.Format, format)
 
-    if encoding == '':
-        encoding = None
-    if encoding is not None:
-        encoding = encoding.upper()
-    encoding = getattr(wavefile.Format, encoding)
+    if encoding is None:
+        encoding = ''
+    if len(encoding) == 0:
+        encodings = encodings_wavefile(format)
+        # TODO: better default settings!
+        if 'PCM_16' in encodings:
+            encoding = 'PCM_16'
+        else:
+            encoding = encodings[0]
+    encoding = encoding.upper()
+    encoding_value = getattr(wavefile.Format, encoding)
         
     channels = 1
     if len(data.shape) > 1:
         channels = data.shape[1]
-        
     with wavefile.WaveWriter(filepath, channels=channels, samplerate=int(samplerate),
-                             format=format|encoding) as w:
-        w.write(data)
+                             format=format_value|encoding_value) as w:
+        w.write(data.T)
 
 
 def formats_audiolab():
@@ -474,13 +477,23 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['scikits.audiolab']:
         raise ImportError
 
-    if format is not None:
-        format = format.lower()
+    if format is None:
+        format = ''
+    if len(format) == 0:
+        format = filepath.split('.')[-1].lower()
+        # TODO: we need a mapping from file extensions to formats and default encoding!
+    format = format.lower()
 
-    if encoding == '':
-        encoding = None
-    if encoding is not None:
-        encoding = encoding.lower()
+    if encoding is None:
+        encoding = ''
+    if len(encoding) == 0:
+        encodings = encodings_audiolab(format)
+        # TODO: better default settings!
+        if 'PCM_16' in encodings:
+            encoding = 'PCM_16'
+        else:
+            encoding = encodings[0]
+    encoding = encoding.lower()
     encoding = encoding.replace('pcm_', 'pcm')
     if encoding == 'float': encoding = 'float32'
     if encoding == 'double': encoding = 'float64'
@@ -558,14 +571,20 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
         warnings.warn('input argument filepath is empty string!')
 
     # write audio file by trying available modules:
+    error_str = ''
+    success = False
     for lib, write_file in audio_writer:
         if not audio_modules[lib]:
             continue
         try:
             write_file(filepath, data, samplerate, format, encoding)
+            success = True
             break
         except:
-            warnings.warn('failed to write data to file "%s" with %s' % (filepath, lib))
+            if len(error_str) == 0:
+                error_str = 'failed to write data to file "%s" with %s' % (filepath, lib)
+    if not success:
+        warnings.warn(error_str)
 
 if __name__ == "__main__":
     import sys

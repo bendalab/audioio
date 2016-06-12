@@ -63,12 +63,10 @@ def load_wave(filepath, verbose=0):
         print('compression type: %s' % comptype)
         print('compression name: %s' % compname)
     buffer = wf.readframes(nframes)
-    format = 'i%d' % sampwidth
-    data = np.fromstring(buffer, dtype=format).reshape(-1, nchannels)  # read data
+    dtype = 'i%d' % sampwidth
+    data = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
     wf.close()
-    data /= 2.0**(sampwidth*8-1)
-    if len(data.shape) == 1:
-        data = np.reshape(data,(-1, 1))
+    data = np.asarray(data, dtype='d')/2.0**(sampwidth*8-1)
     return data, float(rate)
 
     
@@ -337,20 +335,27 @@ def load_audio(filepath, verbose=0):
         return data, rate
 
     # load an audio file by trying various modules:
+    error_str = ''
+    success = False
     for lib, load_file in audio_loader:
         if not audio_modules[lib]:
             continue
         try:
             data, rate = load_file(filepath, verbose)
             if len(data) > 0:
+                success = True
                 if verbose > 0:
-                    print('loaded data from file "%s" using %s:' %
+                    print('loaded data from file "%s" using %s module' %
                           (filepath, lib))
-                    print('  sampling rate: %g Hz' % rate)
-                    print('  data values : %d' % len(data))
+                    if verbose > 1:
+                        print('  sampling rate: %g Hz' % rate)
+                        print('  data values  : %d' % len(data))
                 break
         except:
-            warnings.warn('failed to load data from file "%s" with %s' % (filepath, lib))
+            if len(error_str) == 0:
+                error_str = 'failed to load data from file "%s" with %s' % (filepath, lib)
+    if not success:
+        warnings.warn(error_str)
     return data, rate
 
 
