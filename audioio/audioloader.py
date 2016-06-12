@@ -8,7 +8,19 @@ data = AudioLoader('audio/file.wav', 60.0)
 or
 with open_audio_loader('audio/file.wav', 60.0) as data:
 Create an AudioLoader object that loads chuncks of 60 seconds long data on demand.
-data can be used like a read-only numpy array.
+data can be used like a read-only numpy array of floats.
+
+The built in wave module only supports a few wav file formats.
+The libsndfile library can handle many more formats and is interfaced
+by many different python packages (e.g. pysoundfile, wavefile, scikits.audiolab).
+We recommend using pysoundfile for best results:
+
+To install pysoundfile on Linux do:
+sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
+sudo pip install pysoundfile
+
+mp3 and similar formats are supported by the audioread module. Install it via:
+sudo apt-get install -y libav-tools python-audioread
 """
  
 import warnings
@@ -69,6 +81,7 @@ def load_ewave(filepath, verbose=0):
         
     Installation:
         git clone https://github.com/melizalab/py-ewave
+        cd py-ewave
         python setup.py build
         sudo python setup.py install
 
@@ -143,7 +156,7 @@ def load_soundfile(filepath, verbose=0):
         http://www.mega-nerd.com/libsndfile
         
     Installation:
-        sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
+        sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
         sudo pip install pysoundfile
 
     Args:
@@ -178,7 +191,7 @@ def load_wavefile(filepath, verbose=0):
         https://github.com/vokimon/python-wavefile
 
     Installation:
-        sudo apt-get install libsndfile1
+        sudo apt-get install -y libsndfile1
         sudo pip install wavefile
 
     Args:
@@ -210,7 +223,7 @@ def load_audiolab(filepath, verbose=0):
         https://github.com/cournape/audiolab
                 
     Installation:
-        sudo apt-get install libsndfile1
+        sudo apt-get install -y libsndfile1
         sudo pip install scikits.audiolab
 
     Args:
@@ -245,7 +258,7 @@ def load_audioread(filepath, verbose=0):
         https://github.com/sampsyo/audioread
 
     Installation:
-        sudo apt-get install libav-tools python-audioread
+        sudo apt-get install -y libav-tools python-audioread
         
     audioread is not available in python x,y.
 

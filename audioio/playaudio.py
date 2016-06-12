@@ -6,7 +6,8 @@ The globally defined functions
 play(data, rate)
 beep(duration, frequeny)
 
-use a global instance of the PlayAudio class.
+use a global instance of the PlayAudio class to play a sound
+on the default audio output.
 
 Alternatively you may use the PlayAudio class directly, like this:
 
@@ -20,9 +21,9 @@ audio.beep(1.0, 'a4')
 audio.close()
 
 The note2freq() function converts a musical note, like 'f#4',
-to the appropriate frequency.
+to the corresponding frequency.
 The beep() functions also accept notes for the frequency argument,
-and use note2freq() to get the right frequency.
+and uses note2freq() to get the right frequency.
 
 Data can be multiplied with a squared-sine for fading in and out with
 fade_in(), fade_out(), and fade().
@@ -30,6 +31,13 @@ fade_in(), fade_out(), and fade().
 See also:
 https://wiki.python.org/moin/Audio/
 https://docs.python.org/3/library/mm.html
+
+The modules supports the standard modules ossaudiodev for Linux and winsound for windows.
+However, we recommend to install the portaudio library and the pyaudio module for
+better performance.
+
+On Linux do:
+sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
 """
 
 import os
@@ -257,7 +265,7 @@ class PlayAudio(object):
           https://people.csail.mit.edu/hubert/pyaudio/
 
         Installation:
-          sudo apt-get install libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+          sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
         """
         if not audio_modules['pyaudio']:
             raise ImportError
@@ -369,7 +377,7 @@ class PlayAudio(object):
         Installation:
           The ossaudiodev module needs an oss /dev/dsp device file.
           Enable an oss emulation via alsa by installing
-          sudo apt-get install osspd
+          sudo apt-get install -y osspd
         """
         if not audio_modules['ossaudiodev']:
             raise ImportError
