@@ -14,7 +14,7 @@ def test_write_read():
         assert_equal(data_write.shape[1], data_read.shape[1], 'shape[1] differs for module %s with encoding %s' % (lib, encoding))
         max_error = np.max(np.abs(data_write-data_read))
         print('maximum error = %g' % max_error)
-        assert_less(max_error, 2.0**(-14), 'values differ for module %s with encoding %s' % (lib, encoding))
+        assert_less(max_error, 0.05, 'values differ for module %s with encoding %s by up to %g' % (lib, encoding, max_error))
         
     # generate data:
     samplerate = 44100.0
@@ -24,6 +24,9 @@ def test_write_read():
     data = data.reshape((-1, 1))
     filename = 'test.wav'
     format = 'wav'
+    encodings = ['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'ALAW', 'ULAW', '']
+    encodings_with_read_error = ['G721_32', 'GSM610', ''] # soundfile: raise ValueError("frames must be specified for non-seekable files") in sf.read()
+    encodings_with_seek_error = ['IMA_ADPCM', 'MS_ADPCM', ''] # soundfile: RuntimeError: Internal psf_fseek() failed.
 
     for channels in [1, 2, 4, 8, 16]:
 
@@ -48,7 +51,7 @@ def test_write_read():
                 continue
             print('')
             print(lib)
-            for encoding in ['PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', '']:
+            for encoding in encodings:
                 if encoding == '' or encoding in encodings_func(format):
                     print(encoding)
                     write_file(filename, data, samplerate, format=format, encoding=encoding)
@@ -57,7 +60,7 @@ def test_write_read():
 
         print('')
         print('audioio')
-        for encoding in ['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'IMA_ADPCM', '']:
+        for encoding in encodings:
             if encoding == '' or encoding in aw.available_encodings(format):
                 print(encoding)
             aw.write_audio(filename, data, samplerate, format=format, encoding=encoding)
