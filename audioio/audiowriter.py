@@ -98,7 +98,7 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     wf.setframerate(int(samplerate))
     wf.setsampwidth(sampwidth)
     if sampwidth == 1:
-        buffer = np.array((data+1.0)*128, dtype=dtype)
+        buffer = np.array((data+1.0)*127, dtype=dtype)
     else:
         buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
     wf.writeframes(buffer.tostring())
@@ -179,11 +179,13 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
                     dtype=ewave_encodings[encoding][0], nchannels=channels) as wf:
         dtype = ewave_encodings[encoding][1]
         sampwidth = ewave_encodings[encoding][2]
+        # TODO: use ewave.rescale()!
+        #data = ewave.rescale(buffer, 'float')
         if dtype[0] == 'i':
             buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
         elif dtype[0] == 'u':
             buffer = np.array((data+1.0)*2**(sampwidth*8-1), dtype=dtype)
-        elif np.dtype(dtype) != data.dtype:
+        elif np.dtype(dtype) != data.dtype: # TODO not supported anyways!
             buffer = np.array(data, dtype=dtype)
         else:
             buffer = data
@@ -215,7 +217,7 @@ def encodings_wavfile(format):
     elif format.upper() != 'WAV':
         return []
     else:
-        return ['PCM_16']
+        return ['PCM_U8', 'PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE']
     
 def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -243,7 +245,12 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
         raise ValueError('file format %s not supported by scipy.io.wavfile-module' % format)
         return
 
-    wave_encodings = {'PCM_16': [2, 'i2']}
+    wave_encodings = {'PCM_U8': [1, 'u1'],
+                      'PCM_16': [2, 'i2'],
+                      'PCM_32': [4, 'i4'],
+                      'PCM_64': [8, 'i8'],
+                      'FLOAT': [4, 'f'],
+                      'DOUBLE': [8, 'd']}
     if encoding == '':
         encoding = None
     if encoding is None:
@@ -254,23 +261,15 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
         return
     sampwidth = wave_encodings[encoding][0]
     dtype = wave_encodings[encoding][1]
-    
-    wavfile.write(filepath, samplerate, data)
-    
-    wf = wave.open(filepath, 'w')   # 'with' is not supported by wave
-    channels = 1
-    if len(data.shape) > 1:
-        channels = data.shape[1]
-    wf.setnchannels(channels)
-    wf.setnframes(len(data))
-    wf.setframerate(int(samplerate))
-    wf.setsampwidth(sampwidth)
     if sampwidth == 1:
-        buffer = np.array((data+1.0)*128, dtype=dtype)
+        buffer = np.asarray((data+1.0)*127, dtype=dtype)
+    elif dtype[0] == 'i':
+        buffer = np.asarray(data*(2.0**(sampwidth*8-1)-1.0), dtype=dtype)
+    elif np.dtype(dtype) != data.dtype:
+        buffer = np.array(data, dtype=dtype)
     else:
-        buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
-    wf.writeframes(buffer.tostring())
-    wf.close()
+        buffer = data
+    wavfile.write(filepath, samplerate, buffer)
 
 
 def formats_soundfile():

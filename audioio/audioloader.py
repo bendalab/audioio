@@ -63,10 +63,15 @@ def load_wave(filepath, verbose=0):
         print('compression type: %s' % comptype)
         print('compression name: %s' % compname)
     buffer = wf.readframes(nframes)
-    dtype = 'i%d' % sampwidth
-    data = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+    if sampwidth == 1:
+        dtype = 'u1'
+        data = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = np.asarray(data, dtype='d')/127.0-1.0
+    else:
+        dtype = 'i%d' % sampwidth
+        data = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = np.asarray(data, dtype='d')/(2.0**(sampwidth*8-1)-1.0)
     wf.close()
-    data = np.asarray(data, dtype='d')/2.0**(sampwidth*8-1)
     return data, float(rate)
 
     
@@ -139,7 +144,12 @@ def load_wavfile(filepath, verbose=0):
     rate, data = wavfile.read(filepath)
     if verbose < 2:
         warnings.filterwarnings("always")
-    data = data / 2.0**15
+    if data.dtype == np.uint8:
+        data = data / 127.0 - 1.0
+    elif data.dtype.kind == 'i':  # TODO is this right?
+        data = data / (2.0**(data.dtype.itemsize*8-1)-1.0)
+    elif data.dtype == np.float:
+        data = np.asarray(data)
     if len(data.shape) == 1:
         data = np.reshape(data,(-1, 1))
     return data, float(rate)
@@ -293,7 +303,7 @@ def load_audioread(filepath, verbose=0):
                 index += n
             else:
                 break
-    return data/2.0**15, float(rate)
+    return data/(2.0**15-1.0), float(rate)
 
 
 # list of implemented load functions:
@@ -601,7 +611,7 @@ class AudioLoader(object):
         self.sf = wave.open(filepath, 'r')
         self.samplerate = self.sf.getframerate()
         self.format = 'i%d' % self.sf.getsampwidth()
-        self.factor = 1.0/2.0**(self.sf.getsampwidth()*8-1)
+        self.factor = 1.0/(2.0**(self.sf.getsampwidth()*8-1)-1.0)
         self.channels = self.sf.getnchannels()
         self.frames = self.sf.getnframes()
         self.shape = (self.frames, self.channels)
@@ -938,7 +948,7 @@ class AudioLoader(object):
             if ( self.read_offset + self.read_buffer.shape[0] >= r_offset + r_size
                  and self.read_offset < r_offset + r_size ):
                 n = r_offset + r_size - self.read_offset
-                self.buffer[self.read_offset-offset:self.read_offset-offset+n,:] = self.read_buffer[:n,:] / 2.0**15
+                self.buffer[self.read_offset-offset:self.read_offset-offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
                 if self.verbose > 1:
                     print('  recycle %6d frames from the front of the read buffer to %d-%d (%d-%d in buffer)'
                            % (n, self.read_offset, self.read_offset+n, self.read_offset-offset, self.read_offset-offset+n))
@@ -972,7 +982,7 @@ class AudioLoader(object):
                 n = self.read_offset + self.read_buffer.shape[0] - r_offset
                 if n > r_size:
                     n = r_size
-                self.buffer[r_offset - offset:r_offset - offset + n,:] = self.read_buffer[-n:,:] / 2.0**15
+                self.buffer[r_offset - offset:r_offset - offset + n,:] = self.read_buffer[-n:,:] / (2.0**15-1.0)
                 if self.verbose > 1:
                     print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
                            % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
@@ -998,7 +1008,7 @@ class AudioLoader(object):
                 if n > r_size:
                     n = r_size
                 if n > 0:
-                    self.buffer[r_offset-offset:r_offset+n-offset,:] = self.read_buffer[:n,:] / 2.0**15
+                    self.buffer[r_offset-offset:r_offset+n-offset,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
                     if self.verbose > 2:
                         print('    read  %6d frames to %d-%d (%d-%d in buffer)'
                               % (n, r_offset, r_offset+n, r_offset-offset, r_offset+n-offset))
