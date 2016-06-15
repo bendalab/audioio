@@ -272,9 +272,13 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     sampwidth = wave_encodings[encoding][0]
     dtype = wave_encodings[encoding][1]
     if sampwidth == 1:
-        buffer = np.asarray((data+1.0)*127, dtype=dtype)
+        factor = 2**(sampwidth*8-1)
+        buffer = np.asarray(np.floor((data+1.0) * factor), dtype=dtype)
+        buffer[data >= 1.0] = 2*factor - 1
     elif dtype[0] == 'i':
-        buffer = np.asarray(data*(2.0**(sampwidth*8-1)-1.0), dtype=dtype)
+        factor = 2**(sampwidth*8-1)
+        buffer = np.asarray(np.floor(data * factor), dtype=dtype)
+        buffer[data >= 1.0] = factor - 1
     elif np.dtype(dtype) != data.dtype:
         buffer = np.array(data, dtype=dtype)
     else:

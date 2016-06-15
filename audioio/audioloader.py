@@ -147,15 +147,14 @@ def load_wavfile(filepath, verbose=0):
     if verbose < 2:
         warnings.filterwarnings("always")
     if data.dtype == np.uint8:
-        data = data / 127.0 - 1.0
+        data = data / 128.0 - 1.0
     elif data.dtype.kind == 'i':  # TODO is this right?
-        data = data / (2.0**(data.dtype.itemsize*8-1)-1.0)
+        data = data / (2.0**(data.dtype.itemsize*8-1))
     elif data.dtype == np.float:
         data = np.asarray(data)
     if len(data.shape) == 1:
         data = np.reshape(data,(-1, 1))
     return data, float(rate)
-        
 
 def load_soundfile(filepath, verbose=0):
     """
