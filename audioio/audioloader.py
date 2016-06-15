@@ -188,7 +188,7 @@ def load_soundfile(filepath, verbose=0):
     rate = 0.0
     with soundfile.SoundFile(filepath, 'r') as sf:
         rate = sf.samplerate
-        data = sf.read(always_2d=True)
+        data = sf.read(frames=-1, dtype='float64', always_2d=True)
     return data, float(rate)
 
 
