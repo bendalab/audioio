@@ -612,8 +612,12 @@ class AudioLoader(object):
             self._close_wave()
         self.sf = wave.open(filepath, 'r')
         self.samplerate = self.sf.getframerate()
-        self.format = 'i%d' % self.sf.getsampwidth()
-        self.factor = 1.0/(2.0**(self.sf.getsampwidth()*8-1)-1.0)
+        sampwidth = self.sf.getsampwidth()
+        if sampwidth == 1:
+            self.dtype = 'u1'
+        else:
+            self.dtype = 'i%d' % sampwidth
+        self.factor = 1.0/(2.0**(sampwidth*8-1))
         self.channels = self.sf.getnchannels()
         self.frames = self.sf.getnframes()
         self.shape = (self.frames, self.channels)
@@ -646,8 +650,11 @@ class AudioLoader(object):
             # read buffer:
             self.sf.setpos(r_offset*self.pfac + self.p0)
             buffer = self.sf.readframes(r_size)
-            buffer = np.fromstring(buffer, dtype=self.format).reshape((-1, self.channels))
-            self.buffer[r_offset-offset:r_offset+r_size-offset,:] = buffer * self.factor
+            buffer = np.fromstring(buffer, dtype=self.dtype).reshape((-1, self.channels))
+            if self.dtype[0] == 'u':
+                self.buffer[r_offset-offset:r_offset+r_size-offset,:] = buffer * self.factor - 1.0
+            else:
+                self.buffer[r_offset-offset:r_offset+r_size-offset,:] = buffer * self.factor
             self.offset = offset
             if self.verbose > 1:
                 print('  read %6d frames at %d' % (r_size, r_offset))

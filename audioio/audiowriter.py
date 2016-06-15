@@ -185,11 +185,16 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         dtype = ewave_encodings[encoding][1]
         sampwidth = ewave_encodings[encoding][2]
         # TODO: use ewave.rescale()!
-        # buffer = ewave.rescale(data, dtype) # not really good for i8, check docu
+        #buffer = ewave.rescale(data, dtype) # buggy for u1, i8, check docu
         if dtype[0] == 'i':
-            buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
+            factor = 2**(sampwidth*8-1)
+            buffer = np.array(np.floor(data * factor), dtype=dtype)
+            buffer[data >= 1.0] = factor - 1
         elif dtype[0] == 'u':
-            buffer = np.array((data+1.0)*2**(sampwidth*8-1), dtype=dtype)
+            # TODO: this is not decoded by soundfile! reading is also not supported!?
+            factor = 2**(sampwidth*8-1)
+            buffer = np.array(np.floor((data+1.0) * factor), dtype=dtype)
+            buffer[data >= 1.0] = 2*factor - 1
         elif np.dtype(dtype) != data.dtype:
             buffer = np.array(data, dtype=dtype)
         else:
