@@ -56,6 +56,7 @@ def load_wave(filepath, verbose=0):
     wf = wave.open(filepath, 'r')   # 'with' is not supported by wave
     (nchannels, sampwidth, rate, nframes, comptype, compname) = wf.getparams()
     if verbose > 1:
+        # this should be a separate function with the sndheader module and for all audio formats
         print('channels       : %d' % nchannels)
         print('bytes          : %d' % sampwidth)
         print('sampling rate  : %g' % rate)
@@ -63,14 +64,15 @@ def load_wave(filepath, verbose=0):
         print('compression type: %s' % comptype)
         print('compression name: %s' % compname)
     buffer = wf.readframes(nframes)
+    factor = 2.0**(sampwidth*8-1)
     if sampwidth == 1:
         dtype = 'u1'
-        data = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
-        data = np.asarray(data, dtype='d')/127.0-1.0
+        buffer = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = np.asarray(buffer, dtype='d')/factor - 1.0
     else:
         dtype = 'i%d' % sampwidth
-        data = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
-        data = np.asarray(data, dtype='d')/(2.0**(sampwidth*8-1)-1.0)
+        buffer = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = np.asarray(buffer, dtype='d')/factor
     wf.close()
     return data, float(rate)
 

@@ -97,10 +97,13 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     wf.setnframes(len(data))
     wf.setframerate(int(samplerate))
     wf.setsampwidth(sampwidth)
+    factor = 2**(sampwidth*8-1)
     if sampwidth == 1:
-        buffer = np.array((data+1.0)*127, dtype=dtype)
+        buffer = np.array(np.floor((data+1.0) * factor), dtype=dtype)
+        buffer[data >= 1.0] = 2*factor - 1
     else:
-        buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
+        buffer = np.array(np.floor(data * factor), dtype=dtype)
+        buffer[data >= 1.0] = factor - 1
     wf.writeframes(buffer.tostring())
     wf.close()
 
@@ -130,7 +133,7 @@ def encodings_ewave(format):
     elif format.upper() != 'WAV' and format.upper() != 'WAVEX':
         return []
     else:
-        return ['PCM_64', 'PCM_32', 'PCM_16', 'PCM_U8']
+        return ['PCM_64', 'PCM_32', 'PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE']
     
 def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -161,7 +164,9 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     ewave_encodings = {'PCM_64': ['l', 'i8', 8],
                        'PCM_32': ['i', 'i4', 4],
                        'PCM_16': ['h', 'i2', 2],
-                       'PCM_U8': ['b', 'u1', 1] }
+                       'PCM_U8': ['b', 'u1', 1],
+                       'FLOAT': ['f', 'f', 4],
+                       'DOUBLE': ['d', 'd', 8] }
     if encoding == '':
         encoding = None
     if encoding is None:
@@ -180,12 +185,12 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         dtype = ewave_encodings[encoding][1]
         sampwidth = ewave_encodings[encoding][2]
         # TODO: use ewave.rescale()!
-        #data = ewave.rescale(buffer, 'float')
+        # buffer = ewave.rescale(data, dtype) # not really good for i8, check docu
         if dtype[0] == 'i':
             buffer = np.array(data*(2**(sampwidth*8-1)-1), dtype=dtype)
         elif dtype[0] == 'u':
             buffer = np.array((data+1.0)*2**(sampwidth*8-1), dtype=dtype)
-        elif np.dtype(dtype) != data.dtype: # TODO not supported anyways!
+        elif np.dtype(dtype) != data.dtype:
             buffer = np.array(data, dtype=dtype)
         else:
             buffer = data
