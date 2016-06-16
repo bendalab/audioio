@@ -12,9 +12,7 @@ def test_write_read():
         assert_equal(len(data_read.shape), 2, 'shape differs from 2 for module %s with encoding %s' % (lib, encoding))
         assert_equal(data_write.shape[0], data_read.shape[0], 'shape[0] differs for module %s with encoding %s' % (lib, encoding))
         assert_equal(data_write.shape[1], data_read.shape[1], 'shape[1] differs for module %s with encoding %s' % (lib, encoding))
-        print data_read.dtype
-        if data_read.dtype != np.float64: print '################## WRONG TYPE ##############'
-        #assert_equal(data_read.dtype, np.float64, 'read in data are not doubles for module %s with encoding %s' % (lib, encoding))
+        assert_equal(data_read.dtype, np.float64, 'read in data are not doubles for module %s with encoding %s' % (lib, encoding))
         n = min([len(data_write), len(data_read)])
         max_error = np.max(np.abs(data_write[:n] - data_read[:n]))
         print('maximum error = %g' % max_error)

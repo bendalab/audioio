@@ -150,8 +150,8 @@ def load_wavfile(filepath, verbose=0):
         data = data / 128.0 - 1.0
     elif np.issubdtype(data.dtype, int):
         data = data / (2.0**(data.dtype.itemsize*8-1))
-    elif data.dtype == np.float32:
-        data = data.astype(np.float64)
+    else:
+        data = data.astype(np.float64, copy=False)
     if len(data.shape) == 1:
         data = np.reshape(data,(-1, 1))
     return data, float(rate)
@@ -220,7 +220,7 @@ def load_wavefile(filepath, verbose=0):
         raise ImportError
 
     rate, data = wavefile.load(filepath)
-    return data.T, float(rate)
+    return data.astype(np.float64, copy=False).T, float(rate)
 
 
 def load_audiolab(filepath, verbose=0):
