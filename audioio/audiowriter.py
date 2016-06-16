@@ -99,12 +99,10 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     wf.setsampwidth(sampwidth)
     factor = 2**(sampwidth*8-1)
     if sampwidth == 1:
-        buffer = np.floor((data+1.0) * factor)
-        buffer = buffer.astype(dtype)
+        buffer = np.floor((data+1.0) * factor).astype(dtype)
         buffer[data >= 1.0] = 2*factor - 1
     else:
-        buffer = np.floor(data * factor)
-        buffer = buffer.astype(dtype)
+        buffer = np.floor(data * factor).astype(dtype)
         buffer[data >= 1.0] = factor - 1
     wf.writeframes(buffer.tostring())
     wf.close()
@@ -135,7 +133,7 @@ def encodings_ewave(format):
     elif format.upper() != 'WAV' and format.upper() != 'WAVEX':
         return []
     else:
-        return ['PCM_64', 'PCM_32', 'PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE']
+        return ['PCM_64', 'PCM_32', 'PCM_16', 'FLOAT', 'DOUBLE']
     
 def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -150,7 +148,7 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
                       floats within -1.0 and 1.0 .
         samplerate (float): Sampling rate of the data in Hertz.
         format (string or None): File format, only 'WAV' is supported.
-        encoding (string or None): Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'PCM_U8'
+        encoding (string or None): Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'FLOAT', 'DOUBLE'
 
     Exceptions:
         ImportError: if the wave module is not installed
@@ -163,19 +161,18 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         raise ValueError('file format %s not supported by ewave-module' % format)
         return
 
-    ewave_encodings = {'PCM_64': ['l', 'i8', 8],
-                       'PCM_32': ['i', 'i4', 4],
-                       'PCM_16': ['h', 'i2', 2],
-                       'PCM_U8': ['b', 'u1', 1],
-                       'FLOAT': ['f', 'f', 4],
-                       'DOUBLE': ['d', 'd', 8] }
+    ewave_encodings = {'PCM_64': 'l',
+                       'PCM_32': 'i',
+                       'PCM_16': 'h',
+                       'FLOAT': 'f',
+                       'DOUBLE': 'd' }
     if encoding == '':
         encoding = None
     if encoding is None:
         encoding = 'PCM_16'
     encoding = encoding.upper()
     if not encoding in ewave_encodings:
-        raise ValueError('file encoding %s not supported by ewave-module' % format)
+        raise ValueError('file encoding %s not supported by ewave-module' % encoding)
         return
 
     channels = 1
@@ -183,25 +180,8 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         channels = data.shape[1]
 
     with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
-                    dtype=ewave_encodings[encoding][0], nchannels=channels) as wf:
-        dtype = ewave_encodings[encoding][1]
-        sampwidth = ewave_encodings[encoding][2]
-        # TODO: use ewave.rescale()!
-        #buffer = ewave.rescale(data, dtype) # buggy for u1, i8, check docu
-        if dtype[0] == 'i':
-            factor = 2**(sampwidth*8-1)
-            buffer = np.floor(data * factor)
-            buffer = buffer.astype(dtype)
-            buffer[data >= 1.0] = factor - 1
-        elif dtype[0] == 'u':
-            # TODO: this is not decoded by soundfile! reading is also not supported!?
-            factor = 2**(sampwidth*8-1)
-            buffer = np.floor((data+1.0) * factor)
-            buffer = buffer.astype(dtype)
-            buffer[data >= 1.0] = 2*factor - 1
-        else:
-            buffer = data.astype(dtype, copy=False)
-        wf.write(buffer)
+                    dtype=ewave_encodings[encoding], nchannels=channels) as wf:
+        wf.write(data, scale=True)
 
 
 def formats_wavfile():
@@ -269,19 +249,17 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
         encoding = 'PCM_16'
     encoding = encoding.upper()
     if not encoding in wave_encodings:
-        raise ValueError('file encoding %s not supported by scipy.io.wavfile-module' % format)
+        raise ValueError('file encoding %s not supported by scipy.io.wavfile-module' % encoding)
         return
     sampwidth = wave_encodings[encoding][0]
     dtype = wave_encodings[encoding][1]
     if sampwidth == 1:
         factor = 2**(sampwidth*8-1)
-        buffer = np.floor((data+1.0) * factor)
-        buffer = buffer.astype(dtype)
+        buffer = np.floor((data+1.0) * factor).astype(dtype)
         buffer[data >= 1.0] = 2*factor - 1
     elif dtype[0] == 'i':
         factor = 2**(sampwidth*8-1)
-        buffer = np.floor(data * factor)
-        buffer = buffer.astype(dtype)
+        buffer = np.floor(data * factor).astype(dtype)
         buffer[data >= 1.0] = factor - 1
     else:
         buffer = data.astype(dtype, copy=False)

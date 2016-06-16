@@ -211,8 +211,7 @@ class PlayAudio(object):
             mind = np.abs(np.min(rawdata))
             scale = 1.0/max((mind, maxd))
         rawdata *= scale
-        rawdata = np.floor(rawdata*(2**15-1))
-        self.data = rawdata.astype('i2')
+        self.data = np.floor(rawdata*(2**15-1)).astype('i2')
         self.index = 0
         self._do_play(blocking)
 
@@ -249,7 +248,7 @@ class PlayAudio(object):
 
     def __del__(self):
         """Terminate the audio module."""
-        self.close()
+        selgf.close()
 
     def __enter__(self):
         return self
