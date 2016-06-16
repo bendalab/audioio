@@ -211,7 +211,8 @@ class PlayAudio(object):
             mind = np.abs(np.min(rawdata))
             scale = 1.0/max((mind, maxd))
         rawdata *= scale
-        self.data = np.array(rawdata*(2**15-1), dtype='i2')
+        rawdata = np.floor(rawdata*(2**15-1))
+        self.data = rawdata.astype('i2')
         self.index = 0
         self._do_play(blocking)
 
@@ -476,10 +477,9 @@ class PlayAudio(object):
         self.data_buffer = StringIO()
         w = wave.open(self.data_buffer, 'w')
         w.setnchannels(self.channels)
-        w.setsampwidth(2) # 2 byte integers
+        w.setsampwidth(2)
         w.setframerate(int(self.rate))
         w.setnframes(len(self.data))
-        # TODO: how does this handle 2-d arrays?
         w.writeframesraw(self.data.tostring())
         w.close() # TODO: close here or after PlaySound?
         # play file:

@@ -68,11 +68,11 @@ def load_wave(filepath, verbose=0):
     if sampwidth == 1:
         dtype = 'u1'
         buffer = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
-        data = np.asarray(buffer, dtype='d')/factor - 1.0
+        data = buffer.astype('d')/factor - 1.0
     else:
         dtype = 'i%d' % sampwidth
         buffer = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
-        data = np.asarray(buffer, dtype='d')/factor
+        data = buffer.astype('d')/factor
     wf.close()
     return data, float(rate)
 
@@ -148,10 +148,10 @@ def load_wavfile(filepath, verbose=0):
         warnings.filterwarnings("always")
     if data.dtype == np.uint8:
         data = data / 128.0 - 1.0
-    elif data.dtype.kind == 'i':  # TODO is this right?
+    elif np.issubdtype(data.dtype, int):
         data = data / (2.0**(data.dtype.itemsize*8-1))
-    elif data.dtype == np.float:
-        data = np.asarray(data)
+    elif data.dtype == np.float32:
+        data = data.astype(np.float64)
     if len(data.shape) == 1:
         data = np.reshape(data,(-1, 1))
     return data, float(rate)

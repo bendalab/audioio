@@ -99,10 +99,12 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     wf.setsampwidth(sampwidth)
     factor = 2**(sampwidth*8-1)
     if sampwidth == 1:
-        buffer = np.array(np.floor((data+1.0) * factor), dtype=dtype)
+        buffer = np.floor((data+1.0) * factor)
+        buffer = buffer.astype(dtype)
         buffer[data >= 1.0] = 2*factor - 1
     else:
-        buffer = np.array(np.floor(data * factor), dtype=dtype)
+        buffer = np.floor(data * factor)
+        buffer = buffer.astype(dtype)
         buffer[data >= 1.0] = factor - 1
     wf.writeframes(buffer.tostring())
     wf.close()
@@ -188,17 +190,17 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
         #buffer = ewave.rescale(data, dtype) # buggy for u1, i8, check docu
         if dtype[0] == 'i':
             factor = 2**(sampwidth*8-1)
-            buffer = np.array(np.floor(data * factor), dtype=dtype)
+            buffer = np.floor(data * factor)
+            buffer = buffer.astype(dtype)
             buffer[data >= 1.0] = factor - 1
         elif dtype[0] == 'u':
             # TODO: this is not decoded by soundfile! reading is also not supported!?
             factor = 2**(sampwidth*8-1)
-            buffer = np.array(np.floor((data+1.0) * factor), dtype=dtype)
+            buffer = np.floor((data+1.0) * factor)
+            buffer = buffer.astype(dtype)
             buffer[data >= 1.0] = 2*factor - 1
-        elif np.dtype(dtype) != data.dtype:
-            buffer = np.array(data, dtype=dtype)
         else:
-            buffer = data
+            buffer = data.astype(dtype, copy=False)
         wf.write(buffer)
 
 
@@ -273,16 +275,16 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     dtype = wave_encodings[encoding][1]
     if sampwidth == 1:
         factor = 2**(sampwidth*8-1)
-        buffer = np.asarray(np.floor((data+1.0) * factor), dtype=dtype)
+        buffer = np.floor((data+1.0) * factor)
+        buffer = buffer.astype(dtype)
         buffer[data >= 1.0] = 2*factor - 1
     elif dtype[0] == 'i':
         factor = 2**(sampwidth*8-1)
-        buffer = np.asarray(np.floor(data * factor), dtype=dtype)
+        buffer = np.floor(data * factor)
+        buffer = buffer.astype(dtype)
         buffer[data >= 1.0] = factor - 1
-    elif np.dtype(dtype) != data.dtype:
-        buffer = np.array(data, dtype=dtype)
     else:
-        buffer = data
+        buffer = data.astype(dtype, copy=False)
     wavfile.write(filepath, samplerate, buffer)
 
 

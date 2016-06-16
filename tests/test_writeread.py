@@ -12,11 +12,13 @@ def test_write_read():
         assert_equal(len(data_read.shape), 2, 'shape differs from 2 for module %s with encoding %s' % (lib, encoding))
         assert_equal(data_write.shape[0], data_read.shape[0], 'shape[0] differs for module %s with encoding %s' % (lib, encoding))
         assert_equal(data_write.shape[1], data_read.shape[1], 'shape[1] differs for module %s with encoding %s' % (lib, encoding))
+        print data_read.dtype
+        if data_read.dtype != np.float64: print '################## WRONG TYPE ##############'
+        #assert_equal(data_read.dtype, np.float64, 'read in data are not doubles for module %s with encoding %s' % (lib, encoding))
         n = min([len(data_write), len(data_read)])
         max_error = np.max(np.abs(data_write[:n] - data_read[:n]))
         print('maximum error = %g' % max_error)
         assert_less(max_error, 0.05, 'values differ for module %s with encoding %s by up to %g' % (lib, encoding, max_error))
-        # TODO: check for float64 in data_read!
         
     # generate data:
     samplerate = 44100.0
@@ -29,7 +31,7 @@ def test_write_read():
     filename = 'test.wav'
     format = 'wav'
     encodings = ['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'ALAW', 'ULAW', '']
-    encoidings_fails = ['PCM_U8']  # ewave
+    encoidings_fails = ['PCM_U8']  # TODO ewave
     encodings_with_read_error = ['G721_32', 'GSM610', ''] # soundfile: raise ValueError("frames must be specified for non-seekable files") in sf.read()
     encodings_with_seek_error = ['IMA_ADPCM', 'MS_ADPCM', ''] # soundfile: RuntimeError: Internal psf_fseek() failed.
 
