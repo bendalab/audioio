@@ -16,6 +16,7 @@ def test_write_read():
         max_error = np.max(np.abs(data_write[:n] - data_read[:n]))
         print('maximum error = %g' % max_error)
         assert_less(max_error, 0.05, 'values differ for module %s with encoding %s by up to %g' % (lib, encoding, max_error))
+        # TODO: check for float64 in data_read!
         
     # generate data:
     samplerate = 44100.0
@@ -28,6 +29,7 @@ def test_write_read():
     filename = 'test.wav'
     format = 'wav'
     encodings = ['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'ALAW', 'ULAW', '']
+    encoidings_fails = ['PCM_U8']  # ewave
     encodings_with_read_error = ['G721_32', 'GSM610', ''] # soundfile: raise ValueError("frames must be specified for non-seekable files") in sf.read()
     encodings_with_seek_error = ['IMA_ADPCM', 'MS_ADPCM', ''] # soundfile: RuntimeError: Internal psf_fseek() failed.
 
