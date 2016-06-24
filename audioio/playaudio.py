@@ -96,7 +96,11 @@ def note2freq(note, a4freq=440.0):
             index += 1
     # octave:
     if index < len(note) and note[index] >= '0' and note[index] <= '9':
-        octave = ord(note[index]) - ord('0')
+        octave = 0
+        while index < len(note) and note[index] >= '0' and note[index] <= '9':
+            octave *= 10
+            octave += ord(note[index]) - ord('0')
+            index += 1
     if tone >= 3:
         octave -= 1
     tone += 12*(octave-4)
@@ -248,7 +252,7 @@ class PlayAudio(object):
 
     def __del__(self):
         """Terminate the audio module."""
-        selgf.close()
+        self.close()
 
     def __enter__(self):
         return self
@@ -592,7 +596,7 @@ if __name__ == "__main__":
 
     print('play notes')
     o = 3
-    for oo in range(3):
+    for oo in range(4):
         for t in range(7):
             if t == 2:
                 o += 1
