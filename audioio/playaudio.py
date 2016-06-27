@@ -595,7 +595,7 @@ if __name__ == "__main__":
     play(data, rate)
 
     print('play notes')
-    o = 3
+    o = 6
     for oo in range(4):
         for t in range(7):
             if t == 2:

@@ -493,21 +493,28 @@ class AudioLoader(object):
             step = index.step
             if start is None:
                 start=0
+            else:
+                start = int(start)
             if start < 0:
                 start += len(self)
             if stop is None:
                 stop = len(self)
+            else:
+                stop = int(stop)
             if stop < 0:
                 stop += len(self)
             if stop > self.frames:
                 stop = self.frames
             if step is None:
                 step = 1
+            else:
+                start = int(start)
             self._update_buffer(start, stop)
             newindex = slice(start-self.offset, stop-self.offset, step)
         else:
             if index > self.frames:
                 raise IndexError
+            index = int(index)
             self._update_buffer(index, index+1)
             newindex = index-self.offset
         if hasattr(key, '__len__'):
@@ -751,6 +758,7 @@ class AudioLoader(object):
         if self.sf.seekable():
             self.frames = self.sf.seek(0, soundfile.SEEK_END)
             self.sf.seek(0, soundfile.SEEK_SET)
+        # TODO: if not seekable, we cannot handle that file!
         self.shape = (self.frames, self.channels)
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
@@ -1090,24 +1098,24 @@ if __name__ == "__main__":
         plot = True
         
     filepath = sys.argv[-1]
-    print('')
-    print("try load_audio:")
-    data, rate = load_audio(filepath, 2)
-    if plot:
-        plt.plot(np.arange(len(data))/rate, data[:,0])
-        plt.show()
-    print('')
-    for lib, load_file in audio_loader:
-        if not audio_modules[lib]:
-            continue
-        try:
-            data, rate = load_file(filepath, 1)
-            print('loaded data from file "%s" with %s' %
-                    (filepath, lib))
-        except:
-            print('failed to load data from file "%s" with %s' %
-                  (filepath, lib))
-    print('')
+    ## print('')
+    ## print("try load_audio:")
+    ## data, rate = load_audio(filepath, 2)
+    ## if plot:
+    ##     plt.plot(np.arange(len(data))/rate, data[:,0])
+    ##     plt.show()
+    ## print('')
+    ## for lib, load_file in audio_loader:
+    ##     if not audio_modules[lib]:
+    ##         continue
+    ##     try:
+    ##         data, rate = load_file(filepath, 1)
+    ##         print('loaded data from file "%s" with %s' %
+    ##                 (filepath, lib))
+    ##     except:
+    ##         print('failed to load data from file "%s" with %s' %
+    ##               (filepath, lib))
+    ## print('')
 
     print("try AudioLoader:")
     print('')
@@ -1127,6 +1135,7 @@ if __name__ == "__main__":
             if plot:
                 plt.plot((i+np.arange(len(x)))/rate, x)
                 plt.show()
+            exit()
         # and backwards:
         for i in reversed(range(0, len(data), nframes)):
             print('backward %d-%d' % (i, i+nframes))
