@@ -372,7 +372,7 @@ def load_audio(filepath, verbose=0):
 
 class AudioLoader(object):
     """Buffered reading of audio data for random access of the data in the file.
-    This allows for reading very large audio files that  do not fit into memory.
+    This allows for reading very large audio files that do not fit into memory.
     An AudioLoader instance can be used like a huge read-only numpy array, i.e.
 
         data = AudioLoader('path/to/audio/file.wav')
@@ -441,6 +441,15 @@ class AudioLoader(object):
       open(): open an audio file by trying available audio modules.
       open_*(): open an audio file with the respective audio module.
       close(): close the file.
+
+    TODO:
+      Access via __getitem__ or __next__ is slow!
+      Even worse, using numpy functions on this class first converts
+      it to a numpy array - that is something we actually do not want!
+      We should subclass directly from numpy.ndarray .
+      For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+      When subclassing, there is an offset argument, that might help to
+      speed up __getitem__ .
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
@@ -481,6 +490,21 @@ class AudioLoader(object):
         
     def __len__(self):
         return self.frames
+
+    def __iter__(self):
+        self.iter_counter = -1
+        return self
+
+    def __next__(self):
+        self.iter_counter += 1
+        if self.iter_counter >= self.frames:
+            raise StopIteration
+        else:
+            self._update_buffer(self.iter_counter, self.iter_counter+1)
+            return self.buffer[self.iter_counter-self.offset,:]
+
+    def next(self):  # python 2
+        return self.__next__()
 
     def __getitem__(self, key):
         if type(key) is tuple:
