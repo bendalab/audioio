@@ -611,7 +611,7 @@ class AudioLoader(object):
             m = self.buffer.shape[0]
             buffer = self.buffer[:n,:]
             self._allocate_buffer(size)
-            buffer[-n:,:] = buffer
+            self.buffer[-n:,:] = buffer
             r_size -= n
             if self.verbose > 1:
                 print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the end at %d-%d (%d-%d in buffer)'
@@ -1127,12 +1127,12 @@ if __name__ == "__main__":
         plot = True
         
     filepath = sys.argv[-1]
-    ## print('')
-    ## print("try load_audio:")
-    ## data, rate = load_audio(filepath, 2)
-    ## if plot:
-    ##     plt.plot(np.arange(len(data))/rate, data[:,0])
-    ##     plt.show()
+    print('')
+    print("try load_audio:")
+    full_data, rate = load_audio(filepath, 2)
+    if plot:
+        plt.plot(np.arange(len(full_data))/rate, full_data[:,0])
+        plt.show()
     ## print('')
     ## for lib, load_file in audio_loader:
     ##     if not audio_modules[lib]:
@@ -1152,12 +1152,22 @@ if __name__ == "__main__":
     #data.open_audioread(filepath, 2.0, 1.0, 2)
     #data = AudioLoader(filepath, 8.0, 3.0, 2)
     #with data.open_soundfile(filepath, 2.0, 1.0, 2):
-    with open_audio_loader(filepath, 2.0, 1.0, 1) as data:
+    with open_audio_loader(filepath, 2.0, 0.0, 0) as data:
         print('samplerate: %g' % data.samplerate)
         print('channels: %d %d' % (data.channels, data.shape[1]))
         print('frames: %d %d' % (len(data), data.shape[0]))
-        nframes = int(1.0*data.samplerate)
+        # check access:
+        for inx in np.random.randint(0, len(data), 1000):
+            if full_data[inx,0] != data[inx,0]:
+                print 'single element access failed', inx, full_data[inx][0], data[inx][0]
+                #exit()
+        for inx in np.random.randint(0, len(data), 1000):
+            if np.any(full_data[inx] != data[inx]):
+                print 'single frame access failed', inx, full_data[inx], data[inx]
+        exit()
+        
         # forward:
+        nframes = int(1.0*data.samplerate)
         for i in range(0, len(data), nframes):
             print('forward %d-%d' % (i, i+nframes))
             x = data[i:i+nframes,0]
