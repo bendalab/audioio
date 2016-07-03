@@ -939,6 +939,9 @@ class AudioLoader(object):
     def open_audioread(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the audioread module.
 
+        Note, that audioread can only read forward, therefore random and
+        backward access is really slow.
+
         Args:
           filepath (string): name of the file
           buffersize (float): size of internal buffer in seconds
@@ -1125,7 +1128,9 @@ if __name__ == "__main__":
     plot = False
     if len(sys.argv) > 1 and sys.argv[1] == '-p':
         plot = True
-        
+
+    #disable_module('soundfile')
+                
     filepath = sys.argv[-1]
     print('')
     print("try load_audio:")
@@ -1144,37 +1149,53 @@ if __name__ == "__main__":
     ##     except:
     ##         print('failed to load data from file "%s" with %s' %
     ##               (filepath, lib))
-    ## print('')
-
-    print("try AudioLoader:")
+    
     print('')
+    print("cross check:")
+    data1, rate1 = load_soundfile(filepath)
+    data2, rate2 = load_audioread(filepath)
+    n = min((len(data1), len(data2)))
+    print("rms difference is %g" % np.std(data1[:n]-data2[:n]))
+    if plot:
+        plt.plot(np.arange(len(data1))/rate1, data1[:,0])
+        plt.plot(np.arange(len(data2))/rate2, data2[:,0])
+        plt.show()
+    
+    print('')
+    print("try AudioLoader:")
     #data = AudioLoader()
     #data.open_audioread(filepath, 2.0, 1.0, 2)
     #data = AudioLoader(filepath, 8.0, 3.0, 2)
     #with data.open_soundfile(filepath, 2.0, 1.0, 2):
-    with open_audio_loader(filepath, 2.0, 0.0, 0) as data:
+    with open_audio_loader(filepath, 4.0, 1.0, 0) as data:
         print('samplerate: %g' % data.samplerate)
         print('channels: %d %d' % (data.channels, data.shape[1]))
         print('frames: %d %d' % (len(data), data.shape[0]))
+        nframes = int(1.5*data.samplerate)
         # check access:
+        print('check random single frame access')
         for inx in np.random.randint(0, len(data), 1000):
-            if full_data[inx,0] != data[inx,0]:
-                print 'single element access failed', inx, full_data[inx][0], data[inx][0]
-                #exit()
-        for inx in np.random.randint(0, len(data), 1000):
-            if np.any(full_data[inx] != data[inx]):
-                print 'single frame access failed', inx, full_data[inx], data[inx]
-        exit()
-        
+            if np.any(np.abs(full_data[inx] - data[inx]) > 2.0**(-14)):
+                print 'single random frame access failed', inx, full_data[inx], data[inx]
+        print('check random frame slice access')
+        for inx in np.random.randint(0, len(data)-nframes, 1000):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > 2.0**(-14)):
+                print 'random frame slice access failed', inx
+        print('check frame slice access forward')
+        for inx in range(0, len(data)-nframes, 10):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > 2.0**(-14)):
+                print 'frame slice access forward failed', inx
+        print('check frame slice access backward')
+        for inx in range(len(data)-nframes, 0, -10):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > 2.0**(-14)):
+                print 'frame slice access backward failed', inx
         # forward:
-        nframes = int(1.0*data.samplerate)
         for i in range(0, len(data), nframes):
             print('forward %d-%d' % (i, i+nframes))
             x = data[i:i+nframes,0]
             if plot:
                 plt.plot((i+np.arange(len(x)))/rate, x)
                 plt.show()
-            exit()
         # and backwards:
         for i in reversed(range(0, len(data), nframes)):
             print('backward %d-%d' % (i, i+nframes))
