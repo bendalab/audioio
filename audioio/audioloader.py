@@ -26,8 +26,7 @@ sudo apt-get install -y libav-tools python-audioread
 import warnings
 import os.path
 import numpy as np
-from audiomodules import *
-
+from .audiomodules import *
 
 def load_wave(filepath, verbose=0):
     """
@@ -1176,19 +1175,19 @@ if __name__ == "__main__":
         print('check random single frame access')
         for inx in np.random.randint(0, len(data), 1000):
             if np.any(np.abs(full_data[inx] - data[inx]) > 2.0**(-14)):
-                print 'single random frame access failed', inx, full_data[inx], data[inx]
+                print('single random frame access failed', inx, full_data[inx], data[inx])
         print('check random frame slice access')
         for inx in np.random.randint(0, len(data)-nframes, 1000):
             if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > 2.0**(-14)):
-                print 'random frame slice access failed', inx
+                print('random frame slice access failed', inx)
         print('check frame slice access forward')
         for inx in range(0, len(data)-nframes, 10):
             if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > 2.0**(-14)):
-                print 'frame slice access forward failed', inx
+                print('frame slice access forward failed', inx)
         print('check frame slice access backward')
         for inx in range(len(data)-nframes, 0, -10):
             if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > 2.0**(-14)):
-                print 'frame slice access backward failed', inx
+                print('frame slice access backward failed', inx)
         # forward:
         for i in range(0, len(data), nframes):
             print('forward %d-%d' % (i, i+nframes))

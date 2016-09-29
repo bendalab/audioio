@@ -49,7 +49,7 @@ try:
 except ImportError:
     from io import StringIO
 from multiprocessing import Process
-from audiomodules import *
+from .audiomodules import *
 
 
 # default audio device handler:

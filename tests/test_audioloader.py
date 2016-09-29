@@ -33,6 +33,8 @@ def test_audioloader():
         ]
 
     for lib, read_func in audio_funcs:
+        if not al.audio_modules[lib]:
+            continue
         print('%s module:' % lib)
         # load full data:
         full_data, rate = read_func(filename)

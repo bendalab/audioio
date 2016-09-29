@@ -18,7 +18,7 @@ Installation:
  
 import warnings
 import numpy as np
-from audiomodules import *
+from .audiomodules import *
 
 
 def formats_wave():
@@ -263,7 +263,7 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
         buffer[data >= 1.0] = factor - 1
     else:
         buffer = data.astype(dtype, copy=False)
-    wavfile.write(filepath, samplerate, buffer)
+    wavfile.write(filepath, int(samplerate), buffer)
 
 
 def formats_soundfile():
