@@ -21,6 +21,9 @@ sudo pip install pysoundfile
 
 mp3 and similar formats are supported by the audioread module. Install it via:
 sudo apt-get install -y libav-tools python-audioread
+
+For a demo, run the script as:
+python -m audioio.audioloader audiofile.wav
 """
  
 import warnings

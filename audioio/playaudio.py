@@ -28,6 +28,9 @@ and uses note2freq() to get the right frequency.
 Data can be multiplied with a squared-sine for fading in and out with
 fade_in(), fade_out(), and fade().
 
+For a demo, run the script as:
+python -m audioio.playaudio
+
 See also:
 https://wiki.python.org/moin/Audio/
 https://docs.python.org/3/library/mm.html

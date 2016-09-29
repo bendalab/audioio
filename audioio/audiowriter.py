@@ -14,6 +14,9 @@ We recommend pysoundfile for best results:
 Installation:
     sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
     sudo pip install pysoundfile
+
+For a demo, run the script as:
+python -m audioio.audiowriter
 """
  
 import warnings
