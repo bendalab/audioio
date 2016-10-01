@@ -366,7 +366,6 @@ class PlayAudio(object):
         
     def _close_pyaudio(self):
         """Terminate pyaudio module."""
-        print('close')
         self._stop_pyaudio()
         self.handle.terminate()           
         self._do_play = self._play

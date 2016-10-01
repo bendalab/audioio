@@ -486,9 +486,9 @@ class AudioLoader(object):
     def __enter__(self):
         return self
         
-    def __exit__(self, type, value, tb):
+    def __exit__(self, ex_type, ex_value, tb):
         self.__del__()
-        return value
+        return (ex_value is None)
         
     def __len__(self):
         return self.frames
@@ -1079,15 +1079,17 @@ class AudioLoader(object):
           backsize (float): part of the buffer to be loaded before the requested start index in seconds
           verbose (int): if >0 show detailed error/warning messages
         """
+        self.buffer = np.array([])
+        self.samplerate = 0.0
         if len(filepath) == 0:
             warnings.warn('input argument filepath is empty string!')
-            return data, rate
+            return self
         if not os.path.isfile(filepath):
             warnings.warn('input argument filepath=%s does not indicate an existing file!' % filepath)
-            return data, rate
+            return self
         if os.path.getsize(filepath) <= 0:
             warnings.warn('load_audio(): input argument filepath=%s indicates file of size 0!' % filepath)
-            return data, rate
+            return self
         # list of implemented open functions:
         audio_open = [
             ['soundfile', self.open_soundfile],
