@@ -335,20 +335,15 @@ def load_audio(filepath, verbose=0):
         rate (float): the sampling rate of the data in Hz
     """
     # check values:
-    rate = 0.0
-    data = np.zeros((0, 0))
     if len(filepath) == 0:
-        warnings.warn('input argument filepath is empty string!')
-        return data, rate
+        raise ValueError('input argument filepath is empty string!')
     if not os.path.isfile(filepath):
-        warnings.warn('input argument filepath=%s does not indicate an existing file!' % filepath)
-        return data, rate
+        FileNotFoundException = getattr(__builtins__,'FileNotFoundError', IOError)
+        raise FileNotFoundException('file "%s" not found' % filepath)
     if os.path.getsize(filepath) <= 0:
-        warnings.warn('load_audio(): input argument filepath=%s indicates file of size 0!' % filepath)
-        return data, rate
+        raise EOFError('AudioLoader.open(): input argument filepath=%s indicates file of size 0!' % filepath)
 
     # load an audio file by trying various modules:
-    error_str = ''
     success = False
     for lib, load_file in audio_loader:
         if not audio_modules[lib]:
@@ -365,10 +360,9 @@ def load_audio(filepath, verbose=0):
                         print('  data values  : %d' % len(data))
                 break
         except:
-            if len(error_str) == 0:
-                error_str = 'failed to load data from file "%s" with %s' % (filepath, lib)
+            pass
     if not success:
-        warnings.warn(error_str)
+        raise IOError('failed to load data from file "%s" with %s' % filepath)
     return data, rate
 
 
@@ -403,7 +397,7 @@ class AudioLoader(object):
             y = data[10000:20000]
             z = x + y
 
-    For using a specific module:
+    For using a specific audio module, here the audioread module:
     
         data = aio.AudioLoader()
         with data.open_audioread(filepath, 60.0, 10.0):
@@ -420,7 +414,7 @@ class AudioLoader(object):
         data = aio.AudioLoader()
         data.open(filepath, 60.0)
 
-    or for a specific module:
+    or for a specific module, here the pysoundfile module:
 
         data = aio.AudioLoader()
         data.open_soundfile(filepath, 60.0)
@@ -1082,14 +1076,12 @@ class AudioLoader(object):
         self.buffer = np.array([])
         self.samplerate = 0.0
         if len(filepath) == 0:
-            warnings.warn('input argument filepath is empty string!')
-            return self
+            raise ValueError('input argument filepath is empty string!')
         if not os.path.isfile(filepath):
-            warnings.warn('input argument filepath=%s does not indicate an existing file!' % filepath)
-            return self
+            FileNotFoundException = getattr(__builtins__,'FileNotFoundError', IOError)
+            raise FileNotFoundException('file "%s" not found' % filepath)
         if os.path.getsize(filepath) <= 0:
-            warnings.warn('load_audio(): input argument filepath=%s indicates file of size 0!' % filepath)
-            return self
+            raise EOFError('AudioLoader.open(): input argument filepath=%s indicates file of size 0!' % filepath)
         # list of implemented open functions:
         audio_open = [
             ['soundfile', self.open_soundfile],
@@ -1100,19 +1092,24 @@ class AudioLoader(object):
             ['ewave', self.open_ewave]
             ]
         # open an audio file by trying various modules:
+        success = False
         for lib, open_file in audio_open:
             if not audio_modules[lib]:
                 continue
             try:
                 open_file(filepath, buffersize, backsize, verbose)
-                if self.verbose > 0:
-                    print('opened audio file "%s" using %s:' %
-                          (filepath, lib))
-                    print('  sampling rate: %g Hz' % self.samplerate)
-                    print('  data values : %d' % self.frames)
-                break
+                if self.frames > 0:
+                    success = True
+                    if verbose > 0:
+                        print('opened audio file "%s" using %s' % (filepath, lib))
+                        if verbose > 1:
+                            print('  sampling rate: %g Hz' % self.samplerate)
+                            print('  data values  : %d' % self.frames)
+                    break
             except:
-                warnings.warn('failed to open audio file "%s" with %s' % (filepath, lib))
+                    pass
+        if not success:
+            raise IOError('failed to load data from file "%s"' % filepath)
         return self
 
 
@@ -1136,6 +1133,7 @@ if __name__ == "__main__":
     #disable_module('soundfile')
                 
     filepath = sys.argv[-1]
+    
     print('')
     print("try load_audio:")
     full_data, rate = load_audio(filepath, 2)
