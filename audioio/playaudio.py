@@ -511,14 +511,18 @@ class PlayAudio(object):
             ['winsound', self.open_winsound]
             ]
         # open audio device by trying various modules:
+        success = False
         for lib, open_device in audio_open:
             if not audio_modules[lib]:
                 continue
             try:
                 open_device()
+                success = true
                 break
             except:
-                warnings.warn('failed to open audio module %s' % lib)
+                pass
+        if not success:
+            raise IOError('cannot open device for audio output')
         return self
 
 

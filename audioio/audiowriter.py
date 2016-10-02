@@ -19,7 +19,6 @@ For a demo, run the script as:
 python -m audioio.audiowriter
 """
  
-import warnings
 import numpy as np
 from .audiomodules import *
 
@@ -564,10 +563,9 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
         ]
 
     if len(filepath) == 0:
-        warnings.warn('input argument filepath is empty string!')
+        raise ValueError('input argument filepath is empty string!')
 
     # write audio file by trying available modules:
-    error_str = ''
     success = False
     for lib, write_file in audio_writer:
         if not audio_modules[lib]:
@@ -577,10 +575,9 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
             success = True
             break
         except:
-            if len(error_str) == 0:
-                error_str = 'failed to write data to file "%s" with %s' % (filepath, lib)
+            pass
     if not success:
-        warnings.warn(error_str)
+        raise IOError('failed to write data to file "%s"' % filepath)
 
 if __name__ == "__main__":
     import sys
