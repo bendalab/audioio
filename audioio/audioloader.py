@@ -1010,7 +1010,10 @@ class AudioLoader(object):
             while self.read_offset + self.read_buffer.shape[0] < r_offset:
                 self.read_offset += self.read_buffer.shape[0]
                 try:
-                    buffer = self.sf_iter.next()
+                    if hasattr(self.sf_iter, 'next'):
+                        buffer = self.sf_iter.next()
+                    else:
+                        buffer = next(self.sf_iter)
                 except StopIteration:
                     self.read_buffer = np.zeros((0,0))
                     self.buffer[r_offset-offset:,:] = 0.0
@@ -1040,7 +1043,10 @@ class AudioLoader(object):
             while r_size > 0:
                 self.read_offset += self.read_buffer.shape[0]
                 try:
-                    buffer = self.sf_iter.next()
+                    if hasattr(self.sf_iter, 'next'):
+                        buffer = self.sf_iter.next()
+                    else:
+                        buffer = next(self.sf_iter)
                 except StopIteration:
                     self.read_buffer = np.zeros((0,0))
                     self.buffer[r_offset-offset:,:] = 0.0
@@ -1123,7 +1129,7 @@ if __name__ == "__main__":
     print("Checking audioloader module ...")
     print('')
     print('Usage:')
-    print('  python audioloader.py [-p] <audiofile>')
+    print('  python audioloader.py [-p] <audio/file.wav>')
     print('  -p: plot data')
 
     plot = False
@@ -1140,17 +1146,17 @@ if __name__ == "__main__":
     if plot:
         plt.plot(np.arange(len(full_data))/rate, full_data[:,0])
         plt.show()
-    ## print('')
-    ## for lib, load_file in audio_loader:
-    ##     if not audio_modules[lib]:
-    ##         continue
-    ##     try:
-    ##         data, rate = load_file(filepath, 1)
-    ##         print('loaded data from file "%s" with %s' %
-    ##                 (filepath, lib))
-    ##     except:
-    ##         print('failed to load data from file "%s" with %s' %
-    ##               (filepath, lib))
+    print('')
+    for lib, load_file in audio_loader:
+        if not audio_modules[lib]:
+            continue
+        try:
+            data, rate = load_file(filepath, 1)
+            print('loaded data from file "%s" with %s' %
+                    (filepath, lib))
+        except:
+            print('failed to load data from file "%s" with %s' %
+                  (filepath, lib))
     
     print('')
     print("cross check:")

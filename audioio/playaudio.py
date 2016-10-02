@@ -522,7 +522,7 @@ class PlayAudio(object):
             except:
                 pass
         if not success:
-            raise IOError('cannot open device for audio output')
+            warnings.warn('cannot open device for audio output')
         return self
 
 
