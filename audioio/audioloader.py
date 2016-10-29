@@ -642,7 +642,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_wave()
         self.sf = wave.open(filepath, 'r')
-        self.samplerate = self.sf.getframerate()
+        self.samplerate = float(self.sf.getframerate())
         sampwidth = self.sf.getsampwidth()
         if sampwidth == 1:
             self.dtype = 'u1'
@@ -717,7 +717,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_ewave()
         self.sf = ewave.open(filepath, 'r')
-        self.samplerate = self.sf.sampling_rate
+        self.samplerate = float(self.sf.sampling_rate)
         self.channels = self.sf.nchannels
         self.frames = self.sf.nframes
         self.shape = (self.frames, self.channels)
@@ -777,7 +777,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_soundfile()
         self.sf = soundfile.SoundFile(filepath, 'r')
-        self.samplerate = self.sf.samplerate
+        self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = 0
         if self.sf.seekable():
@@ -837,7 +837,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_wavefile()
         self.sf = wavefile.WaveReader(filepath)
-        self.samplerate = self.sf.samplerate
+        self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = self.sf.frames
         self.shape = (self.frames, self.channels)
@@ -895,7 +895,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_audiolab()
         self.sf = audiolab.Sndfile(filepath, 'r')
-        self.samplerate = self.sf.samplerate
+        self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = int(self.sf.nframes)
         self.shape = (self.frames, self.channels)
@@ -957,7 +957,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_audioread()
         self.sf = audioread.audio_open(filepath)
-        self.samplerate = self.sf.samplerate
+        self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = int(np.ceil(self.samplerate*self.sf.duration))
         self.shape = (self.frames, self.channels)
