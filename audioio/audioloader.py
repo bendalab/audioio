@@ -158,6 +158,7 @@ def load_wavfile(filepath, verbose=0):
         data = np.reshape(data,(-1, 1))
     return data, float(rate)
 
+
 def load_soundfile(filepath, verbose=0):
     """
     Load audio file using pysoundfile (based on libsndfile).
@@ -341,12 +342,17 @@ def load_audio(filepath, verbose=0):
         FileNotFoundException = getattr(__builtins__,'FileNotFoundError', IOError)
         raise FileNotFoundException('file "%s" not found' % filepath)
     if os.path.getsize(filepath) <= 0:
-        raise EOFError('AudioLoader.open(): input argument filepath=%s indicates file of size 0!' % filepath)
+        raise EOFError('file "%s" is empty (size=0)!' % filepath)
 
     # load an audio file by trying various modules:
     success = False
+    not_installed = []
     for lib, load_file in audio_loader:
         if not audio_modules[lib]:
+            if verbose > 1:
+                print('failed to load data from file "%s" using %s module' %
+                      (filepath, lib))
+            not_installed.append(lib)
             continue
         try:
             data, rate = load_file(filepath, verbose)
@@ -362,7 +368,12 @@ def load_audio(filepath, verbose=0):
         except:
             pass
     if not success:
-        raise IOError('failed to load data from file "%s" with %s' % filepath)
+        need_install = ""
+        if len(not_installed) > 0:
+            need_install = " You may need to install one of the " + \
+              ', '.join(not_installed) + " packages."
+        raise IOError('failed to load data from file "%s".%s' %
+                      (filepath, need_install))
     return data, rate
 
 
@@ -1087,7 +1098,7 @@ class AudioLoader(object):
             FileNotFoundException = getattr(__builtins__,'FileNotFoundError', IOError)
             raise FileNotFoundException('file "%s" not found' % filepath)
         if os.path.getsize(filepath) <= 0:
-            raise EOFError('AudioLoader.open(): input argument filepath=%s indicates file of size 0!' % filepath)
+            raise EOFError('file "%s" is empty (size=0)!' % filepath)
         # list of implemented open functions:
         audio_open = [
             ['soundfile', self.open_soundfile],
@@ -1099,8 +1110,13 @@ class AudioLoader(object):
             ]
         # open an audio file by trying various modules:
         success = False
+        not_installed = []
         for lib, open_file in audio_open:
             if not audio_modules[lib]:
+                if verbose > 1:
+                    print('failed to load data from file "%s" using %s module' %
+                          (filepath, lib))
+                not_installed.append(lib)
                 continue
             try:
                 open_file(filepath, buffersize, backsize, verbose)
@@ -1115,7 +1131,12 @@ class AudioLoader(object):
             except:
                     pass
         if not success:
-            raise IOError('failed to load data from file "%s"' % filepath)
+            need_install = ""
+            if len(not_installed) > 0:
+                need_install = " You may need to install one of the " + \
+                  ', '.join(not_installed) + " packages."
+            raise IOError('failed to load data from file "%s".%s' %
+                          (filepath, need_install))
         return self
 
 
@@ -1137,6 +1158,7 @@ if __name__ == "__main__":
         plot = True
 
     #disable_module('soundfile')
+    #disable_module('audioread')
                 
     filepath = sys.argv[-1]
     
@@ -1146,6 +1168,7 @@ if __name__ == "__main__":
     if plot:
         plt.plot(np.arange(len(full_data))/rate, full_data[:,0])
         plt.show()
+
     print('')
     for lib, load_file in audio_loader:
         if not audio_modules[lib]:

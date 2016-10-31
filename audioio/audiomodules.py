@@ -1,8 +1,11 @@
 """
 list_modules() and available_modules() let you query which audio modules
 are installed and available.
+
+disable_module() disables specific audio modules.
+
 For further information and installing instructions of missing modules,
-see the documentation of the respective load_*() functions.
+see the documentation of the respective load_*() functions of the audioloader module.
 
 For an overview on available python modules see
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
