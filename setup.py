@@ -1,8 +1,10 @@
 from distutils.core import setup
 from setuptools import find_packages
 
+exec(open('audioio/version.py').read())
+
 setup(name='audioio',
-      version='0.2',
+      version=__version__,
       packages=find_packages(exclude=['contrib', 'doc', 'tests*']),
       description='Platform independent reading of audio files as well as recording and playing of audio data.',
       author='Jan Benda, Joerg Henninger',

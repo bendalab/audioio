@@ -2,7 +2,11 @@
 Platform independent interfacing of numpy arrays with audio files and devices.
 """
 
-__all__ = ['audiomodules', 'audioloader', 'playaudio']
+from .version import __version__
+
+__all__ = ['audiomodules',
+           'audioloader',
+           'playaudio']
 
 # make all important functions available in the audioio namespace:
 from audioio.audiomodules import list_modules, available_modules, disable_module
