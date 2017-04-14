@@ -260,6 +260,32 @@ class PlayAudio(object):
         # play:
         self.play(data, rate, scale=1.0, blocking=blocking)
 
+    def _down_sample(self, channels, scale=1):
+        """Sample the data down and adapt maximum channel number."""
+        if type(scale) == int:
+            if len(self.data.shape) > 1:
+                self.data = np.asarray(self.data[::scale, :channels], order='C')
+            else:
+                self.data = np.asarray(self.data[::scale], order='C')
+        else:
+            dt0 = 1.0/self.rate
+            dt1 = scale/self.rate
+            t1 = (len(self.data)+0.5)*dt0
+            new_time = np.arange(0.0, t1, dt1)
+            old_time = np.arange(0.0, t1, dt0)
+            if len(self.data.shape) > 1:
+                data = np.zeros((len(newtime), channels))
+                for c in range(channels):
+                    data[:, c] = np.interp(new_time, old_time, self.data[:, c])
+                self.data = data
+            else:
+                self.data = np.interp(new_time, old_time, self.data)
+        if self.verbose:
+            print('adapted sampling rate from %g Hz down to %g Hz' %
+                  (self.rate, self.rate/scale))
+        self.rate /= scale
+        self.channels = channels
+
     def __del__(self):
         """Terminate the audio module."""
         self.close()
@@ -298,6 +324,10 @@ class PlayAudio(object):
         self._do_play = self._play_pyaudio
         self.close = self._close_pyaudio
         self.stop = self._stop_pyaudio
+        info = self.handle.get_default_output_device_info()
+        self.max_channels = info['maxOutputChannels']
+        self.default_rate = info['defaultSampleRate']
+        self.device_index = info['index']
         return self
 
     def _callback_pyaudio(self, in_data, frames, time_info, status):
@@ -357,10 +387,44 @@ class PlayAudio(object):
         Args:
             blocking (boolean): if False do not block. 
         """
+        # check channel count:
+        channels = self.channels
+        if self.channels > self.max_channels:
+            channels = self.max_channels
+        # check sampling rate:
+        scale_fac = 1
+        scaled_rate = self.rate
+        max_rate = 48000.0
+        if self.rate > max_rate:
+            scale_fac = int(np.ceil(self.rate/max_rate))
+            scaled_rate = int(self.rate//scale_fac)
+        rates = [self.rate, scaled_rate, 44100, 22050, self.default_rate]
+        scales = [1, scale_fac, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            try:
+                if self.handle.is_format_supported(int(rate),
+                                                   output_device=self.device_index,
+                                                   output_channels=channels,
+                                                   output_format=pyaudio.paInt16):
+                    if scale is None:
+                        scale = self.rate/float(rate)
+                    success = True
+                    break
+            except Exception as e:
+                if self.verbose > 0:
+                    print('invalid sampling rate of %g Hz' % rate)
+                if e.args[1] != pyaudio.paInvalidSampleRate:
+                    raise
+        if not success:
+            raise ValueError('No valid sampling rate found')
+        if channels != self.channels or scale != 1:
+            self._down_sample(channels, scale)
+        
         # play:
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
-                                       rate=int(self.rate), output=True,
-                                       stream_callback=self._callback_pyaudio)
+                                        rate=int(self.rate), output=True,
+                                        stream_callback=self._callback_pyaudio)
         self.run = True
         self.stream.start_stream()
         if blocking:
@@ -374,7 +438,8 @@ class PlayAudio(object):
     def _close_pyaudio(self):
         """Terminate pyaudio module."""
         self._stop_pyaudio()
-        self.handle.terminate()           
+        self.handle.terminate()
+        self.handle = None
         self._do_play = self._play
         self.stop = self._stop
 
@@ -394,6 +459,8 @@ class PlayAudio(object):
         """
         if not audio_modules['ossaudiodev']:
             raise ImportError
+        handle = ossaudiodev.open('w')
+        handle.close()
         self.handle = True
         self.osshandle = None
         self.run = False
@@ -433,8 +500,32 @@ class PlayAudio(object):
         """
         self.osshandle = ossaudiodev.open('w')
         self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
-        self.osshandle.channels(self.channels)
-        self.osshandle.speed(int(self.rate))
+        # set and check channel count:
+        channels = self.osshandle.channels(self.channels)
+        # check sampling rate:
+        scale_fac = 1
+        scaled_rate = self.rate
+        max_rate = 48000.0
+        if self.rate > max_rate:
+            scale_fac = int(np.ceil(self.rate/max_rate))
+            scaled_rate = int(self.rate//scale_fac)
+        rates = [self.rate, scaled_rate, 44100, 22050, 8000]
+        scales = [1, scale_fac, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            set_rate = self.osshandle.speed(int(rate))
+            if abs(set_rate - rate) < 2:
+                if scale is None:
+                    scale = self.rate/float(set_rate)
+                success = True
+                break
+            else:
+                if self.verbose > 0:
+                    print('invalid sampling rate of %g Hz' % rate)
+        if not success:
+            raise ValueError('No valid sampling rate found')
+        if channels != self.channels or scale != 1:
+            self._down_sample(channels, scale)
         if blocking:
             self.run = True
             self.osshandle.writeall(self.data)
