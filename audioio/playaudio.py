@@ -172,8 +172,15 @@ def fade(data, rate, fadetime):
 
 class PlayAudio(object):
     
-    def __init__(self):
-        """Initialize module for playing audio."""
+    def __init__(self, verbose=0):
+        """Initialize module for playing audio.
+
+        Parameters
+        ----------
+        verbose: int
+            Verbosity level.
+        """
+        self.verbose = verbose
         self.handle = None
         self._do_play = self._play
         self.close = self._close
@@ -514,13 +521,18 @@ class PlayAudio(object):
         success = False
         for lib, open_device in audio_open:
             if not audio_modules[lib]:
+                if self.verbose > 0:
+                    print('module %s not available' % lib)
                 continue
             try:
                 open_device()
-                success = true
+                success = True
+                if self.verbose > 0:
+                    print('successfully opened %s module for playing' % lib)
                 break
-            except:
-                pass
+            except Exception as e:
+                if self.verbose > 0:
+                    print('failed to open %s module for playing' % lib)
         if not success:
             warnings.warn('cannot open device for audio output')
         return self
@@ -529,7 +541,7 @@ class PlayAudio(object):
 open_audio_player = PlayAudio
                 
 
-def play(data, rate, scale=None, blocking=True):
+def play(data, rate, scale=None, blocking=True, verbose=0):
     """Play audio data.
 
     Create an PlayAudio instance on the global variable handle.
@@ -541,15 +553,16 @@ def play(data, rate, scale=None, blocking=True):
         scale (float): multiply data with scale before playing.
                        If None scale it to the maximum value, if 1.0 do not scale.
         blocking (boolean): if False do not block. 
+        verbose (int): Verbosity level. 
     """
     global handle
     if handle is None:
-        handle = PlayAudio()
+        handle = PlayAudio(verbose)
     handle.play(data, rate, scale, blocking)
 
     
 def beep(duration, frequency, amplitude=1.0, rate=44100.0,
-         fadetime=0.05, blocking=True):
+         fadetime=0.05, blocking=True, verbose=0):
     """
     Play a tone of a given duration and frequency.
 
@@ -563,11 +576,12 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0,
         amplitude (float): the ampliude of the tone from 0.0 to 1.0
         rate (float): the sampling rate in Hertz
         fadetime (float): time for fading in and out in seconds
-        blocking (boolean): if False do not block. 
+        blocking (boolean): if False do not block.
+        verbose (int): Verbosity level. 
     """
     global handle
     if handle is None:
-        handle = PlayAudio()
+        handle = PlayAudio(verbose)
     handle.beep(duration, frequency, amplitude, rate, fadetime, blocking)
 
     
@@ -607,6 +621,5 @@ if __name__ == "__main__":
             if t == 2:
                 o += 1
             tone = '%s%d' % (chr(ord('a')+t), o)
-            print('%s %6.1f Hz' % (tone, note2freq(tone)))
+            print('%-3s %7.1f Hz' % (tone, note2freq(tone)))
             beep(0.5, tone)
-    

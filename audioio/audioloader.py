@@ -365,7 +365,7 @@ def load_audio(filepath, verbose=0):
                         print('  sampling rate: %g Hz' % rate)
                         print('  data values  : %d' % len(data))
                 break
-        except:
+        except Exception as e:
             pass
     if not success:
         need_install = ""
@@ -1128,7 +1128,7 @@ class AudioLoader(object):
                             print('  sampling rate: %g Hz' % self.samplerate)
                             print('  data values  : %d' % self.frames)
                     break
-            except:
+            except Exception as e:
                     pass
         if not success:
             need_install = ""
@@ -1177,7 +1177,7 @@ if __name__ == "__main__":
             data, rate = load_file(filepath, 1)
             print('loaded data from file "%s" with %s' %
                     (filepath, lib))
-        except:
+        except Exception as e:
             print('failed to load data from file "%s" with %s' %
                   (filepath, lib))
     

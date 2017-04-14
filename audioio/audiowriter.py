@@ -574,7 +574,7 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
             write_file(filepath, data, samplerate, format, encoding)
             success = True
             break
-        except:
+        except Exception as e:
             pass
     if not success:
         raise IOError('failed to write data to file "%s"' % filepath)
