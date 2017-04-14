@@ -1,11 +1,11 @@
 """
-list_modules() and available_modules() let you query which audio modules
+`list_modules()` and `available_modules()` let you query which audio modules
 are installed and available.
 
-disable_module() disables specific audio modules.
+`disable_module()` disables specific audio modules.
 
 For further information and installing instructions of missing modules,
-see the documentation of the respective load_*() functions of the audioloader module.
+see the documentation of the respective `load_*()` functions of the `audioloader` module.
 
 For an overview on available python modules see
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
@@ -76,8 +76,11 @@ except ImportError:
     
 
 def available_modules():
-    """Returns:
-         mods (list): list of installed audio modules.
+    """
+    Returns
+    -------
+    mods: list of strings
+        List of installed audio modules.
     """
     mods = []
     for module, available in audio_modules.items():
@@ -90,8 +93,10 @@ def disable_module(module):
     """
     Disable an audio module so that it is not used by the audioio functions and classes.
     
-    Args:
-      module (string): name of the module to be disabled as it appears in available_modules()
+    Parameters
+    ----------
+    module: string
+        Name of the module to be disabled as it appears in available_modules()
     """
     if module in audio_modules:
         audio_modules[module] = False
@@ -100,9 +105,11 @@ def disable_module(module):
 def list_modules(module=None):
     """Print list of all supported modules and whether they are available.
 
-    Args:
-      module (None or string): if None list all modules.
-                         if string list only the specified module.
+    Parameters
+    ----------
+    module: None or string
+        If None list all modules.
+        If string list only the specified module.
     """
     def print_module(module, available):
         if available:

@@ -1,13 +1,19 @@
 """
 Functions for loading data from audio files.
 
+```
 data, samplingrate = load_audio('audio/file.wav')
+```
 Loads the whole file by trying different modules until it succeeds to load the data.
 
+```
 data = AudioLoader('audio/file.wav', 60.0)
+```
 or
+```
 with open_audio_loader('audio/file.wav', 60.0) as data:
-Create an AudioLoader object that loads chuncks of 60 seconds long data on demand.
+```
+Create an `AudioLoader` instance that loads chuncks of 60 seconds long data on demand.
 data can be used like a read-only numpy array of floats.
 
 The built in wave module only supports a few wav file formats.
@@ -16,14 +22,20 @@ by many different python packages (e.g. pysoundfile, wavefile, scikits.audiolab)
 We recommend using pysoundfile for best results:
 
 To install pysoundfile on Linux do:
+```
 sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
 sudo pip install pysoundfile
+```
 
 mp3 and similar formats are supported by the audioread module. Install it via:
+```
 sudo apt-get install -y libav-tools python-audioread
+```
 
 For a demo, run the script as:
+```
 python -m audioio.audioloader audiofile.wav
+```
 """
  
 import warnings
@@ -35,22 +47,29 @@ def load_wave(filepath, verbose=0):
     """
     Load wav file using the wave module from pythons standard libray.
     
-    Documentation:
-        https://docs.python.org/2/library/wave.html
+    Documentation
+    -------------
+    https://docs.python.org/2/library/wave.html
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages
-                       if 2 print information about soundfile
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages.
+        If 2 print information about soundfile
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The wave module is not installed
+    *: Loading of the data failed
     """
     if not audio_modules['wave']:
         raise ImportError
@@ -83,27 +102,37 @@ def load_ewave(filepath, verbose=0):
     """
     Load wav file using ewave module.
 
-    Documentation:
-        https://github.com/melizalab/py-ewave
+    Documentation
+    -------------
+    https://github.com/melizalab/py-ewave
         
-    Installation:
-        git clone https://github.com/melizalab/py-ewave
-        cd py-ewave
-        python setup.py build
-        sudo python setup.py install
+    Installation
+    ------------
+    ```
+    git clone https://github.com/melizalab/py-ewave
+    cd py-ewave
+    python setup.py build
+    sudo python setup.py install
+    ```
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages (not used)
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages (not used).
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the ewave module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The ewave module is not installed
+    *: Loading of the data failed
     """
     if not audio_modules['ewave']:
         raise ImportError
@@ -123,22 +152,29 @@ def load_wavfile(filepath, verbose=0):
     """
     Load wav file using scipy.io.wavfile.
 
-    Documentation:
-        http://docs.scipy.org/doc/scipy/reference/io.html
-        Does not support blocked read.
+    Documentation
+    -------------
+    http://docs.scipy.org/doc/scipy/reference/io.html
+    Does not support blocked read.
     
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages.
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the scipy.io module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The scipy.io module is not installed
+    *: Loading of the data failed
     """
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
@@ -163,26 +199,36 @@ def load_soundfile(filepath, verbose=0):
     """
     Load audio file using pysoundfile (based on libsndfile).
 
-    Documentation:
-        http://pysoundfile.readthedocs.org
-        http://www.mega-nerd.com/libsndfile
+    Documentation
+    -------------
+    http://pysoundfile.readthedocs.org
+    http://www.mega-nerd.com/libsndfile
         
-    Installation:
-        sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-        sudo pip install pysoundfile
+    Installation
+    ------------
+    ```
+    sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
+    sudo pip install pysoundfile
+    ```
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages (not used)
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages (not used).
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the soundfile module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The soundfile module is not installed.
+    *: Loading of the data failed.
     """
     if not audio_modules['soundfile']:
         raise ImportError
@@ -199,25 +245,35 @@ def load_wavefile(filepath, verbose=0):
     """
     Load audio file using wavefile (based on libsndfile).
 
-    Documentation:
-        https://github.com/vokimon/python-wavefile
+    Documentation
+    -------------
+    https://github.com/vokimon/python-wavefile
 
-    Installation:
-        sudo apt-get install -y libsndfile1
-        sudo pip install wavefile
+    Installation
+    ------------
+    ```
+    sudo apt-get install -y libsndfile1
+    sudo pip install wavefile
+    ```
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages (not used)
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages (not used).
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the wavefile module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The wavefile module is not installed.
+    *: Loading of the data failed.
     """
     if not audio_modules['wavefile']:
         raise ImportError
@@ -230,26 +286,36 @@ def load_audiolab(filepath, verbose=0):
     """
     Load audio file using scikits.audiolab (based on libsndfile).
 
-    Documentation:
-        http://cournape.github.io/audiolab/
-        https://github.com/cournape/audiolab
+    Documentation
+    -------------
+    http://cournape.github.io/audiolab/
+    https://github.com/cournape/audiolab
                 
-    Installation:
-        sudo apt-get install -y libsndfile1
-        sudo pip install scikits.audiolab
+    Installation
+    ------------
+    ```
+    sudo apt-get install -y libsndfile1
+    sudo pip install scikits.audiolab
+    ```
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages (not used)
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages (not used).
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the scikits.audiolab module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The scikits.audiolab module is not installed.
+    *: Loading of the data failed.
     """
     if not audio_modules['scikits.audiolab']:
         raise ImportError
@@ -266,26 +332,34 @@ def load_audioread(filepath, verbose=0):
     """
     Load audio file using audioread.
 
-    Documentation:
-        https://github.com/sampsyo/audioread
+    Documentation
+    -------------
+    https://github.com/sampsyo/audioread
 
-    Installation:
-        sudo apt-get install -y libav-tools python-audioread
+    Installation
+    ------------
+    sudo apt-get install -y libav-tools python-audioread
         
     audioread is not available in python x,y.
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages (not used)
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages (not used).
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
 
-    Exceptions:
-        ImportError: if the audioread module is not installed
-        *: if loading of the data failed
+    Raises
+    ------
+    ImportError: The audioread module is not installed.
+    *: Loading of the data failed.
     """
     if not audio_modules['audioread']:
         raise ImportError
@@ -326,14 +400,26 @@ def load_audio(filepath, verbose=0):
     Call this function to load all channels of audio data from a file.
     This function tries different python modules to load the audio file.
 
-    Args:
-        filepath (string): the full path and name of the file to load
-        verbose (int): if >0 show detailed error/warning messages
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If >0 show detailed error/warning messages.
 
-    Returns:
-        data (array): all data traces as an 2-D numpy array,
-                      first dimension is time, second is channel
-        rate (float): the sampling rate of the data in Hz
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ValueError: Empty `filepath`.
+    FileNotFoundError: `filepath` is not an existing file.
+    EOFError: File size of `filepath` is zero.
+    IOError: Failed to load data.
     """
     # check values:
     if len(filepath) == 0:
@@ -381,10 +467,10 @@ class AudioLoader(object):
     """Buffered reading of audio data for random access of the data in the file.
     This allows for reading very large audio files that do not fit into memory.
     An AudioLoader instance can be used like a huge read-only numpy array, i.e.
-
-        data = AudioLoader('path/to/audio/file.wav')
-        x = data[10000:20000,0]
-
+    ```
+    data = AudioLoader('path/to/audio/file.wav')
+    x = data[10000:20000,0]
+    ```
     The first index specifies the frame, the second one the channel.
 
     Behind the scenes AudioLoader tries to open the audio file with all available
@@ -399,74 +485,92 @@ class AudioLoader(object):
     to the data within backsize seconds before that frame can still be handled without
     the need to reread the file from the beginning.
 
-    Usage:
-
-        import audioio as aio
-        with aio.open_audio_loader(filepath, 60.0, 10.0) as data:
-            # do something with the content of the file:
-            x = data[0:10000]
-            y = data[10000:20000]
-            z = x + y
+    Usage
+    -----
+    ```
+    import audioio as aio
+    with aio.open_audio_loader(filepath, 60.0, 10.0) as data:
+        # do something with the content of the file:
+        x = data[0:10000]
+        y = data[10000:20000]
+        z = x + y
+    ```
 
     For using a specific audio module, here the audioread module:
+    ```
+    data = aio.AudioLoader()
+    with data.open_audioread(filepath, 60.0, 10.0):
+        # do something ...
+    ```
     
-        data = aio.AudioLoader()
-        with data.open_audioread(filepath, 60.0, 10.0):
-            # do something ...
-
-    Normal open and close:
-
-        data = aio.AudioLoader(filepath, 60.0)
-        x = data[:,:]  # read the whole file
-        data.close()
+    Traditional open and close:
+    ```
+    data = aio.AudioLoader(filepath, 60.0)
+    x = data[:,:]  # read the whole file
+    data.close()
+    ```
         
-    that is the same as:
-
-        data = aio.AudioLoader()
-        data.open(filepath, 60.0)
-
-    or for a specific module, here the pysoundfile module:
-
-        data = aio.AudioLoader()
-        data.open_soundfile(filepath, 60.0)
-
-    See output of
+    this is the same as:
+    ```
+    data = aio.AudioLoader()
+    data.open(filepath, 60.0)
+    ```
     
-        aio.list_modules()
-
+    or for a specific module, here the pysoundfile module:
+    ```
+    data = aio.AudioLoader()
+    data.open_soundfile(filepath, 60.0)
+    ```
+    
+    See output of
+    ```
+    aio.list_modules()
+    ```
     for supported and available modules.
     
 
-    Member variables:
-      samplerate (float): the sampling rate of the data in seconds.
-      channels (int): the number of channels.
-      frames (int): the number of frames in the file.
-      shape (tuple): frames and channels of the data.
+    Member variables
+    ----------------
+    samplerate: float
+        The sampling rate of the data in seconds.
+    channels: int
+        The number of channels.
+    frames: int
+        The number of frames in the file.
+    shape: tuple
+        Frames and channels of the data.
 
-    Some member functions:
-      len(): the number of frames
-      open(): open an audio file by trying available audio modules.
-      open_*(): open an audio file with the respective audio module.
-      close(): close the file.
+    Some member functions
+    ---------------------
+    len(): the number of frames
+    open(): open an audio file by trying available audio modules.
+    open_*(): open an audio file with the respective audio module.
+    close(): close the file.
 
-    TODO:
-      Access via __getitem__ or __next__ is slow!
-      Even worse, using numpy functions on this class first converts
-      it to a numpy array - that is something we actually do not want!
-      We should subclass directly from numpy.ndarray .
-      For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
-      When subclassing, there is an offset argument, that might help to
-      speed up __getitem__ .
+    TODO
+    ----
+    Access via __getitem__ or __next__ is slow!
+    Even worse, using numpy functions on this class first converts
+    it to a numpy array - that is something we actually do not want!
+    We should subclass directly from numpy.ndarray .
+    For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+    When subclassing, there is an offset argument, that might help to
+    speed up __getitem__ .
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
         """Initialize the AudioLoader instance. If filepath is not None open the file.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
         """
         self.sf = None
         self.samplerate = 0.0
@@ -634,11 +738,20 @@ class AudioLoader(object):
 
         Note: we assume that setpos() and tell() use integer numbers!
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError: The wave module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -709,11 +822,20 @@ class AudioLoader(object):
     def open_ewave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the ewave module.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError: The ewave module is not installed.
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -769,11 +891,20 @@ class AudioLoader(object):
     def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the pysoundfile module.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError: The pysoundfile module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -829,11 +960,20 @@ class AudioLoader(object):
     def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the wavefile module.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError: The wavefile module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -887,11 +1027,20 @@ class AudioLoader(object):
     def open_audiolab(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the scikits.audiolab module.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError: The scikits.audiolab module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -949,11 +1098,20 @@ class AudioLoader(object):
         Note, that audioread can only read forward, therefore random and
         backward access is really slow.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError: The audioread module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -1084,11 +1242,23 @@ class AudioLoader(object):
     def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading.
 
-        Args:
-          filepath (string): name of the file
-          buffersize (float): size of internal buffer in seconds
-          backsize (float): part of the buffer to be loaded before the requested start index in seconds
-          verbose (int): if >0 show detailed error/warning messages
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If >0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ValueError: Empty `filepath`.
+        FileNotFoundError: `filepath` is not an existing file.
+        EOFError: File size of `filepath` is zero.
+        IOError: Failed to load data.
         """
         self.buffer = np.array([])
         self.samplerate = 0.0

@@ -2,45 +2,49 @@
 Play numpy arrays as audio.
 
 The globally defined functions
-
+```
 play(data, rate)
 beep(duration, frequeny)
-
-use a global instance of the PlayAudio class to play a sound
+```
+use a global instance of the `PlayAudio` class to play a sound
 on the default audio output.
 
-Alternatively you may use the PlayAudio class directly, like this:
-
+Alternatively you may use the `PlayAudio` class directly, like this:
+```
 with open_audio_player() as audio:
     audio.beep(1.0, 440.0)
-
+```
 or without context management:
-
+```
 audio = PlayAudio()
 audio.beep(1.0, 'a4')
 audio.close()
-
-The note2freq() function converts a musical note, like 'f#4',
+```
+The `note2freq()` function converts a musical note, like 'f#4',
 to the corresponding frequency.
-The beep() functions also accept notes for the frequency argument,
-and uses note2freq() to get the right frequency.
+The `beep()` functions also accept notes for the frequency argument,
+and uses `note2freq()` to get the right frequency.
 
 Data can be multiplied with a squared-sine for fading in and out with
-fade_in(), fade_out(), and fade().
+`fade_in()`, `fade_out()`, and `fade()`.
 
 For a demo, run the script as:
+```
 python -m audioio.playaudio
+```
 
 See also:
 https://wiki.python.org/moin/Audio/
 https://docs.python.org/3/library/mm.html
 
-The modules supports the standard modules ossaudiodev for Linux and winsound for windows.
-However, we recommend to install the portaudio library and the pyaudio module for
+The modules supports the standard modules `ossaudiodev` for Linux and `winsound` for Windows.
+However, we recommend to install the `portaudio` library and the `pyaudio` module for
 better performance.
 
 On Linux do:
+```
 sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+```
 """
 
 import os
@@ -62,17 +66,21 @@ handle = None
 def note2freq(note, a4freq=440.0):
     """Converts textual note to the corresponding frequency.
 
-    Args:
-      note (string): a musical note like 'a4', 'f#3', 'eb5'.
-                     The first character is the note, it can be
-                     'a', 'b', 'c', 'd', 'e', 'f', or 'g'.
-                     The optional second character is either a 'b'
-                     or a '#' to decrease or increase by half a note.
-                     The last character specifies the octave.
-                     'a4' is defined by a4freq.
-      a4freq (float): the frequency of a4.
+    Parameters
+    ----------
+    note: string
+        A musical note like 'a4', 'f#3', 'eb5'.
+        The first character is the note, it can be
+        'a', 'b', 'c', 'd', 'e', 'f', or 'g'.
+        The optional second character is either a 'b'
+        or a '#' to decrease or increase by half a note.
+        The last character specifies the octave.
+        'a4' is defined by a4freq.
+    a4freq: float
+        The frequency of a4.
 
-    Returns:
+    Returns
+    -------
       freq (float): the frequency of the note in Hertz.
     """
     freq = a4freq
@@ -118,11 +126,15 @@ def fade_in(data, rate, fadetime):
 
     The first fadetime seconds of the data are multiplied with a squared sine.
     
-    Args:
-      data (array): the data to be faded in, either 1-D array for single channel output,
-                    or 2-day array with first axis time and second axis channel 
-      rate (float): the sampling rate in Hertz
-      fadetime (float): time for fading in and out in seconds
+    Parameters
+    ----------
+    data: array
+        The data to be faded in, either 1-D array for single channel output,
+        or 2-day array with first axis time and second axis channel 
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in and out in seconds.
     """
     nr = int(np.round(fadetime*rate))
     x = np.arange(float(nr))/float(nr) # 0 to pi/2
@@ -139,11 +151,15 @@ def fade_out(data, rate, fadetime):
 
     The last fadetime seconds of the data are multiplied with a squared sine.
     
-    Args:
-      data (array): the data to be faded out, either 1-D array for single channel output,
-                    or 2-day array with first axis time and second axis channel 
-      rate (float): the sampling rate in Hertz
-      fadetime (float): time for fading in and out in seconds
+    Parameters
+    ----------
+    data: array
+        The data to be faded out, either 1-D array for single channel output,
+        or 2-day array with first axis time and second axis channel 
+    rate: float
+        The sampling rate in Hertz
+    fadetime: float
+        Time for fading in and out in seconds
     """
     nr = int(np.round(fadetime*rate))
     x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi
@@ -160,11 +176,15 @@ def fade(data, rate, fadetime):
 
     The first and last fadetime seconds of the data are multiplied with a squared sine.
         
-    Args:
-      data (array): the data to be faded, either 1-D array for single channel output,
-                    or 2-day array with first axis time and second axis channel 
-      rate (float): the sampling rate in Hertz
-      fadetime (float): time for fading in and out in seconds
+    Parameters
+    ----------
+    data: array
+        The data to be faded, either 1-D array for single channel output,
+        or 2-day array with first axis time and second axis channel .
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in and out in seconds.
     """
     fade_in(data, rate, fadetime)
     fade_out(data, rate, fadetime)
@@ -202,13 +222,22 @@ class PlayAudio(object):
     def play(self, data, rate, scale=None, blocking=True):
         """Play audio data.
 
-        Args:
-            data (array): the data to be played, either 1-D array for single channel output,
-                          or 2-day array with first axis time and second axis channel 
-            rate (float): the sampling rate in Hertz
-            scale (float): multiply data with scale before playing.
-                           If None scale it to the maximum value, if 1.0 do not scale.
-            blocking (boolean): if False do not block. 
+        Parameters
+        ----------
+        data: array
+            The data to be played, either 1-D array for single channel output,
+            or 2-day array with first axis time and second axis channel.
+        rate: float
+            The sampling rate in Hertz.
+        scale: float
+            Multiply data with scale before playing.
+            If None scale it to the maximum value, if 1.0 do not scale.
+        blocking: boolean
+            If False do not block. 
+
+        Raises
+        ------
+        ValueError: Invalid sampling rate (after some attemps of resampling).
         """
         if self.handle is None:
             self.open()
@@ -233,19 +262,31 @@ class PlayAudio(object):
              fadetime=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
-        Args:
-            duration (float): the duration of the tone in seconds
-            frequency (float): the frequency of the tone in Hertz
-            frequency (string): a musical note like 'f#5'.
-                                See note2freq() for details
-            amplitude (float): the ampliude of the tone from 0.0 to 1.0
-            rate (float): the sampling rate in Hertz
-            fadetime (float): time for fading in and out in seconds
-            blocking (boolean): if False do not block.
+        Parameters
+        ----------
+        duration: float
+            The duration of the tone in seconds.
+        frequency: float or string
+            If float, the frequency of the tone in Hertz.
+            If string, a musical note like 'f#5'.
+            See note2freq() for details.
+        amplitude: float
+            The ampliude of the tone in the range from 0.0 to 1.0.
+        rate: float
+            The sampling rate in Hertz.
+        fadetime: float
+            Time for fading in and out in seconds.
+        blocking: boolean
+            If False do not block.
 
-        see also:
-          https://mail.python.org/pipermail/tutor/2012-September/091529.html
-          for fourier series based construction of waveforms.  
+        Raises
+        ------
+        ValueError: Invalid sampling rate (after some attemps of resampling).
+        
+        See also
+        --------
+        https://mail.python.org/pipermail/tutor/2012-September/091529.html
+        for fourier series based construction of waveforms.  
         """
         # frequency
         if isinstance(frequency, str):
@@ -301,11 +342,19 @@ class PlayAudio(object):
     def open_pyaudio(self):
         """Initialize audio output via pyaudio module.
 
-        Documentation:
-          https://people.csail.mit.edu/hubert/pyaudio/
+        Raises
+        ------
+        ImportError: pyaudio module is not available.            
 
-        Installation:
-          sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+        Documentation
+        -------------
+        https://people.csail.mit.edu/hubert/pyaudio/
+
+        Installation
+        ------------
+        ```
+        sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+        ```
         """
         if not audio_modules['pyaudio']:
             raise ImportError
@@ -384,8 +433,14 @@ class PlayAudio(object):
     def _play_pyaudio(self, blocking=True):
         """Play audio data using the pyaudio module.
 
-        Args:
-            blocking (boolean): if False do not block. 
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block.
+
+        Raises
+        ------
+        ValueError: Invalid sampling rate (after some attemps of resampling).
         """
         # check channel count:
         channels = self.channels
@@ -449,13 +504,21 @@ class PlayAudio(object):
 
         The OSS audio module is part of the python standard library.
 
-        Documentation:
-          https://docs.python.org/2/library/ossaudiodev.html
+        Raises
+        ------
+        ImportError: ossaudiodev module is not available.
 
-        Installation:
-          The ossaudiodev module needs an oss /dev/dsp device file.
-          Enable an oss emulation via alsa by installing
-          sudo apt-get install -y osspd
+        Documentation
+        -------------
+        https://docs.python.org/2/library/ossaudiodev.html
+
+        Installation
+        ------------
+        The ossaudiodev module needs an oss `/dev/dsp` device file.
+        Enable an oss emulation via alsa by installing
+        ```
+        sudo apt-get install -y osspd
+        ```
         """
         if not audio_modules['ossaudiodev']:
             raise ImportError
@@ -495,8 +558,14 @@ class PlayAudio(object):
         """
         Play audio data using the ossaudiodev module.
 
-        Args:
-            blocking (boolean): if False do not block. 
+        Raises
+        ------
+        ValueError: Invalid sampling rate (after some attemps of resampling).
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
         """
         self.osshandle = ossaudiodev.open('w')
         self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
@@ -551,9 +620,14 @@ class PlayAudio(object):
 
         The winsound module is part of the python standard library.
 
-        Documentation:
-          https://docs.python.org/2/library/winsound.html
-          https://mail.python.org/pipermail/tutor/2012-September/091529.html
+        Raises
+        ------
+        ImportError: winsound module is not available.
+
+        Documentation
+        -------------
+        https://docs.python.org/2/library/winsound.html
+        https://mail.python.org/pipermail/tutor/2012-September/091529.html
         """
         if not audio_modules['winsound'] or not not audio_modules['wave']:
             raise ImportError
@@ -572,8 +646,10 @@ class PlayAudio(object):
         """
         Play audio data using the winsound module.
 
-        Args:
-            blocking (boolean): if False do not block. 
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
         """
         # write data as wav file to memory:
         # TODO: check this code!!!
@@ -637,14 +713,20 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
 
     Create an PlayAudio instance on the global variable handle.
 
-    Args:
-        data (array): the data to be played, either 1-D array for single channel output,
-                      or 2-day array with first axis time and second axis channel 
-        rate (float): the sampling rate in Hertz
-        scale (float): multiply data with scale before playing.
-                       If None scale it to the maximum value, if 1.0 do not scale.
-        blocking (boolean): if False do not block. 
-        verbose (int): Verbosity level. 
+    Parameters
+    ----------
+    data: array
+        The data to be played, either 1-D array for single channel output,
+        or 2-day array with first axis time and second axis channel.
+    rate: float
+        The sampling rate in Hertz.
+    scale: float
+        Multiply data with scale before playing.
+        If None scale it to the maximum value, if 1.0 do not scale.
+    blocking: boolean
+        If False do not block. 
+    verbose: int
+        Verbosity level. 
     """
     global handle
     if handle is None:
@@ -659,16 +741,24 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0,
 
     Create an PlayAudio instance on the globale variable handle.
 
-    Args:
-        duration (float): the duration of the tone in seconds
-        frequency (float): the frequency of the tone in Hertz
-        frequency (string): a musical note like 'f#5'.
-                            See note2freq() for details
-        amplitude (float): the ampliude of the tone from 0.0 to 1.0
-        rate (float): the sampling rate in Hertz
-        fadetime (float): time for fading in and out in seconds
-        blocking (boolean): if False do not block.
-        verbose (int): Verbosity level. 
+    Parameters
+    ----------
+    duration: float
+        The duration of the tone in seconds.
+    frequency: float or string
+        If float the frequency of the tone in Hertz.
+        If string, a musical note like 'f#5'.
+        See note2freq() for details
+    amplitude: float
+        The ampliude of the tone from 0.0 to 1.0.
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in and out in seconds.
+    blocking: boolean
+        If False do not block.
+    verbose: int
+        Verbosity level. 
     """
     global handle
     if handle is None:

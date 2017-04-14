@@ -1,22 +1,29 @@
 """
 Functions for writing numpy arrays of floats to audio files.
 
+```
 write_audio('audio/file.wav', data, samplerate)
-
+```
 Writes the whole file at once with an installed audio module that
 supports the requested file format.
 
+```
 available_formats()
 available_encodings()
+```
 return lists of supported formats and encodings.
 
 We recommend pysoundfile for best results:
 Installation:
-    sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
-    sudo pip install pysoundfile
+```
+sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
+sudo pip install pysoundfile
+```
 
 For a demo, run the script as:
+```
 python -m audioio.audiowriter
+```
 """
  
 import numpy as np
@@ -26,8 +33,10 @@ from .audiomodules import *
 def formats_wave():
     """Audio file formats supported by the wave module.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     if not audio_modules['wave']:
         return []
@@ -37,11 +46,15 @@ def formats_wave():
 def encodings_wave(format):
     """Encodings of an audio file format supported by the wave module.
 
-    Args:
-      format (str): The file format.
+    Parameters
+    ----------
+    format: str
+        The file format.
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     if not audio_modules['wave']:
         return []
@@ -54,21 +67,29 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the wave module from pythons standard libray.
     
-    Documentation:
-        https://docs.python.org/2/library/wave.html
+    Documentation
+    -------------
+    https://docs.python.org/2/library/wave.html
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format, only 'WAV' is supported.
-        encoding (string or None): Encoding of the data:
-                                   'PCM_32', PCM_16', or 'PCM_U8'
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format, only 'WAV' is supported.
+    encoding: string or None
+        Encoding of the data: 'PCM_32', PCM_16', or 'PCM_U8'
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if writing of the data failed
+    Raises
+    ------
+    ImportError: The wave module is not installed.
+    *: Writing of the data failed.
+    ValueError: File format or encoding not supported.
     """
     if not audio_modules['wave']:
         raise ImportError
@@ -113,8 +134,10 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
 def formats_ewave():
     """Audio file formats supported by the ewave module.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     if not audio_modules['ewave']:
         return []
@@ -124,11 +147,15 @@ def formats_ewave():
 def encodings_ewave(format):
     """Encodings of an audio file format supported by the ewave module.
 
-    Args:
-      format (str): The file format.
+    Parameters
+    ----------
+    format: str
+        The file format.
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     if not audio_modules['ewave']:
         return []
@@ -141,20 +168,29 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the ewave module from pythons standard libray.
 
-    Documentation:
-        https://github.com/melizalab/py-ewave
+    Documentation
+    -------------
+    https://github.com/melizalab/py-ewave
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format, only 'WAV' is supported.
-        encoding (string or None): Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'FLOAT', 'DOUBLE'
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format, only 'WAV' is supported.
+    encoding: string or None
+        Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'FLOAT', 'DOUBLE'
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if writing of the data failed
+    Raises
+    ------
+    ImportError: The ewave module is not installed.
+    *: Writing of the data failed.
+    ValueError: File format or encoding not supported.
     """
     if not audio_modules['ewave']:
         raise ImportError
@@ -189,8 +225,10 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
 def formats_wavfile():
     """Audio file formats supported by the scipy.io.wavfile module.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     if not audio_modules['scipy.io.wavfile']:
         return []
@@ -200,11 +238,15 @@ def formats_wavfile():
 def encodings_wavfile(format):
     """Encodings of an audio file format supported by the scipy.io.wavfile module.
 
-    Args:
-      format (str): The file format.
+    Parameters
+    ----------
+    format: str
+        The file format.
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     if not audio_modules['scipy.io.wavfile']:
         return []
@@ -217,20 +259,29 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the scipy.io.wavfile module.
     
-    Documentation:
-        http://docs.scipy.org/doc/scipy/reference/io.html
+    Documentation
+    -------------
+    http://docs.scipy.org/doc/scipy/reference/io.html
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format, only 'WAV' is supported.
-        encoding (string or None): Encoding of the data: PCM_16
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format, only 'WAV' is supported.
+    encoding: string or None
+        Encoding of the data: PCM_16
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if writing of the data failed
+    Raises
+    ------
+    ImportError: The wavfile module is not installed.
+    *: Writing of the data failed.
+    ValueError: File format or encoding not supported.
     """
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
@@ -271,8 +322,10 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
 def formats_soundfile():
     """Audio file formats supported by the pysoundfile module.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     if not audio_modules['soundfile']:
         return []
@@ -282,11 +335,15 @@ def formats_soundfile():
 def encodings_soundfile(format):
     """Encodings of an audio file format supported by the pysoundfile module.
 
-    Args:
-      format (str): The file format.
+    Parameters
+    ----------
+    format: str
+        The file format.
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     if not audio_modules['soundfile']:
         return []
@@ -297,20 +354,28 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the pysoundfile module (based on libsndfile).
     
-    Documentation:
-        http://pysoundfile.readthedocs.org
+    Documentation
+    -------------
+    http://pysoundfile.readthedocs.org
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format.
-        encoding (string or None): Encoding of the data.
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format.
+    encoding: string or None
+        Encoding of the data.
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if writing of the data failed
+    Raises
+    ------
+    ImportError: The pysoundfile module is not installed.
+    *: Writing of the data failed.
     """
     if not audio_modules['soundfile']:
         raise ImportError
@@ -329,8 +394,10 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
 def formats_wavefile():
     """Audio file formats supported by the wavefile module.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     if not audio_modules['wavefile']:
         return []
@@ -346,11 +413,15 @@ def formats_wavefile():
 def encodings_wavefile(format):
     """Encodings supported by the wavefile module.
 
-    Args:
-      format (str): The file format (ignored).
+    Parameters
+    ----------
+    format: str
+        The file format (ignored).
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     if not audio_modules['wavefile']:
         return []
@@ -369,20 +440,28 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the wavefile module (based on libsndfile).
     
-    Documentation:
-        https://github.com/vokimon/python-wavefile
+    Documentation
+    -------------
+    https://github.com/vokimon/python-wavefile
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format as in wavefile.Format.
-        encoding (string or None): Encoding of the data as in wavefile.Format.
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format as in wavefile.Format.
+    encoding: string or None
+        Encoding of the data as in wavefile.Format.
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if writing of the data failed
+    Raises
+    ------
+    ImportError: The wavefile module is not installed.
+    *: Writing of the data failed.
     """
     if not audio_modules['wavefile']:
         raise ImportError
@@ -418,8 +497,10 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
 def formats_audiolab():
     """Audio file formats supported by the scikits.audiolab module.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     if not audio_modules['scikits.audiolab']:
         return []
@@ -429,11 +510,15 @@ def formats_audiolab():
 def encodings_audiolab(format):
     """Encodings of an audio file format supported by the scikits.audiolab module.
 
-    Args:
-      format (str): The file format.
+    Parameters
+    ----------
+    format: str
+        The file format.
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     if not audio_modules['scikits.audiolab']:
         return []
@@ -453,21 +538,29 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the scikits.audiolab module (based on libsndfile).
 
-    Documentation:
-        http://cournape.github.io/audiolab/
-        https://github.com/cournape/audiolab
+    Documentation
+    -------------
+    http://cournape.github.io/audiolab/
+    https://github.com/cournape/audiolab
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format like the SF_FORMAT_ constants of libsndfile.
-        encoding (string or None): Encoding of the data like the SF_FORMAT_ constants of libsndfile.
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format like the SF_FORMAT_ constants of libsndfile.
+    encoding: string or None
+        Encoding of the data like the SF_FORMAT_ constants of libsndfile.
 
-    Exceptions:
-        ImportError: if the wave module is not installed
-        *: if writing of the data failed
+    Raises
+    ------
+    ImportError: The scikits.audiolab module is not installed.
+    *: Writing of the data failed.
     """
     if not audio_modules['scikits.audiolab']:
         raise ImportError
@@ -506,8 +599,10 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
 def available_formats():
     """Audio file formats supported by any of the installed audio modules.
 
-    Returns:
-      formats (list of strings): List of supported file formats as strings.
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
     """
     audio_formats = [formats_wave, formats_ewave, formats_wavfile,
                      formats_soundfile, formats_wavefile, formats_audiolab]
@@ -519,11 +614,15 @@ def available_formats():
 def available_encodings(format):
     """Encodings of an audio file format supported by any of the installed audio modules.
 
-    Args:
-      format (str): The file format.
+    Parameters
+    ----------
+    format: str
+        The file format.
 
-    Returns:
-      encodings (list of strings): List of supported encodings as strings.
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
     """
     audio_encodings = [encodings_wave, encodings_ewave, encodings_wavfile,
                         encodings_soundfile, encodings_audiolab, encodings_wavefile]
@@ -544,13 +643,24 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data to file.
 
-    Args:
-        filepath (string): Full path and name of the file to write.
-        data (array): 1d- or 2d-array with the data (first index time, second index channel,
-                      floats within -1.0 and 1.0 .
-        samplerate (float): Sampling rate of the data in Hertz.
-        format (string or None): File format.
-        encoding (string or None): Encoding of the data.
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1d- or 2d-array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format.
+    encoding: string or None
+        Encoding of the data.
+
+    Raises
+    ------
+    ValueError: `filepath` is empty string.
+    IOError: Writing of the data failed.
     """
 
     audio_writer = [
