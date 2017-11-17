@@ -134,7 +134,7 @@ def fade_in(data, rate, fadetime):
     rate: float
         The sampling rate in Hertz.
     fadetime: float
-        Time for fading in and out in seconds.
+        Time for fading in in seconds.
     """
     nr = int(np.round(fadetime*rate))
     x = np.arange(float(nr))/float(nr) # 0 to pi/2
@@ -159,7 +159,7 @@ def fade_out(data, rate, fadetime):
     rate: float
         The sampling rate in Hertz
     fadetime: float
-        Time for fading in and out in seconds
+        Time for fading out in seconds
     """
     nr = int(np.round(fadetime*rate))
     x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi

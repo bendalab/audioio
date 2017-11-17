@@ -10,6 +10,8 @@ __all__ = ['audiomodules',
 
 # make all important functions available in the audioio namespace:
 from audioio.audiomodules import list_modules, available_modules, disable_module
+from audioio.audiomodules import missing_modules, missing_modules_instructions
+from audioio.audiomodules import installation_instruction
 from audioio.audioloader import load_audio, open_audio_loader, AudioLoader
 from audioio.audiowriter import write_audio
 from audioio.playaudio import play, beep, open_audio_player, PlayAudio
