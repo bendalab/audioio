@@ -321,7 +321,7 @@ def installation_instruction(module):
 
     # check operating system:
     if platform[0:5] == "linux":
-#        if exists('/etc/redhat-release') or exists('/etc/fedora-release'):
+        if exists('/etc/redhat-release') or exists('/etc/fedora-release'):
             install_package = install_package_rpm
             install_pip = install_pip_rpm
             install_setup = install_setup_rpm
