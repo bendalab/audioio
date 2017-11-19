@@ -844,9 +844,9 @@ class PlayAudio(object):
         """Initialize the audio module with the best module available."""
         # list of implemented play functions:
         audio_open = [
-            #['pyaudio', self.open_pyaudio],
+            ['pyaudio', self.open_pyaudio],
             ['sounddevice', self.open_sounddevice],
-            #['ossaudiodev', self.open_ossaudiodev],
+            ['ossaudiodev', self.open_ossaudiodev],
             ['winsound', self.open_winsound]
             ]
         # open audio device by trying various modules:
