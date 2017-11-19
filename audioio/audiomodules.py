@@ -149,7 +149,7 @@ Install the package using
 INSTALLPACKAGE libportaudio2 portaudio19-dev python-cffi python3-cffi
 INSTALLPIP sounddevice
 
-See https://python-sounddevice.readthedocs.io/en/0.3.9/ for
+See https://python-sounddevice.readthedocs.io for
 documentation of the sounddevice package."""
         
 try:
@@ -267,7 +267,7 @@ def missing_modules():
         mods.append('soundfile')
     if not audio_modules['audioread'] :
         mods.append('audioread')
-    # audio devive I/O:
+    # audio device I/O:
     if not audio_modules['pyaudio'] and not audio_modules['sounddevice'] :
         mods.append('pyaudio')
     return mods

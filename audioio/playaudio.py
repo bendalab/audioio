@@ -81,7 +81,8 @@ def note2freq(note, a4freq=440.0):
 
     Returns
     -------
-      freq (float): the frequency of the note in Hertz.
+    freq: float
+        The frequency of the note in Hertz.
     """
     freq = a4freq
     tone = 0
@@ -254,7 +255,7 @@ class PlayAudio(object):
             mind = np.abs(np.min(rawdata))
             scale = 1.0/max((mind, maxd))
         rawdata *= scale
-        self.data = np.floor(rawdata*(2**15-1)).astype('i2')
+        self.data = np.floor(rawdata*(2**15-1)).astype(np.int16)
         self.index = 0
         self._do_play(blocking)
 
@@ -296,8 +297,8 @@ class PlayAudio(object):
         data = amplitude*np.sin(2.0*np.pi*frequency*time)
         # fade in and out:
         fade(data, rate, fadetime)
-        ## final click for testing:
-        #data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
+        # # final click for testing (mono only):
+        # data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
         # play:
         self.play(data, rate, scale=1.0, blocking=blocking)
 
@@ -391,18 +392,17 @@ class PlayAudio(object):
             if len(out_data) < frames:
                 if len(self.data.shape) > 1:
                     out_data = np.vstack((out_data,
-                      np.zeros((frames-len(out_data), self.channels), dtype='i2')))
+                      np.zeros((frames-len(out_data), self.channels), dtype=np.int16)))
                 else:
-                    out_data = np.hstack((out_data, np.zeros(frames-len(out_data), dtype='i2')))
+                    out_data = np.hstack((out_data, np.zeros(frames-len(out_data), dtype=np.int16)))
             return (out_data, flag)
         else:
             # we need to play more to make sure everything is played!
             # This is because of an ALSA bug and might be fixed in newer versions,
             # see http://music.columbia.edu/pipermail/portaudio/2012-May/013959.html
-            out_data = np.zeros(frames*self.channels, dtype='i2')
+            out_data = np.zeros(frames*self.channels, dtype=np.int16)
             self.index += frames
-            latency = int(self.stream.get_output_latency()*self.rate)
-            if self.index >= len(self.data) + 2*latency:
+            if self.index >= len(self.data) + 2*self.latency:
                 flag = pyaudio.paComplete
             return (out_data, flag)
 
@@ -480,6 +480,7 @@ class PlayAudio(object):
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
                                         rate=int(self.rate), output=True,
                                         stream_callback=self._callback_pyaudio)
+        self.latency = int(self.stream.get_output_latency()*self.rate)
         self.run = True
         self.stream.start_stream()
         if blocking:
@@ -498,7 +499,170 @@ class PlayAudio(object):
         self._do_play = self._play
         self.stop = self._stop
 
+
+    def open_sounddevice(self):
+        """Initialize audio output via sounddevice module.
+
+        Raises
+        ------
+        ImportError: sounddevice module is not available.            
+
+        Documentation
+        -------------
+        https://python-sounddevice.readthedocs.io
+
+        Installation
+        ------------
+        ```
+        sudo apt-get install -y libportaudio2 portaudio19-dev
+        sudo pip install sounddevice
+        ```
+        """
+        if not audio_modules['sounddevice']:
+            raise ImportError
+        self.handle = True
+        self.index = 0
+        self.data = None
+        self._do_play = self._play_sounddevice
+        self.close = self._close_sounddevice
+        self.stop = self._stop_sounddevice
+        self.device_index = sounddevice.default.device[1]
+        info = sounddevice.query_devices(self.device_index)
+        self.max_channels = info['max_output_channels']
+        self.default_rate = info['default_samplerate']
+        self.stream = None
+        return self
+
+    def _callback_sounddevice(self, out_data, frames, time_info, status):
+        """Callback for sounddevice for supplying output with data."""
+        if status:
+            print(status)
+        if self.index < len(self.data):
+            ndata = len(self.data) - self.index
+            if ndata >= frames :
+                if len(self.data.shape) <= 1:
+                    out_data[:,0] = self.data[self.index:self.index+frames]
+                else:
+                    out_data[:, :] = self.data[self.index:self.index+frames, :]
+                self.index += frames
+            else:
+                if len(self.data.shape) <= 1:
+                    out_data[:ndata, 0] = self.data[self.index:]
+                    out_data[ndata:, 0] = np.zeros(frames-ndata, dtype=np.int16)
+                else:
+                    out_data[:ndata, :] = self.data[self.index:, :]
+                    out_data[ndata:, :] = np.zeros((frames-ndata, self.channels),
+                                                   dtype=np.int16)
+                self.index += frames
+        else:
+            # we need to play more to make sure everything is played!
+            # This is because of an ALSA bug and might be fixed in newer versions,
+            # see http://music.columbia.edu/pipermail/portaudio/2012-May/013959.html
+            if len(self.data.shape) <= 1:
+                out_data[:, 0] = np.zeros(frames, dtype=np.int16)
+            else:
+                out_data[:, :] = np.zeros((frames, self.channels), dtype=np.int16)
+            self.index += frames
+            if self.index >= len(self.data) + 2*self.latency:
+                raise sounddevice.CallbackStop
+        if not self.run:
+            raise sounddevice.CallbackStop
+
+    def _stop_sounddevice(self):
+        """Stop any ongoing activity of the sounddevice module."""
+        if self.stream is not None:
+            if self.stream.active:
+                # fade out:
+                fadetime = 0.1
+                nr = int(np.round(fadetime*self.rate))
+                index = self.index+nr
+                if nr > len(self.data) - index:
+                    nr = len(self.data) - index
+                else:
+                    self.data[index+nr:] = 0
+                if nr > 0:
+                    for k in range(nr) :
+                        self.data[index+(nr-k-1)] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+                sounddevice.sleep(int(2000*fadetime))
+            if self.stream.active:
+                self.run = False
+                while self.stream.active:
+                    sounddevice.sleep(10)
+                self.stream.stop()
+            self.stream.close()
+            self.stream = None
+    
+    def _play_sounddevice(self, blocking=True):
+        """Play audio data using the sounddevice module.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block.
+
+        Raises
+        ------
+        ValueError: Invalid sampling rate (after some attemps of resampling).
+        """
+        # check channel count:
+        channels = self.channels
+        if self.channels > self.max_channels:
+            channels = self.max_channels
+        # check sampling rate:
+        scale_fac = 1
+        scaled_rate = self.rate
+        max_rate = 48000.0
+        if self.rate > max_rate:
+            scale_fac = int(np.ceil(self.rate/max_rate))
+            scaled_rate = int(self.rate//scale_fac)
+        rates = [self.rate, scaled_rate, 44100, 22050, self.default_rate]
+        scales = [1, scale_fac, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            try:
+                sounddevice.check_output_settings(device=self.device_index,
+                                                  channels=channels,
+                                                  dtype=np.int16,
+                                                  samplerate=rate)
+                if scale is None:
+                    scale = self.rate/float(rate)
+                success = True
+                break
+            except sounddevice.PortAudioError as pae:
+                if pae[1] != -9997:
+                    raise
+                elif self.verbose > 0:
+                    print('invalid sampling rate of %g Hz' % rate)
+        if not success:
+            raise ValueError('No valid sampling rate found')
+        if channels != self.channels or scale != 1:
+            self._down_sample(channels, scale)
         
+        # play:
+        self.stream = sounddevice.OutputStream(samplerate=self.rate,
+                                               device=self.device_index,
+                                               channels=self.channels,
+                                               dtype=np.int16,
+                                               callback=self._callback_sounddevice)
+        self.latency = self.stream.latency*self.rate
+        self.run = True
+        self.stream.start()
+        if blocking:
+            while self.stream.active:
+                sounddevice.sleep(10)
+            self.run = False
+            self.stream.stop()
+            self.stream.close()
+            self.stream = None
+        
+    def _close_sounddevice(self):
+        """Terminate sounddevice module."""
+        self._stop_sounddevice()
+        self.handle = None
+        self._do_play = self._play
+        self.stop = self._stop
+
+
     def open_ossaudiodev(self):
         """Initialize audio output via ossaudiodev module.
 
@@ -680,8 +844,9 @@ class PlayAudio(object):
         """Initialize the audio module with the best module available."""
         # list of implemented play functions:
         audio_open = [
-            ['pyaudio', self.open_pyaudio],
-            ['ossaudiodev', self.open_ossaudiodev],
+            #['pyaudio', self.open_pyaudio],
+            ['sounddevice', self.open_sounddevice],
+            #['ossaudiodev', self.open_ossaudiodev],
             ['winsound', self.open_winsound]
             ]
         # open audio device by trying various modules:
@@ -794,6 +959,8 @@ if __name__ == "__main__":
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     fade(data, rate, 0.1)
     play(data, rate)
+
+    exit()
 
     print('play notes')
     o = 6
