@@ -1,11 +1,56 @@
-# audioio
-Platform independent interfacing of numpy arrays with audio files and devices.
+# audioio 
+
+Platform independent interfacing of numpy arrays of floats with audio
+files and devices.
 
 The modules try to use whatever available audio module to achieve
-their tasks. It does not provide own code.
+their tasks. It does not provide own code for decoding files
+and accessing audio hardware.
 
-Run the `audiomodules.py` script to see what modules you already have installed on your system,
-which ones are recommended to install, and how to install them.
+Installation:
+-------------
+After cloning from github change into the `audioio/` base directory
+and run as superuser
+```
+python setup.py install
+```
+Then you can use the provided modules for reading and writing audio
+files and for playing audio data immediately. However, the support
+provided by the python standard library is limited to very basic wav
+files. If you need support for other audio file formats or for better
+sound output you need to install additional packages:
+
+In the `audioio/` base directory you may run
+```
+python audiomodules.py
+```
+to see which audio modules you have already installed on your system,
+which ones are recommended to install, and how to install them. By
+calling the script with the name of an audio module as an argument you
+get specific installation instructions for this module.
+
+In particular, you might need to install the sndfile library for accessing
+various audio file formats
+```
+sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
+```
+and one of the many python wrappers for the sndfile library,
+e.g. pysoundfile, wavefile, or scikits.audiolab:
+```
+sudo pip install pysoundfile
+sudo pip install wavefile
+sudo pip install scikits.audiolab
+```
+
+For playing sounds, the portaudio library is the gold standard
+```
+sudo apt-get install libportaudio2 portaudio19-dev
+```
+that is interfaced by the python packages pyaudio or sounddevice:
+```
+sudo apt-get install python-pyaudio
+sudo pip install sounddevice
+```
 
 Usage:
 ------
