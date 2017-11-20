@@ -18,12 +18,13 @@ Load an audio file into a numpy array:
 data, samplingrate = aio.load_audio('audio/file.wav')
 ```
 	
-The data are numpy arrays, either 1-D arrays for single channel data,
+The data are numpy arrays of floats ranging between -1 and 1.
+The arrays are either 1-D arrays for single channel data,
 or 2-day arrays with first axis time and second axis channel.
 
 You can also randomly access chunks of data of an audio file, without
-needing to load the enire file into memory. This is really handy for
-analysing very long sound recordings.
+loading the entire file into memory. This is really handy for
+analysing very long sound recordings:
 ```
 with open_audio_loader('audio/file.wav', 60.0) as data:
      block = 1000
