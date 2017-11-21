@@ -71,7 +71,7 @@ You can also randomly access chunks of data of an audio file, without
 loading the entire file into memory. This is really handy for
 analysing very long sound recordings:
 ```
-with open_audio_loader('audio/file.wav', 60.0) as data:
+with aio.open_audio_loader('audio/file.wav', 60.0) as data:
      block = 1000
      rate = data.samplerate
      for i in range(len(data)/block):
@@ -81,17 +81,18 @@ with open_audio_loader('audio/file.wav', 60.0) as data:
 
 Write a numpy array into an audio file:
 ```
-write_audio('audio/file.wav', data, samplerate)
+aio.write_audio('audio/file.wav', data, samplerate)
 ```
+
 
 Play a numpy array as a sound:
 ```
-play(data, samplingrate)
+aio.play(data, samplingrate)
 ```
 or just beep for half a second and 440 Hz:
 ```
-beep(0.5, 440.0)
-beep(0.5, 'a4')
+aio.beep(0.5, 440.0)
+aio.beep(0.5, 'a4')
 ```
 
 Documentation:
