@@ -6,6 +6,8 @@ data, samplingrate = load_audio('audio/file.wav')
 ```
 Loads the whole file by trying different modules until it succeeds to load the data.
 
+`data = unwrap(data)`: fix wrapped data.
+
 ```
 data = AudioLoader('audio/file.wav', 60.0)
 ```
@@ -461,6 +463,37 @@ def load_audio(filepath, verbose=0):
         raise IOError('failed to load data from file "%s".%s' %
                       (filepath, need_install))
     return data, rate
+
+
+def unwrap(data):
+    """
+    Fixes data that exceeded the -1 to 1 range.
+
+    If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
+    they get wrapped around. This functions tries to undo this wrapping.
+    
+    Parameters
+    ----------
+    data: 1D or 2D ndarray
+        Data to be fixed.
+
+    Returns
+    -------
+    data: as input data
+        The fixed data.
+    """
+    if len(data.shape) > 1:
+        for c in range(data.shape[1]):
+            data[:,c] = unwrap(data[:,c])
+    else:
+        for k in range(20):
+            dd = (data[1:] < -0.8) & (np.diff(data) <= -1.0)
+            du = (data[1:] > 0.8) & (np.diff(data) >= 1.0)
+            if np.sum(dd) == 0 and np.sum(du) == 0:
+                break
+            data[1:][dd] += 2.0
+            data[1:][du] -= 2.0
+    return data
 
 
 class AudioLoader(object):
