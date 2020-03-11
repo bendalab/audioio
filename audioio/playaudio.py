@@ -480,11 +480,11 @@ class PlayAudio(object):
             self._down_sample(channels, scale)
         
         # play:
+        self.run = True
         self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
                                         rate=int(self.rate), output=True,
                                         stream_callback=self._callback_pyaudio)
         self.latency = int(self.stream.get_output_latency()*self.rate)
-        self.run = True
         self.stream.start_stream()
         if blocking:
             while self.stream.is_active():
