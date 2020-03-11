@@ -83,16 +83,19 @@ def note2freq(note, a4freq=440.0):
     -------
     freq: float
         The frequency of the note in Hertz.
+
+    Raises
+    ------
+    ValueError:
+        No or an invalid note was specified.
     """
     freq = a4freq
     tone = 0
     octave = 4
     if not isinstance(note, str) or len(note) == 0:
-        warnings.warn('no note specified')
-        return freq
+        raise ValueError('no note specified')
     if note[0] < 'a' or note[0] > 'g':
-        warnings.warn('invalid note %s' % note[0])
-        return freq
+        raise ValueError('invalid note %s' % note[0])
     # note:
     index = 0
     tonemap = [0, 2, 3, 5, 7, 8, 10]
@@ -494,7 +497,8 @@ class PlayAudio(object):
     def _close_pyaudio(self):
         """Terminate pyaudio module."""
         self._stop_pyaudio()
-        self.handle.terminate()
+        if self.handle is not None:
+            self.handle.terminate()
         self.handle = None
         self._do_play = self._play
         self.stop = self._stop
@@ -866,7 +870,7 @@ class PlayAudio(object):
                 if self.verbose > 0:
                     print('failed to open %s module for playing' % lib)
         if not success:
-            warnings.warn('cannot open device for audio output')
+            warnings.warn('cannot open any device for audio output')
         return self
 
 
@@ -932,7 +936,6 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0,
 
     
 if __name__ == "__main__":
-
     print('play mono beep 1')
     audio = PlayAudio()
     audio.beep(1.0, 440.0)
@@ -948,7 +951,7 @@ if __name__ == "__main__":
     print('play mono beep 3')
     beep(1.0, 'c5', 0.25, blocking=False)
     print('  done')
-    time.sleep(0.3)
+    time.sleep(0.5)
             
     print('play stereo beep')
     duration = 1.0
