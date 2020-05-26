@@ -689,6 +689,7 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
     if not success:
         raise IOError('failed to write data to file "%s"' % filepath)
 
+
 if __name__ == "__main__":
     import sys
     import numpy as np
