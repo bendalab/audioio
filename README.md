@@ -7,8 +7,9 @@ The modules try to use whatever available audio module to achieve
 their tasks. It does not provide own code for decoding files
 and accessing audio hardware.
 
-Installation:
--------------
+
+## Installation:
+
 After cloning from github change into the `audioio/` base directory
 and run as superuser
 ```
@@ -52,11 +53,13 @@ sudo apt-get install python-pyaudio
 sudo pip install sounddevice
 ```
 
-Usage:
-------
+## Usage:
+
 ```
 import audioio as aio
 ```
+
+### Loading audio data
 
 Load an audio file into a numpy array:
 ```
@@ -79,17 +82,30 @@ with aio.open_audio_loader('audio/file.wav', 60.0) as data:
      	 # ... do something with x and rate
 ```
 
+### Writing audio data
+
 Write a numpy array into an audio file:
 ```
 aio.write_audio('audio/file.wav', data, samplerate)
 ```
 
 
+### Converting audio files
+
+audioio provides a simple command line script to convert audio files:
+```
+> audioconverter -o test.wav test.mp3
+```
+
+
+### Playing sounds
+
 Play a numpy array as a sound:
 ```
 aio.play(data, samplingrate)
 ```
-or just beep for half a second and 440 Hz:
+
+Just beep for half a second and 440 Hz:
 ```
 aio.beep(0.5, 440.0)
 aio.beep(0.5, 'a4')
