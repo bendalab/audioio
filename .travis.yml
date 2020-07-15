@@ -20,13 +20,18 @@ addons:
     - libffi-dev
     - libportaudio2
     - portaudio19-dev
+    - osspd
 
 before_install:
   - pip install -U pip
 
 install:
-  - pip install pysoundfile
-  - pip install pyaudio
+  - pip install numpy
+  - pip install scipy
+  - pip install wavefile
+  - pip install scikits.audiolab
+  - pip install git+https://github.com/melizalab/py-ewave
+  - pip install sounddevice
   - pip install nose nose-cov
   - pip install codecov
   - pip install -r requirements.txt
