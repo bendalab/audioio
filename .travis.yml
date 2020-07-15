@@ -15,11 +15,18 @@ addons:
     - libblas-dev
     - liblapack-dev
     - gfortran
+    - libsndfile1
+    - libsndfile1-dev
+    - libffi-dev
+    - libportaudio2
+    - libportaudio19-dev
 
 before_install:
   - pip install -U pip
 
 install:
+  - pip install pysoundfile
+  - pip install pyaudio
   - pip install nose nose-cov
   - pip install codecov
   - pip install -r requirements.txt
