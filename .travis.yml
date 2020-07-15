@@ -19,7 +19,7 @@ addons:
     - libsndfile1-dev
     - libffi-dev
     - libportaudio2
-    - libportaudio19-dev
+    - portaudio19-dev
 
 before_install:
   - pip install -U pip
