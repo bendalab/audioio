@@ -1,0 +1,32 @@
+dist: xenial
+
+language: python
+
+matrix:
+    include:
+        - python: "3.6"
+          os: linux
+        - python: "2.7"
+          os: linux
+
+addons:
+  apt:
+    packages:
+    - libblas-dev
+    - liblapack-dev
+    - gfortran
+
+before_install:
+  - pip install -U pip
+
+install:
+  - pip install nose nose-cov
+  - pip install codecov
+  - pip install -r requirements.txt
+
+# command to run tests
+script:
+  - nosetests -vv --with-coverage --cover-package=audioio
+
+after_success:
+  - codecov

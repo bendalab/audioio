@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bendalab/audioio.svg?branch=master)](https://travis-ci.org/bendalab/audioio)
+
 # audioio 
 
 Platform independent interfacing of numpy arrays of floats with audio
