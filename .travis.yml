@@ -6,8 +6,6 @@ matrix:
     include:
         - python: "3.6"
           os: linux
-        - python: "2.7"
-          os: linux
 
 addons:
   apt:
