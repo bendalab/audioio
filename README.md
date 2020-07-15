@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bendalab/audioio.svg?branch=master)](https://travis-ci.org/bendalab/audioio)
+[![Build Status](https://travis-ci.com/bendalab/audioio.svg?branch=master)](https://travis-ci.com/bendalab/audioio)
 
 # audioio 
 
