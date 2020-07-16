@@ -39,7 +39,7 @@ install:
 
 script:
 #  - nosetests -vv --with-coverage --cover-package=audioio
-  - docs/build.sh
+  - build-docs.sh
 
 after_success:
   - codecov

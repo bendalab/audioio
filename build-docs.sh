@@ -8,8 +8,8 @@ for cmd in pdoc3; do
 done
 
 PACKAGE="audioio"
-DOCROOT="$(dirname "$(realpath "$0")")"
-BUILDROOT="$(realpath $DOCROOT/../site)"
+PACKAGEROOT="$(dirname "$(realpath "$0")")"
+BUILDROOT="$PACKAGEROOT/site"
 
 echo
 echo "Clean up documentation of $PACKAGE"
@@ -22,7 +22,7 @@ echo
 echo "Building general documentation for $PACKAGE"
 echo
 
-cd "$DOCROOT/.."
+cd "$PACKAGEROOT"
 mkdocs build --config-file .mkdocs.yml --site-dir "$BUILDROOT" 
 cd - > /dev/null
 
@@ -30,7 +30,7 @@ echo
 echo "Building API reference docs for $PACKAGE"
 echo
 
-cd "$DOCROOT/.."
+cd "$PACKAGEROOT"
 pdoc3 --html --output-dir "$BUILDROOT" $PACKAGE
 mv "$BUILDROOT/$PACKAGE" "$BUILDROOT/api"
 cd - > /dev/null
@@ -38,5 +38,5 @@ cd - > /dev/null
 echo
 echo "Done. Docs in:"
 echo
-echo "    file://$BUILDROOT/$PACKAGE/index.html"
+echo "    file://$BUILDROOT/index.html"
 echo
