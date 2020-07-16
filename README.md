@@ -6,12 +6,16 @@
 Platform independent interfacing of numpy arrays of floats with audio
 files and devices.
 
-The modules try to use whatever available audio module to achieve
-their tasks. It does not provide own code for decoding files
+[Documentation](https://bendalab.github.io/audioio)
+
+[Git Repository](https://github.com/bendalab/audioio)
+
+The audioio modules try to use whatever available audio module to achieve
+their tasks. The audioio package does not provide own code for decoding files
 and accessing audio hardware.
 
 
-## Installation:
+## Installation
 
 After cloning from github change into the `audioio/` base directory
 and run as superuser
@@ -56,7 +60,7 @@ sudo apt-get install python-pyaudio
 sudo pip install sounddevice
 ```
 
-## Usage:
+## Usage
 
 ```
 import audioio as aio
@@ -113,11 +117,3 @@ Just beep for half a second and 440 Hz:
 aio.beep(0.5, 440.0)
 aio.beep(0.5, 'a4')
 ```
-
-Documentation:
---------------
-See the modules in `audioio/` for further and more detailed docmentation:
-- `audioloader.py`: reading audio files
-- `audiowriter.py`: writing audio files
-- `playaudio.py`: play a sound through your audio board
-- `audiomodules.py`: query installed modules

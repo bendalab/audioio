@@ -1,4 +1,6 @@
 """
+Query available audio modules.
+
 `list_modules()`, `available_modules()` and `unavailable_modules()`
 let you query which audio modules are installed and available
 and which modules are not availbale on your system.

@@ -34,10 +34,12 @@ install:
   - pip install codecov
   - pip install -r requirements.txt
   - pip install pdoc3
+  - pip install markdown-include
+  - pip install mkdocs
 
 script:
   - nosetests -vv --with-coverage --cover-package=audioio
-  - docs/build.sh
+  - ./build-docs.sh
 
 after_success:
   - codecov
@@ -46,7 +48,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
-  local_dir: docs/build/audioio
+  local_dir: site
   on:
       branch: master
 
