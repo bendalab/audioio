@@ -34,6 +34,7 @@ install:
   - pip install codecov
   - pip install -r requirements.txt
   - pip install pdoc3
+  - pip install markdown-include
   - pip install mkdocs
 
 script:
