@@ -16,14 +16,13 @@ echo "Building API reference docs for $PACKAGE"
 echo
 
 mkdir -p "$BUILDROOT"
-rm -r "$BUILDROOT/doc" 2> /dev/null || true
+rm -r "$BUILDROOT/$PACKAGE" 2> /dev/null || true
 cd "$DOCROOT/.."
 pdoc3 --html --output-dir "$BUILDROOT" $PACKAGE
-mv $BUILDROOT/$PACKAGE $BUILDROOT/doc
 cd - > /dev/null
 
 echo
 echo "Done. Docs in:"
 echo
-echo "    file://$BUILDROOT/doc/index.html"
+echo "    file://$BUILDROOT/$PACKAGE/index.html"
 echo
