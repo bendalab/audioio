@@ -90,11 +90,11 @@ def load_wave(filepath, verbose=0):
     factor = 2.0**(sampwidth*8-1)
     if sampwidth == 1:
         dtype = 'u1'
-        buffer = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+        buffer = np.frombuffer(buffer, dtype=dtype).reshape(-1, nchannels)
         data = buffer.astype('d')/factor - 1.0
     else:
         dtype = 'i%d' % sampwidth
-        buffer = np.fromstring(buffer, dtype=dtype).reshape(-1, nchannels)
+        buffer = np.frombuffer(buffer, dtype=dtype).reshape(-1, nchannels)
         data = buffer.astype('d')/factor
     wf.close()
     return data, float(rate)
@@ -374,7 +374,7 @@ def load_audioread(filepath, verbose=0):
                         dtype="<i2")
         index = 0
         for buffer in af:
-            fulldata = np.fromstring(buffer, dtype='<i2').reshape(-1, af.channels)
+            fulldata = np.frombuffer(buffer, dtype='<i2').reshape(-1, af.channels)
             n = fulldata.shape[0]
             if index+n > len(data):
                 n = len(data) - index
@@ -838,7 +838,7 @@ class AudioLoader(object):
             # read buffer:
             self.sf.setpos(r_offset*self.pfac + self.p0)
             buffer = self.sf.readframes(r_size)
-            buffer = np.fromstring(buffer, dtype=self.dtype).reshape((-1, self.channels))
+            buffer = np.frombuffer(buffer, dtype=self.dtype).reshape((-1, self.channels))
             if self.dtype[0] == 'u':
                 self.buffer[r_offset-offset:r_offset+r_size-offset,:] = buffer * self.factor - 1.0
             else:
@@ -1222,7 +1222,7 @@ class AudioLoader(object):
                     if self.verbose > 1:
                         print('  caught StopIteration, padded buffer with %d zeros' % r_size)
                     break
-                self.read_buffer = np.fromstring(buffer, dtype='<i2').reshape(-1, self.channels)
+                self.read_buffer = np.frombuffer(buffer, dtype='<i2').reshape(-1, self.channels)
                 if self.verbose > 2:
                     print('  read forward by %d frames' % self.read_buffer.shape[0])
             # recycle file data:
@@ -1255,7 +1255,7 @@ class AudioLoader(object):
                     if self.verbose > 1:
                         print('  caught StopIteration, padded buffer with %d zeros' % r_size)
                     break
-                self.read_buffer = np.fromstring(buffer, dtype='<i2').reshape(-1, self.channels)
+                self.read_buffer = np.frombuffer(buffer, dtype='<i2').reshape(-1, self.channels)
                 n = self.read_buffer.shape[0]
                 if n > r_size:
                     n = r_size
