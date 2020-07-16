@@ -2,6 +2,8 @@ site_name: audioio
 
 repo_url: https://github.com/bendalab/audioio/
 
+edit_uri: ""
+
 site_author: Benda-Lab
 
 theme: readthedocs
