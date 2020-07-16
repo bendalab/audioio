@@ -34,6 +34,7 @@ install:
   - pip install codecov
   - pip install -r requirements.txt
   - pip install pdoc3
+  - pip install mkdocs
 
 script:
 #  - nosetests -vv --with-coverage --cover-package=audioio
