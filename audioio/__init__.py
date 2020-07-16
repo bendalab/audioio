@@ -6,6 +6,7 @@ from .version import __version__
 
 __all__ = ['audiomodules',
            'audioloader',
+           'audiowriter',
            'playaudio']
 
 # make all important functions available in the audioio namespace:

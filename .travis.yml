@@ -36,7 +36,7 @@ install:
   - pip install pdoc3
 
 script:
-#  - nosetests -vv --with-coverage --cover-package=audioio
+  - nosetests -vv --with-coverage --cover-package=audioio
   - docs/build.sh
 
 after_success:
