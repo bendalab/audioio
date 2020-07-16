@@ -188,7 +188,7 @@ def load_wavfile(filepath, verbose=0):
         warnings.filterwarnings("always")
     if data.dtype == np.uint8:
         data = data / 128.0 - 1.0
-    elif np.issubdtype(data.dtype, int):
+    elif np.issubdtype(data.dtype, np.signedinteger):
         data = data / (2.0**(data.dtype.itemsize*8-1))
     else:
         data = data.astype(np.float64, copy=False)
