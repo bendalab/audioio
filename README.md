@@ -43,9 +43,9 @@ various audio file formats
 sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
 ```
 and one of the many python wrappers for the sndfile library,
-e.g. pysoundfile, wavefile, or scikits.audiolab:
+e.g. SoundFile, wavefile, or scikits.audiolab:
 ```
-sudo pip install pysoundfile
+sudo pip install SoundFile
 sudo pip install wavefile
 sudo pip install scikits.audiolab
 ```

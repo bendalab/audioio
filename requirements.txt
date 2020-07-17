@@ -1,5 +1,5 @@
 numpy
 scipy
-PySoundFile
+SoundFile
 audioread
 PyAudio

@@ -13,11 +13,11 @@ available_encodings()
 ```
 return lists of supported formats and encodings.
 
-We recommend pysoundfile for best results:
+We recommend SoundFile for best results:
 Installation:
 ```
 sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
-sudo pip install pysoundfile
+sudo pip install SoundFile
 ```
 
 For a demo, run the script as:
@@ -320,7 +320,7 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
 
 
 def formats_soundfile():
-    """Audio file formats supported by the pysoundfile module.
+    """Audio file formats supported by the SoundFile module.
 
     Returns
     -------
@@ -333,7 +333,7 @@ def formats_soundfile():
         return sorted(list(soundfile.available_formats()))
             
 def encodings_soundfile(format):
-    """Encodings of an audio file format supported by the pysoundfile module.
+    """Encodings of an audio file format supported by the SoundFile module.
 
     Parameters
     ----------
@@ -352,7 +352,7 @@ def encodings_soundfile(format):
         
 def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     """
-    Write audio data using the pysoundfile module (based on libsndfile).
+    Write audio data using the SoundFile module (based on libsndfile).
     
     Documentation
     -------------
@@ -374,7 +374,7 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The pysoundfile module is not installed.
+    ImportError: The SoundFile module is not installed.
     *: Writing of the data failed.
     """
     if not audio_modules['soundfile']:

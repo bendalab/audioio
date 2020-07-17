@@ -69,15 +69,15 @@ try:
     audio_modules['soundfile'] = True
 except ImportError:
     audio_modules['soundfile'] = False
-audio_instructions['soundfile'] = """The pysoundfile package is a wrapper of the sndfile library, which
+audio_instructions['soundfile'] = """The soundfile package is a wrapper of the sndfile library, which
 supports many different audio file formats.
 
 Install the library and the wrapper using
 
 INSTALLPACKAGE libsndfile1 libsndfile1-dev libffi-dev
-INSTALLPIP pysoundfile
+INSTALLPIP SoundFile
 
-See http://pysoundfile.readthedocs.org for a documentation of the pysoundfile package
+See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
 try:

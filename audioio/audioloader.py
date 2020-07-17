@@ -20,13 +20,13 @@ data can be used like a read-only numpy array of floats.
 
 The built in wave module only supports a few wav file formats.
 The libsndfile library can handle many more formats and is interfaced
-by many different python packages (e.g. pysoundfile, wavefile, scikits.audiolab).
-We recommend using pysoundfile for best results:
+by many different python packages (e.g. SoundFile, wavefile, scikits.audiolab).
+We recommend using SoundFile for best results:
 
-To install pysoundfile on Linux do:
+To install SoundFile on Linux do:
 ```
 sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-sudo pip install pysoundfile
+sudo pip install SoundFile
 ```
 
 mp3 and similar formats are supported by the audioread module. Install it via:
@@ -199,7 +199,7 @@ def load_wavfile(filepath, verbose=0):
 
 def load_soundfile(filepath, verbose=0):
     """
-    Load audio file using pysoundfile (based on libsndfile).
+    Load audio file using SoundFile (based on libsndfile).
 
     Documentation
     -------------
@@ -210,7 +210,7 @@ def load_soundfile(filepath, verbose=0):
     ------------
     ```
     sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-    sudo pip install pysoundfile
+    sudo pip install SoundFile
     ```
 
     Parameters
@@ -549,7 +549,7 @@ class AudioLoader(object):
     data.open(filepath, 60.0)
     ```
     
-    or for a specific module, here the pysoundfile module:
+    or for a specific module, here the SoundFile module:
     ```
     data = aio.AudioLoader()
     data.open_soundfile(filepath, 60.0)
@@ -920,9 +920,9 @@ class AudioLoader(object):
                       % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
 
             
-    # pysoundfile interface:        
+    # soundfile interface:        
     def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
-        """Open audio file for reading using the pysoundfile module.
+        """Open audio file for reading using the SoundFile module.
 
         Parameters
         ----------
@@ -937,7 +937,7 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The pysoundfile module is not installed
+        ImportError: The SoundFile module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -969,14 +969,14 @@ class AudioLoader(object):
         return self
 
     def _close_soundfile(self):
-        """ Close the audio file using the pysoundfile module. """
+        """ Close the audio file using the SoundFile module. """
         if self.sf is not None:
             self.sf.close()
             self.sf = None
 
     def _update_buffer_soundfile(self, start, stop):
         """Make sure that the buffer contains the data between
-        start and stop using the pysoundfile module.
+        start and stop using the SoundFile module.
         """
         if start < self.offset or stop > self.offset + self.buffer.shape[0]:
             offset, size = self._read_indices(start, stop)

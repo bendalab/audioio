@@ -29,5 +29,5 @@ setup(
         'console_scripts': [
             'audioconverter = audioio.audioconverter:main',
         ]},
-    install_requires=['numpy', 'PySoundFile', 'audioread', 'PyAudio']
+    install_requires=['numpy', 'SoundFile', 'audioread', 'PyAudio']
 )
