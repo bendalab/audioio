@@ -1,4 +1,1 @@
-numpy
-pysoundfile
-audioread
-pyaudio
+scipy
