@@ -17,25 +17,16 @@ and accessing audio hardware.
 
 ## Installation
 
-After cloning from github change into the `audioio/` base directory
-and run as superuser
+Simply run (as superuser):
 ```
-python setup.py install
+pip install audioio
 ```
-Then you can use the provided modules for reading and writing audio
-files and for playing audio data immediately. However, the support
+
+Then you can use already installed audio packages for reading and
+writing audio files and for playing audio data. However, the support
 provided by the python standard library is limited to very basic wav
 files. If you need support for other audio file formats or for better
-sound output you need to install additional packages:
-
-In the `audioio/` base directory you may run
-```
-python audiomodules.py
-```
-to see which audio modules you have already installed on your system,
-which ones are recommended to install, and how to install them. By
-calling the script with the name of an audio module as an argument you
-get specific installation instructions for this module.
+sound output, you need to install additional packages.
 
 In particular, you might need to install the sndfile library for accessing
 various audio file formats
@@ -59,6 +50,16 @@ that is interfaced by the python packages pyaudio or sounddevice:
 sudo apt-get install python-pyaudio
 sudo pip install sounddevice
 ```
+
+In the `audioio/` base directory you may run
+```
+python audiomodules.py
+```
+to see which audio modules you have already installed on your system,
+which ones are recommended to install, and how to install them. By
+calling the script with the name of an audio module as an argument you
+get specific installation instructions for this module.
+
 
 ## Usage
 
