@@ -51,9 +51,9 @@ sudo apt-get install python-pyaudio
 sudo pip install sounddevice
 ```
 
-In the `audioio/` base directory you may run
+Run
 ```
-python audiomodules.py
+> audiomodules
 ```
 to see which audio modules you have already installed on your system,
 which ones are recommended to install, and how to install them. By

@@ -17,7 +17,7 @@ For an overview on available python modules regarding file I/O see
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
 """
 
-from sys import platform
+from sys import platform, argv
 from os.path import exists
 
 # probe for available audio modules:
@@ -344,19 +344,24 @@ def installation_instruction(module):
     return msg
 
 
-if __name__ == "__main__":
-    print("Checking audiomodules module ...")
+def main():
+    print('')
+    print('Status of audio packages on this machine:')
+    print('-'*41)
     print('')
     list_modules()
     print('')
-    print('available modules:')
-    print('  %s' % '\n  '.join(available_modules()))
-    print('')
-    module = 'wave'
-    print('disable %s module:' % module)
-    list_modules(module)
-    disable_module(module)
-    list_modules(module)
-    print('')
-    print('')
     missing_modules_instructions()
+    print('')
+
+    if len(argv) > 1 :
+        mod = argv[1]
+        if mod in audio_modules:
+            print('Installation instructions for the %s module:' % mod )
+            print('-'*(42+len(mod)))
+            print(installation_instruction(mod))
+            print('')
+
+
+if __name__ == "__main__":
+    main()
