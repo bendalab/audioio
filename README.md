@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/bendalab/audioio.svg?branch=master)](https://travis-ci.com/bendalab/audioio)
 [![codecov](https://codecov.io/gh/bendalab/audioio/branch/master/graph/badge.svg)](https://codecov.io/gh/bendalab/audioio)
+[![PyPI version](https://badge.fury.io/py/audioio.svg)](https://badge.fury.io/py/audioio)
 
 # audioio 
 
@@ -9,6 +10,8 @@ files and devices.
 [Documentation](https://bendalab.github.io/audioio)
 
 [Git Repository](https://github.com/bendalab/audioio)
+
+[PyPI](https://pypi.org/project/audioio)
 
 The audioio modules try to use whatever available audio module to achieve
 their tasks. The audioio package does not provide own code for decoding files
