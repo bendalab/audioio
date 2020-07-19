@@ -15,10 +15,9 @@ echo
 echo "Clean up documentation of $PACKAGE"
 echo
 
+rm -rf "$BUILDROOT" 2> /dev/null || true
 mkdir -p "$BUILDROOT"
-rm -r "$BUILDROOT/$PACKAGE" 2> /dev/null || true
 
-echo
 echo "Building general documentation for $PACKAGE"
 echo
 
@@ -31,8 +30,9 @@ echo "Building API reference docs for $PACKAGE"
 echo
 
 cd "$PACKAGEROOT"
-pdoc3 --html --output-dir "$BUILDROOT" $PACKAGE
-mv "$BUILDROOT/$PACKAGE" "$BUILDROOT/api"
+pdoc3 --html --output-dir "$BUILDROOT/api-tmp" $PACKAGE
+mv "$BUILDROOT/api-tmp/$PACKAGE" "$BUILDROOT/api"
+rmdir "$BUILDROOT/api-tmp"
 cd - > /dev/null
 
 echo
