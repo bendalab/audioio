@@ -1,5 +1,5 @@
 """
-Functions for writing numpy arrays of floats to audio files.
+Writing numpy arrays of floats to audio files.
 
 ```
 write_audio('audio/file.wav', data, samplerate)

@@ -1,12 +1,10 @@
 """
-Functions for loading data from audio files.
+Loading data from audio files.
 
 ```
 data, samplingrate = load_audio('audio/file.wav')
 ```
 Loads the whole file by trying different modules until it succeeds to load the data.
-
-`data = unwrap(data)`: fix wrapped data.
 
 ```
 data = AudioLoader('audio/file.wav', 60.0)
@@ -17,6 +15,19 @@ with open_audio_loader('audio/file.wav', 60.0) as data:
 ```
 Create an `AudioLoader` instance that loads chuncks of 60 seconds long data on demand.
 data can be used like a read-only numpy array of floats.
+
+In some wav files clipped data are folded into the available data range. With
+```
+data = unwrap(data)
+```
+such data can be unwrapped.
+
+For a demo run the module as:
+```
+python -m audioio.audioloader audiofile.wav
+```
+
+## Installation notes
 
 The built in wave module only supports a few wav file formats.
 The libsndfile library can handle many more formats and is interfaced
@@ -34,10 +45,8 @@ mp3 and similar formats are supported by the audioread module. Install it via:
 sudo apt-get install -y libav-tools python-audioread
 ```
 
-For a demo, run the script as:
-```
-python -m audioio.audioloader audiofile.wav
-```
+See te audioio.audiomodules module and script for further information on
+installed audio packages and instructions on how to install them.
 """
  
 import warnings

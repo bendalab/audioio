@@ -5,20 +5,71 @@ Query available audio modules.
 let you query which audio modules are installed and available
 and which modules are not availbale on your system.
 
-Call `missing_modules()` for a list of module names that should be installed.
-The `missing_modules_instructions()` functions prints installation instructions
-for packages you should install for better performance on standard output.
-For installing instructions on a specific module call
+Call `missing_modules()` for a list of module names that should be
+installed.  The `missing_modules_instructions()` functions prints
+installation instructions for packages you should install for better
+performance.  For installing instructions on a specific module call
 'installation_instruction(module_name)'
 
 `disable_module()` disables specific audio modules.
 
 For an overview on available python modules regarding file I/O see
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
+
+Run this module as a script
+```
+> python -m audioio.auidomodules
+```
+or, when the audioio package is installed on your system, simply
+```
+audiomodules
+```
+for an overview of audio packages, their installation status, and recommendations on
+how to install further audio packages. The output looks like this:
+```plain
+Status of audio packages on this machine:
+-----------------------------------------
+
+scipy.io.wavfile  is  installed
+winsound          not installed
+wave              is  installed
+ewave             is  installed
+sounddevice       not installed
+pyaudio           is  installed
+audioread         is  installed
+soundfile         is  installed
+scikits.audiolab  not installed
+ossaudiodev       is  installed
+wavefile          is  installed
+
+There is no need to install more audio packages.
+```
+
+For instructions on specific packages run `audiomodules` with the name of
+the package supplied as argument:
+```
+audiomodules soundfile
+```
+This produces:
+```plain
+Installation instructions for the soundfile module:
+---------------------------------------------------
+The soundfile package is a wrapper of the sndfile library, which
+supports many different audio file formats.
+
+Install the library and the wrapper using
+
+sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
+sudo pip install SoundFile
+
+See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
+and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
+```
 """
 
-from sys import platform, argv
+from sys import platform, argv, exit
 from os.path import exists
+from .version import __version__, __year__
 
 # probe for available audio modules:
 
@@ -345,6 +396,22 @@ def installation_instruction(module):
 
 
 def main():
+    if len(argv) > 1 :
+        if argv[1] == '--version':
+            print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
+            exit(0)
+        if argv[1] == '--help':
+            print('usage: audiomodules [--version] [--help] [PACKAGE]')
+            print('')
+            print('Installation status and instructions of python audio packages.')
+            print('')
+            print('optional arguments:')
+            print('  --help      show this help message and exit')
+            print('  --version   show version number and exit')
+            print('  PACKAGE     show installation instructions for PACKAGE')
+            print('')
+            print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
+            exit(0)
     print('')
     print('Status of audio packages on this machine:')
     print('-'*41)

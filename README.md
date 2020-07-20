@@ -85,6 +85,7 @@ You can also randomly access chunks of data of an audio file, without
 loading the entire file into memory. This is really handy for
 analysing very long sound recordings:
 ```
+# open audio file with a buffer holding 60 seconds of data:
 with aio.open_audio_loader('audio/file.wav', 60.0) as data:
      block = 1000
      rate = data.samplerate
@@ -111,13 +112,16 @@ audioio provides a simple command line script to convert audio files:
 
 ### Playing sounds
 
-Play a numpy array as a sound:
+Fade in and out and play a numpy array as a sound:
 ```
+aio.fade(data, samplingrate, 0.2)
 aio.play(data, samplingrate)
 ```
+
 
 Just beep for half a second and 440 Hz:
 ```
 aio.beep(0.5, 440.0)
 aio.beep(0.5, 'a4')
 ```
+Musical notes are translated into frequency with the `note2freq` function.

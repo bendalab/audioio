@@ -20,6 +20,7 @@ audio = PlayAudio()
 audio.beep(1.0, 'a4')
 audio.close()
 ```
+
 The `note2freq()` function converts a musical note, like 'f#4',
 to the corresponding frequency.
 The `beep()` functions also accept notes for the frequency argument,
@@ -128,13 +129,13 @@ def fade_in(data, rate, fadetime):
     """
     Fade the signal in.
 
-    The first fadetime seconds of the data are multiplied with a squared sine.
+    The first fadetime seconds of the data are multiplied with a squared sine in place.
     
     Parameters
     ----------
     data: array
         The data to be faded in, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel 
+        or 2-day array with first axis time and second axis channel.
     rate: float
         The sampling rate in Hertz.
     fadetime: float
@@ -153,17 +154,17 @@ def fade_out(data, rate, fadetime):
     """
     Fade the signal out.
 
-    The last fadetime seconds of the data are multiplied with a squared sine.
+    The last fadetime seconds of the data are multiplied with a squared sine in place.
     
     Parameters
     ----------
     data: array
         The data to be faded out, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel 
+        or 2-day array with first axis time and second axis channel.
     rate: float
-        The sampling rate in Hertz
+        The sampling rate in Hertz.
     fadetime: float
-        Time for fading out in seconds
+        Time for fading out in seconds.
     """
     nr = int(np.round(fadetime*rate))
     x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi
@@ -178,13 +179,14 @@ def fade(data, rate, fadetime):
     """
     Fade the signal in and out.
 
-    The first and last fadetime seconds of the data are multiplied with a squared sine.
+    The first and last fadetime seconds of the data are multiplied with
+    a squared sine in place.
         
     Parameters
     ----------
     data: array
         The data to be faded, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel .
+        or 2-day array with first axis time and second axis channel.
     rate: float
         The sampling rate in Hertz.
     fadetime: float

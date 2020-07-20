@@ -3,11 +3,10 @@ Platform independent interfacing of numpy arrays with audio files and devices.
 
 See the documentation in the modules for an overview:
 
-- `audioio.audioloader`: reading audio files
-- `audioio.audiowriter`: writing audio files
+- `audioio.audioloader`: reading audio files as a whole or buffered in blocks
+- `audioio.audiowriter`: writing audio files in various formats and encodings
 - `audioio.playaudio`: play a sound through your audio board
 - `audioio.audiomodules`: query installed modules
-
 """
 
 from .version import __version__
