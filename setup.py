@@ -21,10 +21,9 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Programming Language :: Python",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=find_packages(exclude=['contrib', 'doc', 'tests*']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     entry_points={
         'console_scripts': [
             'audioconverter = audioio.audioconverter:main',
