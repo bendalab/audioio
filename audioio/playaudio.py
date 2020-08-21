@@ -23,7 +23,7 @@ audio.close()
 
 The `note2freq()` function converts a musical note, like 'f#4',
 to the corresponding frequency.
-The `beep()` functions also accept notes for the frequency argument,
+The `beep()` function also accept notes for the frequency argument,
 and uses `note2freq()` to get the right frequency.
 
 Data can be multiplied with a squared-sine for fading in and out with
@@ -34,11 +34,9 @@ For a demo, run the script as:
 python -m audioio.playaudio
 ```
 
-See also:
-https://wiki.python.org/moin/Audio/
-https://docs.python.org/3/library/mm.html
+## Installation hints
 
-The modules supports the standard modules `ossaudiodev` for Linux and `winsound` for Windows.
+The module supports the standard modules `ossaudiodev` for Linux and `winsound` for Windows.
 However, we recommend to install the `portaudio` library and the `pyaudio` module for
 better performance.
 
@@ -46,6 +44,20 @@ On Linux do:
 ```
 sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
 ```
+
+On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+<https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
+that is go to the folder where the wheel file is downloaded and run
+```
+pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+```
+replace the wheel file name by the one you downloaded.
+
+
+## See also
+
+- https://wiki.python.org/moin/Audio/
+- https://docs.python.org/3/library/mm.html
 """
 
 import os
@@ -78,7 +90,7 @@ def note2freq(note, a4freq=440.0):
         The last character specifies the octave.
         'a4' is defined by a4freq.
     a4freq: float
-        The frequency of a4.
+        The frequency of a4 in Hertz.
 
     Returns
     -------
@@ -129,13 +141,13 @@ def fade_in(data, rate, fadetime):
     """
     Fade the signal in.
 
-    The first fadetime seconds of the data are multiplied with a squared sine in place.
+    The first `fadetime` seconds of the data are multiplied with a squared sine in place.
     
     Parameters
     ----------
     data: array
         The data to be faded in, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel.
+        or 2-D array with first axis time and second axis channel.
     rate: float
         The sampling rate in Hertz.
     fadetime: float
@@ -154,13 +166,13 @@ def fade_out(data, rate, fadetime):
     """
     Fade the signal out.
 
-    The last fadetime seconds of the data are multiplied with a squared sine in place.
+    The last `fadetime` seconds of the data are multiplied with a squared sine in place.
     
     Parameters
     ----------
     data: array
         The data to be faded out, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel.
+        or 2-D array with first axis time and second axis channel.
     rate: float
         The sampling rate in Hertz.
     fadetime: float
@@ -179,14 +191,14 @@ def fade(data, rate, fadetime):
     """
     Fade the signal in and out.
 
-    The first and last fadetime seconds of the data are multiplied with
+    The first and last `fadetime` seconds of the data are multiplied with
     a squared sine in place.
         
     Parameters
     ----------
     data: array
         The data to be faded, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel.
+        or 2-D array with first axis time and second axis channel.
     rate: float
         The sampling rate in Hertz.
     fadetime: float
@@ -232,12 +244,12 @@ class PlayAudio(object):
         ----------
         data: array
             The data to be played, either 1-D array for single channel output,
-            or 2-day array with first axis time and second axis channel.
+            or 2-D array with first axis time and second axis channel.
         rate: float
             The sampling rate in Hertz.
         scale: float
             Multiply data with scale before playing.
-            If None scale it to the maximum value, if 1.0 do not scale.
+            If `None` scale it to the maximum value, if 1.0 do not scale.
         blocking: boolean
             If False do not block. 
 
@@ -277,7 +289,7 @@ class PlayAudio(object):
             If string, a musical note like 'f#5'.
             See note2freq() for details.
         amplitude: float
-            The ampliude of the tone in the range from 0.0 to 1.0.
+            The ampliude (volume) of the tone in the range from 0.0 to 1.0.
         rate: float
             The sampling rate in Hertz.
         fadetime: float
@@ -355,12 +367,21 @@ class PlayAudio(object):
         Documentation
         -------------
         https://people.csail.mit.edu/hubert/pyaudio/
+        http://www.portaudio.com/
 
         Installation
         ------------
         ```
         sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
         ```
+        
+        On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+        <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
+        that is go to the folder where the wheel file is downloaded and run
+        ```
+        pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+        ```
+        replace the wheel file name by the one you downloaded.
         """
         if not audio_modules['pyaudio']:
             raise ImportError
@@ -888,12 +909,12 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
     ----------
     data: array
         The data to be played, either 1-D array for single channel output,
-        or 2-day array with first axis time and second axis channel.
+        or 2-D array with first axis time and second axis channel.
     rate: float
         The sampling rate in Hertz.
     scale: float
         Multiply data with scale before playing.
-        If None scale it to the maximum value, if 1.0 do not scale.
+        If `None` scale it to the maximum value, if 1.0 do not scale.
     blocking: boolean
         If False do not block. 
     verbose: int
@@ -921,7 +942,7 @@ def beep(duration, frequency, amplitude=1.0, rate=44100.0,
         If string, a musical note like 'f#5'.
         See note2freq() for details
     amplitude: float
-        The ampliude of the tone from 0.0 to 1.0.
+        The ampliude (volume) of the tone from 0.0 to 1.0.
     rate: float
         The sampling rate in Hertz.
     fadetime: float

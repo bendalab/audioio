@@ -188,6 +188,14 @@ Install the package using
 
 INSTALLPACKAGE libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
 
+On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+<https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
+that is go to the folder where the wheel file is downloaded and run
+
+INSTALLPIP PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+
+replace the wheel file name by the one you downloaded.
+
 See https://people.csail.mit.edu/hubert/pyaudio/ for documentation of the pyaudio package."""
         
 try:
