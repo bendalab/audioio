@@ -31,7 +31,9 @@ provided by the python standard library is limited to very basic WAV
 files. If you need support for other audio file formats or for better
 sound output, you need to install additional packages.
 
-In particular, you might need to install the (sndfile library)[http://www.mega-nerd.com/libsndfile/] for accessing various audio file formats
+In particular, you might need to install the
+[sndfile library](http://www.mega-nerd.com/libsndfile/)
+for accessing various audio file formats
 ```
 sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
 ```
@@ -43,7 +45,7 @@ sudo pip install wavefile
 sudo pip install scikits.audiolab
 ```
 
-For playing sounds, the (portaudio library)[http://www.portaudio.com]
+For playing sounds, the [portaudio library](http://www.portaudio.com)
 is the gold standard
 ```
 sudo apt-get install libportaudio2 portaudio19-dev
@@ -53,6 +55,13 @@ that is interfaced by the python packages pyaudio or sounddevice:
 sudo apt-get install python-pyaudio
 sudo pip install sounddevice
 ```
+On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+<https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
+that is go to the folder where the wheel file is downloaded and run
+```
+pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+```
+replace the wheel file name by the one you downloaded.
 
 Run
 ```
