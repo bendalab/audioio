@@ -10,7 +10,7 @@ setup(
     version=__version__,
     author='Jan Benda, Joerg Henninger',
     author_email="jan.benda@uni-tuebingen.de",
-    description='Platform independent reading of audio files as well as recording and playing of audio data.',
+    description="Platform independent interfacing of numpy arrays of floats with audio files and devices.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/bendalab/audioio",

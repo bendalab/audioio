@@ -27,12 +27,11 @@ pip install audioio
 
 Then you can use already installed audio packages for reading and
 writing audio files and for playing audio data. However, the support
-provided by the python standard library is limited to very basic wav
+provided by the python standard library is limited to very basic WAV
 files. If you need support for other audio file formats or for better
 sound output, you need to install additional packages.
 
-In particular, you might need to install the sndfile library for accessing
-various audio file formats
+In particular, you might need to install the (sndfile library)[http://www.mega-nerd.com/libsndfile/] for accessing various audio file formats
 ```
 sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
 ```
@@ -44,7 +43,8 @@ sudo pip install wavefile
 sudo pip install scikits.audiolab
 ```
 
-For playing sounds, the portaudio library is the gold standard
+For playing sounds, the (portaudio library)[http://www.portaudio.com]
+is the gold standard
 ```
 sudo apt-get install libportaudio2 portaudio19-dev
 ```
