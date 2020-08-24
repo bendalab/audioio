@@ -276,7 +276,7 @@ class PlayAudio(object):
         self.index = 0
         self._do_play(blocking)
 
-    def beep(self, duration, frequency, amplitude=1.0, rate=44100.0,
+    def beep(self, duration=0.5, frequency=880.0, amplitude=1.0, rate=44100.0,
              fadetime=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
@@ -926,7 +926,7 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
     handle.play(data, rate, scale, blocking)
 
     
-def beep(duration, frequency, amplitude=1.0, rate=44100.0,
+def beep(duration=0.5, frequency=880.0, amplitude=1.0, rate=44100.0,
          fadetime=0.05, blocking=True, verbose=0):
     """
     Play a tone of a given duration and frequency.
