@@ -681,7 +681,53 @@ class PlayAudio(object):
         self._do_play = self._play
         self.stop = self._stop
 
+        
+    def open_simpleaudio(self):
+        """Initialize audio output via simpleaudio package.
 
+        Raises
+        ------
+        ImportError: simpleaudio module is not available.
+
+        Documentation
+        -------------
+        https://simpleaudio.readthedocs.io
+        """
+        if not audio_modules['simpleaudio'] or not audio_modules['wave']:
+            raise ImportError
+        self.handle = None
+        self._do_play = self._play_simpleaudio
+        self.close = self._close_simpleaudio
+        self.stop = self._stop_simpleaudio
+        return self
+
+    def _stop_simpleaudio(self):
+        """Stop any ongoing activity of the simpleaudio package."""
+        if self.handle is not None:
+            self.handle.stop()
+    
+    def _play_simpleaudio(self, blocking=True):
+        """
+        Play audio data using the simpleaudio package.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
+        """
+        self.handle = simpleaudio.play_buffer(self.data, self.channels, 2, int(self.rate))
+        if blocking:
+            self.handle.wait_done()
+        
+    def _close_simpleaudio(self):
+        """Close audio output using simpleaudio package. """
+        self._stop_simpleaudio()
+        simpleaudio.stop_all()
+        self.handle = None
+        self._do_play = self._play
+        self.stop = self._stop
+
+                
     def open_ossaudiodev(self):
         """Initialize audio output via ossaudiodev module.
 
@@ -824,7 +870,6 @@ class PlayAudio(object):
         """Stop any ongoing activity of the winsound module."""
         winsound.PlaySound(None, winsound.SND_MEMORY)
     
-    
     def _play_winsound(self, blocking=True):
         """
         Play audio data using the winsound module.
@@ -865,6 +910,7 @@ class PlayAudio(object):
         audio_open = [
             ['sounddevice', self.open_sounddevice],
             ['pyaudio', self.open_pyaudio],
+            ['simpleaudio', self.open_simpleaudio],
             ['ossaudiodev', self.open_ossaudiodev],
             ['winsound', self.open_winsound]
             ]
@@ -952,7 +998,7 @@ def beep(duration=0.5, frequency=880.0, amplitude=1.0, rate=44100.0,
     
 if __name__ == "__main__":
     print('play mono beep 1')
-    audio = PlayAudio()
+    audio = PlayAudio(verbose=1)
     audio.beep(1.0, 440.0)
     audio.close()
     

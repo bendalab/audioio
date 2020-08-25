@@ -41,6 +41,7 @@ soundfile         is  installed
 scikits.audiolab  not installed
 ossaudiodev       is  installed
 wavefile          is  installed
+simpleaudio       not installed
 
 There is no need to install additional audio packages.
 ```
@@ -111,7 +112,7 @@ audio_instructions['scipy.io.wavfile'] = """The scipy package provides very basi
 
 Install scipy using
 
-INSTALLPACKAGE python-scipy
+INSTALLPACKAGE python3-scipy
 
 See http://docs.scipy.org/doc/scipy/reference/io.html for a documentation."""
 
@@ -173,7 +174,7 @@ audio_instructions['audioread'] = """The audioread package uses ffmpeg and frien
 
 Install the package using
 
-INSTALLPACKAGE libav-tools python-audioread
+INSTALLPACKAGE libav-tools python3-audioread
 
 See https://github.com/sampsyo/audioread for documentation of the audioread package."""
         
@@ -186,7 +187,7 @@ audio_instructions['pyaudio'] = """The pyaudio package is a wrapper of the porta
 
 Install the package using
 
-INSTALLPACKAGE libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+INSTALLPACKAGE libportaudio2 portaudio19-dev python3-pyaudio
 
 On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
 <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
@@ -207,7 +208,7 @@ audio_instructions['sounddevice'] = """The sounddevice package is a wrapper of t
 If you have trouble with pyaudio, try this as an alternative.
 Install the package using
 
-INSTALLPACKAGE libportaudio2 portaudio19-dev python-cffi python3-cffi
+INSTALLPACKAGE libportaudio2 portaudio19-dev python3-cffi
 INSTALLPIP sounddevice
 
 See https://python-sounddevice.readthedocs.io for
@@ -241,6 +242,25 @@ install the sounddevice package in addition for better performance.
 See https://docs.python.org/2/library/winsound.html and
 https://mail.python.org/pipermail/tutor/2012-September/091529.html
 for documentation of the winsound module."""
+        
+try:
+    import simpleaudio
+    audio_modules['simpleaudio'] = True
+except ImportError:
+    audio_modules['simpleaudio'] = False
+audio_instructions['simpleaudio'] = """The simpleaudio package is a lightweight package
+for cross-platform audio playback.
+
+Install the package via
+
+INSTALLPIP simpleaudio
+
+On Linux also install
+
+INSTALLPACKAGE python3-dev libasound2-dev
+
+See https://simpleaudio.readthedocs.io
+for documentation of the simpleaudio package."""
     
 
 def available_modules():
