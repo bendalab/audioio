@@ -820,7 +820,7 @@ class PlayAudio(object):
         https://docs.python.org/2/library/winsound.html
         https://mail.python.org/pipermail/tutor/2012-September/091529.html
         """
-        if not audio_modules['winsound'] or not not audio_modules['wave']:
+        if not audio_modules['winsound'] or not audio_modules['wave']:
             raise ImportError
         self.handle = True
         self._do_play = self._play_winsound
