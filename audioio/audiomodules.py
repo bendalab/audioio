@@ -239,7 +239,7 @@ audio_instructions['winsound'] = """The winsound module is part of the python st
 provides simple support for sound playback under Windows. If possible,
 install the sounddevice package in addition for better performance.
 
-See https://docs.python.org/2/library/winsound.html and
+See https://docs.python.org/3.6/library/winsound.html and
 https://mail.python.org/pipermail/tutor/2012-September/091529.html
 for documentation of the winsound module."""
         

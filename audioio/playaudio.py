@@ -321,16 +321,18 @@ class PlayAudio(object):
         else:
             dt0 = 1.0/self.rate
             dt1 = scale/self.rate
-            t1 = (len(self.data)+0.5)*dt0
-            new_time = np.arange(0.0, t1, dt1)
-            old_time = np.arange(0.0, t1, dt0)
+            old_time = np.arange(len(self.data))*dt0
+            new_time = np.arange(0.0, old_time[-1]+0.5*dt0, dt1)
             if len(self.data.shape) > 1:
                 data = np.zeros((len(newtime), channels))
                 for c in range(channels):
                     data[:, c] = np.interp(new_time, old_time, self.data[:, c])
+            else:
+                data = np.interp(new_time, old_time, self.data)
+            if self.data.dtype == data.dtype:
                 self.data = data
             else:
-                self.data = np.interp(new_time, old_time, self.data)
+                self.data = np.asarray(data, dtype=self.data.dtype)
         if self.verbose:
             print('adapted sampling rate from %g Hz down to %g Hz' %
                   (self.rate, self.rate/scale))
@@ -695,7 +697,7 @@ class PlayAudio(object):
         """
         if not audio_modules['simpleaudio'] or not audio_modules['wave']:
             raise ImportError
-        self.handle = None
+        self.handle = True
         self._do_play = self._play_simpleaudio
         self.close = self._close_simpleaudio
         self.stop = self._stop_simpleaudio
@@ -703,7 +705,7 @@ class PlayAudio(object):
 
     def _stop_simpleaudio(self):
         """Stop any ongoing activity of the simpleaudio package."""
-        if self.handle is not None:
+        if self.handle is not None and self.handle is not True:
             self.handle.stop()
     
     def _play_simpleaudio(self, blocking=True):
@@ -714,9 +716,30 @@ class PlayAudio(object):
         ----------
         blocking: boolean
             If False do not block. 
+
+        Raises
+        ------
+        ValueError: Invalid sampling rate (after some attemps of resampling).
         """
-        self.handle = simpleaudio.play_buffer(self.data, self.channels, 2, int(self.rate))
-        if blocking:
+        rates = [self.rate, 44100, 22050]
+        scales = [1, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            if scale is None:
+                scale = self.rate/float(rate)
+            if scale != 1:
+                self._down_sample(self.channels, scale)
+            try:
+                self.handle = simpleaudio.play_buffer(self.data, self.channels,
+                                                      2, int(self.rate))
+                success = True
+                break
+            except ValueError:
+                if self.verbose > 0:
+                    print('invalid sampling rate of %g Hz' % rate)
+        if not success:
+            raise ValueError('No valid sampling rate found')
+        elif blocking:
             self.handle.wait_done()
         
     def _close_simpleaudio(self):
@@ -855,7 +878,7 @@ class PlayAudio(object):
 
         Documentation
         -------------
-        https://docs.python.org/2/library/winsound.html
+        https://docs.python.org/3.6/library/winsound.html
         https://mail.python.org/pipermail/tutor/2012-September/091529.html
         """
         if not audio_modules['winsound'] or not audio_modules['wave']:
@@ -880,7 +903,6 @@ class PlayAudio(object):
             If False do not block. 
         """
         # write data as wav file to memory:
-        # TODO: check this code!!!
         self.data_buffer = StringIO()
         w = wave.open(self.data_buffer, 'w')
         w.setnchannels(self.channels)
@@ -888,7 +910,7 @@ class PlayAudio(object):
         w.setframerate(int(self.rate))
         w.setnframes(len(self.data))
         w.writeframesraw(self.data.tostring())
-        w.close() # TODO: close here or after PlaySound?
+        w.close()
         # play file:
         if blocking:
             winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
