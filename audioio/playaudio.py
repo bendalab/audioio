@@ -37,22 +37,14 @@ python -m audioio.playaudio
 ## Installation hints
 
 The module supports the standard modules `ossaudiodev` for Linux and `winsound` for Windows.
-However, we recommend to install the `portaudio` library and the `pyaudio` module for
+However, we recommend to install the `portaudio` library and the `sounddevice` module for
 better performance.
 
 On Linux do:
 ```
-sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+sudo apt-get install -y libportaudio2 portaudio19-dev
+sudo pip install sounddevice
 ```
-
-On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
-<https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
-that is go to the folder where the wheel file is downloaded and run
-```
-pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
-```
-replace the wheel file name by the one you downloaded.
-
 
 ## See also
 
@@ -871,8 +863,8 @@ class PlayAudio(object):
         """Initialize the audio module with the best module available."""
         # list of implemented play functions:
         audio_open = [
-            ['pyaudio', self.open_pyaudio],
             ['sounddevice', self.open_sounddevice],
+            ['pyaudio', self.open_pyaudio],
             ['ossaudiodev', self.open_ossaudiodev],
             ['winsound', self.open_winsound]
             ]

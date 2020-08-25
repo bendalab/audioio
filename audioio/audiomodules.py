@@ -42,7 +42,7 @@ scikits.audiolab  not installed
 ossaudiodev       is  installed
 wavefile          is  installed
 
-There is no need to install more audio packages.
+There is no need to install additional audio packages.
 ```
 
 For instructions on specific packages run `audiomodules` with the name of
@@ -220,7 +220,7 @@ except ImportError:
     audio_modules['ossaudiodev'] = False
 audio_instructions['ossaudiodev'] = """The OSS audio module is part of the python standard library and
 provides simple support for sound playback under Linux. If possible,
-install the pyaudio package instead for better performance.
+install the soundfile package in addition for better performance.
 
 You need, however, to enable the /dev/dsp device for OSS support by installing
 
@@ -236,7 +236,7 @@ except ImportError:
     audio_modules['winsound'] = False
 audio_instructions['winsound'] = """The winsound module is part of the python standard library and
 provides simple support for sound playback under Windows. If possible,
-install the pyaudio package instead for better performance.
+install the sounddevice package in addition for better performance.
 
 See https://docs.python.org/2/library/winsound.html and
 https://mail.python.org/pipermail/tutor/2012-September/091529.html
@@ -330,7 +330,7 @@ def missing_modules():
         mods.append('audioread')
     # audio device I/O:
     if not audio_modules['pyaudio'] and not audio_modules['sounddevice'] :
-        mods.append('pyaudio')
+        mods.append('sounddevice')
     return mods
 
 
@@ -346,7 +346,7 @@ def missing_modules_instructions():
             print('-'*(len(mod)+1))
             print(installation_instruction(mod))
     else:
-        print('There is no need to install more audio packages.')
+        print('There is no need to install additional audio packages.')
 
 
 def installation_instruction(module):
