@@ -11,10 +11,14 @@ installation instructions for packages you should install for better
 performance.  For installing instructions on a specific module call
 'installation_instruction(module_name)'
 
-`disable_module()` disables specific audio modules.
+`disable_module()` disables specific audio modules,
+`enable_module()` re-enables a module, provided it is installed.
 
-For an overview on available python modules regarding file I/O see
+For an overview on available python modules regarding file I/O see, for example,
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
+
+For an overview on packages for palying and recording audio, see
+https://realpython.com/playing-and-recording-sound-python/
 
 Run this module as a script
 ```
