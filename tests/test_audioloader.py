@@ -54,7 +54,7 @@ def test_audioloader():
             'ewave': data.open_ewave,
             'audioio': data.open,
             }
-        load_funcs[lib](filename, 10.0, 2.0)
+        load_funcs[lib](filename, 10.0, 2.0, verbose=2)
 
         nframes = int(1.5*data.samplerate)
         # check access:
