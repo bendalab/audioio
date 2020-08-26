@@ -1,11 +1,12 @@
+os: linux
+
 dist: xenial
 
 language: python
 
-matrix:
+jobs:
     include:
         - python: "3.6"
-          os: linux
 
 addons:
   apt:
@@ -50,8 +51,9 @@ after_success:
 
 deploy:
   provider: pages
+  strategy: git
   skip_cleanup: true
-  github_token: $GITHUB_TOKEN
+  token: $GITHUB_TOKEN
   local_dir: site
   on:
       branch: master
