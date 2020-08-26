@@ -77,8 +77,12 @@ from .version import __version__, __year__
 
 
 """ Dictionary with availability of various audio modules.
-Keys are the module names, values are booleans. """
+Keys are the module names, values are booleans.
+Based on this dictionary audioio employs functions of installed audio modules. """
 audio_modules = {}
+
+""" List of installed audio modules. """
+audio_installed = []
 
 """ Dictionary with installation instructions of all supported audio modules.
 Keys are the module names, values are the instructions. """
@@ -96,6 +100,7 @@ audio_fileio.append('wave')
 try:
     import wave
     audio_modules['wave'] = True
+    audio_installed.append('wave')
 except ImportError:
     audio_modules['wave'] = False
 audio_instructions['wave'] = """The wave module is part of the standard python library 
@@ -107,6 +112,7 @@ audio_fileio.append('ewave')
 try:
     import ewave
     audio_modules['ewave'] = True
+    audio_installed.append('ewave')
 except ImportError:
     audio_modules['ewave'] = False
 audio_instructions['ewave'] = """The ewave package supports more types of WAV-files than the standard wave module.
@@ -124,6 +130,7 @@ audio_fileio.append('scipy.io.wavfile')
 try:
     from scipy.io import wavfile
     audio_modules['scipy.io.wavfile'] = True
+    audio_installed.append('scipy.io.wavfile')
 except ImportError:
     audio_modules['scipy.io.wavfile'] = False
 audio_instructions['scipy.io.wavfile'] = """The scipy package provides very basic functions for reading WAV files.
@@ -138,6 +145,7 @@ audio_fileio.append('soundfile')
 try:
     import soundfile
     audio_modules['soundfile'] = True
+    audio_installed.append('soundfile')
 except ImportError:
     audio_modules['soundfile'] = False
 audio_instructions['soundfile'] = """The soundfile package is a wrapper of the sndfile library, which
@@ -155,6 +163,7 @@ audio_fileio.append('wavefile')
 try:
     import wavefile
     audio_modules['wavefile'] = True
+    audio_installed.append('wavefile')
 except ImportError:
     audio_modules['wavefile'] = False
 audio_instructions['wavefile'] = """The wavefile package is a wrapper of the sndfile library, which
@@ -172,6 +181,7 @@ audio_fileio.append('scikits.audiolab')
 try:
     import scikits.audiolab as audiolab
     audio_modules['scikits.audiolab'] = True
+    audio_installed.append('scikits.audiolab')
 except ImportError:
     audio_modules['scikits.audiolab'] = False
 audio_instructions['scikits.audiolab'] = """The scikits.audiolab module is a wrapper of the sndfile library, which
@@ -190,6 +200,7 @@ audio_fileio.append('audioread')
 try:
     import audioread
     audio_modules['audioread'] = True
+    audio_installed.append('audioread')
 except ImportError:
     audio_modules['audioread'] = False
 audio_instructions['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
@@ -204,6 +215,7 @@ audio_device.append('pyaudio')
 try:
     import pyaudio
     audio_modules['pyaudio'] = True
+    audio_installed.append('pyaudio')
 except ImportError:
     audio_modules['pyaudio'] = False
 audio_instructions['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library.
@@ -226,6 +238,7 @@ audio_device.append('sounddevice')
 try:
     import sounddevice
     audio_modules['sounddevice'] = True
+    audio_installed.append('sounddevice')
 except ImportError:
     audio_modules['sounddevice'] = False
 audio_instructions['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library. 
@@ -242,6 +255,7 @@ audio_device.append('simpleaudio')
 try:
     import simpleaudio
     audio_modules['simpleaudio'] = True
+    audio_installed.append('simpleaudio')
 except ImportError:
     audio_modules['simpleaudio'] = False
 audio_instructions['simpleaudio'] = """The simpleaudio package is a lightweight package
@@ -262,6 +276,7 @@ audio_device.append('ossaudiodev')
 try:
     import ossaudiodev
     audio_modules['ossaudiodev'] = True
+    audio_installed.append('ossaudiodev')
 except ImportError:
     audio_modules['ossaudiodev'] = False
 audio_instructions['ossaudiodev'] = """The OSS audio module is part of the python standard library and
@@ -279,6 +294,7 @@ audio_device.append('winsound')
 try:
     import winsound
     audio_modules['winsound'] = True
+    audio_installed.append('winsound')
 except ImportError:
     audio_modules['winsound'] = False
 audio_instructions['winsound'] = """The winsound module is part of the python standard library and
@@ -333,9 +349,30 @@ def disable_module(module):
     ----------
     module: string
         Name of the module to be disabled as it appears in available_modules()
+
+    See also
+    --------
+    enable_module(), list_modules()
     """
     if module in audio_modules:
         audio_modules[module] = False
+
+
+def enable_module(module):
+    """
+    Enable an audio module if it is installed.
+    
+    Parameters
+    ----------
+    module: string
+        Name of the module to be (re)enabled.
+
+    See also
+    --------
+    disable_module(), list_modules()
+    """
+    if module in audio_modules:
+        audio_modules[module] = (module in audio_installed)
 
 
 def list_modules(module=None):
