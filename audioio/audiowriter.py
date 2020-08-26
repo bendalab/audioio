@@ -127,7 +127,10 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     else:
         buffer = np.floor(data * factor).astype(dtype)
         buffer[data >= 1.0] = factor - 1
-    wf.writeframes(buffer.tostring())
+    try:
+        wf.writeframes(buffer.tobytes())
+    except AttributeError: 
+        wf.writeframes(buffer.tostring())
     wf.close()
 
 

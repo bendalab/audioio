@@ -909,7 +909,10 @@ class PlayAudio(object):
         w.setsampwidth(2)
         w.setframerate(int(self.rate))
         w.setnframes(len(self.data))
-        w.writeframesraw(self.data.tostring())
+        try:
+            w.writeframesraw(self.data.tobytes())
+        except AttributeError:
+            w.writeframesraw(self.data.tostring())
         w.close()
         # play file:
         if blocking:
