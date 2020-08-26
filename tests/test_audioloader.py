@@ -1,7 +1,10 @@
-from nose.tools import assert_true
+from nose.tools import assert_true, assert_raises
+import os
 import numpy as np
 import audioio.audiowriter as aw
 import audioio.audioloader as al
+import audioio.audiomodules as am
+
 
 def test_audioloader():
     # generate data:
@@ -30,10 +33,11 @@ def test_audioloader():
         ['audioread', al.load_audioread],
         ['wave', al.load_wave],
         ['ewave', al.load_ewave],
+        ['audioio', al.load_audio],
         ]
 
     for lib, read_func in audio_funcs:
-        if not al.audio_modules[lib]:
+        if lib != 'audioio' and not al.audio_modules[lib]:
             continue
         print('%s module:' % lib)
         # load full data:
@@ -48,6 +52,7 @@ def test_audioloader():
             'audioread': data.open_audioread,
             'wave': data.open_wave,
             'ewave': data.open_ewave,
+            'audioio': data.open,
             }
         load_funcs[lib](filename, 10.0, 2.0)
 
@@ -82,5 +87,37 @@ def test_audioloader():
         assert_true(success < 0, 'frame slice access backward failed at index %d with %s module' % (success, lib))
 
         data.close()
+    os.remove(filename)
 
     
+
+def test_audioloader_modules():
+    audio_funcs = [
+        ['soundfile', al.load_soundfile],
+        ['scikits.audiolab', al.load_audiolab],
+        ['wavefile', al.load_wavefile],
+        ['wave', al.load_wave],
+        ['ewave', al.load_ewave],
+        ['scipy.io.wavfile', al.load_wavfile]
+        ]
+    # generate data:
+    filename = 'test.wav'
+    samplerate = 44100.0
+    duration = 10.0
+    t = np.arange(int(duration*samplerate))/samplerate
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    for lib, load_file in audio_funcs:
+        am.disable_module(lib)
+        data = al.AudioLoader(verbose=1)
+        load_funcs = {
+            'soundfile': data.open_soundfile,
+            'scikits.audiolab': data.open_audiolab,
+            'wavefile': data.open_wavefile,
+            'audioread': data.open_audioread,
+            'wave': data.open_wave,
+            'ewave': data.open_ewave,
+            }
+        if lib not in load_funcs:
+            continue
+        assert_raises(ImportError, load_funcs[lib], filename, 10.0, 2.0)
+        am.enable_module(lib)

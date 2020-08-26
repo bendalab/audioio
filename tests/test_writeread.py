@@ -1,7 +1,9 @@
-from nose.tools import assert_true, assert_equal, assert_less, assert_almost_equal
+from nose.tools import assert_true, assert_equal, assert_less, assert_almost_equal, assert_raises
+import os
 import numpy as np
 import audioio.audiowriter as aw
 import audioio.audioloader as al
+import audioio.audiomodules as am
 
 def test_write_read():
 
@@ -68,7 +70,7 @@ def test_write_read():
                 if encoding == '' or encoding in encodings_func(format):
                     print(encoding)
                     write_file(filename, data, samplerate, format=format, encoding=encoding)
-                    data_read, samplerate_read = load_file(filename)
+                    data_read, samplerate_read = load_file(filename, verbose=1)
                     check(samplerate, data, samplerate_read, data_read, lib, encoding)
 
         print('')
@@ -78,5 +80,28 @@ def test_write_read():
             if encoding == '' or encoding in aw.available_encodings(format):
                 print(encoding)
                 aw.write_audio(filename, data, samplerate, format=format, encoding=encoding)
-                data_read, samplerate_read = al.load_audio(filename)
+                data_read, samplerate_read = al.load_audio(filename, verbose=1)
                 check(samplerate, data, samplerate_read, data_read, 'audioio', encoding)
+    os.remove(filename)
+
+
+def test_write_read_modules():
+    audio_funcs = [
+        ['soundfile', aw.write_soundfile, al.load_soundfile],
+        ['scikits.audiolab', aw.write_audiolab, al.load_audiolab],
+        ['wavefile', aw.write_wavefile, al.load_wavefile],
+        ['wave', aw.write_wave, al.load_wave],
+        ['ewave', aw.write_ewave, al.load_ewave],
+        ['scipy.io.wavfile', aw.write_wavfile, al.load_wavfile]
+        ]
+    # generate data:
+    filename = 'test.wav'
+    samplerate = 44100.0
+    duration = 10.0
+    t = np.arange(int(duration*samplerate))/samplerate
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    for lib, write_file, load_file in audio_funcs:
+        am.disable_module(lib)
+        assert_raises(ImportError, write_file, filename, data, samplerate)
+        assert_raises(ImportError, load_file, filename)
+        am.enable_module(lib)
