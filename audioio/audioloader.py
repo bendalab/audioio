@@ -54,6 +54,7 @@ import os.path
 import numpy as np
 from .audiomodules import *
 
+
 def load_wave(filepath, verbose=0):
     """
     Load wav file using the wave module from pythons standard libray.

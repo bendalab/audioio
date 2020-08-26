@@ -2,7 +2,7 @@
 
 die () { echo "ERROR: $*" >&2; exit 2; }
 
-for cmd in pdoc3; do
+for cmd in mkdocs pdoc3; do
     command -v "$cmd" >/dev/null ||
         die "Missing $cmd; \`pip install $cmd\`"
 done

@@ -27,9 +27,13 @@ install:
   - pip install numpy
   - pip install scipy
   - pip install wavefile
+  - pip install SoundFile
   - pip install scikits.audiolab
+  - pip install audioread
   - pip install git+https://github.com/melizalab/py-ewave
   - pip install sounddevice
+  - pip install pyaudio
+  - pip install simpleaudio
   - pip install nose nose-cov
   - pip install codecov
   - pip install -r requirements.txt

@@ -43,6 +43,7 @@ def formats_wave():
     else:
         return ['WAV']
 
+
 def encodings_wave(format):
     """Encodings of an audio file format supported by the wave module.
 
@@ -62,7 +63,8 @@ def encodings_wave(format):
         return []
     else:
         return ['PCM_32', 'PCM_16', 'PCM_U8']
-    
+
+
 def write_wave(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the wave module from pythons standard libray.
@@ -147,6 +149,7 @@ def formats_ewave():
     else:
         return ['WAV', 'WAVEX']
 
+
 def encodings_ewave(format):
     """Encodings of an audio file format supported by the ewave module.
 
@@ -166,7 +169,8 @@ def encodings_ewave(format):
         return []
     else:
         return ['PCM_64', 'PCM_32', 'PCM_16', 'FLOAT', 'DOUBLE']
-    
+
+
 def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the ewave module from pythons standard libray.
@@ -238,6 +242,7 @@ def formats_wavfile():
     else:
         return ['WAV']
 
+
 def encodings_wavfile(format):
     """Encodings of an audio file format supported by the scipy.io.wavfile module.
 
@@ -257,7 +262,8 @@ def encodings_wavfile(format):
         return []
     else:
         return ['PCM_U8', 'PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE']
-    
+
+
 def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the scipy.io.wavfile module.
@@ -334,7 +340,8 @@ def formats_soundfile():
         return []
     else:
         return sorted(list(soundfile.available_formats()))
-            
+
+
 def encodings_soundfile(format):
     """Encodings of an audio file format supported by the SoundFile module.
 
@@ -352,7 +359,8 @@ def encodings_soundfile(format):
         return []
     else:
         return sorted(list(soundfile.available_subtypes(format)))
-        
+
+
 def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     """
     Write audio data using the SoundFile module (based on libsndfile).
@@ -413,6 +421,7 @@ def formats_wavefile():
             formats.append(attr)
     return sorted(formats)
 
+
 def encodings_wavefile(format):
     """Encodings supported by the wavefile module.
 
@@ -438,6 +447,7 @@ def encodings_wavefile(format):
              and v != wavefile.Format.SUBMASK ):
             encodings.append(attr)
     return sorted(encodings)
+
     
 def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -510,6 +520,7 @@ def formats_audiolab():
     formats = [f.upper() for f in audiolab.available_file_formats()]
     return sorted(formats)
 
+
 def encodings_audiolab(format):
     """Encodings of an audio file format supported by the scikits.audiolab module.
 
@@ -536,6 +547,7 @@ def encodings_audiolab(format):
         return sorted(encodings)
     except ValueError:
         return []
+
 
 def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
     """
@@ -614,6 +626,7 @@ def available_formats():
         formats |= set(formats_func())
     return sorted(list(formats))
 
+
 def available_encodings(format):
     """Encodings of an audio file format supported by any of the installed audio modules.
 
@@ -641,6 +654,7 @@ def available_encodings(format):
             got_sndfile = True
         encodings |= set(encs)
     return sorted(list(encodings))
+
 
 def write_audio(filepath, data, samplerate, format=None, encoding=None):
     """
