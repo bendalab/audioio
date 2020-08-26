@@ -27,21 +27,23 @@ audiomodules
 for an overview of audio packages, their installation status, and recommendations on
 how to install further audio packages. The output looks like this:
 ```plain
-Status of audio packages on this machine:
+tatus of audio packages on this machine:
 -----------------------------------------
 
-scipy.io.wavfile  is  installed
-winsound          not installed
-wave              is  installed
-ewave             is  installed
-sounddevice       not installed
-pyaudio           is  installed
-audioread         is  installed
-soundfile         is  installed
-scikits.audiolab  not installed
-ossaudiodev       is  installed
-wavefile          is  installed
-simpleaudio       not installed
+wave              is  installed (F)
+ewave             is  installed (F)
+scipy.io.wavfile  is  installed (F)
+soundfile         is  installed (F)
+wavefile          is  installed (F)
+scikits.audiolab  not installed (F)
+audioread         NOT installed (F)
+pyaudio           is  installed (D)
+sounddevice       not installed (D)
+simpleaudio       is  installed (D)
+ossaudiodev       is  installed (D)
+winsound          not installed (D)
+
+F: file I/O, D: audio device
 
 There is no need to install additional audio packages.
 ```
@@ -51,8 +53,9 @@ the package supplied as argument:
 ```
 audiomodules soundfile
 ```
-This produces:
+This produces something like this:
 ```plain
+...
 Installation instructions for the soundfile module:
 ---------------------------------------------------
 The soundfile package is a wrapper of the sndfile library, which
@@ -72,11 +75,24 @@ from sys import platform, argv, exit
 from os.path import exists
 from .version import __version__, __year__
 
-# probe for available audio modules:
 
+""" Dictionary with availability of various audio modules.
+Keys are the module names, values are booleans. """
 audio_modules = {}
+
+""" Dictionary with installation instructions of all supported audio modules.
+Keys are the module names, values are the instructions. """
 audio_instructions = {}
 
+""" List of audio modules used for reading and writing audio files. """
+audio_fileio = []
+""" List of audio modules used for playing and recording sounds on audio devices. """
+audio_device = []
+
+
+# probe for available audio modules:
+
+audio_fileio.append('wave')
 try:
     import wave
     audio_modules['wave'] = True
@@ -87,6 +103,7 @@ and there should be no need to install it manually.
 
 See https://docs.python.org/2/library/wave.html for documentation of the wave module."""
 
+audio_fileio.append('ewave')
 try:
     import ewave
     audio_modules['ewave'] = True
@@ -103,6 +120,7 @@ INSTALLSETUP
 
 See https://github.com/melizalab/py-ewave for documentation of the ewave package."""
 
+audio_fileio.append('scipy.io.wavfile')
 try:
     from scipy.io import wavfile
     audio_modules['scipy.io.wavfile'] = True
@@ -116,6 +134,7 @@ INSTALLPACKAGE python3-scipy
 
 See http://docs.scipy.org/doc/scipy/reference/io.html for a documentation."""
 
+audio_fileio.append('soundfile')
 try:
     import soundfile
     audio_modules['soundfile'] = True
@@ -132,6 +151,7 @@ INSTALLPIP SoundFile
 See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
+audio_fileio.append('wavefile')
 try:
     import wavefile
     audio_modules['wavefile'] = True
@@ -148,6 +168,7 @@ INSTALLPIP wavefile
 See https://github.com/vokimon/python-wavefile for documentation of the wavefile package
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
+audio_fileio.append('scikits.audiolab')
 try:
     import scikits.audiolab as audiolab
     audio_modules['scikits.audiolab'] = True
@@ -165,6 +186,7 @@ See http://cournape.github.io/audiolab/ and
 https://github.com/cournape/audiolab for documentation of the audiolab module
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
         
+audio_fileio.append('audioread')
 try:
     import audioread
     audio_modules['audioread'] = True
@@ -178,6 +200,7 @@ INSTALLPACKAGE libav-tools python3-audioread
 
 See https://github.com/sampsyo/audioread for documentation of the audioread package."""
         
+audio_device.append('pyaudio')
 try:
     import pyaudio
     audio_modules['pyaudio'] = True
@@ -199,6 +222,7 @@ replace the wheel file name by the one you downloaded.
 
 See https://people.csail.mit.edu/hubert/pyaudio/ for documentation of the pyaudio package."""
         
+audio_device.append('sounddevice')
 try:
     import sounddevice
     audio_modules['sounddevice'] = True
@@ -214,35 +238,7 @@ INSTALLPIP sounddevice
 See https://python-sounddevice.readthedocs.io for
 documentation of the sounddevice package."""
         
-try:
-    import ossaudiodev
-    audio_modules['ossaudiodev'] = True
-except ImportError:
-    audio_modules['ossaudiodev'] = False
-audio_instructions['ossaudiodev'] = """The OSS audio module is part of the python standard library and
-provides simple support for sound playback under Linux. If possible,
-install the soundfile package in addition for better performance.
-
-You need, however, to enable the /dev/dsp device for OSS support by installing
-
-INSTALLPACKAGE osspd
-
-See https://docs.python.org/2/library/ossaudiodev.html for
-documentation of the OSS audio module."""
-        
-try:
-    import winsound
-    audio_modules['winsound'] = True
-except ImportError:
-    audio_modules['winsound'] = False
-audio_instructions['winsound'] = """The winsound module is part of the python standard library and
-provides simple support for sound playback under Windows. If possible,
-install the sounddevice package in addition for better performance.
-
-See https://docs.python.org/3.6/library/winsound.html and
-https://mail.python.org/pipermail/tutor/2012-September/091529.html
-for documentation of the winsound module."""
-        
+audio_device.append('simpleaudio')
 try:
     import simpleaudio
     audio_modules['simpleaudio'] = True
@@ -261,39 +257,77 @@ INSTALLPACKAGE python3-dev libasound2-dev
 
 See https://simpleaudio.readthedocs.io
 for documentation of the simpleaudio package."""
+        
+audio_device.append('ossaudiodev')
+try:
+    import ossaudiodev
+    audio_modules['ossaudiodev'] = True
+except ImportError:
+    audio_modules['ossaudiodev'] = False
+audio_instructions['ossaudiodev'] = """The OSS audio module is part of the python standard library and
+provides simple support for sound playback under Linux. If possible,
+install the soundfile package in addition for better performance.
+
+You need, however, to enable the /dev/dsp device for OSS support by installing
+
+INSTALLPACKAGE osspd
+
+See https://docs.python.org/2/library/ossaudiodev.html for
+documentation of the OSS audio module."""
+        
+audio_device.append('winsound')
+try:
+    import winsound
+    audio_modules['winsound'] = True
+except ImportError:
+    audio_modules['winsound'] = False
+audio_instructions['winsound'] = """The winsound module is part of the python standard library and
+provides simple support for sound playback under Windows. If possible,
+install the sounddevice package in addition for better performance.
+
+See https://docs.python.org/3.6/library/winsound.html and
+https://mail.python.org/pipermail/tutor/2012-September/091529.html
+for documentation of the winsound module."""
     
 
 def available_modules():
     """
+    Returns list of installed audio modules.
+    
     Returns
     -------
     mods: list of strings
-        List of installed audio modules.
+        Sorted list of installed audio modules.
     """
     mods = []
     for module, available in audio_modules.items():
         if available:
             mods.append(module)
-    return mods
+    return sorted(mods)
 
 
 def unavailable_modules():
     """
+    Returns list of audio modules that are not installed on your system.
+    
     Returns
     -------
     mods: list of strings
-        List of not installed audio modules.
+        Sorted list of not installed audio modules.
     """
     mods = []
     for module, available in audio_modules.items():
         if not available:
             mods.append(module)
-    return mods
+    return sorted(mods)
 
 
 def disable_module(module):
     """
     Disable an audio module so that it is not used by the audioio functions and classes.
+
+    This can ony be used right after importing audioio before any
+    audioio functions are called.
     
     Parameters
     ----------
@@ -306,6 +340,7 @@ def disable_module(module):
 
 def list_modules(module=None):
     """Print list of all supported modules and whether they are available.
+    
     Modules that are not available but are recommended are marked
     with an all uppercase "NOT installed".
 
@@ -319,24 +354,40 @@ def list_modules(module=None):
     --------
     missing_modules() and missing_modules_instructions()
     """
-    def print_module(module, available, missing):
-        if available:
-            print('%-17s is  installed' % module)
+    def print_module(module, missing):
+        audio_type = ''
+        if module in audio_fileio:
+            audio_type += 'F'
+        if module in audio_device:
+            audio_type += 'D'
+        if len(audio_type) > 0:
+            audio_type = ' (%s)' % audio_type
+        if audio_modules[module]:
+            print('%-17s is  installed%s' % (module, audio_type))
         elif module in missing:
-            print('%-17s NOT installed' % module)
+            print('%-17s NOT installed%s' % (module, audio_type))
         else:
-            print('%-17s not installed' % module)
+            print('%-17s not installed%s' % (module, audio_type))
 
     missing = missing_modules()
     if module is not None:
-        print_module(module, audio_modules[module], missing)
+        print_module(module, missing)
     else:
-        for module, available in audio_modules.items():
-            print_module(module, available, missing)
+        modules = sorted(audio_modules.keys())
+        for module in audio_fileio:
+            print_module(module, missing)
+            modules.remove(module)
+        for module in audio_device:
+            print_module(module, missing)
+            modules.remove(module)
+        for module in modules:
+            print_module(module, missing)
 
 
 def missing_modules():
     """
+    Returns list of missing audio modules that are recommended to be installed.
+    
     Returns
     -------
     mods: list of strings
@@ -370,8 +421,9 @@ def missing_modules_instructions():
 
 
 def installation_instruction(module):
-    """
-    Return:
+    """ Instructions on how to install a specific audio module.
+    
+    Returns
     -------
     msg: multi-line string
         Installation instruction for the requested module.
@@ -445,6 +497,8 @@ def main():
     print('-'*41)
     print('')
     list_modules()
+    print('')
+    print('F: file I/O, D: audio device')
     print('')
     missing_modules_instructions()
     print('')
