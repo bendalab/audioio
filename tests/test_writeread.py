@@ -70,7 +70,7 @@ def test_write_read():
                 if encoding == '' or encoding in encodings_func(format):
                     print(encoding)
                     write_file(filename, data, samplerate, format=format, encoding=encoding)
-                    data_read, samplerate_read = load_file(filename, verbose=1)
+                    data_read, samplerate_read = load_file(filename, verbose=2)
                     check(samplerate, data, samplerate_read, data_read, lib, encoding)
 
         print('')
@@ -80,28 +80,33 @@ def test_write_read():
             if encoding == '' or encoding in aw.available_encodings(format):
                 print(encoding)
                 aw.write_audio(filename, data, samplerate, format=format, encoding=encoding)
-                data_read, samplerate_read = al.load_audio(filename, verbose=1)
+                data_read, samplerate_read = al.load_audio(filename, verbose=2)
                 check(samplerate, data, samplerate_read, data_read, 'audioio', encoding)
     os.remove(filename)
 
 
 def test_write_read_modules():
     audio_funcs = [
-        ['soundfile', aw.write_soundfile, al.load_soundfile],
-        ['scikits.audiolab', aw.write_audiolab, al.load_audiolab],
-        ['wavefile', aw.write_wavefile, al.load_wavefile],
-        ['wave', aw.write_wave, al.load_wave],
-        ['ewave', aw.write_ewave, al.load_ewave],
-        ['scipy.io.wavfile', aw.write_wavfile, al.load_wavfile]
+        ['soundfile', aw.write_soundfile, al.load_soundfile, aw.encodings_soundfile, aw.formats_soundfile],
+        ['scikits.audiolab', aw.write_audiolab, al.load_audiolab, aw.encodings_audiolab, aw.formats_audiolab],
+        ['wavefile', aw.write_wavefile, al.load_wavefile, aw.encodings_wavefile, aw.formats_wavefile],
+        ['wave', aw.write_wave, al.load_wave, aw.encodings_wave, aw.formats_wave],
+        ['ewave', aw.write_ewave, al.load_ewave, aw.encodings_ewave, aw.formats_ewave],
+        ['scipy.io.wavfile', aw.write_wavfile, al.load_wavfile, aw.encodings_wavfile, aw.formats_wavfile]
         ]
     # generate data:
     filename = 'test.wav'
+    format = 'wav'
     samplerate = 44100.0
     duration = 10.0
     t = np.arange(int(duration*samplerate))/samplerate
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    for lib, write_file, load_file in audio_funcs:
+    for lib, write_file, load_file, encodings_func, formats_func in audio_funcs:
         am.disable_module(lib)
         assert_raises(ImportError, write_file, filename, data, samplerate)
         assert_raises(ImportError, load_file, filename)
+        enc = encodings_func(format)
+        assert_equal(len(enc), 0, 'no encoding should be returned for disabled module %s' % lib)
+        formats = formats_func()
+        assert_equal(len(formats), 0, 'no format should be returned for disabled module %s' % lib)
         am.enable_module(lib)

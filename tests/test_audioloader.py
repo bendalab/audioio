@@ -41,10 +41,10 @@ def test_audioloader():
             continue
         print('%s module:' % lib)
         # load full data:
-        full_data, rate = read_func(filename)
+        full_data, rate = read_func(filename, verbose=2)
 
         # load on demand:
-        data = al.AudioLoader()
+        data = al.AudioLoader(verbose=2)
         load_funcs = {
             'soundfile': data.open_soundfile,
             'scikits.audiolab': data.open_audiolab,
@@ -96,6 +96,7 @@ def test_audioloader_modules():
         ['soundfile', al.load_soundfile],
         ['scikits.audiolab', al.load_audiolab],
         ['wavefile', al.load_wavefile],
+        ['audioread': al.load_audioread],
         ['wave', al.load_wave],
         ['ewave', al.load_ewave],
         ['scipy.io.wavfile', al.load_wavfile]
@@ -108,7 +109,8 @@ def test_audioloader_modules():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     for lib, load_file in audio_funcs:
         am.disable_module(lib)
-        data = al.AudioLoader(verbose=1)
+        assert_raises(ImportError, load_file, filename)
+        data = al.AudioLoader(verbose=2)
         load_funcs = {
             'soundfile': data.open_soundfile,
             'scikits.audiolab': data.open_audiolab,
