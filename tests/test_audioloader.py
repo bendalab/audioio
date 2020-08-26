@@ -96,7 +96,7 @@ def test_audioloader_modules():
         ['soundfile', al.load_soundfile],
         ['scikits.audiolab', al.load_audiolab],
         ['wavefile', al.load_wavefile],
-        ['audioread': al.load_audioread],
+        ['audioread', al.load_audioread],
         ['wave', al.load_wave],
         ['ewave', al.load_ewave],
         ['scipy.io.wavfile', al.load_wavfile]
