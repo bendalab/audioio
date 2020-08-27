@@ -56,10 +56,7 @@ import os
 import warnings
 import time
 import numpy as np
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import BytesIO
 from multiprocessing import Process
 from .audiomodules import *
 
@@ -902,24 +899,36 @@ class PlayAudio(object):
         blocking: boolean
             If False do not block. 
         """
-        # write data as wav file to memory:
-        self.data_buffer = StringIO()
-        w = wave.open(self.data_buffer, 'w')
-        w.setnchannels(self.channels)
-        w.setsampwidth(2)
-        w.setframerate(int(self.rate))
-        w.setnframes(len(self.data))
-        try:
-            w.writeframesraw(self.data.tobytes())
-        except AttributeError:
-            w.writeframesraw(self.data.tostring())
-        w.close()
         # play file:
         if blocking:
+            # write data as wav file to memory:
+            self.data_buffer = BytesIO()
+            w = wave.open(self.data_buffer, 'w')
+            w.setnchannels(self.channels)
+            w.setsampwidth(2)
+            w.setframerate(int(self.rate))
+            w.setnframes(len(self.data))
+            try:
+                w.writeframes(self.data.tobytes())
+            except AttributeError:
+                w.writeframes(self.data.tostring())
+            w.close()
             winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
         else:
-            winsound.PlaySound(self.data_buffer.getvalue(),
-                               winsound.SND_MEMORY | winsound.SND_ASYNC)
+            # write data as wav file to file:
+            audio_file = 'audioio-async_playback.wav'
+            w = wave.open(audio_file, 'w')
+            w.setnchannels(self.channels)
+            w.setsampwidth(2)
+            w.setframerate(int(self.rate))
+            w.setnframes(len(self.data))
+            try:
+                w.writeframes(self.data.tobytes())
+            except AttributeError:
+                w.writeframes(self.data.tostring())
+            w.close()
+            winsound.PlaySound(audio_file, winsound.SND_ASYNC)
+            os.remove(filename)
         
     def _close_winsound(self):
         """Close audio output using winsound module. """
