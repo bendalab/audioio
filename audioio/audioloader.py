@@ -46,7 +46,7 @@ sudo apt-get install -y libav-tools python-audioread
 ```
 
 See te `audioio.audiomodules` module and script for further information on
-installed audio packages and instructions on how to install them.
+installed audio packages and platform specific instructions on how to install them.
 """
  
 import warnings
@@ -61,7 +61,7 @@ def load_wave(filepath, verbose=0):
     
     Documentation
     -------------
-    https://docs.python.org/2/library/wave.html
+    https://docs.python.org/3.8/library/wave.html
 
     Parameters
     ----------
@@ -119,15 +119,6 @@ def load_ewave(filepath, verbose=0):
     Documentation
     -------------
     https://github.com/melizalab/py-ewave
-        
-    Installation
-    ------------
-    ```
-    git clone https://github.com/melizalab/py-ewave
-    cd py-ewave
-    python setup.py build
-    sudo python setup.py install
-    ```
 
     Parameters
     ----------
@@ -221,13 +212,6 @@ def load_soundfile(filepath, verbose=0):
     -------------
     http://pysoundfile.readthedocs.org
     http://www.mega-nerd.com/libsndfile
-        
-    Installation
-    ------------
-    ```
-    sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-    sudo pip install SoundFile
-    ```
 
     Parameters
     ----------
@@ -269,13 +253,6 @@ def load_wavefile(filepath, verbose=0):
     -------------
     https://github.com/vokimon/python-wavefile
 
-    Installation
-    ------------
-    ```
-    sudo apt-get install -y libsndfile1
-    sudo pip install wavefile
-    ```
-
     Parameters
     ----------
     filepath: string
@@ -312,13 +289,6 @@ def load_audiolab(filepath, verbose=0):
     -------------
     http://cournape.github.io/audiolab/
     https://github.com/cournape/audiolab
-                
-    Installation
-    ------------
-    ```
-    sudo apt-get install -y libsndfile1
-    sudo pip install scikits.audiolab
-    ```
 
     Parameters
     ----------
@@ -358,13 +328,7 @@ def load_audioread(filepath, verbose=0):
 
     Documentation
     -------------
-    https://github.com/sampsyo/audioread
-
-    Installation
-    ------------
-    sudo apt-get install -y libav-tools python-audioread
-        
-    audioread is not available in python x,y.
+    https://github.com/beetbox/audioread
 
     Parameters
     ----------
@@ -627,7 +591,7 @@ class AudioLoader(object):
     We should subclass directly from numpy.ndarray .
     For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
     When subclassing, there is an offset argument, that might help to
-    speed up __getitem__ .
+    speed up `__getitem__` .
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):

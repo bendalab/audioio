@@ -71,7 +71,7 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     
     Documentation
     -------------
-    https://docs.python.org/2/library/wave.html
+    https://docs.python.org/3.8/library/wave.html
 
     Parameters
     ----------
