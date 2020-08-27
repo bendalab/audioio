@@ -884,6 +884,7 @@ class PlayAudio(object):
         self._do_play = self._play_winsound
         self.close = self._close_winsound
         self.stop = self._stop_winsound
+        self.audio_file = ''
         return self
 
     def _stop_winsound(self):
@@ -915,9 +916,11 @@ class PlayAudio(object):
             w.close()
             winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
         else:
+            if verbose > 0:
+                print('Warning: asynchronous playback is limited to playing wav files by the winsound module. Install an alternative package as recommended by the audiomodules script. ')
             # write data as wav file to file:
-            audio_file = 'audioio-async_playback.wav'
-            w = wave.open(audio_file, 'w')
+            self.audio_file = 'audioio-async_playback.wav'
+            w = wave.open(self.audio_file, 'w')
             w.setnchannels(self.channels)
             w.setsampwidth(2)
             w.setframerate(int(self.rate))
@@ -927,13 +930,14 @@ class PlayAudio(object):
             except AttributeError:
                 w.writeframes(self.data.tostring())
             w.close()
-            winsound.PlaySound(audio_file, winsound.SND_ASYNC)
-            os.remove(filename)
+            winsound.PlaySound(self.audio_file, winsound.SND_ASYNC)
         
     def _close_winsound(self):
         """Close audio output using winsound module. """
         self._stop_winsound()
         self.handle = None
+        if len(self.audio_file) > 0 and os.path.isfile(self.audio_file):
+            os.remove(audio_file)
         self._do_play = self._play
         self.stop = self._stop
 
