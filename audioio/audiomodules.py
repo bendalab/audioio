@@ -21,15 +21,16 @@ For an overview on packages for palying and recording audio, see
 https://realpython.com/playing-and-recording-sound-python/
 
 Run this module as a script
-```
+```sh
 > python -m audioio.auidomodules
 ```
 or, when the audioio package is installed on your system, simply run
-```
+```sh
 > audiomodules
 ```
 for an overview of audio packages, their installation status, and recommendations on
 how to install further audio packages. The output looks like this:
+
 ```plain
 Status of audio packages on this machine:
 -----------------------------------------
@@ -54,6 +55,7 @@ There is no need to install additional audio packages.
 
 For instructions on specific packages, run `audiomodules` with the name of
 the package supplied as argument:
+
 ```
 audiomodules soundfile
 ```
@@ -62,16 +64,22 @@ This produces something like this:
 ...
 Installation instructions for the soundfile module:
 ---------------------------------------------------
-The soundfile package is a wrapper of the sndfile library, which
-supports many different audio file formats.
-
-Install the library and the wrapper using
-
-sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-sudo pip install SoundFile
-
+The soundfile package is a wrapper of the sndfile library,
+that supports many different audio file formats.
 See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
+
+First, install the following packages:
+
+sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
+
+Install the soundfile module with pip:
+
+sudo pip install SoundFile
+
+or alternatively from your distribution's package:
+
+sudo apt-get install -y python3-soundfile
 ```
 """
 
@@ -88,9 +96,37 @@ Based on this dictionary audioio employs functions of installed audio modules. "
 audio_installed = []
 """ List of installed audio modules. """
 
-audio_instructions = {}
-""" Dictionary with installation instructions of all supported audio modules.
+audio_infos = {}
+""" Dictionary with information about all supported audio modules.
+Keys are the module names, values are the informations. """
+
+audio_instructions_linux = {}
+""" Dictionary with installation instructions for windows.
 Keys are the module names, values are the instructions. """
+
+audio_instructions_windows = {}
+""" Dictionary with installation instructions for windows.
+Keys are the module names, values are the instructions. """
+
+audio_pip_packages = {}
+""" Dictionary with pip package names of the audio modules.
+Keys are the module names, values are pip package names. """
+
+audio_deb_packages = {}
+""" Dictionary with Linux DEB packages of the audio modules.
+Keys are the module names, values are the package names. """
+
+audio_rpm_packages = {}
+""" Dictionary with Linux RPM packages of the audio modules.
+Keys are the module names, values are the package names. """
+
+audio_required_deb_packages = {}
+""" Dictionary with Linux DEB packages required for the audio modules.
+Keys are the module names, values are lists of string with package names. """
+
+audio_required_rpm_packages = {}
+""" Dictionary with Linux RPM packages required for the audio modules.
+Keys are the module names, values are lists of string with package names. """
 
 audio_fileio = []
 """ List of audio modules used for reading and writing audio files. """
@@ -108,10 +144,8 @@ try:
     audio_installed.append('wave')
 except ImportError:
     audio_modules['wave'] = False
-audio_instructions['wave'] = """The wave module is part of the standard python library 
-and there should be no need to install it manually.
-
-See https://docs.python.org/2/library/wave.html for documentation of the wave module."""
+audio_infos['wave'] = """The wave module is part of the standard python library.
+For documentation see https://docs.python.org/3.8/library/wave.html"""
 
 audio_fileio.append('ewave')
 try:
@@ -120,16 +154,9 @@ try:
     audio_installed.append('ewave')
 except ImportError:
     audio_modules['ewave'] = False
-audio_instructions['ewave'] = """The ewave package supports more types of WAV-files than the standard wave module.
-
-Get the ewave package from github:
-
-git clone https://github.com/melizalab/py-ewave
-cd py-ewave
-BUILDSETUP
-INSTALLSETUP
-
-See https://github.com/melizalab/py-ewave for documentation of the ewave package."""
+audio_pip_packages['ewave'] = 'ewave'
+audio_infos['ewave'] = """The ewave package supports more types of WAV-files than the standard wave module.
+For documentation see https://github.com/melizalab/py-ewave"""
 
 audio_fileio.append('scipy.io.wavfile')
 try:
@@ -138,13 +165,11 @@ try:
     audio_installed.append('scipy.io.wavfile')
 except ImportError:
     audio_modules['scipy.io.wavfile'] = False
-audio_instructions['scipy.io.wavfile'] = """The scipy package provides very basic functions for reading WAV files.
-
-Install scipy using
-
-INSTALLPACKAGE python3-scipy
-
-See http://docs.scipy.org/doc/scipy/reference/io.html for a documentation."""
+audio_pip_packages['scipy.io.wavfile'] = 'scipy'
+audio_deb_packages['scipy.io.wavfile'] = 'python3-scipy'
+audio_rpm_packages['scipy.io.wavfile'] = 'python3-scipy'
+audio_infos['scipy.io.wavfile'] = """The scipy package provides very basic functions for reading WAV files.
+For documentation see http://docs.scipy.org/doc/scipy/reference/io.html"""
 
 audio_fileio.append('soundfile')
 try:
@@ -153,14 +178,12 @@ try:
     audio_installed.append('soundfile')
 except ImportError:
     audio_modules['soundfile'] = False
-audio_instructions['soundfile'] = """The soundfile package is a wrapper of the sndfile library, which
-supports many different audio file formats.
-
-Install the library and the wrapper using
-
-INSTALLPACKAGE libsndfile1 libsndfile1-dev libffi-dev
-INSTALLPIP SoundFile
-
+audio_pip_packages['soundfile'] = 'SoundFile'
+audio_deb_packages['soundfile'] = 'python3-soundfile'
+audio_required_deb_packages['soundfile'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
+audio_required_rpm_packages['soundfile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
+audio_infos['soundfile'] = """The soundfile package is a wrapper of the sndfile library,
+that supports many different audio file formats.
 See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
@@ -171,14 +194,11 @@ try:
     audio_installed.append('wavefile')
 except ImportError:
     audio_modules['wavefile'] = False
-audio_instructions['wavefile'] = """The wavefile package is a wrapper of the sndfile library, which
-supports many different audio file formats.
-
-Install the library and the wrapper using
-
-INSTALLPACKAGE libsndfile1 libsndfile1-dev libffi-dev
-INSTALLPIP wavefile
-
+audio_pip_packages['wavefile'] = 'wavefile'
+audio_required_deb_packages['wavefile'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
+audio_required_rpm_packages['wavefile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
+audio_infos['wavefile'] = """The wavefile package is a wrapper of the sndfile library,
+that supports many different audio file formats.
 See https://github.com/vokimon/python-wavefile for documentation of the wavefile package
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
@@ -189,14 +209,11 @@ try:
     audio_installed.append('scikits.audiolab')
 except ImportError:
     audio_modules['scikits.audiolab'] = False
-audio_instructions['scikits.audiolab'] = """The scikits.audiolab module is a wrapper of the sndfile library, which
-supports many different audio file formats.
-
-Install the library and the wrapper using
-
-INSTALLPACKAGE libsndfile1 libsndfile1-dev libffi-dev
-INSTALLPIP scikits.audiolab
-
+audio_pip_packages['scikits.audiolab'] = 'scikits.audiolab'
+audio_required_deb_packages['scikits.audiolab'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
+audio_required_rpm_packages['scikits.audiolab'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
+audio_infos['scikits.audiolab'] = """The scikits.audiolab module is a wrapper of the sndfile library,
+that supports many different audio file formats.
 See http://cournape.github.io/audiolab/ and
 https://github.com/cournape/audiolab for documentation of the audiolab module
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
@@ -208,13 +225,13 @@ try:
     audio_installed.append('audioread')
 except ImportError:
     audio_modules['audioread'] = False
-audio_instructions['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
-
-Install the package using
-
-INSTALLPACKAGE libav-tools python3-audioread
-
-See https://github.com/sampsyo/audioread for documentation of the audioread package."""
+audio_pip_packages['audioread'] = 'audioread'
+audio_deb_packages['audioread'] = 'python3-audioread'
+audio_rpm_packages['audioread'] = 'python3-audioread'
+audio_required_deb_packages['audioread'] = ['libav-tools']
+audio_required_rpm_packages['audioread'] = ['ffmpeg', 'ffmpeg-devel']
+audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
+For documentation see https://github.com/beetbox/audioread"""
         
 audio_device.append('pyaudio')
 try:
@@ -223,21 +240,20 @@ try:
     audio_installed.append('pyaudio')
 except ImportError:
     audio_modules['pyaudio'] = False
-audio_instructions['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library.
-
-Install the package using
-
-INSTALLPACKAGE libportaudio2 portaudio19-dev python3-pyaudio
-
-On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+audio_pip_packages['pyaudio'] = 'PyAudio'
+audio_deb_packages['pyaudio'] = 'python3-pyaudio'
+audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
+audio_required_deb_packages['pyaudio'] = ['libportaudio2 portaudio19-dev']
+audio_required_rpm_packages['pyaudio'] = ['libportaudio portaudio-devel']
+audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library.
+For documentation see https://people.csail.mit.edu/hubert/pyaudio"""
+audio_instructions_windows['pyaudio'] = """Download an appropriate (latest version, 32 or 64 bit) wheel from
 <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
 that is go to the folder where the wheel file is downloaded and run
 
-INSTALLPIP PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
 
-replace the wheel file name by the one you downloaded.
-
-See https://people.csail.mit.edu/hubert/pyaudio/ for documentation of the pyaudio package."""
+replace the wheel file name by the one you downloaded."""
         
 audio_device.append('sounddevice')
 try:
@@ -246,15 +262,12 @@ try:
     audio_installed.append('sounddevice')
 except ImportError:
     audio_modules['sounddevice'] = False
-audio_instructions['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library. 
+audio_pip_packages['sounddevice'] = 'sounddevice'
+audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'portaudio19-dev', 'python3-cffi']
+audio_required_rpm_packages['sounddevice'] = ['libportaudio', 'portaudio-devel', 'python3-cffi']
+audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library. 
 If you have trouble with pyaudio, try this as an alternative.
-Install the package using
-
-INSTALLPACKAGE libportaudio2 portaudio19-dev python3-cffi
-INSTALLPIP sounddevice
-
-See https://python-sounddevice.readthedocs.io for
-documentation of the sounddevice package."""
+For documentation see https://python-sounddevice.readthedocs.io"""
         
 audio_device.append('simpleaudio')
 try:
@@ -263,19 +276,13 @@ try:
     audio_installed.append('simpleaudio')
 except ImportError:
     audio_modules['simpleaudio'] = False
-audio_instructions['simpleaudio'] = """The simpleaudio package is a lightweight package
+audio_pip_packages['simpleaudio'] = 'simpleaudio'
+audio_rpm_packages['simpleaudio'] = 'python3-simpleaudio'
+audio_required_deb_packages['simpleaudio'] = ['python3-dev', 'libasound2-dev']
+audio_required_rpm_packages['simpleaudio'] = ['python3-devel', 'alsalib', 'alsalib-devel']
+audio_infos['simpleaudio'] = """The simpleaudio package is a lightweight package
 for cross-platform audio playback.
-
-Install the package via
-
-INSTALLPIP simpleaudio
-
-On Linux also install
-
-INSTALLPACKAGE python3-dev libasound2-dev
-
-See https://simpleaudio.readthedocs.io
-for documentation of the simpleaudio package."""
+For documentation see https://simpleaudio.readthedocs.io"""
         
 audio_device.append('ossaudiodev')
 try:
@@ -284,16 +291,11 @@ try:
     audio_installed.append('ossaudiodev')
 except ImportError:
     audio_modules['ossaudiodev'] = False
-audio_instructions['ossaudiodev'] = """The OSS audio module is part of the python standard library and
+audio_required_deb_packages['ossaudiodev'] = ['osspd']
+audio_infos['ossaudiodev'] = """The OSS audio module is part of the python standard library and
 provides simple support for sound playback under Linux. If possible,
 install the soundfile package in addition for better performance.
-
-You need, however, to enable the /dev/dsp device for OSS support by installing
-
-INSTALLPACKAGE osspd
-
-See https://docs.python.org/2/library/ossaudiodev.html for
-documentation of the OSS audio module."""
+For documentation see https://docs.python.org/3.8/library/ossaudiodev.html"""
         
 audio_device.append('winsound')
 try:
@@ -302,13 +304,11 @@ try:
     audio_installed.append('winsound')
 except ImportError:
     audio_modules['winsound'] = False
-audio_instructions['winsound'] = """The winsound module is part of the python standard library and
+audio_infos['winsound'] = """The winsound module is part of the python standard library and
 provides simple support for sound playback under Windows. If possible,
-install the sounddevice package in addition for better performance.
-
-See https://docs.python.org/3.6/library/winsound.html and
-https://mail.python.org/pipermail/tutor/2012-September/091529.html
-for documentation of the winsound module."""
+install the simpleaudio package in addition for better performance.
+For documentation see https://docs.python.org/3.6/library/winsound.html and
+https://mail.python.org/pipermail/tutor/2012-September/091529.html"""
     
 
 def available_modules():
@@ -480,43 +480,66 @@ def installation_instruction(module):
     """
     install_package_deb = "sudo apt-get install -y"
     install_package_rpm = "dnf install"
-    install_package_osx = "brew install"
-    install_package_win = "conda install"
-    install_package = install_package_deb
-
+    install_package = None
+    package = None
+    required_packages = None
+    instruction = None
+        
     install_pip_deb = "sudo pip install"
     install_pip_rpm = "pip install"
     install_pip_osx = "pip install"
     install_pip_win = "pip install"
     install_pip = install_pip_deb
 
-    build_setup = "python setup.py build"
-    install_setup_deb = "sudo python setup.py install"
-    install_setup_rpm = "python setup.py install"
-    install_setup_brew = "python setup.py install"
-    install_setup_win = "python setup.py install"
-    install_setup = install_setup_deb
-
     # check operating system:
     if platform[0:5] == "linux":
         if exists('/etc/redhat-release') or exists('/etc/fedora-release'):
             install_package = install_package_rpm
             install_pip = install_pip_rpm
-            install_setup = install_setup_rpm
+            package = audio_rpm_packages.get(module, None)
+            required_packages = audio_required_rpm_packages.get(module, None)
+        else:
+            install_package = install_package_deb
+            package = audio_deb_packages.get(module, None)
+            required_packages = audio_required_deb_packages.get(module, None)
+        instruction = audio_instructions_linux.get(module, None)
     elif platform == "darwin":
-        install_package = install_package_brew
-        install_pip = install_pip_brew
-        install_setup = install_setup_brew
+        install_package = ''
+        install_pip = install_pip_osx
     elif platform[0:3] == "win":
-        install_package = install_package_win
+        install_package = ''
         install_pip = install_pip_win
-        install_setup = install_setup_win
+        instruction = audio_instructions_windows.get(module, None)
 
-    msg = audio_instructions[module]
-    msg = msg.replace('INSTALLPACKAGE', install_package)
-    msg = msg.replace('INSTALLPIP', install_pip)
-    msg = msg.replace('BUILDSETUP', build_setup)
-    msg = msg.replace('INSTALLSETUP', install_setup)
+    pip_package = audio_pip_packages.get(module, None)
+        
+    req_inst = None
+    if required_packages is not None:
+        if pip_package is None and package is None:
+            req_inst = 'Install the following packages:\n\n%s %s' % (install_package, ' '.join(required_packages))
+        else:
+            req_inst = 'First, install the following packages:\n\n%s %s' % (install_package, ' '.join(required_packages))
+    
+    pip_inst = None
+    if pip_package is not None:
+        pip_inst = 'Install the %s module with pip:\n\n%s %s' % (module, install_pip, pip_package)
+        
+    dist_inst = None
+    if package is not None:
+        if pip_inst is None:
+            dist_inst = 'Install module from your distributions package:\n\n%s %s' % (install_package, package)
+        else:
+            dist_inst = 'or alternatively from your distribution\'s package:\n\n%s %s' % (install_package, package)
+
+    info = audio_infos.get(module, None)
+
+    msg = ''
+    for s in [info, req_inst, pip_inst, dist_inst, instruction]:
+        if s is not None:
+            if len(msg) > 0:
+                msg += '\n\n'
+            msg += s
+    
     return msg
 
 
