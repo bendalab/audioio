@@ -442,8 +442,11 @@ def missing_modules():
     if not audio_modules['audioread'] :
         mods.append('audioread')
     # audio device I/O:
-    if not audio_modules['pyaudio'] and not audio_modules['sounddevice'] :
-        mods.append('sounddevice')
+    if not audio_modules['pyaudio'] and not audio_modules['sounddevice'] and not audio_modules['simpleaudio'] :
+        if platform[0:3] == "win":
+            mods.append('simpleaudio')
+        else:
+            mods.append('sounddevice')
     return mods
 
 

@@ -52,6 +52,7 @@ sudo pip install sounddevice
 - https://docs.python.org/3/library/mm.html
 """
 
+from sys import platform
 import os
 import warnings
 import time
@@ -952,6 +953,9 @@ class PlayAudio(object):
             ['ossaudiodev', self.open_ossaudiodev],
             ['winsound', self.open_winsound]
             ]
+        if platform[0:3] == "win":
+            sa = audio_open.pop(2)
+            audio_open.insert(0, sa)
         # open audio device by trying various modules:
         success = False
         for lib, open_device in audio_open:
