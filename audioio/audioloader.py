@@ -4,7 +4,7 @@ Loading data from audio files.
 ```
 data, samplingrate = load_audio('audio/file.wav')
 ```
-Loads the whole file by trying different modules until it succeeds to load the data.
+loads the whole file by trying different modules until it succeeds to load the data.
 
 ```
 data = AudioLoader('audio/file.wav', 60.0)
@@ -13,7 +13,7 @@ or
 ```
 with open_audio_loader('audio/file.wav', 60.0) as data:
 ```
-Create an `AudioLoader` instance that loads chuncks of 60 seconds long data on demand.
+create an `AudioLoader` instance that loads chuncks of 60 seconds long data on demand.
 data can be used like a read-only numpy array of floats.
 
 In some wav files clipped data are folded into the available data range. With
@@ -45,7 +45,7 @@ mp3 and similar formats are supported by the audioread module. Install it via:
 sudo apt-get install -y libav-tools python-audioread
 ```
 
-See te audioio.audiomodules module and script for further information on
+See te `audioio.audiomodules` module and script for further information on
 installed audio packages and instructions on how to install them.
 """
  
@@ -80,8 +80,10 @@ def load_wave(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The wave module is not installed
-    *: Loading of the data failed
+    ImportError
+        The wave module is not installed
+    *
+        Loading of the data failed
     """
     if not audio_modules['wave']:
         raise ImportError
@@ -143,8 +145,10 @@ def load_ewave(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The ewave module is not installed
-    *: Loading of the data failed
+    ImportError
+        The ewave module is not installed
+    *
+        Loading of the data failed
     """
     if not audio_modules['ewave']:
         raise ImportError
@@ -185,8 +189,10 @@ def load_wavfile(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The scipy.io module is not installed
-    *: Loading of the data failed
+    ImportError
+        The scipy.io module is not installed
+    *
+        Loading of the data failed
     """
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
@@ -239,8 +245,10 @@ def load_soundfile(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The soundfile module is not installed.
-    *: Loading of the data failed.
+    ImportError
+        The soundfile module is not installed.
+    *
+        Loading of the data failed.
     """
     if not audio_modules['soundfile']:
         raise ImportError
@@ -284,8 +292,10 @@ def load_wavefile(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The wavefile module is not installed.
-    *: Loading of the data failed.
+    ImportError
+        The wavefile module is not installed.
+    *
+        Loading of the data failed.
     """
     if not audio_modules['wavefile']:
         raise ImportError
@@ -326,8 +336,10 @@ def load_audiolab(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The scikits.audiolab module is not installed.
-    *: Loading of the data failed.
+    ImportError
+        The scikits.audiolab module is not installed.
+    *
+        Loading of the data failed.
     """
     if not audio_modules['scikits.audiolab']:
         raise ImportError
@@ -370,8 +382,10 @@ def load_audioread(filepath, verbose=0):
 
     Raises
     ------
-    ImportError: The audioread module is not installed.
-    *: Loading of the data failed.
+    ImportError
+        The audioread module is not installed.
+    *
+        Loading of the data failed.
     """
     if not audio_modules['audioread']:
         raise ImportError
@@ -428,10 +442,14 @@ def load_audio(filepath, verbose=0):
 
     Raises
     ------
-    ValueError: Empty `filepath`.
-    FileNotFoundError: `filepath` is not an existing file.
-    EOFError: File size of `filepath` is zero.
-    IOError: Failed to load data.
+    ValueError
+        Empty `filepath`.
+    FileNotFoundError
+        `filepath` is not an existing file.
+    EOFError
+        File size of `filepath` is zero.
+    IOError
+        Failed to load data.
     """
     # check values:
     if len(filepath) == 0:
@@ -489,7 +507,7 @@ def unwrap(data):
 
     Returns
     -------
-    data: as input data
+    data: same as input data
         The fixed data.
     """
     if len(data.shape) > 1:
@@ -508,7 +526,8 @@ def unwrap(data):
 
 class AudioLoader(object):
     """Buffered reading of audio data for random access of the data in the file.
-    This allows for reading very large audio files that do not fit into memory.
+    
+    The class allows for reading very large audio files that do not fit into memory.
     An AudioLoader instance can be used like a huge read-only numpy array, i.e.
     ```
     data = AudioLoader('path/to/audio/file.wav')
@@ -571,9 +590,19 @@ class AudioLoader(object):
     ```
     for supported and available modules.
     
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If >0 show detailed error/warning messages.
 
-    Member variables
-    ----------------
+    Attributes
+    ----------
     samplerate: float
         The sampling rate of the data in seconds.
     channels: int
@@ -583,16 +612,16 @@ class AudioLoader(object):
     shape: tuple
         Frames and channels of the data.
 
-    Some member functions
-    ---------------------
+    Methods
+    -------
     len(): the number of frames
     open(): open an audio file by trying available audio modules.
     open_*(): open an audio file with the respective audio module.
     close(): close the file.
 
-    TODO
-    ----
-    Access via __getitem__ or __next__ is slow!
+    Notes
+    -----
+    Access via `__getitem__` or `__next__` is slow!
     Even worse, using numpy functions on this class first converts
     it to a numpy array - that is something we actually do not want!
     We should subclass directly from numpy.ndarray .
@@ -604,16 +633,7 @@ class AudioLoader(object):
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
         """Initialize the AudioLoader instance. If filepath is not None open the file.
 
-        Parameters
-        ----------
-        filepath: string
-            Name of the file.
-        buffersize: float
-            Size of internal buffer in seconds.
-        backsize: float
-            Part of the buffer to be loaded before the requested start index in seconds.
-        verbose: int
-            If >0 show detailed error/warning messages.
+        See documentation of the class for more information.
         """
         self.sf = None
         self.samplerate = 0.0
@@ -794,7 +814,8 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The wave module is not installed
+        ImportError
+            The wave module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -878,7 +899,8 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The ewave module is not installed.
+        ImportError
+            The ewave module is not installed.
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -947,7 +969,8 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The SoundFile module is not installed
+        ImportError
+            The SoundFile module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -1016,7 +1039,8 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The wavefile module is not installed
+        ImportError
+            The wavefile module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -1083,7 +1107,8 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The scikits.audiolab module is not installed
+        ImportError
+            The scikits.audiolab module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -1154,7 +1179,8 @@ class AudioLoader(object):
 
         Raises
         ------
-        ImportError: The audioread module is not installed
+        ImportError
+            The audioread module is not installed
         """
         self.verbose = verbose
         if self.verbose > 1:
@@ -1298,10 +1324,14 @@ class AudioLoader(object):
 
         Raises
         ------
-        ValueError: Empty `filepath`.
-        FileNotFoundError: `filepath` is not an existing file.
-        EOFError: File size of `filepath` is zero.
-        IOError: Failed to load data.
+        ValueError
+            Empty `filepath`.
+        FileNotFoundError
+            `filepath` is not an existing file.
+        EOFError
+            File size of `filepath` is zero.
+        IOError
+            Failed to load data.
         """
         self.buffer = np.array([])
         self.samplerate = 0.0
@@ -1354,6 +1384,8 @@ class AudioLoader(object):
 
 
 open_audio_loader = AudioLoader
+""" Alias for the AudioLoader class.
+"""
                 
 
 if __name__ == "__main__":

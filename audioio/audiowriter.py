@@ -89,9 +89,12 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The wave module is not installed.
-    *: Writing of the data failed.
-    ValueError: File format or encoding not supported.
+    ImportError
+        The wave module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
     """
     if not audio_modules['wave']:
         raise ImportError
@@ -195,9 +198,12 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The ewave module is not installed.
-    *: Writing of the data failed.
-    ValueError: File format or encoding not supported.
+    ImportError
+        The ewave module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
     """
     if not audio_modules['ewave']:
         raise ImportError
@@ -288,9 +294,12 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The wavfile module is not installed.
-    *: Writing of the data failed.
-    ValueError: File format or encoding not supported.
+    ImportError
+        The wavfile module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
     """
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
@@ -385,8 +394,10 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The SoundFile module is not installed.
-    *: Writing of the data failed.
+    ImportError
+        The SoundFile module is not installed.
+    *
+        Writing of the data failed.
     """
     if not audio_modules['soundfile']:
         raise ImportError
@@ -473,8 +484,10 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The wavefile module is not installed.
-    *: Writing of the data failed.
+    ImportError
+        The wavefile module is not installed.
+    *
+        Writing of the data failed.
     """
     if not audio_modules['wavefile']:
         raise ImportError
@@ -574,8 +587,10 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ImportError: The scikits.audiolab module is not installed.
-    *: Writing of the data failed.
+    ImportError
+        The scikits.audiolab module is not installed.
+    *
+        Writing of the data failed.
     """
     if not audio_modules['scikits.audiolab']:
         raise ImportError
@@ -676,8 +691,10 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
 
     Raises
     ------
-    ValueError: `filepath` is empty string.
-    IOError: Writing of the data failed.
+    ValueError
+        `filepath` is empty string.
+    IOError
+        Writing of the data failed.
     """
 
     audio_writer = [

@@ -9,7 +9,7 @@ Call `missing_modules()` for a list of module names that should be
 installed.  The `missing_modules_instructions()` functions prints
 installation instructions for packages you should install for better
 performance.  For installing instructions on a specific module call
-'installation_instruction(module_name)'
+`installation_instruction(module_name)`.
 
 `disable_module()` disables specific audio modules,
 `enable_module()` re-enables a module, provided it is installed.
@@ -24,14 +24,14 @@ Run this module as a script
 ```
 > python -m audioio.auidomodules
 ```
-or, when the audioio package is installed on your system, simply
+or, when the audioio package is installed on your system, simply run
 ```
-audiomodules
+> audiomodules
 ```
 for an overview of audio packages, their installation status, and recommendations on
 how to install further audio packages. The output looks like this:
 ```plain
-tatus of audio packages on this machine:
+Status of audio packages on this machine:
 -----------------------------------------
 
 wave              is  installed (F)
@@ -52,7 +52,7 @@ F: file I/O, D: audio device
 There is no need to install additional audio packages.
 ```
 
-For instructions on specific packages run `audiomodules` with the name of
+For instructions on specific packages, run `audiomodules` with the name of
 the package supplied as argument:
 ```
 audiomodules soundfile
@@ -80,22 +80,23 @@ from os.path import exists
 from .version import __version__, __year__
 
 
+audio_modules = {}
 """ Dictionary with availability of various audio modules.
 Keys are the module names, values are booleans.
 Based on this dictionary audioio employs functions of installed audio modules. """
-audio_modules = {}
 
-""" List of installed audio modules. """
 audio_installed = []
+""" List of installed audio modules. """
 
+audio_instructions = {}
 """ Dictionary with installation instructions of all supported audio modules.
 Keys are the module names, values are the instructions. """
-audio_instructions = {}
 
-""" List of audio modules used for reading and writing audio files. """
 audio_fileio = []
-""" List of audio modules used for playing and recording sounds on audio devices. """
+""" List of audio modules used for reading and writing audio files. """
+
 audio_device = []
+""" List of audio modules used for playing and recording sounds on audio devices. """
 
 
 # probe for available audio modules:
@@ -346,17 +347,17 @@ def disable_module(module):
     """
     Disable an audio module so that it is not used by the audioio functions and classes.
 
-    This can ony be used right after importing audioio before any
+    Use this right after importing audioio before any
     audioio functions are called.
     
     Parameters
     ----------
     module: string
-        Name of the module to be disabled as it appears in available_modules()
+        Name of the module to be disabled as it appears in `available_modules()`.
 
-    See also
+    See Also
     --------
-    enable_module(), list_modules()
+    enable_module(), available_modules(), list_modules()
     """
     if module in audio_modules:
         audio_modules[module] = False
@@ -364,16 +365,16 @@ def disable_module(module):
 
 def enable_module(module):
     """
-    Enable an audio module if it is installed.
+    Enable an audio module provided it is installed.
     
     Parameters
     ----------
     module: string
         Name of the module to be (re)enabled.
 
-    See also
+    See Also
     --------
-    disable_module(), list_modules()
+    disable_module(), available_modules(), list_modules()
     """
     if module in audio_modules:
         audio_modules[module] = (module in audio_installed)
@@ -391,7 +392,7 @@ def list_modules(module=None):
         If None list all modules.
         If string list only the specified module.
 
-    See also
+    See Also
     --------
     missing_modules() and missing_modules_instructions()
     """
@@ -517,6 +518,24 @@ def installation_instruction(module):
 
 
 def main():
+    """ Command line program for listing installation status of audio modules.
+
+    Run this module as a script
+    ```
+    > python -m audioio.auidomodules
+    ```
+    or, when the audioio package is installed on your system, simply run
+    ```
+    > audiomodules
+    ```
+    for an overview of audio packages, their installation status, and recommendations on
+    how to install further audio packages.
+
+    The '--help' argument prints out a help message:
+    ```
+    > audiomodules --help
+    ```
+    """
     if len(argv) > 1 :
         if argv[1] == '--version':
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
