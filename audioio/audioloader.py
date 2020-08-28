@@ -578,10 +578,14 @@ class AudioLoader(object):
 
     Methods
     -------
-    len(): the number of frames
-    open(): open an audio file by trying available audio modules.
-    open_*(): open an audio file with the respective audio module.
-    close(): close the file.
+    len():
+        Number of frames.
+    open():
+        Open an audio file by trying available audio modules.
+    open_*():
+        Open an audio file with the respective audio module.
+    close():
+        Close the file.
 
     Notes
     -----
