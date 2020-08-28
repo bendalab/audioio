@@ -266,7 +266,7 @@ class PlayAudio(object):
         self.index = 0
         self._do_play(blocking)
 
-    def beep(self, duration=0.5, frequency=880.0, amplitude=1.0, rate=44100.0,
+    def beep(self, duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
              fadetime=0.05, blocking=True):
         """Play a pure tone of a given duration and frequency.
 
@@ -1006,7 +1006,7 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
     handle.play(data, rate, scale, blocking)
 
     
-def beep(duration=0.5, frequency=880.0, amplitude=1.0, rate=44100.0,
+def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
          fadetime=0.05, blocking=True, verbose=0):
     """
     Play a tone of a given duration and frequency.
@@ -1037,10 +1037,12 @@ def beep(duration=0.5, frequency=880.0, amplitude=1.0, rate=44100.0,
         handle = PlayAudio(verbose)
     handle.beep(duration, frequency, amplitude, rate, fadetime, blocking)
 
-    
-if __name__ == "__main__":
+
+def demo():
+    """ Demonstrate the playaudio module.
+    """
     print('play mono beep 1')
-    audio = PlayAudio(verbose=1)
+    audio = PlayAudio(verbose=2)
     audio.beep(1.0, 440.0)
     audio.close()
     
@@ -1066,7 +1068,7 @@ if __name__ == "__main__":
     fade(data, rate, 0.1)
     play(data, rate)
 
-    exit()
+    return
 
     print('play notes')
     o = 6
@@ -1077,3 +1079,11 @@ if __name__ == "__main__":
             tone = '%s%d' % (chr(ord('a')+t), o)
             print('%-3s %7.1f Hz' % (tone, note2freq(tone)))
             beep(0.5, tone)
+
+            
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        select_module(sys.argv[1])
+    demo()
+

@@ -13,6 +13,7 @@ performance.  For installing instructions on a specific module call
 
 `disable_module()` disables specific audio modules,
 `enable_module()` re-enables a module, provided it is installed.
+`select_module()` disables all modules except one.
 
 For an overview on available python modules regarding file I/O see, for example,
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
@@ -279,7 +280,7 @@ except ImportError:
 audio_pip_packages['simpleaudio'] = 'simpleaudio'
 audio_rpm_packages['simpleaudio'] = 'python3-simpleaudio'
 audio_required_deb_packages['simpleaudio'] = ['python3-dev', 'libasound2-dev']
-audio_required_rpm_packages['simpleaudio'] = ['python3-devel', 'alsalib', 'alsalib-devel']
+audio_required_rpm_packages['simpleaudio'] = ['python3-devel', 'alsa-lib', 'alsa-lib-devel']
 audio_infos['simpleaudio'] = """The simpleaudio package is a lightweight package
 for cross-platform audio playback.
 For documentation see https://simpleaudio.readthedocs.io"""
@@ -293,8 +294,9 @@ except ImportError:
     audio_modules['ossaudiodev'] = False
 audio_required_deb_packages['ossaudiodev'] = ['osspd']
 audio_infos['ossaudiodev'] = """The OSS audio module is part of the python standard library and
-provides simple support for sound playback under Linux. If possible,
-install the soundfile package in addition for better performance.
+provides simple support for sound playback under Linux. You most likely want to
+install the simpleaudio or the soundfile package for better performance.
+In particular on Fedora systems, OSS is no longer supported.
 For documentation see https://docs.python.org/3.8/library/ossaudiodev.html"""
         
 audio_device.append('winsound')
@@ -349,6 +351,8 @@ def disable_module(module):
 
     Use this right after importing audioio before any
     audioio functions are called.
+
+    To disable all modules except one, call `select_module()`.
     
     Parameters
     ----------
@@ -357,27 +361,58 @@ def disable_module(module):
 
     See Also
     --------
-    enable_module(), available_modules(), list_modules()
+    enable_module(), select_module(), available_modules(), list_modules()
     """
     if module in audio_modules:
         audio_modules[module] = False
 
 
-def enable_module(module):
+def enable_module(module=None):
     """
     Enable an audio module provided it is installed.
     
     Parameters
     ----------
-    module: string
+    module: string or None
         Name of the module to be (re)enabled.
+        If None enable all installed audio modules.
 
     See Also
     --------
     disable_module(), available_modules(), list_modules()
     """
-    if module in audio_modules:
-        audio_modules[module] = (module in audio_installed)
+    if module is None:
+        for module in audio_installed:
+            audio_modules[module] = True
+    else:
+        if module in audio_modules:
+            audio_modules[module] = (module in audio_installed)
+
+
+def select_module(module):
+    """
+    Select a single audio module and disable all others.
+
+    Undo by calling `enable_module()` without arguments.
+    
+    Parameters
+    ----------
+    module: string
+        Name of the module to be selected.
+
+    Raises
+    ------
+    ValueError:
+        `module` cannot be selected because it is not installed.
+
+    See Also
+    --------
+    enable_module(), disable_module(), available_modules(), list_modules()
+    """
+    if module not in audio_installed:
+        raise ValueError('Can not select audio module %s because it is not installed' % module)
+    for mod in audio_installed:
+        audio_modules[mod] = (mod == module)
 
 
 def list_modules(module=None):
