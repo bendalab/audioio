@@ -1083,7 +1083,27 @@ def demo():
             
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1:
-        select_module(sys.argv[1])
+
+    help = False
+    mod = False
+    for arg in sys.argv[1:]:
+        if mod:
+            select_module(arg)
+            mod = False
+        elif arg == '-h':
+            help = True
+            break
+        elif arg == '-m':
+            mod = True
+        else:
+            break
+
+    if help:
+        print('')
+        print('Usage:')
+        print('  python -m audioio.playaudio [-m <module>]')
+        print('  -m: audio module to be used')
+        exit()
+        
     demo()
 
