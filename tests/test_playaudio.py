@@ -90,6 +90,3 @@ def test_main():
     ap.main(['prog', '-h'])
     ap.main(['prog'])
     ap.main(['prog', '-m', 'sounddevice'])
-
-            
-
