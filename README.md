@@ -8,9 +8,7 @@ Platform independent interfacing of numpy arrays of floats with audio
 files and devices.
 
 [Documentation](https://bendalab.github.io/audioio) |
-[API Reference](https://bendalab.github.io/audioio/api) |
-[Git Repository](https://github.com/bendalab/audioio) |
-[PyPI](https://pypi.org/project/audioio)
+[API Reference](https://bendalab.github.io/audioio/api)
 
 The audioio modules try to use whatever available audio module to achieve
 their tasks. The audioio package does not provide own code for decoding files

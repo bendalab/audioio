@@ -1334,8 +1334,8 @@ class AudioLoader(object):
         return self
 
 
-open_audio_loader = AudioLoader
 __pdoc__['open_audio_loader'] = "Alias for the `AudioLoader` class."
+open_audio_loader = AudioLoader
                 
     
 def demo(file_path, plot):
