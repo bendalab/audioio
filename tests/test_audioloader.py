@@ -78,7 +78,7 @@ def test_audioloader_modules():
     duration = 10.0
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    for lib, load_file in al.audio_loader:
+    for lib, load_file in al.audio_loader_funcs:
         print(lib)
         am.disable_module(lib)
         assert_raises(ImportError, load_file, filename)
