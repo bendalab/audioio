@@ -1,24 +1,28 @@
 """
-Query available audio modules.
+Query and control installation status and availability of audio modules.
 
-`list_modules()`, `available_modules()` and `unavailable_modules()`
-let you query which audio modules are installed and available
-and which modules are not availbale on your system.
+`list_modules()` and `installed_modules()` let you query which audio
+modules are currently installed on your system.
 
 Call `missing_modules()` for a list of module names that should be
-installed.  The `missing_modules_instructions()` functions prints
+installed.  The `missing_modules_instructions()` function prints
 installation instructions for packages you should install for better
-performance.  For installing instructions on a specific module call
-`installation_instruction(module_name)`.
+performance.  For installation instructions on a specific module use
+`installation_instruction()`.
 
-`disable_module()` disables specific audio modules,
-`enable_module()` re-enables a module, provided it is installed.
-`select_module()` disables all modules except one.
+By default all installed modules are used by the audioio functions.
+The `disable_module()`, `enable_module()` and `select_module()`
+functions allow to control which of the installed audio modules
+should be used by the audioio functions.
 
-For an overview on available python modules regarding file I/O see, for example,
+`list_modules()`, `available_modules()` and `unavailable_modules()` let
+you query which audio modules are installed and available and which
+modules are not available on your system.
+
+For an overview on python modules regarding file I/O see, for example,
 http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
 
-For an overview on packages for palying and recording audio, see
+For an overview on packages for playing and recording audio, see
 https://realpython.com/playing-and-recording-sound-python/
 
 Run this module as a script
@@ -32,7 +36,7 @@ or, when the audioio package is installed on your system, simply run
 for an overview of audio packages, their installation status, and recommendations on
 how to install further audio packages. The output looks like this:
 
-```plain
+```text
 Status of audio packages on this machine:
 -----------------------------------------
 
@@ -61,7 +65,7 @@ the package supplied as argument:
 audiomodules soundfile
 ```
 This produces something like this:
-```plain
+```text
 ...
 Installation instructions for the soundfile module:
 ---------------------------------------------------
@@ -311,11 +315,35 @@ provides simple support for sound playback under Windows. If possible,
 install the simpleaudio package in addition for better performance.
 For documentation see https://docs.python.org/3.6/library/winsound.html and
 https://mail.python.org/pipermail/tutor/2012-September/091529.html"""
+
+
+def installed_modules():
+    """
+    Returns list of installed audio modules.
     
+    Returns
+    -------
+    mods: list of strings
+        Sorted list of installed audio modules.
+
+    By default all installed modules are available. With
+    `disable_module()`, `enable_module()` and `select_module()`
+    the availability of installed modules can be controlled.
+
+    See Also
+    --------
+    available_modules()
+    """
+    return sorted(audio_installed)
+
 
 def available_modules():
     """
-    Returns list of installed audio modules.
+    Returns list of installed and enabled audio modules.
+
+    By default all installed modules are available. With
+    `disable_module()`, `enable_module()` and `select_module()`
+    the availability of installed modules can be controlled.
     
     Returns
     -------
@@ -415,10 +443,10 @@ def select_module(module):
         audio_modules[mod] = (mod == module)
 
 
-def list_modules(module=None):
-    """Print list of all supported modules and whether they are available.
+def list_modules(module=None, availability=True):
+    """Print list of all supported modules and their installation status.
     
-    Modules that are not available but are recommended are marked
+    Modules that are not installed but are recommended are marked
     with an all uppercase "NOT installed".
 
     Parameters
@@ -426,12 +454,19 @@ def list_modules(module=None):
     module: None or string
         If None list all modules.
         If string list only the specified module.
+    availability: bool
+        Mark availability of each module by an asterisk.
 
     See Also
     --------
-    missing_modules() and missing_modules_instructions()
+    installed_modules()
+    missing_modules()
+    missing_modules_instructions()
     """
     def print_module(module, missing):
+        audio_avail = ''
+        if availability:
+            audio_avail = '* ' if audio_modules[module] else '  '
         audio_type = ''
         if module in audio_fileio:
             audio_type += 'F'
@@ -439,12 +474,12 @@ def list_modules(module=None):
             audio_type += 'D'
         if len(audio_type) > 0:
             audio_type = ' (%s)' % audio_type
-        if audio_modules[module]:
-            print('%-17s is  installed%s' % (module, audio_type))
+        if module in audio_installed:
+            print('%s%-17s is  installed%s' % (audio_avail, module, audio_type))
         elif module in missing:
-            print('%-17s NOT installed%s' % (module, audio_type))
+            print('%s%-17s NOT installed%s' % (audio_avail, module, audio_type))
         else:
-            print('%-17s not installed%s' % (module, audio_type))
+            print('%s%-17s not installed%s' % (audio_avail, module, audio_type))
 
     missing = missing_modules()
     if module is not None:
@@ -468,16 +503,20 @@ def missing_modules():
     Returns
     -------
     mods: list of strings
-        List of missing but usefull audio modules.
+        List of missing audio modules.
     """
     mods = []
     # audio file I/O:
-    if not audio_modules['soundfile'] and not audio_modules['wavefile'] and not audio_modules['scikits.audiolab'] :
+    if 'soundfile' not in audio_installed and \
+       'wavefile' not in audio_installed and \
+       'scikits.audiolab' not in audio_installed:
         mods.append('soundfile')
-    if not audio_modules['audioread'] :
+    if 'audioread':
         mods.append('audioread')
     # audio device I/O:
-    if not audio_modules['pyaudio'] and not audio_modules['sounddevice'] and not audio_modules['simpleaudio'] :
+    if 'pyaudio' not in audio_installed and \
+       'sounddevice' not in audio_installed and \
+       'simpleaudio' not in audio_installed:
         if platform[0:3] == "win":
             mods.append('simpleaudio')
         else:
@@ -617,7 +656,7 @@ def main():
     print('Status of audio packages on this machine:')
     print('-'*41)
     print('')
-    list_modules()
+    list_modules(None, False)
     print('')
     print('F: file I/O, D: audio device')
     print('')

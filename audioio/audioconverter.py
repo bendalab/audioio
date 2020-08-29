@@ -1,7 +1,5 @@
 """
-# audioconverter
-
-Convert audio file formats.
+Convert formats of audio files.
 """
 
 import os
@@ -12,6 +10,21 @@ from .audiowriter import write_audio, available_formats, available_encodings
 
 
 def check_format(format):
+    """
+    Check whether requested audio format is valid and supported.
+
+    If the format is not available print an error message on console.
+
+    Parameters
+    ----------
+    format: string
+        Audio format to be checked.
+
+    Returns
+    -------
+    valid: bool
+        True if the requested audio format is valid.
+    """
     if format and format.upper() not in available_formats():
         print('! invalid audio format "%s"!' % format)
         print('run')
@@ -23,6 +36,36 @@ def check_format(format):
 
 
 def main():
+    """
+    Command line script for converting audio files.
+
+    Running
+    ```sh
+    audioconverter --help
+    ```
+    prints
+    ```text
+    usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING]
+                          [-o OUTPATH]
+                          [file [file ...]]
+
+    Convert audio file formats.
+
+    positional arguments:
+      file         input audio files
+
+    optional arguments:
+      -h, --help   show this help message and exit
+      --version    show program's version number and exit
+      -v           print debug output
+      -l           list supported file formats and encodings
+      -f FORMAT    audio format of output file
+      -e ENCODING  audio encoding of output file
+      -o OUTPATH   path or filename of output file.
+
+    version 0.9.4 by Benda-Lab (2020-2020)
+    ```
+    """
     # command line arguments:
     parser = argparse.ArgumentParser(add_help=True,
         description='Convert audio file formats.',
@@ -87,6 +130,7 @@ def main():
         # message:
         if args.verbose:
             print('converted audio file "%s" to "%s"' % (infile, outfile))
+
 
 if __name__ == '__main__':
     main()
