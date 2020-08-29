@@ -671,7 +671,7 @@ def available_encodings(format):
     return sorted(list(encodings))
 
 
-def write_audio(filepath, data, samplerate, format=None, encoding=None):
+def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=0):
     """
     Write audio data to file.
 
@@ -685,9 +685,12 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
     samplerate: float
         Sampling rate of the data in Hertz.
     format: string or None
-        File format.
+        File format. If None deduce file format from filepath.
+        See `available_formats()` for possible values.
     encoding: string or None
-        Encoding of the data.
+        Encoding of the data. See `available_encodings()` for possible values.
+    verbose: int
+        If >0 show detailed error/warning messages.
 
     Raises
     ------
@@ -695,6 +698,19 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
         `filepath` is empty string.
     IOError
         Writing of the data failed.
+
+    Example
+    -------
+    ```
+    import numpy as np
+    from audioio import write_audio
+    
+    samplerate = 28000.0
+    freq = 800.0
+    time = np.arange(0.0, 1.0, 1/samplerate) # one second
+    data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+    write_audio('audio/file.wav', data, samplerate)
+    ```
     """
 
     audio_writer = [
@@ -717,6 +733,14 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
         try:
             write_file(filepath, data, samplerate, format, encoding)
             success = True
+            if verbose > 0:
+                print('wrote data to file "%s" using %s module' %
+                      (filepath, lib))
+                if verbose > 1:
+                    print('  sampling rate: %g Hz' % rate)
+                    print('  channels     : %d' % data.shape[1])
+                    print('  data values  : %d' % len(data))
+            break
             break
         except Exception as e:
             pass
@@ -724,30 +748,58 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None):
         raise IOError('failed to write data to file "%s"' % filepath)
 
 
+def demo(file_path):
+    """ Demo of the audiowriter functions.
+
+    Parameters
+    ----------
+    file_path: string
+        File path of an audio file.
+    """
+    print('')
+    print('generate data ...')
+    samplerate = 44100.0
+    t = np.arange(0.0, 2.0, 1.0/samplerate)
+    data = np.sin(2.0*np.pi*880.0*t)
+        
+    print("write_audio(%s) ..." % file_path)
+    write_audio(file_path, data, samplerate, encoding=encoding, verbose=1)
+
+    print('done.')
+    
+
+
 if __name__ == "__main__":
     import sys
     import numpy as np
 
     print("Checking audiowriter module ...")
-    print('')
-    print('Usage:')
-    print('  python audiowriter.py <filename> <encoding>')
 
-    filepath = 'test.wav'
-    if len(sys.argv) > 1:
-        filepath = sys.argv[1]
+    help = False
+    file_path = None
     encoding = ''
-    if len(sys.argv) > 2:
-        encoding = sys.argv[2]
+    mod = False
+    for arg in sys.argv[1:]:
+        if mod:
+            select_module(arg)
+            mod = False
+        elif arg == '-h':
+            help = True
+            break
+        elif arg == '-m':
+            mod = True
+        elif file_path is None:
+            file_path = arg
+        else:
+            encoding = arg
+            break
+    if file_path is None:
+        file_path = 'test.wav'
 
-    samplerate = 44100.0
-    t = np.arange(int(2*samplerate))/samplerate
-    data = np.sin(2.0*np.pi*880.0*t)
-        
-    print('')
-    print("write_audio(%s) ..." % filepath)
-    write_audio(filepath, data, samplerate, encoding=encoding)
+    if help:
+        print('')
+        print('Usage:')
+        print('  python -m audioio.audiowriter [<filename>] [<encoding>]')
+        exit()
 
-    print('done.')
-    
-
+    demo(file_path)
