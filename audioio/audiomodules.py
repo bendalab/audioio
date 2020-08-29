@@ -707,7 +707,7 @@ def main():
     print('Status of audio packages on this machine:')
     print('-'*41)
     print('')
-    list_modules(None, False)
+    list_modules('all', False)
     print('')
     print('F: file I/O, D: audio device')
     print('')

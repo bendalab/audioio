@@ -42,8 +42,8 @@ python -m audioio.playaudio
 from sys import platform
 import os
 import warnings
-import time
 import numpy as np
+from time import sleep
 from io import BytesIO
 from multiprocessing import Process
 from .audiomodules import *
@@ -249,7 +249,7 @@ class PlayAudio(object):
             mind = np.abs(np.min(rawdata))
             scale = 1.0/max((mind, maxd))
         rawdata *= scale
-        self.data = np.floor(rawdata*(2**15-1)).astype(np.int16)
+        self.data = np.floor(rawdata*(2**15-1)).astype(np.int16, order='C')
         self.index = 0
         self._do_play(blocking)
 
@@ -309,15 +309,15 @@ class PlayAudio(object):
             old_time = np.arange(len(self.data))*dt0
             new_time = np.arange(0.0, old_time[-1]+0.5*dt0, dt1)
             if len(self.data.shape) > 1:
-                data = np.zeros((len(newtime), channels))
+                data = np.zeros((len(newtime), channels), order='C')
                 for c in range(channels):
                     data[:, c] = np.interp(new_time, old_time, self.data[:, c])
             else:
                 data = np.interp(new_time, old_time, self.data)
-            if self.data.dtype == data.dtype:
+            if self.data.dtype == data.dtype and flags['C_CONTIGUOUS']:
                 self.data = data
             else:
-                self.data = np.asarray(data, dtype=self.data.dtype)
+                self.data = np.asarray(data, dtype=self.data.dtype, order='C')
         if self.verbose:
             print('adapted sampling rate from %g Hz down to %g Hz' %
                   (self.rate, self.rate/scale))
@@ -426,11 +426,11 @@ class PlayAudio(object):
                 if nr > 0:
                     for k in range(nr) :
                         self.data[index+(nr-k-1)] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
-                time.sleep(2*fadetime)
+                sleep(2*fadetime)
             if self.stream.is_active():
                 self.run = False
                 while self.stream.is_active():
-                    time.sleep(0.01)
+                    sleep(0.01)
                 self.stream.stop_stream()
             self.stream.close()
             self.stream = None
@@ -490,7 +490,10 @@ class PlayAudio(object):
         self.stream.start_stream()
         if blocking:
             while self.stream.is_active():
-                time.sleep(0.01)
+                try:
+                    sleep(0.01)
+                except ValueError:
+                    pass
             self.run = False
             self.stream.stop_stream()
             self.stream.close()
@@ -635,7 +638,7 @@ class PlayAudio(object):
                 success = True
                 break
             except sounddevice.PortAudioError as pae:
-                if pae[1] != -9997:
+                if pae.args[1] != -9997:
                     raise
                 elif self.verbose > 0:
                     print('invalid sampling rate of %g Hz' % rate)
@@ -680,7 +683,7 @@ class PlayAudio(object):
         -------------
         https://simpleaudio.readthedocs.io
         """
-        if not audio_modules['simpleaudio'] or not audio_modules['wave']:
+        if not audio_modules['simpleaudio']:
             raise ImportError
         self.handle = True
         self._do_play = self._play_simpleaudio
@@ -786,7 +789,7 @@ class PlayAudio(object):
         """Play the data using the ossaudiodev module."""
         self.osshandle.writeall(self.data)
         if self.run:
-            time.sleep(0.5)
+            sleep(0.5)
             self.osshandle.close()
             self.osshandle = None
             self.run = False
@@ -835,7 +838,7 @@ class PlayAudio(object):
         if blocking:
             self.run = True
             self.osshandle.writeall(self.data)
-            time.sleep(0.5)
+            sleep(0.5)
             self.osshandle.close()
             self.run = False
             self.osshandle = None
@@ -958,7 +961,7 @@ class PlayAudio(object):
                 break
             except Exception as e:
                 if self.verbose > 0:
-                    print('failed to open %s module for playing' % lib)
+                    print('failed to open %s module for playing:' % lib, str(e))
         if not success:
             warnings.warn('cannot open any device for audio output')
         return self
@@ -1037,13 +1040,13 @@ def demo():
     with open_audio_player() as audio:
         audio.beep(1.0, 'b4', 0.75, blocking=False)
         print('  done')
-        time.sleep(0.3)
-    time.sleep(0.5)
+        sleep(0.3)
+    sleep(0.5)
 
     print('play mono beep 3')
     beep(1.0, 'c5', 0.25, blocking=False)
     print('  done')
-    time.sleep(0.5)
+    sleep(0.5)
             
     print('play stereo beep')
     duration = 1.0

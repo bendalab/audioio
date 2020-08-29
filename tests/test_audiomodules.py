@@ -6,6 +6,7 @@ import audioio.audiomodules as am
 def test_audiomodules():
     funcs = ['all', 'fileio', 'device']
     for func in funcs:
+        am.enable_module()
         print('')
         print('module lists for %s:' % func)
         inst_mods = am.installed_modules(func)
