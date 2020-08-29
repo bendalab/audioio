@@ -2,17 +2,17 @@
 Play numpy arrays as audio.
 
 The globally defined functions
-```
-play(data, rate)
-beep(duration, frequeny)
-```
+
+- `play()`
+- `beep()`
+
 use a global instance of the `PlayAudio` class to play a sound
 on the default audio output.
 
 Alternatively you may use the `PlayAudio` class directly, like this:
 ```
 with open_audio_player() as audio:
-    audio.beep(1.0, 440.0)
+    audio.beep()
 ```
 or without context management:
 ```
@@ -29,27 +29,14 @@ and uses `note2freq()` to get the right frequency.
 Data can be multiplied with a squared-sine for fading in and out with
 `fade_in()`, `fade_out()`, and `fade()`.
 
+You might need to install additional packages for better audio output.
+See [installation](https://bendalab.github.io/audioio/installation)
+for further instructions.
+
 For a demo, run the script as:
 ```
 python -m audioio.playaudio
 ```
-
-## Installation hints
-
-The module supports the standard modules `ossaudiodev` for Linux and `winsound` for Windows.
-However, we recommend to install the `portaudio` library and the `sounddevice` module for
-better performance.
-
-On Linux do:
-```
-sudo apt-get install -y libportaudio2 portaudio19-dev
-sudo pip install sounddevice
-```
-
-## See also
-
-- https://wiki.python.org/moin/Audio/
-- https://docs.python.org/3/library/mm.html
 """
 
 from sys import platform

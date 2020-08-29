@@ -1,24 +1,13 @@
 """
 Writing numpy arrays of floats to audio files.
 
-```
-write_audio('audio/file.wav', data, samplerate)
-```
-Writes the whole file at once with an installed audio module that
-supports the requested file format.
+- `write_audio()`: write audio data to file.
+- `available_formats()`: audio file formats supported by any of the installed audio modules.
+- `available_encodings()`: encodings of an audio file format supported by any of the installed audio modules.
 
-```
-available_formats()
-available_encodings()
-```
-return lists of supported formats and encodings.
-
-We recommend SoundFile for best results:
-Installation:
-```
-sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
-sudo pip install SoundFile
-```
+For support of more audio formats, you might need to install additional packages.
+See [installation](https://bendalab.github.io/audioio/installation)
+for further instructions.
 
 For a demo, run the script as:
 ```

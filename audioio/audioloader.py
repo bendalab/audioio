@@ -1,58 +1,27 @@
 """
 Loading data from audio files.
 
-```
-data, samplingrate = load_audio('audio/file.wav')
-```
-loads the whole file by trying different modules until it succeeds to load the data.
+- `load_audio()` loads a whole audio file at once.
+- `AudioLoader` or `open_audio_loader()` allow to read data from audio files in chunks.
+- `unwrap()` unwraps clipped data that are folded into the available data range.
 
-```
-data = AudioLoader('audio/file.wav', 60.0)
-```
-or
-```
-with open_audio_loader('audio/file.wav', 60.0) as data:
-```
-create an `AudioLoader` instance that loads chuncks of 60 seconds long data on demand.
-data can be used like a read-only numpy array of floats.
-
-In some wav files clipped data are folded into the available data range. With
-```
-data = unwrap(data)
-```
-such data can be unwrapped.
+If an audio file cannot be loaded, you might need to install additional packages.
+See [installation](https://bendalab.github.io/audioio/installation)
+for further instructions.
 
 For a demo run the module as:
 ```
 python -m audioio.audioloader audiofile.wav
 ```
-
-## Installation notes
-
-The built in wave module only supports a few wav file formats.
-The libsndfile library can handle many more formats and is interfaced
-by many different python packages (e.g. SoundFile, wavefile, scikits.audiolab).
-We recommend using SoundFile for best results:
-
-To install SoundFile on Linux do:
-```
-sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-sudo pip install SoundFile
-```
-
-mp3 and similar formats are supported by the audioread module. Install it via:
-```
-sudo apt-get install -y libav-tools python-audioread
-```
-
-See te `audioio.audiomodules` module and script for further information on
-installed audio packages and platform specific instructions on how to install them.
 """
  
 import warnings
 import os.path
 import numpy as np
 from .audiomodules import *
+
+
+__pdoc__ = {}
 
 
 def load_wave(filepath, verbose=0):
@@ -590,13 +559,13 @@ class AudioLoader(object):
 
     Methods
     -------
-    len():
+    len()
         Number of frames.
-    open():
+    open()
         Open an audio file by trying available audio modules.
-    open_*():
+    open_*()
         Open an audio file with the respective audio module.
-    close():
+    close()
         Close the file.
 
     Notes
@@ -611,7 +580,9 @@ class AudioLoader(object):
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
-        """Initialize the AudioLoader instance. If filepath is not None open the file.
+        """Initialize the AudioLoader instance.
+
+        If filepath is not None open the file.
 
         See documentation of the class for more information.
         """
@@ -1364,8 +1335,7 @@ class AudioLoader(object):
 
 
 open_audio_loader = AudioLoader
-""" Alias for the AudioLoader class.
-"""
+__pdoc__['open_audio_loader'] = "Alias for the `AudioLoader` class."
                 
     
 def demo(file_path, plot):

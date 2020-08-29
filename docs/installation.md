@@ -2,7 +2,7 @@
 
 AudioIO uses whatever audio module is installed on your
 system. However, the python standard library support for reading and
-writing audio files and for playing sound is poor. You certainly want
+writing audio files and for playing sound is rather poor. You certainly want
 to install additional packages for better performance.
 
 Run in your terminal
@@ -12,7 +12,10 @@ Run in your terminal
 to see which audio modules you have already installed on your system,
 which ones are recommended to install, and how to install them. By
 calling the script with the name of an audio module as an argument you
-get platform specific installation instructions for this module.
+get platform specific installation instructions for this module. E.g.
+```sh
+> audiomodules audioread
+```
 
 
 ## Linux
@@ -37,6 +40,17 @@ sudo pip install SoundFile
 sudo pip install wavefile
 sudo pip install scikits.audiolab
 ```
+
+MP3 and similar formats are supported by the audioread module.
+Install ffmpeg and friends with
+```
+sudo apt-get install libav-tools python3-audioread
+```
+on debian based systems and with
+```
+dnf install ffmpeg ffmpeg-devel python3-audioread
+```
+on rpm based systems.
 
 For playing sounds, the [portaudio library](http://www.portaudio.com)
 is the gold standard. Install this library with
