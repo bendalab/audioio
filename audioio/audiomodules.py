@@ -318,60 +318,89 @@ For documentation see https://docs.python.org/3.6/library/winsound.html and
 https://mail.python.org/pipermail/tutor/2012-September/091529.html"""
 
 
-def installed_modules():
+def installed_modules(func='all'):
     """
-    Returns list of installed audio modules.
-    
-    Returns
-    -------
-    mods: list of strings
-        Sorted list of installed audio modules.
+    Installed audio modules of a specific function.
 
     By default all installed modules are available. With
     `disable_module()`, `enable_module()` and `select_module()`
     the availability of installed modules can be controlled.
+
+    Parameters
+    ----------
+    func: string
+        'all': all installed audio modules.
+        'fileio': installed audio modules used for file I/O.
+        'device': all installed audio modules used for playing and recording sounds.
+    
+    Returns
+    -------
+    mods: list of strings
+        List of installed audio modules of the requested function.
 
     See Also
     --------
     available_modules()
     """
-    return sorted(audio_installed)
+    if func == 'fileio':
+        return [module for module in audio_fileio if module in audio_installed]
+    elif func == 'device':
+        return [module for module in audio_device if module in audio_installed]
+    else:
+        return audio_installed
 
 
-def available_modules():
+def available_modules(func='all'):
     """
-    Returns list of installed and enabled audio modules.
+    Installed and enabled audio modules.
 
     By default all installed modules are available. With
     `disable_module()`, `enable_module()` and `select_module()`
     the availability of installed modules can be controlled.
+
+    Parameters
+    ----------
+    func: string
+        'all': all installed audio modules.
+        'fileio': installed audio modules used for file I/O.
+        'device': all installed audio modules used for playing and recording sounds.
     
     Returns
     -------
     mods: list of strings
-        Sorted list of installed audio modules.
+        List of available, i.e. installed and enabled, audio modules of the requested function.
     """
-    mods = []
-    for module, available in audio_modules.items():
-        if available:
-            mods.append(module)
-    return sorted(mods)
+    if func == 'fileio':
+        return [module for module in audio_fileio if audio_modules[module]]
+    elif func == 'device':
+        return [module for module in audio_device if audio_modules[module]]
+    else:
+        return [module for module in audio_installed if audio_modules[module]]
 
 
-def unavailable_modules():
+def unavailable_modules(func='all'):
     """
-    Returns list of audio modules that are not installed on your system.
+    Audio modules that are not installed and not enabled.
+
+    Parameters
+    ----------
+    func: string
+        'all': all installed audio modules.
+        'fileio': installed audio modules used for file I/O.
+        'device': all installed audio modules used for playing and recording sounds.
     
     Returns
     -------
     mods: list of strings
-        Sorted list of not installed audio modules.
+        List of not available, i.e. not installed and not enabled, audio modules
+        of the requested function..
     """
-    mods = []
-    for module, available in audio_modules.items():
-        if not available:
-            mods.append(module)
-    return sorted(mods)
+    if func == 'fileio':
+        return [module for module in audio_fileio if not audio_modules[module]]
+    elif func == 'device':
+        return [module for module in audio_device if not audio_modules[module]]
+    else:
+        return [module for module in audio_installed if not audio_modules[module]]
 
 
 def disable_module(module):
@@ -398,7 +427,7 @@ def disable_module(module):
 
 def enable_module(module=None):
     """
-    Enable an audio module provided it is installed.
+    Enable audio modules provided they are installed.
     
     Parameters
     ----------
@@ -413,14 +442,13 @@ def enable_module(module=None):
     if module is None:
         for module in audio_installed:
             audio_modules[module] = True
-    else:
-        if module in audio_modules:
-            audio_modules[module] = (module in audio_installed)
+    elif module in audio_modules:
+        audio_modules[module] = (module in audio_installed)
 
 
 def select_module(module):
     """
-    Select a single audio module and disable all others.
+    Select (enable) a single audio module and disable all others.
 
     Undo by calling `enable_module()` without arguments.
     
@@ -444,7 +472,7 @@ def select_module(module):
         audio_modules[mod] = (mod == module)
 
 
-def list_modules(module=None, availability=True):
+def list_modules(module='all', availability=True):
     """Print list of all supported modules and their installation status.
     
     Modules that are not installed but are recommended are marked
@@ -452,9 +480,11 @@ def list_modules(module=None, availability=True):
 
     Parameters
     ----------
-    module: None or string
-        If None list all modules.
-        If string list only the specified module.
+    module: string
+        If 'all' list all modules.
+        If 'fileio' list all modules used for file I/O.
+        If 'device' list all modules used for playing and recording sounds.
+        Otherwise list only the specified module.
     availability: bool
         Mark availability of each module by an asterisk.
 
@@ -464,7 +494,7 @@ def list_modules(module=None, availability=True):
     missing_modules()
     missing_modules_instructions()
     """
-    def print_module(module, missing):
+    def print_module(module, missing, print_type):
         audio_avail = ''
         if availability:
             audio_avail = '* ' if audio_modules[module] else '  '
@@ -473,7 +503,7 @@ def list_modules(module=None, availability=True):
             audio_type += 'F'
         if module in audio_device:
             audio_type += 'D'
-        if len(audio_type) > 0:
+        if print_type and len(audio_type) > 0:
             audio_type = ' (%s)' % audio_type
         if module in audio_installed:
             print('%s%-17s is  installed%s' % (audio_avail, module, audio_type))
@@ -483,52 +513,71 @@ def list_modules(module=None, availability=True):
             print('%s%-17s not installed%s' % (audio_avail, module, audio_type))
 
     missing = missing_modules()
-    if module is not None:
-        print_module(module, missing)
+    if module not in ['all', 'fileio', 'device']:
+        print_module(module, missing, True)
     else:
+        print_type = (module == 'all')
         modules = sorted(audio_modules.keys())
-        for module in audio_fileio:
-            print_module(module, missing)
-            modules.remove(module)
-        for module in audio_device:
-            print_module(module, missing)
-            modules.remove(module)
-        for module in modules:
-            print_module(module, missing)
+        if module in ['all', 'fileio']:
+            for module in audio_fileio:
+                print_module(module, missing, print_type)
+                modules.remove(module)
+        if module in ['all', 'device']:
+            for module in audio_device:
+                if module in modules:
+                    print_module(module, missing, print_type)
+                    modules.remove(module)
+        if module == 'all':
+            for module in modules:
+                print_module(module, missing, print_type)
 
 
-def missing_modules():
+def missing_modules(func='all'):
     """
-    Returns list of missing audio modules that are recommended to be installed.
+    Missing audio modules that are recommended to be installed.
+
+    Parameters
+    ----------
+    func: string
+        'all': missing audio modules of all functions.
+        'fileio': missing audio modules for file I/O.
+        'device': missing audio modules for playing and recording sounds.
     
     Returns
     -------
     mods: list of strings
-        List of missing audio modules.
+        List of missing audio modules of the requested function.
     """
     mods = []
-    # audio file I/O:
-    if 'soundfile' not in audio_installed and \
-       'wavefile' not in audio_installed and \
-       'scikits.audiolab' not in audio_installed:
-        mods.append('soundfile')
-    if 'audioread' not in audio_installed:
-        mods.append('audioread')
-    # audio device I/O:
-    if 'pyaudio' not in audio_installed and \
-       'sounddevice' not in audio_installed and \
-       'simpleaudio' not in audio_installed:
-        if platform[0:3] == "win":
-            mods.append('simpleaudio')
-        else:
-            mods.append('sounddevice')
+    if func in ['all', 'fileio']:
+        if 'soundfile' not in audio_installed and \
+           'wavefile' not in audio_installed and \
+           'scikits.audiolab' not in audio_installed:
+            mods.append('soundfile')
+        if 'audioread' not in audio_installed:
+            mods.append('audioread')
+    if func in ['all', 'device']:
+        if 'pyaudio' not in audio_installed and \
+           'sounddevice' not in audio_installed and \
+           'simpleaudio' not in audio_installed:
+            if platform[0:3] == "win":
+                mods.append('simpleaudio')
+            else:
+                mods.append('sounddevice')
     return mods
 
 
-def missing_modules_instructions():
+def missing_modules_instructions(func='all'):
     """Print installation instructions for missing but useful audio modules.
+
+    Parameters
+    ----------
+    func: string
+        'all': missing audio modules of all functions.
+        'fileio': missing audio modules for file I/O.
+        'device': missing audio modules for playing and recording sounds.
     """
-    mods = missing_modules()
+    mods = missing_modules(func)
     if len(mods) > 0 :
         print('For better performance you should install the following modules:')
         for mod in mods:
@@ -542,16 +591,16 @@ def missing_modules_instructions():
 
 def installation_instruction(module):
     """ Instructions on how to install a specific audio module.
-    
-    Returns
-    -------
-    msg: multi-line string
-        Installation instruction for the requested module.
 
     Parameters
     ----------
     module: string
         The name of the module for which an instruction should be printed.
+    
+    Returns
+    -------
+    msg: multi-line string
+        Installation instruction for the requested module.
     """
     install_package_deb = "sudo apt-get install"
     install_package_rpm = "dnf install"
