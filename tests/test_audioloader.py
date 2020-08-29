@@ -7,7 +7,6 @@ import audioio.audiomodules as am
 
 
 def write_audio_file(filename):
-    # generate data:
     samplerate = 44100.0
     duration = 20.0
     channels = 2
@@ -16,11 +15,7 @@ def write_audio_file(filename):
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
-    # parameter for wav file:
-    filename = 'test.wav'
     encoding = 'PCM_16'
-    tolerance = 2.0**(-15)
-    # write:
     aw.write_wave(filename, data, samplerate, encoding=encoding)
 
 

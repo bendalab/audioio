@@ -35,7 +35,7 @@ def check_format(format):
         return True
 
 
-def main():
+def main(cargs=None):
     """
     Command line script for converting audio files.
 
@@ -65,6 +65,11 @@ def main():
 
     version 0.9.4 by Benda-Lab (2020-2020)
     ```
+
+    Parameters
+    ----------
+    cargs: None or list of strings
+        Alternative command line arguments (without the initial program name).
     """
     # command line arguments:
     parser = argparse.ArgumentParser(add_help=True,
@@ -83,7 +88,7 @@ def main():
                         help='path or filename of output file.')
     parser.add_argument('file', nargs='*', default='', type=str,
                         help='input audio files')
-    args = parser.parse_args()
+    args = parser.parse_args(cargs)
 
     check_format(args.audio_format)
 
@@ -96,7 +101,7 @@ def main():
             print('available encodings for audio format %s:' % args.audio_format)
             for e in available_encodings(args.audio_format):
                 print('  %s' % e)
-        exit()
+        return
 
     # convert files:
     for infile in args.file:
