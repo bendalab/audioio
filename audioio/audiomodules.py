@@ -400,7 +400,7 @@ def unavailable_modules(func='all'):
     elif func == 'device':
         return [module for module in audio_device if not audio_modules[module]]
     else:
-        return [module for module in audio_installed if not audio_modules[module]]
+        return [module for module in audio_modules.keys() if not audio_modules[module]]
 
 
 def disable_module(module):
@@ -499,12 +499,13 @@ def list_modules(module='all', availability=True):
         if availability:
             audio_avail = '* ' if audio_modules[module] else '  '
         audio_type = ''
-        if module in audio_fileio:
-            audio_type += 'F'
-        if module in audio_device:
-            audio_type += 'D'
-        if print_type and len(audio_type) > 0:
-            audio_type = ' (%s)' % audio_type
+        if print_type:
+            if module in audio_fileio:
+                audio_type += 'F'
+            if module in audio_device:
+                audio_type += 'D'
+            if len(audio_type) > 0:
+                audio_type = ' (%s)' % audio_type
         if module in audio_installed:
             print('%s%-17s is  installed%s' % (audio_avail, module, audio_type))
         elif module in missing:
@@ -519,17 +520,17 @@ def list_modules(module='all', availability=True):
         print_type = (module == 'all')
         modules = sorted(audio_modules.keys())
         if module in ['all', 'fileio']:
-            for module in audio_fileio:
-                print_module(module, missing, print_type)
-                modules.remove(module)
+            for mod in audio_fileio:
+                print_module(mod, missing, print_type)
+                modules.remove(mod)
         if module in ['all', 'device']:
-            for module in audio_device:
-                if module in modules:
-                    print_module(module, missing, print_type)
-                    modules.remove(module)
+            for mod in audio_device:
+                if mod in modules:
+                    print_module(mod, missing, print_type)
+                    modules.remove(mod)
         if module == 'all':
-            for module in modules:
-                print_module(module, missing, print_type)
+            for mod in modules:
+                print_module(mod, missing, print_type)
 
 
 def missing_modules(func='all'):
