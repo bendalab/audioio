@@ -535,7 +535,7 @@ def missing_modules(func='all'):
     mods = []
     if func in ['all', 'fileio']:
         if 'soundfile' not in audio_installed and \
-           'wavefile' not in audio_installed and \
+           'wavefile' not in audio_installed:
             mods.append('soundfile')
         if 'audioread' not in audio_installed:
             mods.append('audioread')
