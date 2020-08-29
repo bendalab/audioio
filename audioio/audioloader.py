@@ -414,6 +414,17 @@ def load_audio(filepath, verbose=0):
         File size of `filepath` is zero.
     IOError
         Failed to load data.
+
+    Example
+    -------
+    ```
+    import matplotlib.pzplot as plt
+    from audioio import load_audio
+    
+    data, rate = load_audio('some/audio.wav')
+    plt.plot(np.arange(len(data))/rate, data[:,0])
+    plt.show()
+    ```
     """
     # check values:
     if len(filepath) == 0:
@@ -430,7 +441,7 @@ def load_audio(filepath, verbose=0):
     for lib, load_file in audio_loader:
         if not audio_modules[lib]:
             if verbose > 1:
-                print('failed to load data from file "%s" using %s module' %
+                print('failed to load data from file "%s" using %s module: module not available' %
                       (filepath, lib))
             not_installed.append(lib)
             continue
@@ -443,6 +454,7 @@ def load_audio(filepath, verbose=0):
                           (filepath, lib))
                     if verbose > 1:
                         print('  sampling rate: %g Hz' % rate)
+                        print('  channels     : %d' % data.shape[1])
                         print('  data values  : %d' % len(data))
                 break
         except Exception as e:
@@ -1355,63 +1367,39 @@ open_audio_loader = AudioLoader
 """ Alias for the AudioLoader class.
 """
                 
-
-if __name__ == "__main__":
-    import sys
-    import matplotlib.pyplot as plt
-
-    print("Checking audioloader module ...")
-    print('')
-    print('Usage:')
-    print('  python audioloader.py [-p] <audio/file.wav>')
-    print('  -p: plot data')
-
-    plot = False
-    if len(sys.argv) > 1 and sys.argv[1] == '-p':
-        plot = True
-
-    #disable_module('soundfile')
-    #disable_module('audioread')
-                
-    filepath = sys.argv[-1]
     
+def demo(file_path, plot):
+    """ Demo of the audioloader functions.
+
+    Parameters
+    ----------
+    file_path: string
+        File path of an audio file.
+    plot: bool
+        If True also plot the loaded data.
+    """
     print('')
     print("try load_audio:")
-    full_data, rate = load_audio(filepath, 2)
+    full_data, rate = load_audio(file_path, 1)
     if plot:
         plt.plot(np.arange(len(full_data))/rate, full_data[:,0])
         plt.show()
 
-    print('')
-    for lib, load_file in audio_loader:
-        if not audio_modules[lib]:
-            continue
-        try:
-            data, rate = load_file(filepath, 1)
-            print('loaded data from file "%s" with %s' %
-                    (filepath, lib))
-        except Exception as e:
-            print('failed to load data from file "%s" with %s' %
-                  (filepath, lib))
-    
-    print('')
-    print("cross check:")
-    data1, rate1 = load_soundfile(filepath)
-    data2, rate2 = load_audioread(filepath)
-    n = min((len(data1), len(data2)))
-    print("rms difference is %g" % np.std(data1[:n]-data2[:n]))
-    if plot:
-        plt.plot(np.arange(len(data1))/rate1, data1[:,0])
-        plt.plot(np.arange(len(data2))/rate2, data2[:,0])
-        plt.show()
+    if audio_modules['soundfile'] and audio_modules['audioread']:
+        print('')
+        print("cross check:")
+        data1, rate1 = load_soundfile(file_path)
+        data2, rate2 = load_audioread(file_path)
+        n = min((len(data1), len(data2)))
+        print("rms difference is %g" % np.std(data1[:n]-data2[:n]))
+        if plot:
+            plt.plot(np.arange(len(data1))/rate1, data1[:,0])
+            plt.plot(np.arange(len(data2))/rate2, data2[:,0])
+            plt.show()
     
     print('')
     print("try AudioLoader:")
-    #data = AudioLoader()
-    #data.open_audioread(filepath, 2.0, 1.0, 2)
-    #data = AudioLoader(filepath, 8.0, 3.0, 2)
-    #with data.open_soundfile(filepath, 2.0, 1.0, 2):
-    with open_audio_loader(filepath, 4.0, 1.0, 0) as data:
+    with open_audio_loader(file_path, 4.0, 1.0, 1) as data:
         print('samplerate: %g' % data.samplerate)
         print('channels: %d %d' % (data.channels, data.shape[1]))
         print('frames: %d %d' % (len(data), data.shape[0]))
@@ -1447,4 +1435,39 @@ if __name__ == "__main__":
             if plot:
                 plt.plot((i+np.arange(len(x)))/rate, x)
                 plt.show()
-    #data.close()
+
+
+if __name__ == "__main__":
+    import sys
+    import matplotlib.pyplot as plt
+
+    print("Checking audioloader module ...")
+
+    help = False
+    plot = False
+    file_path = None
+    mod = False
+    for arg in sys.argv[1:]:
+        if mod:
+            select_module(arg)
+            mod = False
+        elif arg == '-h':
+            help = True
+            break
+        elif arg == '-p':
+            plot = True
+        elif arg == '-m':
+            mod = True
+        else:
+            file_path = arg
+            break
+
+    if help:
+        print('')
+        print('Usage:')
+        print('  python -m audioio.audioloader [-m <module>] [-p] <audio/file.wav>')
+        print('  -m: audio module to be used')
+        print('  -p: plot loaded data')
+        exit()
+
+    demo(file_path, plot)
