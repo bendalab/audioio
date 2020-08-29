@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_raises
+from nose.tools import assert_true, assert_raises, nottest
 import os
 import numpy as np
 import audioio.audiowriter as aw
@@ -6,25 +6,28 @@ import audioio.audioloader as al
 import audioio.audiomodules as am
 
 
-def test_audioloader():
+def write_audio_file(filename):
     # generate data:
     samplerate = 44100.0
-    duration = 100.0
+    duration = 20.0
     channels = 2
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
-
     # parameter for wav file:
     filename = 'test.wav'
-    format = 'wav'
     encoding = 'PCM_16'
     tolerance = 2.0**(-15)
-
     # write:
     aw.write_wave(filename, data, samplerate, encoding=encoding)
+
+
+def test_audioloader():
+    filename = 'test.wav'
+    write_audio_file(filename)
+    tolerance = 2.0**(-15)
 
     for lib in am.installed_modules('fileio'):
         print('')
@@ -85,7 +88,6 @@ def test_audioloader_modules():
         data = al.AudioLoader(verbose=2)
         load_funcs = {
             'soundfile': data.open_soundfile,
-            'scikits.audiolab': data.open_audiolab,
             'wavefile': data.open_wavefile,
             'audioread': data.open_audioread,
             'wave': data.open_wave,
@@ -95,3 +97,19 @@ def test_audioloader_modules():
             continue
         assert_raises(ImportError, load_funcs[lib], filename, 10.0, 2.0)
         am.enable_module(lib)
+
+
+def test_demo():
+    filename = 'test.wav'
+    write_audio_file(filename)
+    al.demo(filename, False)
+    os.remove(filename)
+
+
+def test_main():
+    filename = 'test.wav'
+    write_audio_file(filename)
+    al.main(['prog', '-h'])
+    al.main(['prog', filename])
+    al.main(['prog', '-m', 'soundfile', filename])
+    os.remove(filename)

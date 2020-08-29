@@ -102,3 +102,18 @@ def test_write_read_modules():
         formats = formats_func()
         assert_equal(len(formats), 0, 'no format should be returned for disabled module %s' % lib)
         am.enable_module(lib)
+
+
+
+def test_demo():
+    filename = 'test.wav'
+    aw.demo(filename)
+    os.remove(filename)
+
+
+def test_main():
+    filename = 'test.wav'
+    aw.main(['prog', '-h'])
+    aw.main(['prog', filename])
+    aw.main(['prog', '-m', 'soundfile', filename])
+    os.remove(filename)

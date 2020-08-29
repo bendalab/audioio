@@ -654,13 +654,15 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
         raise IOError('failed to write data to file "%s"' % filepath)
 
 
-def demo(file_path):
+def demo(file_path, encoding=''):
     """ Demo of the audiowriter functions.
 
     Parameters
     ----------
     file_path: string
         File path of an audio file.
+    encoding: string
+        Encoding to be used.
     """
     print('')
     print('generate data ...')
@@ -674,18 +676,21 @@ def demo(file_path):
     print('done.')
     
 
+def main(args):
+    """ Call demo with command line arguments.
 
-if __name__ == "__main__":
-    import sys
-    import numpy as np
-
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv
+    """
     print("Checking audiowriter module ...")
 
     help = False
     file_path = None
     encoding = ''
     mod = False
-    for arg in sys.argv[1:]:
+    for arg in args[1:]:
         if mod:
             select_module(arg)
             mod = False
@@ -706,6 +711,11 @@ if __name__ == "__main__":
         print('')
         print('Usage:')
         print('  python -m audioio.audiowriter [<filename>] [<encoding>]')
-        exit()
+        return
 
-    demo(file_path)
+    demo(file_path, encoding)
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)

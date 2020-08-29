@@ -4,7 +4,7 @@ import audioio.audiowriter as aw
 
 def test_formats_encodings():
     min_formats = {'wave': 1, 'ewave': 2, 'scipy.io.wavfile': 1,
-                   'soundfile': 25, 'wavefile': 25, 'scikits.audiolab': 25}
+                   'soundfile': 25, 'wavefile': 25}
     for (module, formats_func), (m, encodings_func) in zip(aw.audio_formats_funcs, aw.audio_encodings_funcs):
         if aw.audio_modules[module]:
             min_f =min_formats[module]

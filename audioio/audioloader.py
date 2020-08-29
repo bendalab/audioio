@@ -1299,17 +1299,21 @@ def demo(file_path, plot):
                 plt.show()
 
 
-if __name__ == "__main__":
-    import sys
-    import matplotlib.pyplot as plt
+def main(args):
+    """ Call demo with command line arguments.
 
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv
+    """
     print("Checking audioloader module ...")
 
     help = False
     plot = False
     file_path = None
     mod = False
-    for arg in sys.argv[1:]:
+    for arg in args[1:]:
         if mod:
             select_module(arg)
             mod = False
@@ -1330,6 +1334,14 @@ if __name__ == "__main__":
         print('  python -m audioio.audioloader [-m <module>] [-p] <audio/file.wav>')
         print('  -m: audio module to be used')
         print('  -p: plot loaded data')
-        exit()
+        return
+
+    if plot:
+        import matplotlib.pyplot as plt
 
     demo(file_path, plot)
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)

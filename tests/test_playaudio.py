@@ -1,11 +1,11 @@
-from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_raises, nottest
+from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises, nottest
 import time
 import numpy as np
 import audioio.playaudio as ap
 import audioio.audiomodules as am
 
 
-def test_playaudio_beep():
+def test_beep():
     print()
     print('default module...')
     ap.beep(blocking=True)
@@ -24,7 +24,7 @@ def test_playaudio_beep():
         am.enable_module()
 
 
-def test_playaudio_play():
+def test_play():
     print()
     # sine wave:
     rate = 44100.0
@@ -55,3 +55,41 @@ def test_playaudio_play():
         time.sleep(2.0)
         ap.handle.close()
         am.enable_module()
+
+
+def test_note2freq():
+    fa = 460.0
+    assert_less(np.abs(ap.note2freq('a4', fa)-fa), 1e-6, 'wrong a4 frequency')
+    fp = 0.5*ap.note2freq('a0')
+    for o in range(10):
+        for n in 'cdefgab':
+            note = '%s%d' % (n, o)
+            f = ap.note2freq(note)
+            assert_greater(f, fp, 'frequency of %s should be greater than the one of previous note' % note)
+            note = '%s#%d' % (n, o)
+            fs = ap.note2freq(note)
+            assert_greater(fs, f, 'frequency of %s should be greater' % note)
+            note = '%sb%d' % (n, o)
+            fb = ap.note2freq(note)
+            assert_less(fb, f, 'frequency of %s should be greater' % note)
+            fp = f
+    assert_raises(ValueError, ap.note2freq, 'h')
+    assert_raises(ValueError, ap.note2freq, 'da')
+    assert_raises(ValueError, ap.note2freq, 'dx#')
+    assert_raises(ValueError, ap.note2freq, 'd4#')
+    assert_raises(ValueError, ap.note2freq, 'd4x')
+    assert_raises(ValueError, ap.note2freq, 'd#4x')
+    assert_raises(ValueError, ap.note2freq, 'd-2')
+
+
+def test_demo():
+    ap.demo()
+
+
+def test_main():
+    ap.main(['prog', '-h'])
+    ap.main(['prog'])
+    ap.main(['prog', '-m', 'sounddevice'])
+
+            
+

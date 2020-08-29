@@ -49,8 +49,13 @@ from multiprocessing import Process
 from .audiomodules import *
 
 
-# default audio device handler:
+__pdoc__ = {}
+
+
 handle = None
+""" Default audio device handler.
+
+Will get an PlayAudio instance assigned. """
 
 
 def note2freq(note, a4freq=440.0):
@@ -84,19 +89,23 @@ def note2freq(note, a4freq=440.0):
     octave = 4
     if not isinstance(note, str) or len(note) == 0:
         raise ValueError('no note specified')
+    # note:
     if note[0] < 'a' or note[0] > 'g':
         raise ValueError('invalid note %s' % note[0])
-    # note:
     index = 0
     tonemap = [0, 2, 3, 5, 7, 8, 10]
     tone = tonemap[ord(note[index]) - ord('a')]
     index += 1
     # flat or sharp:
+    flat  = False
+    sharp = False
     if index < len(note):
         if note[index] == 'b':
+            flat = True
             tone -= 1
             index += 1
         elif note[index] == '#':
+            sharp = True
             tone += 1
             index += 1
     # octave:
@@ -106,7 +115,11 @@ def note2freq(note, a4freq=440.0):
             octave *= 10
             octave += ord(note[index]) - ord('0')
             index += 1
-    if tone >= 3:
+    # remaining characters:
+    if index < len(note):
+        raise ValueError('invalid characters in note %s' % note)
+    # compute frequency:
+    if (tone >= 3 and not sharp) or (tone == 2 and flat):
         octave -= 1
     tone += 12*(octave-4)
     # frequency:
@@ -969,6 +982,7 @@ class PlayAudio(object):
         return self
 
 
+__pdoc__['open_audio_player'] = "Alias for the `PlayAudio` class."
 open_audio_player = PlayAudio
                 
 
@@ -1072,13 +1086,18 @@ def demo():
             print('%-3s %7.1f Hz' % (tone, note2freq(tone)))
             beep(0.5, tone)
 
-            
-if __name__ == "__main__":
-    import sys
 
+def main(args):
+    """ Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv
+    """
     help = False
     mod = False
-    for arg in sys.argv[1:]:
+    for arg in args[1:]:
         if mod:
             select_module(arg)
             mod = False
@@ -1095,7 +1114,11 @@ if __name__ == "__main__":
         print('Usage:')
         print('  python -m audioio.playaudio [-m <module>]')
         print('  -m: audio module to be used')
-        exit()
+        return
         
     demo()
 
+            
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)
