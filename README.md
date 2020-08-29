@@ -126,9 +126,9 @@ which ones are recommended to install, and how to install them.
 All the audio modules AudioIO is using.
 
 For file I/O:
-- [wave](https://docs.python.org/3.8/library/wave.html): simple interface of the python standard library
+- [wave](https://docs.python.org/3.8/library/wave.html): simple wav file interface of the python standard library
 - [ewave](https://github.com/melizalab/py-ewave): extended WAV files. 
-- [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): scipy wav file interface.
+- [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): simple scipy wav file interface.
 - [SoundFile](http://pysoundfile.readthedocs.org): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
 - [wavefile](https://github.com/vokimon/python-wavefile): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
 - [audioread](https://github.com/beetbox/audioread): MP3 file support
@@ -137,6 +137,6 @@ For file I/O:
 For playing sounds:
 - [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com)
 - [pyaudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com)
-[simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA directly.
-[ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): audio via the outdated OSS of the python standard library
-[winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio of the python standard library
+- [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA directly, runs well on windows.
+- [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): audio via the outdated OSS of the python standard library
+- [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio of the python standard library
