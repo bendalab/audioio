@@ -233,7 +233,7 @@ audio_deb_packages['pyaudio'] = 'python3-pyaudio'
 audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
 audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
 audio_required_rpm_packages['pyaudio'] = ['libportaudio', 'portaudio-devel']
-audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library.
+audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library (http://www.portaudio.com).
 For documentation see https://people.csail.mit.edu/hubert/pyaudio"""
 audio_instructions_windows['pyaudio'] = """Download an appropriate (latest version, 32 or 64 bit) wheel from
 <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
@@ -253,7 +253,7 @@ except ImportError:
 audio_pip_packages['sounddevice'] = 'sounddevice'
 audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'portaudio19-dev', 'python3-cffi']
 audio_required_rpm_packages['sounddevice'] = ['libportaudio', 'portaudio-devel', 'python3-cffi']
-audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library. 
+audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
 If you have trouble with pyaudio, try this as an alternative.
 For documentation see https://python-sounddevice.readthedocs.io"""
         

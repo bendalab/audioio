@@ -135,8 +135,8 @@ For file I/O:
 - [scikits.audiolab](http://cournape.github.io/audiolab): no longer active
 
 For playing sounds:
-- [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com/)
-- [pyaudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com/)
+- [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com)
+- [pyaudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com)
 [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA directly.
 [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): audio via the outdated OSS of the python standard library
 [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio of the python standard library
