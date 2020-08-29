@@ -250,47 +250,6 @@ def load_wavefile(filepath, verbose=0):
     return data.astype(np.float64, copy=False).T, float(rate)
 
 
-def load_audiolab(filepath, verbose=0):
-    """
-    Load audio file using scikits.audiolab (based on libsndfile).
-
-    Documentation
-    -------------
-    http://cournape.github.io/audiolab/
-    https://github.com/cournape/audiolab
-
-    Parameters
-    ----------
-    filepath: string
-        The full path and name of the file to load.
-    verbose: int
-        If >0 show detailed error/warning messages (not used).
-
-    Returns
-    -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
-    rate: float
-        The sampling rate of the data in Hertz.
-
-    Raises
-    ------
-    ImportError
-        The scikits.audiolab module is not installed.
-    *
-        Loading of the data failed.
-    """
-    if not audio_modules['scikits.audiolab']:
-        raise ImportError
-
-    af = audiolab.Sndfile(filepath, 'r')
-    rate = af.samplerate
-    data = af.read_frames(af.nframes)
-    if len(data.shape) == 1:
-        data = np.reshape(data,(-1, 1))
-    return data, float(rate)
-
-
 def load_audioread(filepath, verbose=0):
     """
     Load audio file using audioread.
@@ -348,7 +307,6 @@ audio_loader_funcs = (
     ('audioread', load_audioread),
     ('wave', load_wave),
     ('wavefile', load_wavefile),
-    ('scikits.audiolab', load_audiolab),
     ('ewave', load_ewave),
     ('scipy.io.wavfile', load_wavfile)
     )
@@ -1045,75 +1003,6 @@ class AudioLoader(object):
                       % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
 
             
-    # scikits.audiolab interface:        
-    def open_audiolab(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
-        """Open audio file for reading using the scikits.audiolab module.
-
-        Parameters
-        ----------
-        filepath: string
-            Name of the file.
-        buffersize: float
-            Size of internal buffer in seconds.
-        backsize: float
-            Part of the buffer to be loaded before the requested start index in seconds.
-        verbose: int
-            If >0 show detailed error/warning messages.
-
-        Raises
-        ------
-        ImportError
-            The scikits.audiolab module is not installed
-        """
-        self.verbose = verbose
-        if self.verbose > 1:
-            print('open_audiolab(filepath) with filepath=%s' % filepath)
-        if not audio_modules['scikits.audiolab']:
-            self.samplerate = 0.0
-            self.channels = 0
-            self.frames = 0
-            self.shape = (0, 0)
-            self.offset = 0
-            raise ImportError
-        if self.sf is not None:
-            self._close_audiolab()
-        self.sf = audiolab.Sndfile(filepath, 'r')
-        self.samplerate = float(self.sf.samplerate)
-        self.channels = self.sf.channels
-        self.frames = int(self.sf.nframes)
-        self.shape = (self.frames, self.channels)
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
-        self.offset = 0
-        self.close = self._close_audiolab
-        self._update_buffer = self._update_buffer_audiolab
-        return self
-
-    def _close_audiolab(self):
-        """ Close the audio file using the scikits.audiolab module. """
-        if self.sf is not None:
-            self.sf.close()
-            self.sf = None
-
-    def _update_buffer_audiolab(self, start, stop):
-        """Make sure that the buffer contains the data between
-        start and stop using the scikits.audiolab module.
-        """
-        if start < self.offset or stop > self.offset + self.buffer.shape[0]:
-            offset, size = self._read_indices(start, stop)
-            r_offset, r_size = self._recycle_buffer(offset, size)
-            self.sf.seek(r_offset)  # undocumented ...
-            buffer = self.sf.read_frames(nframes=r_size, dtype=self.buffer.dtype)
-            if len(buffer.shape) == 1:
-                buffer = np.reshape(buffer,(-1, 1))
-            self.buffer[r_offset-offset:r_offset+r_size-offset,:] = buffer
-            self.offset = offset
-            if self.verbose > 0:
-                print('  loaded %d frames from %d up to %d'
-                      % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
-                
-            
     # audioread interface:        
     def open_audioread(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the audioread module.
@@ -1303,7 +1192,6 @@ class AudioLoader(object):
             ['audioread', self.open_audioread],
             ['wave', self.open_wave],
             ['wavefile', self.open_wavefile],
-            ['scikits.audiolab', self.open_audiolab],
             ['ewave', self.open_ewave]
             ]
         # open an audio file by trying various modules:

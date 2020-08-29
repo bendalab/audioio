@@ -34,11 +34,10 @@ dnf install libsndfile libsndfile-devel libffi-devel
 ```
 
 Then you can install one of the many python wrappers for the sndfile
-library, e.g. SoundFile, wavefile, or scikits.audiolab:
+library, e.g. SoundFile or wavefile:
 ```sh
 sudo pip install SoundFile
 sudo pip install wavefile
-sudo pip install scikits.audiolab
 ```
 
 MP3 and similar formats are supported by the audioread module.

@@ -10,8 +10,8 @@ files and devices.
 [Documentation](https://bendalab.github.io/audioio) |
 [API Reference](https://bendalab.github.io/audioio/api)
 
-The audioio modules try to use whatever available audio module to achieve
-their tasks. The audioio package does not provide own code for decoding files
+The AudioIO modules try to use whatever available audio modules to achieve
+their tasks. The AudioIO package does not provide own code for decoding files
 and accessing audio hardware.
 
 
@@ -85,7 +85,7 @@ aio.write_audio('audio/file.wav', data, samplerate)
 
 ### Converting audio files
 
-audioio provides a simple command line script to convert audio files:
+AudioIO provides a simple command line script to convert audio files:
 ```
 > audioconverter -o test.wav test.mp3
 ```
@@ -126,17 +126,17 @@ which ones are recommended to install, and how to install them.
 All the audio modules AudioIO is using.
 
 For file I/O:
-[wave](https://docs.python.org/3.8/library/wave.html),
-[ewave](https://github.com/melizalab/py-ewave),
-[scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html),
-[SoundFile](http://pysoundfile.readthedocs.org),
-[wavefile](https://github.com/vokimon/python-wavefile),
-[scikits.audiolab](http://cournape.github.io/audiolab),
-[audioread](https://github.com/beetbox/audioread).
+- [wave](https://docs.python.org/3.8/library/wave.html): simple interface of the python standard library
+- [ewave](https://github.com/melizalab/py-ewave): extended WAV files. 
+- [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): scipy wav file interface.
+- [SoundFile](http://pysoundfile.readthedocs.org): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
+- [wavefile](https://github.com/vokimon/python-wavefile): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
+- [audioread](https://github.com/beetbox/audioread): MP3 file support
+- [scikits.audiolab](http://cournape.github.io/audiolab): no longer active
 
 For playing sounds:
-[sounddevice](https://python-sounddevice.readthedocs.io),
-[pyaudio](https://people.csail.mit.edu/hubert/pyaudio),
-[simpleaudio](https://simpleaudio.readthedocs.io),
-[ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html),
-[winsound](https://docs.python.org/3.6/library/winsound.html).
+- [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com/)
+- [pyaudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com/)
+[simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA directly.
+[ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): audio via the outdated OSS of the python standard library
+[winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio of the python standard library

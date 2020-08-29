@@ -509,115 +509,8 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
         w.write(data.T)
 
 
-def formats_audiolab():
-    """Audio file formats supported by the scikits.audiolab module.
-
-    Returns
-    -------
-    formats: list of strings
-        List of supported file formats as strings.
-    """
-    if not audio_modules['scikits.audiolab']:
-        return []
-    formats = [f.upper() for f in audiolab.available_file_formats()]
-    return sorted(formats)
-
-
-def encodings_audiolab(format):
-    """Encodings of an audio file format supported by the scikits.audiolab module.
-
-    Parameters
-    ----------
-    format: str
-        The file format.
-
-    Returns
-    -------
-    encodings: list of strings
-        List of supported encodings as strings.
-    """
-    if not audio_modules['scikits.audiolab']:
-        return []
-    try:
-        encodings = []
-        for encoding in audiolab.available_encodings(format.lower()):
-            if encoding[0:3] == 'pcm':
-                encoding = 'pcm_' + encoding[3:]
-            if encoding == 'float32': encoding = 'float'
-            if encoding == 'float64': encoding = 'double'
-            encodings.append(encoding.upper())
-        return sorted(encodings)
-    except ValueError:
-        return []
-
-
-def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
-    """
-    Write audio data using the scikits.audiolab module (based on libsndfile).
-
-    Documentation
-    -------------
-    http://cournape.github.io/audiolab/
-    https://github.com/cournape/audiolab
-
-    Parameters
-    ----------
-    filepath: string
-        Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
-        Array with the data (first index time, second index channel,
-        values within -1.0 and 1.0).
-    samplerate: float
-        Sampling rate of the data in Hertz.
-    format: string or None
-        File format like the SF_FORMAT_ constants of libsndfile.
-    encoding: string or None
-        Encoding of the data like the SF_FORMAT_ constants of libsndfile.
-
-    Raises
-    ------
-    ImportError
-        The scikits.audiolab module is not installed.
-    *
-        Writing of the data failed.
-    """
-    if not audio_modules['scikits.audiolab']:
-        raise ImportError
-
-    if format is None:
-        format = ''
-    if len(format) == 0:
-        format = filepath.split('.')[-1].lower()
-        # TODO: we need a mapping from file extensions to formats and default encoding!
-    format = format.lower()
-
-    if encoding is None:
-        encoding = ''
-    if len(encoding) == 0:
-        encodings = encodings_audiolab(format)
-        # TODO: better default settings!
-        if 'PCM_16' in encodings:
-            encoding = 'PCM_16'
-        else:
-            encoding = encodings[0]
-    encoding = encoding.lower()
-    encoding = encoding.replace('pcm_', 'pcm')
-    if encoding == 'float': encoding = 'float32'
-    if encoding == 'double': encoding = 'float64'
-        
-    channels = 1
-    if len(data.shape) > 1:
-        channels = data.shape[1]
-
-    af = audiolab.Sndfile(filepath, 'w', format=audiolab.Format(format, encoding),
-                          channels=channels, samplerate=int(samplerate))
-    af.write_frames(data)
-    af.close()
-
-
 audio_formats_funcs = (
     ('soundfile', formats_soundfile),
-    ('scikits.audiolab', formats_audiolab),
     ('wavefile', formats_wavefile),
     ('wave', formats_wave),
     ('ewave', formats_ewave),
@@ -645,7 +538,6 @@ def available_formats():
 
 audio_encodings_funcs = (
     ('soundfile', encodings_soundfile),
-    ('scikits.audiolab', encodings_audiolab),
     ('wavefile', encodings_wavefile),
     ('wave', encodings_wave),
     ('ewave', encodings_ewave),
@@ -677,14 +569,13 @@ def available_encodings(format):
             continue
         encs = encodings_func(format)
         encodings |= set(encs)
-        if module in ['soundfile', 'wavefile', 'scikits.audiolab'] and len(encs) > 0:
+        if module in ['soundfile', 'wavefile'] and len(encs) > 0:
             got_sndfile = True
     return sorted(list(encodings))
 
 
 audio_writer_funcs = (
     ('soundfile', write_soundfile),
-    ('scikits.audiolab', write_audiolab),
     ('wavefile', write_wavefile),
     ('wave', write_wave),
     ('ewave', write_ewave),
@@ -754,9 +645,8 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
                       (filepath, lib))
                 if verbose > 1:
                     print('  sampling rate: %g Hz' % rate)
-                    print('  channels     : %d' % data.shape[1])
+                    print('  channels     : %d' % (data.shape[1] if len(data.shape) > 1 else 1))
                     print('  data values  : %d' % len(data))
-            break
             break
         except Exception as e:
             pass

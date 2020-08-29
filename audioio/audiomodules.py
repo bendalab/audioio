@@ -45,7 +45,6 @@ ewave             is  installed (F)
 scipy.io.wavfile  is  installed (F)
 soundfile         is  installed (F)
 wavefile          is  installed (F)
-scikits.audiolab  not installed (F)
 audioread         is  installed (F)
 pyaudio           is  installed (D)
 sounddevice       not installed (D)
@@ -205,22 +204,6 @@ audio_required_rpm_packages['wavefile'] = ['libsndfile', 'libsndfile-devel', 'li
 audio_infos['wavefile'] = """The wavefile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
 See https://github.com/vokimon/python-wavefile for documentation of the wavefile package
-and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
-
-audio_fileio.append('scikits.audiolab')
-try:
-    import scikits.audiolab as audiolab
-    audio_modules['scikits.audiolab'] = True
-    audio_installed.append('scikits.audiolab')
-except ImportError:
-    audio_modules['scikits.audiolab'] = False
-audio_pip_packages['scikits.audiolab'] = 'scikits.audiolab'
-audio_required_deb_packages['scikits.audiolab'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
-audio_required_rpm_packages['scikits.audiolab'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
-audio_infos['scikits.audiolab'] = """The scikits.audiolab module is a wrapper of the sndfile library,
-that supports many different audio file formats.
-See http://cournape.github.io/audiolab and
-https://github.com/cournape/audiolab for documentation of the audiolab module
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
         
 audio_fileio.append('audioread')
@@ -553,7 +536,6 @@ def missing_modules(func='all'):
     if func in ['all', 'fileio']:
         if 'soundfile' not in audio_installed and \
            'wavefile' not in audio_installed and \
-           'scikits.audiolab' not in audio_installed:
             mods.append('soundfile')
         if 'audioread' not in audio_installed:
             mods.append('audioread')

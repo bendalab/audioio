@@ -27,7 +27,6 @@ before_install:
 install:
   - pip install -r requirements.txt
   - pip install wavefile
-  - pip install scikits.audiolab
   - pip install git+https://github.com/melizalab/py-ewave
   - pip install pyaudio
   - pip install simpleaudio
