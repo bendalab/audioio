@@ -615,6 +615,20 @@ def write_audiolab(filepath, data, samplerate, format=None, encoding=None):
     af.close()
 
 
+audio_formats_funcs = (
+    ('soundfile', formats_soundfile),
+    ('scikits.audiolab', formats_audiolab),
+    ('wavefile', formats_wavefile),
+    ('wave', formats_wave),
+    ('ewave', formats_ewave),
+    ('scipy.io.wavfile', formats_wavfile)
+    )
+""" List of implemented formats functions.
+
+Each element of the list is a tuple with the module's name and the formats function.
+"""
+
+
 def available_formats():
     """Audio file formats supported by any of the installed audio modules.
 
@@ -623,12 +637,24 @@ def available_formats():
     formats: list of strings
         List of supported file formats as strings.
     """
-    audio_formats = [formats_wave, formats_ewave, formats_wavfile,
-                     formats_soundfile, formats_wavefile, formats_audiolab]
     formats = set()
-    for formats_func in audio_formats:
+    for module, formats_func in audio_formats_funcs:
         formats |= set(formats_func())
     return sorted(list(formats))
+
+
+audio_encodings_funcs = (
+    ('soundfile', encodings_soundfile),
+    ('scikits.audiolab', encodings_audiolab),
+    ('wavefile', encodings_wavefile),
+    ('wave', encodings_wave),
+    ('ewave', encodings_ewave),
+    ('scipy.io.wavfile', encodings_wavfile)
+    )
+""" List of implemented encodings functions.
+
+Each element of the list is a tuple with the module's name and the encodings function.
+"""
 
 
 def available_encodings(format):
@@ -644,20 +670,30 @@ def available_encodings(format):
     encodings: list of strings
         List of supported encodings as strings.
     """
-    audio_encodings = [encodings_wave, encodings_ewave, encodings_wavfile,
-                        encodings_soundfile, encodings_audiolab, encodings_wavefile]
-    first_sndfilelib_inx = 3
-    wavefile_inx = 5
     got_sndfile = False
     encodings = set()
-    for e_inx, encodings_func in enumerate(audio_encodings):
-        if e_inx == wavefile_inx and got_sndfile:
+    for module, encodings_func in audio_encodings_funcs:
+        if got_sndfile and module == 'scipy.io.wavfile':
             continue
         encs = encodings_func(format)
-        if e_inx >= first_sndfilelib_inx and len(encs) > 0:
-            got_sndfile = True
         encodings |= set(encs)
+        if module in ['soundfile', 'wavefile', 'scikits.audiolab'] and len(encs) > 0:
+            got_sndfile = True
     return sorted(list(encodings))
+
+
+audio_writer_funcs = (
+    ('soundfile', write_soundfile),
+    ('scikits.audiolab', write_audiolab),
+    ('wavefile', write_wavefile),
+    ('wave', write_wave),
+    ('ewave', write_ewave),
+    ('scipy.io.wavfile', write_wavfile)
+    )
+""" List of implemented write functions.
+
+Each element of the list is a tuple with the module's name and the write function.
+"""
 
 
 def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=0):
@@ -702,21 +738,12 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
     ```
     """
 
-    audio_writer = [
-        ['soundfile', write_soundfile],
-        ['scikits.audiolab', write_audiolab],
-        ['wavefile', write_wavefile],
-        ['wave', write_wave],
-        ['ewave', write_ewave],
-        ['scipy.io.wavfile', write_wavfile]
-        ]
-
     if len(filepath) == 0:
         raise ValueError('input argument filepath is empty string!')
 
     # write audio file by trying available modules:
     success = False
-    for lib, write_file in audio_writer:
+    for lib, write_file in audio_writer_funcs:
         if not audio_modules[lib]:
             continue
         try:

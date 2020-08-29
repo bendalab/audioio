@@ -27,6 +27,7 @@ def test_audioloader():
     aw.write_wave(filename, data, samplerate, encoding=encoding)
 
     for lib in am.installed_modules('fileio'):
+        print('')
         print('%s module:' % lib)
         am.select_module(lib)
         # load full data:

@@ -343,16 +343,20 @@ def load_audioread(filepath, verbose=0):
     return data/(2.0**15-1.0), float(rate)
 
 
-# list of implemented load functions:
-audio_loader = [
-    ['soundfile', load_soundfile],
-    ['audioread', load_audioread],
-    ['wave', load_wave],
-    ['wavefile', load_wavefile],
-    ['scikits.audiolab', load_audiolab],
-    ['ewave', load_ewave],
-    ['scipy.io.wavfile', load_wavfile]
-    ]
+audio_loader_funcs = (
+    ('soundfile', load_soundfile),
+    ('audioread', load_audioread),
+    ('wave', load_wave),
+    ('wavefile', load_wavefile),
+    ('scikits.audiolab', load_audiolab),
+    ('ewave', load_ewave),
+    ('scipy.io.wavfile', load_wavfile)
+    )
+""" List of implemented load functions.
+
+Each element of the list is a tuple with the module's name and the load function.
+"""    
+
 
 def load_audio(filepath, verbose=0):
     """
@@ -407,10 +411,10 @@ def load_audio(filepath, verbose=0):
     # load an audio file by trying various modules:
     success = False
     not_installed = []
-    for lib, load_file in audio_loader:
+    for lib, load_file in audio_loader_funcs:
         if not audio_modules[lib]:
             if verbose > 1:
-                print('failed to load data from file "%s" using %s module: module not available' %
+                print('unable to load data from file "%s" using %s module: module not available' %
                       (filepath, lib))
             not_installed.append(lib)
             continue

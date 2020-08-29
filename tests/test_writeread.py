@@ -1,9 +1,10 @@
-from nose.tools import assert_true, assert_equal, assert_less, assert_almost_equal, assert_raises
+from nose.tools import assert_true, assert_equal, assert_less, assert_almost_equal, assert_raises, nottest
 import os
 import numpy as np
 import audioio.audiowriter as aw
 import audioio.audioloader as al
 import audioio.audiomodules as am
+
 
 def test_write_read():
 
@@ -23,7 +24,7 @@ def test_write_read():
     # generate data:
     samplerate = 44100.0
     duration = 10.0
-    t = np.arange(int(duration*samplerate))/samplerate
+    t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
 
@@ -51,28 +52,21 @@ def test_write_read():
         print('channels = %d' % channels)
 
         # write, read, and check:
-        audio_funcs = [
-            ['soundfile', aw.write_soundfile, al.load_soundfile, aw.encodings_soundfile],
-            ['scikits.audiolab', aw.write_audiolab, al.load_audiolab, aw.encodings_audiolab],
-            ['wavefile', aw.write_wavefile, al.load_wavefile, aw.encodings_wavefile],
-            ['wave', aw.write_wave, al.load_wave, aw.encodings_wave],
-            ['ewave', aw.write_ewave, al.load_ewave, aw.encodings_ewave],
-            ['scipy.io.wavfile', aw.write_wavfile, al.load_wavfile, aw.encodings_wavfile]
-            ]
-            
-        for lib, write_file, load_file, encodings_func in audio_funcs:
-            if not aw.audio_modules[lib]:
+        for lib in am.installed_modules('fileio'):
+            if lib == 'audioread':
                 continue
             print('')
-            print(lib)
+            print('%s module:' % lib)
+            am.select_module(lib)
             for encoding in encodings:
                 encoding = encoding.upper()
-                if encoding == '' or encoding in encodings_func(format):
+                if encoding == '' or encoding in aw.available_encodings(format):
                     print(encoding)
-                    write_file(filename, data, samplerate, format=format, encoding=encoding)
-                    data_read, samplerate_read = load_file(filename, verbose=2)
+                    aw.write_audio(filename, data, samplerate, format=format, encoding=encoding, verbose=2)
+                    data_read, samplerate_read = al.load_audio(filename, verbose=2)
                     check(samplerate, data, samplerate_read, data_read, lib, encoding)
 
+        am.enable_module()
         print('')
         print('audioio')
         for encoding in encodings:
@@ -86,14 +80,6 @@ def test_write_read():
 
 
 def test_write_read_modules():
-    audio_funcs = [
-        ['soundfile', aw.write_soundfile, al.load_soundfile, aw.encodings_soundfile, aw.formats_soundfile],
-        ['scikits.audiolab', aw.write_audiolab, al.load_audiolab, aw.encodings_audiolab, aw.formats_audiolab],
-        ['wavefile', aw.write_wavefile, al.load_wavefile, aw.encodings_wavefile, aw.formats_wavefile],
-        ['wave', aw.write_wave, al.load_wave, aw.encodings_wave, aw.formats_wave],
-        ['ewave', aw.write_ewave, al.load_ewave, aw.encodings_ewave, aw.formats_ewave],
-        ['scipy.io.wavfile', aw.write_wavfile, al.load_wavfile, aw.encodings_wavfile, aw.formats_wavfile]
-        ]
     # generate data:
     filename = 'test.wav'
     format = 'wav'
@@ -101,12 +87,18 @@ def test_write_read_modules():
     duration = 10.0
     t = np.arange(int(duration*samplerate))/samplerate
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    for lib, write_file, load_file, encodings_func, formats_func in audio_funcs:
+    # test for not available modules:
+    for lib, write_func in aw.audio_writer_funcs:
         am.disable_module(lib)
-        assert_raises(ImportError, write_file, filename, data, samplerate)
-        assert_raises(ImportError, load_file, filename)
+        assert_raises(ImportError, write_func, filename, data, samplerate)
+        am.enable_module(lib)
+    for lib, encodings_func in aw.audio_encodings_funcs:
+        am.disable_module(lib)
         enc = encodings_func(format)
         assert_equal(len(enc), 0, 'no encoding should be returned for disabled module %s' % lib)
+        am.enable_module(lib)
+    for lib, formats_func in aw.audio_formats_funcs:
+        am.disable_module(lib)
         formats = formats_func()
         assert_equal(len(formats), 0, 'no format should be returned for disabled module %s' % lib)
         am.enable_module(lib)

@@ -3,15 +3,11 @@ import numpy as np
 import audioio.audiowriter as aw
 
 def test_formats_encodings():
-    audio_formats = [['wave', aw.formats_wave, 1, aw.encodings_wave],
-                     ['ewave', aw.formats_ewave, 2, aw.encodings_ewave],
-                     ['scipy.io.wavfile', aw.formats_wavfile, 1, aw.encodings_wavfile],
-                     ['soundfile', aw.formats_soundfile, 25, aw.encodings_soundfile],
-                     ['wavefile', aw.formats_wavefile, 25, aw.encodings_wavefile],
-                     ['scikits.audiolab', aw.formats_audiolab, 25, aw.encodings_audiolab]]
-
-    for module, formats_func, min_f, encodings_func in audio_formats:
+    min_formats = {'wave': 1, 'ewave': 2, 'scipy.io.wavfile': 1,
+                   'soundfile': 25, 'wavefile': 25, 'scikits.audiolab': 25}
+    for (module, formats_func), (m, encodings_func) in zip(aw.audio_formats_funcs, aw.audio_encodings_funcs):
         if aw.audio_modules[module]:
+            min_f =min_formats[module]
             formats = formats_func()
             assert_greater_equal(len(formats), min_f,
                                  'formats_%s() did not return enough formats' % module.split('.')[-1])
