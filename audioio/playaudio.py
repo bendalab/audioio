@@ -425,7 +425,8 @@ class PlayAudio(object):
                     self.data[index+nr:] = 0
                 if nr > 0:
                     for k in range(nr) :
-                        self.data[index+(nr-k-1)] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+                        self.data[index+(nr-k-1)] = np.array(self.data[index+(nr-k-1)] *
+                                np.sin(0.5*np.pi*float(k)/float(nr))**2.0, np.int16, order='C')
                 sleep(2*fadetime)
             if self.stream.is_active():
                 self.run = False
@@ -591,7 +592,8 @@ class PlayAudio(object):
                     self.data[index+nr:] = 0
                 if nr > 0:
                     for k in range(nr) :
-                        self.data[index+(nr-k-1)] *= np.sin(0.5*np.pi*float(k)/float(nr))**2.0
+                        self.data[index+(nr-k-1)] = np.array(self.data[index+(nr-k-1)] *
+                                np.sin(0.5*np.pi*float(k)/float(nr))**2.0, np.int16, order='C')
                 sounddevice.sleep(int(2000*fadetime))
             if self.stream.active:
                 self.run = False
