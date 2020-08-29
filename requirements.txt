@@ -2,4 +2,4 @@ numpy
 scipy
 SoundFile
 audioread
-PyAudio
+sounddevice
