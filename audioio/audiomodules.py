@@ -46,7 +46,7 @@ scipy.io.wavfile  is  installed (F)
 soundfile         is  installed (F)
 wavefile          is  installed (F)
 scikits.audiolab  not installed (F)
-audioread         NOT installed (F)
+audioread         is  installed (F)
 pyaudio           is  installed (D)
 sounddevice       not installed (D)
 simpleaudio       is  installed (D)
@@ -76,7 +76,7 @@ and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
 
 First, install the following packages:
 
-sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
+sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
 
 Install the soundfile module with pip:
 
@@ -84,7 +84,7 @@ sudo pip install SoundFile
 
 or alternatively from your distribution's package:
 
-sudo apt-get install -y python3-soundfile
+sudo apt-get install python3-soundfile
 ```
 """
 
@@ -511,7 +511,7 @@ def missing_modules():
        'wavefile' not in audio_installed and \
        'scikits.audiolab' not in audio_installed:
         mods.append('soundfile')
-    if 'audioread':
+    if 'audioread' not in audio_installed:
         mods.append('audioread')
     # audio device I/O:
     if 'pyaudio' not in audio_installed and \
@@ -552,7 +552,7 @@ def installation_instruction(module):
     module: string
         The name of the module for which an instruction should be printed.
     """
-    install_package_deb = "sudo apt-get install -y"
+    install_package_deb = "sudo apt-get install"
     install_package_rpm = "dnf install"
     install_package = None
     package = None
