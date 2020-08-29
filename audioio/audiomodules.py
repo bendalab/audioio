@@ -219,7 +219,7 @@ audio_required_deb_packages['scikits.audiolab'] = ['libsndfile1', 'libsndfile1-d
 audio_required_rpm_packages['scikits.audiolab'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
 audio_infos['scikits.audiolab'] = """The scikits.audiolab module is a wrapper of the sndfile library,
 that supports many different audio file formats.
-See http://cournape.github.io/audiolab/ and
+See http://cournape.github.io/audiolab and
 https://github.com/cournape/audiolab for documentation of the audiolab module
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
         
@@ -248,8 +248,8 @@ except ImportError:
 audio_pip_packages['pyaudio'] = 'PyAudio'
 audio_deb_packages['pyaudio'] = 'python3-pyaudio'
 audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
-audio_required_deb_packages['pyaudio'] = ['libportaudio2 portaudio19-dev']
-audio_required_rpm_packages['pyaudio'] = ['libportaudio portaudio-devel']
+audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
+audio_required_rpm_packages['pyaudio'] = ['libportaudio', 'portaudio-devel']
 audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library.
 For documentation see https://people.csail.mit.edu/hubert/pyaudio"""
 audio_instructions_windows['pyaudio'] = """Download an appropriate (latest version, 32 or 64 bit) wheel from
@@ -298,9 +298,10 @@ except ImportError:
     audio_modules['ossaudiodev'] = False
 audio_required_deb_packages['ossaudiodev'] = ['osspd']
 audio_infos['ossaudiodev'] = """The OSS audio module is part of the python standard library and
-provides simple support for sound playback under Linux. You most likely want to
-install the simpleaudio or the soundfile package for better performance.
+provides simple support for sound playback under Linux.
+Unfortunately it is based on the outdated OSS system.
 In particular on Fedora systems, OSS is no longer supported.
+You most likely want to install the simpleaudio or the soundfile package for better performance.
 For documentation see https://docs.python.org/3.8/library/ossaudiodev.html"""
         
 audio_device.append('winsound')

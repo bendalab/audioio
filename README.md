@@ -2,20 +2,32 @@
 [![codecov](https://codecov.io/gh/bendalab/audioio/branch/master/graph/badge.svg)](https://codecov.io/gh/bendalab/audioio)
 [![PyPI version](https://badge.fury.io/py/audioio.svg)](https://badge.fury.io/py/audioio)
 
-# audioio 
+# AudioIO 
 
 Platform independent interfacing of numpy arrays of floats with audio
 files and devices.
 
-[Documentation](https://bendalab.github.io/audioio)
-
-[Git Repository](https://github.com/bendalab/audioio)
-
+[Documentation](https://bendalab.github.io/audioio) |
+[API Reference](https://bendalab.github.io/audioio/api) |
+[Git Repository](https://github.com/bendalab/audioio) |
 [PyPI](https://pypi.org/project/audioio)
 
 The audioio modules try to use whatever available audio module to achieve
 their tasks. The audioio package does not provide own code for decoding files
 and accessing audio hardware.
+
+
+## Feaures
+
+- Audio data are always numpy arrays of floats with values ranging between -1 and 1 ...
+- ... independent of how the data are stored in an audio file.
+- Platform independent interface for loading and writing audio files.
+- Simple `load_audio()` function for loading a whole audio file.
+- Support for blockwise random-access loading of large audio files (`class AudioLoader`).
+- Simple `write_audio()` for writing data to an audio file. 
+- Platform independent playback of numpy arrays.
+- Support of synchronous (blocking) and (asynchronous) (non blocking) playback.
+- Detailed and platform specific installation instructions for audio packages.
 
 
 ## Installation
@@ -31,39 +43,8 @@ provided by the python standard library is limited to very basic WAV
 files. If you need support for other audio file formats or for better
 sound output, you need to install additional packages.
 
-In particular, you might need to install the
-[sndfile library](http://www.mega-nerd.com/libsndfile/)
-for accessing various audio file formats
-```
-sudo apt-get install -y libsndfile1 libsndfile1-dev libffi-dev
-```
-and one of the many python wrappers for the sndfile library,
-e.g. SoundFile, wavefile, or scikits.audiolab:
-```
-sudo pip install SoundFile
-sudo pip install wavefile
-sudo pip install scikits.audiolab
-```
-
-For playing sounds, the [portaudio library](http://www.portaudio.com)
-is the gold standard
-```
-sudo apt-get install libportaudio2 portaudio19-dev
-```
-that is interfaced by the python packages pyaudio or sounddevice:
-```
-sudo apt-get install python-pyaudio
-sudo pip install sounddevice
-```
-
-Run
-```
-> audiomodules
-```
-to see which audio modules you have already installed on your system,
-which ones are recommended to install, and how to install them. By
-calling the script with the name of an audio module as an argument you
-get specific installation instructions for this module.
+See [installation](https://bendalab.github.io/audioio/installation)
+for further instructions.
 
 
 ## Usage
@@ -80,8 +61,7 @@ data, samplingrate = aio.load_audio('audio/file.wav')
 ```
 	
 The data are numpy arrays of floats ranging between -1 and 1.
-The arrays are either 1-D arrays for single channel data,
-or 2-day arrays with first axis time and second axis channel.
+The arrays are 2-day arrays with first axis time and second axis channel.
 
 You can also randomly access chunks of data of an audio file, without
 loading the entire file into memory. This is really handy for
@@ -96,9 +76,10 @@ with aio.open_audio_loader('audio/file.wav', 60.0) as data:
      	 # ... do something with x and rate
 ```
 
+
 ### Writing audio data
 
-Write a numpy array into an audio file:
+Write a 1-D or 2-D numpy array into an audio file:
 ```
 aio.write_audio('audio/file.wav', data, samplerate)
 ```
@@ -120,10 +101,44 @@ aio.fade(data, samplingrate, 0.2)
 aio.play(data, samplingrate)
 ```
 
-
-Just beep for half a second and 440 Hz:
+Just beep
+```
+aio.beep()
+```
+Beep for half a second and 440 Hz:
 ```
 aio.beep(0.5, 440.0)
 aio.beep(0.5, 'a4')
 ```
-Musical notes are translated into frequency with the `note2freq` function.
+Musical notes are translated into frequency with the `note2freq()` function.
+
+
+### Managing audio modules
+
+Simply run in your terminal
+```sh
+> audiomodules
+```
+to see which audio modules you have already installed on your system,
+which ones are recommended to install, and how to install them.
+
+
+## Alternatives
+
+All the audio modules AudioIO is using.
+
+For file I/O:
+[wave](https://docs.python.org/3.8/library/wave.html),
+[ewave](https://github.com/melizalab/py-ewave),
+[scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html),
+[SoundFile](http://pysoundfile.readthedocs.org),
+[wavefile](https://github.com/vokimon/python-wavefile),
+[scikits.audiolab](http://cournape.github.io/audiolab),
+[audioread](https://github.com/beetbox/audioread).
+
+For playing sounds:
+[sounddevice](https://python-sounddevice.readthedocs.io),
+[pyaudio](https://people.csail.mit.edu/hubert/pyaudio),
+[simpleaudio](https://simpleaudio.readthedocs.io),
+[ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html),
+[winsound](https://docs.python.org/3.6/library/winsound.html).
