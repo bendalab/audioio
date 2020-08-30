@@ -386,25 +386,26 @@ def unavailable_modules(func='all'):
         return [module for module in audio_modules.keys() if not audio_modules[module]]
 
 
-def disable_module(module):
+def disable_module(module=None):
     """
-    Disable an audio module so that it is not used by the audioio functions and classes.
-
-    Use this right after importing audioio before any
-    audioio functions are called.
+    Disable audio modules so that they are not used by the audioio functions and classes.
 
     To disable all modules except one, call `select_module()`.
     
     Parameters
     ----------
-    module: string
+    module: string or None
         Name of the module to be disabled as it appears in `available_modules()`.
+        If None disable all installed audio modules.
 
     See Also
     --------
     enable_module(), select_module(), available_modules(), list_modules()
     """
-    if module in audio_modules:
+    if module is None:
+        for module in audio_installed:
+            audio_modules[module] = False
+    elif module in audio_modules:
         audio_modules[module] = False
 
 
@@ -440,19 +441,21 @@ def select_module(module):
     module: string
         Name of the module to be selected.
 
-    Raises
-    ------
-    ValueError:
-        `module` cannot be selected because it is not installed.
+    Returns
+    -------
+    selected: bool
+        False if the module can not be selected, because it is not installed.
+        In this case the other modules are not disabled.
 
     See Also
     --------
     enable_module(), disable_module(), available_modules(), list_modules()
     """
     if module not in audio_installed:
-        raise ValueError('Can not select audio module %s because it is not installed' % module)
+        return False
     for mod in audio_installed:
         audio_modules[mod] = (mod == module)
+    return True
 
 
 def list_modules(module='all', availability=True):

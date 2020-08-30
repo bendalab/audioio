@@ -4,6 +4,7 @@ import audioio.audiomodules as am
 
 
 def test_audiomodules():
+    am.enable_module()
     funcs = ['all', 'fileio', 'device']
     for func in funcs:
         am.enable_module()
@@ -28,13 +29,10 @@ def test_audiomodules():
     print()
     print('single module functions:')
     for module in am.audio_modules.keys():
-        if module in am.audio_installed:
-            am.disable_module(module)
-            am.enable_module(module)
-            am.select_module(module)
-            am.enable_module()
-        else:
-            assert_raises(ValueError, am.select_module, module)
+        am.disable_module(module)
+        am.enable_module(module)
+        am.select_module(module)
+        am.enable_module()
         inst = am.installation_instruction(module)
         assert_greater(len(inst), 0, 'no installation instructions for module %s' % module)
         am.list_modules(module, False)
@@ -42,6 +40,7 @@ def test_audiomodules():
 
 
 def test_main():
+    am.enable_module()
     assert_raises(SystemExit, am.main, ['prog', '-h'])
     assert_raises(SystemExit, am.main, ['prog', '--help'])
     assert_raises(SystemExit, am.main, ['prog', '--version'])

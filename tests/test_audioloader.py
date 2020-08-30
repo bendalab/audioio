@@ -20,6 +20,7 @@ def write_audio_file(filename):
 
 
 def test_audioloader():
+    am.enable_module()
     filename = 'test.wav'
     write_audio_file(filename)
     tolerance = 2.0**(-15)
@@ -70,6 +71,7 @@ def test_audioloader():
 
 
 def test_modules():
+    am.enable_module()
     # generate data:
     filename = 'test.wav'
     samplerate = 44100.0
@@ -95,6 +97,7 @@ def test_modules():
         
 
 def test_audio_files():
+    am.enable_module()
     assert_raises(ValueError, al.load_audio, '')
     assert_raises(FileNotFoundError, al.load_audio, 'xxx.wav')
     filename = 'test.wav'
@@ -103,8 +106,7 @@ def test_audio_files():
     assert_raises(EOFError, al.load_audio, filename)
     os.remove(filename)
     write_audio_file(filename)
-    am.select_module('wave')
-    am.disable_module('wave')
+    am.disable_module()
     assert_raises(IOError, al.load_audio, filename)
     os.remove(filename)
     am.enable_module()
@@ -122,6 +124,7 @@ def test_unwrap():
 
 
 def test_demo():
+    am.enable_module()
     filename = 'test.wav'
     write_audio_file(filename)
     al.demo(filename, False)
@@ -129,9 +132,10 @@ def test_demo():
 
 
 def test_main():
+    am.enable_module()
     filename = 'test.wav'
     write_audio_file(filename)
     al.main(['prog', '-h'])
     al.main(['prog', filename])
-    al.main(['prog', '-m', 'soundfile', filename])
+    al.main(['prog', '-m', 'wave', filename])
     os.remove(filename)

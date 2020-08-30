@@ -6,6 +6,7 @@ import audioio.audiomodules as am
 
 
 def test_beep():
+    am.enable_module()
     print()
     print('default module...')
     ap.beep(blocking=True)
@@ -24,6 +25,7 @@ def test_beep():
 
 
 def test_play():
+    am.enable_module()
     print()
     # sine wave:
     rate = 44100.0
@@ -66,6 +68,7 @@ def test_downsample():
         ap.fade(stereo_data, rate, 0.1)
         return mono_data, stereo_data
         
+    am.enable_module()
     print()
     for lib in am.installed_modules('device'):
         am.select_module(lib)
@@ -107,10 +110,12 @@ def test_note2freq():
 
 
 def test_demo():
+    am.enable_module()
     ap.demo()
 
 
 def test_main():
+    am.enable_module()
     ap.main(['prog', '-h'])
     ap.main(['prog'])
     ap.main(['prog', '-m', 'sounddevice'])

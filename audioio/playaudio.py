@@ -1101,7 +1101,8 @@ def main(args):
     mod = False
     for arg in args[1:]:
         if mod:
-            select_module(arg)
+            if not select_module(arg):
+                return
             mod = False
         elif arg == '-h':
             help = True

@@ -7,6 +7,7 @@ import audioio.audiomodules as am
 
 
 def test_formats_encodings():
+    am.enable_module()
     min_formats = {'wave': 1, 'ewave': 2, 'scipy.io.wavfile': 1,
                    'soundfile': 25, 'wavefile': 25}
     for (module, formats_func), (m, encodings_func) in zip(aw.audio_formats_funcs, aw.audio_encodings_funcs):
@@ -48,6 +49,7 @@ def test_write_read():
         print('maximum error = %g' % max_error)
         assert_less(max_error, 0.05, 'values differ for module %s with encoding %s by up to %g' % (lib, encoding, max_error))
         
+    am.enable_module()
     # generate data:
     samplerate = 44100.0
     duration = 10.0
@@ -107,6 +109,7 @@ def test_write_read():
 
     
 def test_dimensions():
+    am.enable_module()
     print('1-D data')
     filename = 'test.wav'
     samplerate = 44100.0
@@ -158,9 +161,11 @@ def test_dimensions():
         assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
         assert_equal(data_read.shape[1], 2, 'read in data must be a 2-D array with two columns')
         assert_equal(data_read.shape, data.shape, 'input and output data must have same shape')
+    am.enable_module()
 
 
 def test_write_read_modules():
+    am.enable_module()
     # generate data:
     filename = 'test.wav'
     format = 'wav'
@@ -170,7 +175,8 @@ def test_write_read_modules():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     # test for wrong formats:
     for lib, write_func in aw.audio_writer_funcs:
-        am.select_module(lib)
+        if not am.select_module(lib):
+            continue
         assert_raises(ValueError, write_func, filename, data, samplerate, format='xxx')
         write_func(filename, data, samplerate, format='')
         os.remove(filename)
@@ -196,15 +202,17 @@ def test_write_read_modules():
 
 
 def test_demo():
+    am.enable_module()
     filename = 'test.wav'
     aw.demo(filename)
     os.remove(filename)
 
 
 def test_main():
+    am.enable_module()
     filename = 'test.wav'
     aw.main(['prog', '-h'])
     aw.main(['prog', filename])
-    aw.main(['prog', '-m', 'soundfile', filename])
-    aw.main(['prog', '-m', 'soundfile', filename, 'PCM_16'])
+    aw.main(['prog', '-m', 'wave', filename])
+    aw.main(['prog', '-m', 'wave', filename, 'PCM_16'])
     os.remove(filename)
