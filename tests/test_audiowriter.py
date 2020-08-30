@@ -11,7 +11,7 @@ def test_formats_encodings():
                    'soundfile': 25, 'wavefile': 25}
     for (module, formats_func), (m, encodings_func) in zip(aw.audio_formats_funcs, aw.audio_encodings_funcs):
         if aw.audio_modules[module]:
-            min_f =min_formats[module]
+            min_f = min_formats[module]
             formats = formats_func()
             assert_greater_equal(len(formats), min_f,
                                  'formats_%s() did not return enough formats' % module.split('.')[-1])
@@ -19,6 +19,10 @@ def test_formats_encodings():
                 encodings = encodings_func(f)
                 assert_greater_equal(len(encodings), 1,
                                      'encodings_%s() did not return enough encodings for format %s' % (module.split('.')[-1], f))
+            encodings = encodings_func('xxx')
+            assert_equal(len(encodings), 0, 'encodings_%s() returned encodings for invalid format xxx' % module.split('.')[-1])
+            encodings = encodings_func('')
+            assert_equal(len(encodings), 0, 'encodings_%s() returned encodings for empty format xxx' % module.split('.')[-1])
 
     formats = aw.available_formats()
     assert_greater_equal(len(formats), 1,
@@ -164,6 +168,16 @@ def test_write_read_modules():
     duration = 10.0
     t = np.arange(int(duration*samplerate))/samplerate
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    # test for wrong formats:
+    for lib, write_func in aw.audio_writer_funcs:
+        am.select_module(lib)
+        assert_raises(ValueError, write_func, filename, data, samplerate, format='xxx')
+        write_func(filename, data, samplerate, format='')
+        os.remove(filename)
+        assert_raises(ValueError, write_func, filename, data, samplerate, encoding='xxx')
+        write_func(filename, data, samplerate, encoding='')
+        os.remove(filename)
+        am.enable_module()
     # test for not available modules:
     for lib, write_func in aw.audio_writer_funcs:
         am.disable_module(lib)
@@ -192,4 +206,5 @@ def test_main():
     aw.main(['prog', '-h'])
     aw.main(['prog', filename])
     aw.main(['prog', '-m', 'soundfile', filename])
+    aw.main(['prog', '-m', 'soundfile', filename, 'PCM_16'])
     os.remove(filename)
