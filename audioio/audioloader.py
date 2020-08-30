@@ -356,7 +356,7 @@ def load_audio(filepath, verbose=0):
     Example
     -------
     ```
-    import matplotlib.pzplot as plt
+    import matplotlib.pyplot as plt
     from audioio import load_audio
     
     data, rate = load_audio('some/audio.wav')
@@ -368,8 +368,7 @@ def load_audio(filepath, verbose=0):
     if len(filepath) == 0:
         raise ValueError('input argument filepath is empty string!')
     if not os.path.isfile(filepath):
-        FileNotFoundException = getattr(__builtins__,'FileNotFoundError', IOError)
-        raise FileNotFoundException('file "%s" not found' % filepath)
+        raise FileNotFoundError('file "%s" not found' % filepath)
     if os.path.getsize(filepath) <= 0:
         raise EOFError('file "%s" is empty (size=0)!' % filepath)
 

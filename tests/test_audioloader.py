@@ -69,7 +69,7 @@ def test_audioloader():
     am.enable_module()
 
 
-def test_audioloader_modules():
+def test_modules():
     # generate data:
     filename = 'test.wav'
     samplerate = 44100.0
@@ -92,6 +92,33 @@ def test_audioloader_modules():
             continue
         assert_raises(ImportError, load_funcs[lib], filename, 10.0, 2.0)
         am.enable_module(lib)
+        
+
+def test_audio_files():
+    assert_raises(ValueError, al.load_audio, '')
+    assert_raises(FileNotFoundError, al.load_audio, 'xxx.wav')
+    filename = 'test.wav'
+    df = open(filename, 'w')
+    df.close()
+    assert_raises(EOFError, al.load_audio, filename)
+    os.remove(filename)
+    write_audio_file(filename)
+    am.select_module('wave')
+    am.disable_module('wave')
+    assert_raises(IOError, al.load_audio, filename)
+    os.remove(filename)
+    am.enable_module()
+
+
+def test_unwrap():
+    samplerate = 44100.0
+    t = np.arange(0.0, 1.0, 1.0/samplerate)
+    data = np.sin(2.0*np.pi*880.0*t) * t
+    al.unwrap(data)
+    data = data.reshape((-1, 1))
+    al.unwrap(data)
+    data = data.reshape((-1, 2))
+    al.unwrap(data)
 
 
 def test_demo():
