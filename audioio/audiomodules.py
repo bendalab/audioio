@@ -87,7 +87,7 @@ sudo apt-get install python3-soundfile
 ```
 """
 
-from sys import platform, argv, exit
+import sys
 from os.path import exists
 from .version import __version__, __year__
 
@@ -543,7 +543,7 @@ def missing_modules(func='all'):
         if 'pyaudio' not in audio_installed and \
            'sounddevice' not in audio_installed and \
            'simpleaudio' not in audio_installed:
-            if platform[0:3] == "win":
+            if sys.platform[0:3] == "win":
                 mods.append('simpleaudio')
             else:
                 mods.append('sounddevice')
@@ -599,7 +599,7 @@ def installation_instruction(module):
     install_pip = install_pip_deb
 
     # check operating system:
-    if platform[0:5] == "linux":
+    if sys.platform[0:5] == "linux":
         if exists('/etc/redhat-release') or exists('/etc/fedora-release'):
             install_package = install_package_rpm
             install_pip = install_pip_rpm
@@ -610,10 +610,10 @@ def installation_instruction(module):
             package = audio_deb_packages.get(module, None)
             required_packages = audio_required_deb_packages.get(module, None)
         instruction = audio_instructions_linux.get(module, None)
-    elif platform == "darwin":
+    elif sys.platform == "darwin":
         install_package = ''
         install_pip = install_pip_osx
-    elif platform[0:3] == "win":
+    elif sys.platform[0:3] == "win":
         install_package = ''
         install_pip = install_pip_win
         instruction = audio_instructions_windows.get(module, None)
@@ -650,7 +650,7 @@ def installation_instruction(module):
     return msg
 
 
-def main():
+def main(args):
     """ Command line program for listing installation status of audio modules.
 
     Run this module as a script
@@ -668,12 +668,17 @@ def main():
     ```
     > audiomodules --help
     ```
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv
     """
-    if len(argv) > 1 :
-        if argv[1] == '--version':
+    if len(args) > 1 :
+        if args[1] == '--version':
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
-            exit(0)
-        if argv[1] == '--help':
+            sys.exit(0)
+        if args[1] == '--help' or args[1] == '-h':
             print('usage: audiomodules [--version] [--help] [PACKAGE]')
             print('')
             print('Installation status and instructions of python audio packages.')
@@ -684,7 +689,7 @@ def main():
             print('  PACKAGE     show installation instructions for PACKAGE')
             print('')
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
-            exit(0)
+            sys.exit(0)
     print('')
     print('Status of audio packages on this machine:')
     print('-'*41)
@@ -696,8 +701,8 @@ def main():
     missing_modules_instructions()
     print('')
 
-    if len(argv) > 1 :
-        mod = argv[1]
+    if len(args) > 1 :
+        mod = args[1]
         if mod in audio_modules:
             print('Installation instructions for the %s module:' % mod )
             print('-'*(42+len(mod)))
@@ -706,4 +711,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
