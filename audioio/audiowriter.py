@@ -504,6 +504,8 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     channels = 1
     if len(data.shape) > 1:
         channels = data.shape[1]
+    else:
+        data = data.reshape((-1, 1))
     with wavefile.WaveWriter(filepath, channels=channels, samplerate=int(samplerate),
                              format=format_value|encoding_value) as w:
         w.write(data.T)

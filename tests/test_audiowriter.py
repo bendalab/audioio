@@ -6,6 +6,7 @@ import audioio.audioloader as al
 import audioio.audiomodules as am
 
 
+@nottest
 def test_formats_encodings():
     min_formats = {'wave': 1, 'ewave': 2, 'scipy.io.wavfile': 1,
                    'soundfile': 25, 'wavefile': 25}
@@ -29,6 +30,7 @@ def test_formats_encodings():
                              'available_encodings() did not return enough encodings for format %s' % f)
                 
 
+@nottest
 def test_write_read():
 
     def check(samplerate_write, data_write, samplerate_read, data_read, lib, encoding):
@@ -101,7 +103,61 @@ def test_write_read():
                 check(samplerate, data, samplerate_read, data_read, 'audioio', encoding)
     os.remove(filename)
 
+    
+def test_dimensions():
+    print('1-D data')
+    filename = 'test.wav'
+    samplerate = 44100.0
+    duration = 10.0
+    t = np.arange(0.0, duration, 1.0/samplerate)
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    for lib in am.installed_modules('fileio'):
+        if lib == 'audioread':
+            continue
+        print('%s module...' % lib)
+        am.select_module(lib)
+        aw.write_audio(filename, data, samplerate)
+        data_read, samplerate_read = al.load_audio(filename)
+        assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
+        assert_equal(data_read.shape[1], 1, 'read in data must be a 2-D array with one column')
 
+    print('2-D data one channel')
+    filename = 'test.wav'
+    samplerate = 44100.0
+    duration = 10.0
+    t = np.arange(0.0, duration, 1.0/samplerate)
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    data = data.reshape((-1, 1))
+    for lib in am.installed_modules('fileio'):
+        if lib == 'audioread':
+            continue
+        print('%s module...' % lib)
+        am.select_module(lib)
+        aw.write_audio(filename, data, samplerate)
+        data_read, samplerate_read = al.load_audio(filename)
+        assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
+        assert_equal(data_read.shape[1], 1, 'read in data must be a 2-D array with one column')
+        assert_equal(data_read.shape, data.shape, 'input and output data must have same shape')
+
+    print('2-D data two channel')
+    filename = 'test.wav'
+    samplerate = 44100.0
+    duration = 10.0
+    t = np.arange(0.0, duration, 1.0/samplerate)
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    data = data.reshape((-1, 2))
+    for lib in am.installed_modules('fileio'):
+        if lib == 'audioread':
+            continue
+        print('%s module...' % lib)
+        am.select_module(lib)
+        aw.write_audio(filename, data, samplerate)
+        data_read, samplerate_read = al.load_audio(filename)
+        assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
+        assert_equal(data_read.shape[1], 2, 'read in data must be a 2-D array with two columns')
+        assert_equal(data_read.shape, data.shape, 'input and output data must have same shape')
+        
+@nottest
 def test_write_read_modules():
     # generate data:
     filename = 'test.wav'
@@ -127,13 +183,14 @@ def test_write_read_modules():
         am.enable_module(lib)
 
 
-
+@nottest
 def test_demo():
     filename = 'test.wav'
     aw.demo(filename)
     os.remove(filename)
 
 
+@nottest
 def test_main():
     filename = 'test.wav'
     aw.main(['prog', '-h'])
