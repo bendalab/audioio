@@ -372,7 +372,7 @@ class PlayAudio(object):
         <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
         that is go to the folder where the wheel file is downloaded and run
         ```
-        pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+        pip install PyAudio-0.2.11-cp39-cp39-win_amd64.whl
         ```
         replace the wheel file name by the one you downloaded.
         """

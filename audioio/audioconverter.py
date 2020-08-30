@@ -59,6 +59,7 @@ version 0.9.4 by Benda-Lab (2020-2020)
 """
 
 import os
+import sys
 import argparse
 from .version import __version__, __year__
 from .audioloader import load_audio
@@ -119,7 +120,9 @@ def main(cargs=None):
                         help='input audio files')
     args = parser.parse_args(cargs)
 
-    check_format(args.audio_format)
+    print(args.audio_format)
+    if not check_format(args.audio_format):
+        sys.exit(-1)
 
     if args.list_formats:
         if not args.audio_format:
@@ -155,6 +158,8 @@ def main(cargs=None):
         check_format(args.audio_format)
         if os.path.realpath(infile) == os.path.realpath(outfile):
             print('! cannot convert "%s" to itself !' % infile)
+            if len(args.file) == 1:
+                sys.exit(-1)
             break
         # read in audio:
         data, samplingrate = load_audio(infile)
