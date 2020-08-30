@@ -323,7 +323,7 @@ class PlayAudio(object):
             old_time = np.arange(len(self.data))*dt0
             new_time = np.arange(0.0, old_time[-1]+0.5*dt0, dt1)
             if len(self.data.shape) > 1:
-                data = np.zeros((len(newtime), channels), order='C')
+                data = np.zeros((len(new_time), channels), order='C')
                 for c in range(channels):
                     data[:, c] = np.interp(new_time, old_time, self.data[:, c])
             else:

@@ -17,8 +17,8 @@ def test_beep():
     for lib in am.installed_modules('device'):
         print('%s module...' % lib)
         am.select_module(lib)
-        ap.beep(blocking=True)
-        ap.beep(blocking=False)
+        ap.beep(blocking=True, verbose=2)
+        ap.beep(blocking=False, verbose=2)
         time.sleep(2.0)
         ap.handle.close()
         am.enable_module()
@@ -46,13 +46,36 @@ def test_play():
     for lib in am.installed_modules('device'):
         print('%s module mono...' % lib)
         am.select_module(lib)
-        ap.play(mono_data, rate, blocking=True)
-        ap.play(mono_data, rate, blocking=False)
+        ap.play(mono_data, rate, blocking=True, verbose=2)
+        ap.play(mono_data, rate, blocking=False, verbose=2)
         time.sleep(2.0)
         print('%s module stereo...' % lib)
         ap.play(stereo_data, rate, blocking=True)
         ap.play(stereo_data, rate, blocking=False)
         time.sleep(2.0)
+        ap.handle.close()
+        am.enable_module()
+
+
+def test_downsample():
+    def sinewave(rate):
+        t = np.arange(0.0, 0.5, 1.0/rate)
+        mono_data = np.sin(2.0*np.pi*800.0*t)
+        stereo_data = np.tile(mono_data, (2, 1)).T
+        # fade in and out:
+        ap.fade(mono_data, rate, 0.1)
+        ap.fade(stereo_data, rate, 0.1)
+        return mono_data, stereo_data
+        
+    print()
+    for lib in am.installed_modules('device'):
+        am.select_module(lib)
+        print('%s module ...' % lib)
+        for rate in [45555.0, 100000.0, 600000.0]:
+            print(' rate %.0f Hz ...' % rate)
+            mono_data, stereo_data = sinewave(rate)
+            ap.play(mono_data, rate, verbose=2)
+            ap.play(stereo_data, rate, verbose=2)
         ap.handle.close()
         am.enable_module()
 
@@ -80,6 +103,8 @@ def test_note2freq():
     assert_raises(ValueError, ap.note2freq, 'd4x')
     assert_raises(ValueError, ap.note2freq, 'd#4x')
     assert_raises(ValueError, ap.note2freq, 'd-2')
+    assert_raises(ValueError, ap.note2freq, '')
+    assert_raises(ValueError, ap.note2freq, 0)
 
 
 def test_demo():
@@ -90,3 +115,4 @@ def test_main():
     ap.main(['prog', '-h'])
     ap.main(['prog'])
     ap.main(['prog', '-m', 'sounddevice'])
+    ap.main(['prog', 'x'])
