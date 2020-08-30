@@ -365,7 +365,7 @@ def load_audio(filepath, verbose=0):
     ```
     """
     # check values:
-    if len(filepath) == 0:
+    if filepath is None or len(filepath) == 0:
         raise ValueError('input argument filepath is empty string!')
     if not os.path.isfile(filepath):
         raise FileNotFoundError('file "%s" not found' % filepath)
