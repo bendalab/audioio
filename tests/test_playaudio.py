@@ -10,7 +10,6 @@ def test_beep():
     print('default module...')
     ap.beep(blocking=True)
     ap.beep(0.5, 'a4', blocking=True)
-    ap.beep(rate=233000.0, blocking=True) # force downsampling
     ap.beep(blocking=False)
     time.sleep(2.0)
     ap.handle.close()

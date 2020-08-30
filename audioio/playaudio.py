@@ -332,7 +332,7 @@ class PlayAudio(object):
                 self.data = data
             else:
                 self.data = np.asarray(data, dtype=self.data.dtype, order='C')
-        if self.verbose:
+        if self.verbose > 0:
             print('adapted sampling rate from %g Hz down to %g Hz' %
                   (self.rate, self.rate/scale))
         self.rate /= scale

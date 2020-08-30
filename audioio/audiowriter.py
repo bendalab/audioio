@@ -659,9 +659,9 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
                 print('wrote data to file "%s" using %s module' %
                       (filepath, lib))
                 if verbose > 1:
-                    print('  sampling rate: %g Hz' % rate)
+                    print('  sampling rate: %g Hz' % samplerate)
                     print('  channels     : %d' % (data.shape[1] if len(data.shape) > 1 else 1))
-                    print('  data values  : %d' % len(data))
+                    print('  frames       : %d' % len(data))
             break
         except Exception as e:
             pass
@@ -686,7 +686,7 @@ def demo(file_path, encoding=''):
     data = np.sin(2.0*np.pi*880.0*t)
         
     print("write_audio(%s) ..." % file_path)
-    write_audio(file_path, data, samplerate, encoding=encoding, verbose=1)
+    write_audio(file_path, data, samplerate, encoding=encoding, verbose=2)
 
     print('done.')
     
@@ -725,7 +725,7 @@ def main(args):
     if help:
         print('')
         print('Usage:')
-        print('  python -m audioio.audiowriter [<filename>] [<encoding>]')
+        print('  python -m audioio.audiowriter [-m module] [<filename>] [<encoding>]')
         return
 
     demo(file_path, encoding)
