@@ -31,6 +31,7 @@ def test_main():
     ac.main(['-f', 'wav', '-o', destfile, filename])
     ac.main(['-f', 'wav', '-e', 'float', '-o', destfile, filename])
     ac.main(['-f', 'ogg', '-e', 'vorbis', '-o', destfile, filename])
+    ac.main(['-e', 'float', '-o', destfile + '.wav', filename])
     os.remove(filename)
     os.remove(destfile+'.wav')
     os.remove(destfile+'.ogg')

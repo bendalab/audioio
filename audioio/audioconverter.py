@@ -1,5 +1,61 @@
 """
-Convert formats of audio files.
+Command line script for converting audio files.
+
+```sh
+audioconverter -o test.wav test.mp3
+```
+converts 'test.mp3' to 'test.wav'.
+
+The script basically reads the files with `audioloader.load_audio()`
+and writes them with `audiowriter.write_audio()`. Thus, all formats
+supported by these functions and the installed python audio modules
+are supported. This implies that MP3 files can be read via the
+[audioread](https://github.com/beetbox/audioread) module, but they
+cannot be written (use the `ffmpeg` or `avconv` tools for that).
+Output file formats are limited to what the
+[sndfile library](http://www.mega-nerd.com/libsndfile/) supports
+(this is actually a lot), provided the
+[SoundFile](http://pysoundfile.readthedocs.org) or
+[wavefile](https://github.com/vokimon/python-wavefile) python
+packages are
+[installed](https://bendalab.github.io/audioio/installation).
+
+Run
+```sh
+audioconverter -l
+```
+for a list of supported output file formats and
+```sh
+audioconverter -f wav -l
+```
+for a list of supported encodings for a given output format.
+
+Running
+```sh
+audioconverter --help
+```
+prints
+```text
+usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING]
+                      [-o OUTPATH]
+                      [file [file ...]]
+
+Convert audio file formats.
+
+positional arguments:
+  file         input audio files
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --version    show program's version number and exit
+  -v           print debug output
+  -l           list supported file formats and encodings
+  -f FORMAT    audio format of output file
+  -e ENCODING  audio encoding of output file
+  -o OUTPATH   path or filename of output file.
+
+version 0.9.4 by Benda-Lab (2020-2020)
+```
 """
 
 import os
@@ -38,33 +94,6 @@ def check_format(format):
 def main(cargs=None):
     """
     Command line script for converting audio files.
-
-    Running
-    ```sh
-    audioconverter --help
-    ```
-    prints
-    ```text
-    usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING]
-                          [-o OUTPATH]
-                          [file [file ...]]
-
-    Convert audio file formats.
-
-    positional arguments:
-      file         input audio files
-
-    optional arguments:
-      -h, --help   show this help message and exit
-      --version    show program's version number and exit
-      -v           print debug output
-      -l           list supported file formats and encodings
-      -f FORMAT    audio format of output file
-      -e ENCODING  audio encoding of output file
-      -o OUTPATH   path or filename of output file.
-
-    version 0.9.4 by Benda-Lab (2020-2020)
-    ```
 
     Parameters
     ----------

@@ -10,9 +10,9 @@ files and devices.
 [Documentation](https://bendalab.github.io/audioio) |
 [API Reference](https://bendalab.github.io/audioio/api)
 
-The AudioIO modules try to use whatever available audio modules to achieve
-their tasks. The AudioIO package does not provide own code for decoding files
-and accessing audio hardware.
+The AudioIO modules try to use whatever audio modules installed on
+your system to achieve their tasks. The AudioIO package does not
+provide own code for decoding files and accessing audio hardware.
 
 
 ## Feaures
@@ -38,14 +38,18 @@ pip install audioio
 Then you can use already installed audio packages for reading and
 writing audio files and for playing audio data. However, the support
 provided by the python standard library is limited to very basic WAV
-files. If you need support for other audio file formats or for better
-sound output, you need to install additional packages.
+files and playback support is very limited. If you need support for
+other audio file formats or for better sound output, you need to
+install additional packages.
 
 See [installation](https://bendalab.github.io/audioio/installation)
-for further instructions.
+for further instructions on additional audio packages.
 
 
 ## Usage
+
+See [API Reference](https://bendalab.github.io/audioio/api) for detailed
+information.
 
 ```
 import audioio as aio
@@ -59,7 +63,7 @@ data, samplingrate = aio.load_audio('audio/file.wav')
 ```
 	
 The data are numpy arrays of floats ranging between -1 and 1.
-The arrays are 2-day arrays with first axis time and second axis channel.
+The arrays are 2-D arrays with first axis time and second axis channel.
 
 You can also randomly access chunks of data of an audio file, without
 loading the entire file into memory. This is really handy for
@@ -69,10 +73,15 @@ analysing very long sound recordings:
 with aio.open_audio_loader('audio/file.wav', 60.0) as data:
      block = 1000
      rate = data.samplerate
-     for i in range(len(data)/block):
+     for i in range(len(data)//block):
      	 x = data[i*block:(i+1)*block]
      	 # ... do something with x and rate
 ```
+
+See API documentation of the
+[audioloader](https://bendalab.github.io/audioio/api/audioloader.html)
+module for details.
+
 
 
 ### Writing audio data
@@ -81,14 +90,23 @@ Write a 1-D or 2-D numpy array into an audio file:
 ```
 aio.write_audio('audio/file.wav', data, samplerate)
 ```
+Again, in 2-D arrays the first axis (rows) is time and the second axis the channel (columns).
+
+See API documentation of the
+[audiowriter](https://bendalab.github.io/audioio/api/audiowriter.html)
+module for details.
 
 
 ### Converting audio files
 
 AudioIO provides a simple command line script to convert audio files:
+```sh
+> audioconverter -e float -o test.wav test.mp3
 ```
-> audioconverter -o test.wav test.mp3
-```
+
+See API documentation of the
+[audioconverter](https://bendalab.github.io/audioio/api/audioconverter.html)
+module for details.
 
 
 ### Playing sounds
@@ -110,6 +128,10 @@ aio.beep(0.5, 'a4')
 ```
 Musical notes are translated into frequency with the `note2freq()` function.
 
+See API documentation of the
+[playaudio](https://bendalab.github.io/audioio/api/playaudio.html)
+module for details.
+
 
 ### Managing audio modules
 
@@ -120,12 +142,17 @@ Simply run in your terminal
 to see which audio modules you have already installed on your system,
 which ones are recommended to install, and how to install them.
 
+See API documentation of the
+[audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)
+module for details.
+
 
 ## Alternatives
 
 All the audio modules AudioIO is using.
 
 For file I/O:
+
 - [wave](https://docs.python.org/3.8/library/wave.html): simple wav file interface of the python standard library
 - [ewave](https://github.com/melizalab/py-ewave): extended WAV files. 
 - [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): simple scipy wav file interface.
@@ -135,6 +162,7 @@ For file I/O:
 - [scikits.audiolab](http://cournape.github.io/audiolab): no longer active
 
 For playing sounds:
+
 - [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com)
 - [pyaudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com)
 - [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA directly, runs well on windows.

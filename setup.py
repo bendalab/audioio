@@ -11,9 +11,9 @@ files and devices.
 [Documentation](https://bendalab.github.io/audioio) |
 [API Reference](https://bendalab.github.io/audioio/api)
 
-The audioio modules try to use whatever available audio module to achieve
-their tasks. The audioio package does not provide own code for decoding files
-and accessing audio hardware.
+The AudioIO modules try to use whatever audio modules installed on
+your system to achieve their tasks. The AudioIO package does not
+provide own code for decoding files and accessing audio hardware.
 
 See [installation](https://bendalab.github.io/audioio/installation)
 for further instructions.
