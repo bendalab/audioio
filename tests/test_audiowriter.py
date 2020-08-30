@@ -6,7 +6,6 @@ import audioio.audioloader as al
 import audioio.audiomodules as am
 
 
-@nottest
 def test_formats_encodings():
     min_formats = {'wave': 1, 'ewave': 2, 'scipy.io.wavfile': 1,
                    'soundfile': 25, 'wavefile': 25}
@@ -30,7 +29,6 @@ def test_formats_encodings():
                              'available_encodings() did not return enough encodings for format %s' % f)
                 
 
-@nottest
 def test_write_read():
 
     def check(samplerate_write, data_write, samplerate_read, data_read, lib, encoding):
@@ -156,8 +154,8 @@ def test_dimensions():
         assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
         assert_equal(data_read.shape[1], 2, 'read in data must be a 2-D array with two columns')
         assert_equal(data_read.shape, data.shape, 'input and output data must have same shape')
-        
-@nottest
+
+
 def test_write_read_modules():
     # generate data:
     filename = 'test.wav'
@@ -183,14 +181,12 @@ def test_write_read_modules():
         am.enable_module(lib)
 
 
-@nottest
 def test_demo():
     filename = 'test.wav'
     aw.demo(filename)
     os.remove(filename)
 
 
-@nottest
 def test_main():
     filename = 'test.wav'
     aw.main(['prog', '-h'])

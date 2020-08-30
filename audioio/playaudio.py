@@ -235,6 +235,7 @@ class PlayAudio(object):
         data: array
             The data to be played, either 1-D array for single channel output,
             or 2-D array with first axis time and second axis channel.
+            Data values range between -1 and 1.
         rate: float
             The sampling rate in Hertz.
         scale: float
@@ -996,6 +997,7 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
     data: array
         The data to be played, either 1-D array for single channel output,
         or 2-D array with first axis time and second axis channel.
+        Data values range between -1 and 1.
     rate: float
         The sampling rate in Hertz.
     scale: float

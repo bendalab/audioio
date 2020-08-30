@@ -61,9 +61,19 @@ Load an audio file into a numpy array:
 ```
 data, samplingrate = aio.load_audio('audio/file.wav')
 ```
-	
-The data are numpy arrays of floats ranging between -1 and 1.
-The arrays are 2-D arrays with first axis time and second axis channel.
+The read in data are always numpy arrays of floats ranging between -1 and 1.
+The arrays are always 2-D arrays with first axis time and second axis channel,
+even for single channel data.
+
+Plot the first channel:
+```
+import numpy as np
+import matplotlib.pyplot as plt
+
+time = np.arange(len(data))/samplingrate
+plt.plot(time, data[:,0])
+plt.show()
+```
 
 You can also randomly access chunks of data of an audio file, without
 loading the entire file into memory. This is really handy for
@@ -86,7 +96,7 @@ module for details.
 
 ### Writing audio data
 
-Write a 1-D or 2-D numpy array into an audio file:
+Write a 1-D or 2-D numpy array into an audio file (data values between -1 and 1):
 ```
 aio.write_audio('audio/file.wav', data, samplerate)
 ```
@@ -111,7 +121,8 @@ module for details.
 
 ### Playing sounds
 
-Fade in and out and play a numpy array as a sound:
+Fade in and out and play a 1-D or 2-D numpy array as a sound
+(first axis is time and second axis the channel):
 ```
 aio.fade(data, samplingrate, 0.2)
 aio.play(data, samplingrate)

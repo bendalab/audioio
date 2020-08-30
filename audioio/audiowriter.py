@@ -5,6 +5,9 @@ Writing numpy arrays of floats to audio files.
 - `available_formats()`: audio file formats supported by any of the installed audio modules.
 - `available_encodings()`: encodings of an audio file format supported by any of the installed audio modules.
 
+The data to be written are 1-D or 2-D numpy arrays of floats ranging between -1 and 1
+with first axis time and second axis channel.
+
 For support of more audio formats, you might need to install additional packages.
 See [installation](https://bendalab.github.io/audioio/installation)
 for further instructions.
@@ -66,7 +69,7 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     ----------
     filepath: string
         Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
+    data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
     samplerate: float
@@ -175,7 +178,7 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     ----------
     filepath: string
         Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
+    data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
     samplerate: float
@@ -271,7 +274,7 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     ----------
     filepath: string
         Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
+    data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
     samplerate: float
@@ -371,7 +374,7 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     ----------
     filepath: string
         Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
+    data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
     samplerate: float
@@ -461,7 +464,7 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     ----------
     filepath: string
         Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
+    data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
     samplerate: float
@@ -597,7 +600,7 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
     ----------
     filepath: string
         Full path and name of the file to write.
-    data: 1d- or 2d-array of floats
+    data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
     samplerate: float

@@ -5,6 +5,10 @@ Loading data from audio files.
 - `AudioLoader` or `open_audio_loader()` allow to read data from audio files in chunks.
 - `unwrap()` unwraps clipped data that are folded into the available data range.
 
+The read in data are always numpy arrays of floats ranging between -1 and 1.
+The arrays are always 2-D arrays with first axis time and second axis channel,
+even for single channel data.
+
 If an audio file cannot be loaded, you might need to install additional packages.
 See [installation](https://bendalab.github.io/audioio/installation)
 for further instructions.
@@ -319,6 +323,7 @@ Each element of the list is a tuple with the module's name and the load function
 def load_audio(filepath, verbose=0):
     """
     Call this function to load all channels of audio data from a file.
+    
     This function tries different python modules to load the audio file.
 
     Parameters
@@ -331,7 +336,9 @@ def load_audio(filepath, verbose=0):
     Returns
     -------
     data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+        All data traces as an 2-D numpy array, even for single channel data.
+        First dimension is time, second is channel.
+        Data values range maximally between -1 and 1.
     rate: float
         The sampling rate of the data in Hertz.
 
