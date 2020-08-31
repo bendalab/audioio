@@ -280,10 +280,8 @@ try:
 except ImportError:
     audio_modules['ossaudiodev'] = False
 audio_required_deb_packages['ossaudiodev'] = ['osspd']
-audio_infos['ossaudiodev'] = """The OSS audio module is part of the python standard library and
-provides simple support for sound playback under Linux.
-Unfortunately it is based on the outdated OSS system.
-In particular on Fedora systems, OSS is no longer supported.
+audio_infos['ossaudiodev'] = """The ossaudiodev module is part of the python standard library and
+provides simple support for sound playback under Linux based on the (outdated) OSS system.
 You most likely want to install the simpleaudio or the soundfile package for better performance.
 For documentation see https://docs.python.org/3.8/library/ossaudiodev.html"""
         
