@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_equal, assert_greater_equal, assert_less, assert_almost_equal, assert_raises, nottest
+from nose.tools import assert_true, assert_equal, assert_greater_equal, assert_less, assert_almost_equal, assert_raises
 import os
 import numpy as np
 import audioio.audiowriter as aw

@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_raises, nottest
+from nose.tools import assert_true, assert_raises
 import os
 import numpy as np
 import audioio.audiowriter as aw
@@ -6,9 +6,8 @@ import audioio.audioloader as al
 import audioio.audiomodules as am
 
 
-def write_audio_file(filename):
+def write_audio_file(filename, duration=20.0):
     samplerate = 44100.0
-    duration = 20.0
     channels = 2
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
@@ -126,7 +125,7 @@ def test_unwrap():
 def test_demo():
     am.enable_module()
     filename = 'test.wav'
-    write_audio_file(filename)
+    write_audio_file(filename, duration=5.0)
     al.demo(filename, False)
     os.remove(filename)
 
@@ -134,7 +133,7 @@ def test_demo():
 def test_main():
     am.enable_module()
     filename = 'test.wav'
-    write_audio_file(filename)
+    write_audio_file(filename, duration=5.0)
     al.main(['prog', '-h'])
     al.main(['prog', filename])
     al.main(['prog', '-m', 'wave', filename])

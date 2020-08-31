@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises, nottest
+from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises
 import time
 import numpy as np
 import audioio.playaudio as ap
