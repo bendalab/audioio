@@ -25,9 +25,10 @@ for further instructions.
 - Platform independent interface for loading and writing audio files.
 - Simple `load_audio()` function for loading a whole audio file.
 - Support for blockwise random-access loading of large audio files (`class AudioLoader`).
-- Simple `write_audio()` for writing data to an audio file. 
+- Simple `write_audio()` function for writing data to an audio file. 
 - Platform independent playback of numpy arrays (`play()`).
 - Support of synchronous (blocking) and asynchronous (non blocking) playback.
+- Automatic resampling of data for playback to match supported sampling rates.
 - Detailed and platform specific installation instructions for audio packages.
 """
 

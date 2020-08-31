@@ -1,17 +1,24 @@
 """
 Play numpy arrays as audio.
 
-The globally defined functions
+- `play()`: playback audio data.
+- `beep()`: playback a tone.
+- `PlayAudio()`: audio playback.
+- `fade_in()`: fade in a signal in place.
+- `fade_out()`: fade out a signal in place.
+- `fade()`: fade in an out a signal in place.
+- `note2freq()`: convert textual note to corresponding frequency.
 
-- `play()`
-- `beep()`
+Accepted data for playback are 1-D or 2-D numpy arrays with values ranging from -1 to 1.
+If necessary data are downsampled automatically to match supported sampling rates.
 
-use a global instance of the `PlayAudio` class to play a sound
-on the default audio output.
+The globally defined functions `play()` and `beep()`
+use the global instance `handle` of the `PlayAudio` class to play a sound
+on the default audio output device.
 
 Alternatively you may use the `PlayAudio` class directly, like this:
 ```
-with open_audio_player() as audio:
+with PlayAudio() as audio:
     audio.beep()
 ```
 or without context management:
@@ -20,14 +27,6 @@ audio = PlayAudio()
 audio.beep(1.0, 'a4')
 audio.close()
 ```
-
-The `note2freq()` function converts a musical note, like 'f#4',
-to the corresponding frequency.
-The `beep()` function also accept notes for the frequency argument,
-and uses `note2freq()` to get the right frequency.
-
-Data can be multiplied with a squared-sine for fading in and out with
-`fade_in()`, `fade_out()`, and `fade()`.
 
 You might need to install additional packages for better audio output.
 See [installation](https://bendalab.github.io/audioio/installation)
@@ -49,9 +48,6 @@ from multiprocessing import Process
 from .audiomodules import *
 
 
-__pdoc__ = {}
-
-
 handle = None
 """ Default audio device handler.
 
@@ -59,7 +55,7 @@ Will get an PlayAudio instance assigned. """
 
 
 def note2freq(note, a4freq=440.0):
-    """Converts textual note to the corresponding frequency.
+    """Convert textual note to corresponding frequency.
 
     Parameters
     ----------
@@ -129,7 +125,7 @@ def note2freq(note, a4freq=440.0):
 
 def fade_in(data, rate, fadetime):
     """
-    Fade the signal in.
+    Fade in a signal in place.
 
     The first `fadetime` seconds of the data are multiplied with a squared sine in place.
     
@@ -154,7 +150,7 @@ def fade_in(data, rate, fadetime):
         
 def fade_out(data, rate, fadetime):
     """
-    Fade the signal out.
+    Fade out a signal in place.
 
     The last `fadetime` seconds of the data are multiplied with a squared sine in place.
     
@@ -179,7 +175,7 @@ def fade_out(data, rate, fadetime):
 
 def fade(data, rate, fadetime):
     """
-    Fade the signal in and out.
+    Fade in and out a signal in place.
 
     The first and last `fadetime` seconds of the data are multiplied with
     a squared sine in place.
@@ -199,14 +195,46 @@ def fade(data, rate, fadetime):
 
 
 class PlayAudio(object):
+    """ Audio playback.
+
+    Parameters
+    ----------
+    verbose: int
+        Verbosity level.
+
+    Methods
+    -------
+    play(data, rate, scale=None, blocking=True)
+        Playback audio data.
+    beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0, fadetime=0.05, blocking=True)
+        Playback a pure tone.
+    open()
+        Initialize the PlayAudio class with the best module available.
+    close()
+        Terminate module for playing audio.
+    stop()
+        Stop any playback in progress.
+
+    Examples
+    --------
+    ```
+    from audioio import PlayAudio
+    
+    with PlayAudio() as audio:
+        audio.beep()
+    ```
+    or without context management:
+    ```
+    audio = PlayAudio()
+    audio.beep(1.0, 'a4')
+    audio.close()
+    ```
+    """
     
     def __init__(self, verbose=0):
         """Initialize module for playing audio.
 
-        Parameters
-        ----------
-        verbose: int
-            Verbosity level.
+        See `PlayAudio` documentation for details.
         """
         self.verbose = verbose
         self.handle = None
@@ -216,11 +244,11 @@ class PlayAudio(object):
         self.open()
 
     def _close(self):
-        """Terminate module for playing audio."""
+        """Terminate PlayAudio class for playing audio."""
         pass
 
     def _stop(self):
-        """Stop playing."""
+        """Stop any playback in progress."""
         pass
 
     def _play(self, blocking=True):
@@ -228,7 +256,7 @@ class PlayAudio(object):
         pass
 
     def play(self, data, rate, scale=None, blocking=True):
-        """Play audio data.
+        """Playback audio data.
 
         Parameters
         ----------
@@ -269,7 +297,7 @@ class PlayAudio(object):
 
     def beep(self, duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
              fadetime=0.05, blocking=True):
-        """Play a pure tone of a given duration and frequency.
+        """Playback a pure tone.
 
         Parameters
         ----------
@@ -950,7 +978,7 @@ class PlayAudio(object):
 
 
     def open(self):
-        """Initialize the audio module with the best module available."""
+        """Initialize the PyAudio class with the best module available."""
         # list of implemented play functions:
         audio_open = [
             ['sounddevice', self.open_sounddevice],
@@ -983,12 +1011,8 @@ class PlayAudio(object):
         return self
 
 
-__pdoc__['open_audio_player'] = "Alias for the `PlayAudio` class."
-open_audio_player = PlayAudio
-                
-
 def play(data, rate, scale=None, blocking=True, verbose=0):
-    """Play audio data.
+    """Playback audio data.
 
     Create an PlayAudio instance on the global variable handle.
 
@@ -1017,7 +1041,7 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
 def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
          fadetime=0.05, blocking=True, verbose=0):
     """
-    Play a tone of a given duration and frequency.
+    Playback a tone.
 
     Create an PlayAudio instance on the globale variable handle.
 
@@ -1055,7 +1079,7 @@ def demo():
     audio.close()
     
     print('play mono beep 2')
-    with open_audio_player() as audio:
+    with PlayAudio() as audio:
         audio.beep(1.0, 'b4', 0.75, blocking=False)
         print('  done')
         sleep(0.3)
@@ -1075,18 +1099,6 @@ def demo():
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     fade(data, rate, 0.1)
     play(data, rate)
-
-    return
-
-    print('play notes')
-    o = 6
-    for oo in range(4):
-        for t in range(7):
-            if t == 2:
-                o += 1
-            tone = '%s%d' % (chr(ord('a')+t), o)
-            print('%-3s %7.1f Hz' % (tone, note2freq(tone)))
-            beep(0.5, tone)
 
 
 def main(args):

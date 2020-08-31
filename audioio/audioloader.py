@@ -2,11 +2,11 @@
 Loading data from audio files.
 
 - `load_audio()` loads a whole audio file at once.
-- `AudioLoader` or `open_audio_loader()` allow to read data from audio files in chunks.
+- `AudioLoader` allow to read data from audio files in chunks.
 - `unwrap()` unwraps clipped data that are folded into the available data range.
 
 The read in data are always numpy arrays of floats ranging between -1 and 1.
-The arrays are always 2-D arrays with first axis time and second axis channel,
+The arrays are 2-D arrays with first axis time and second axis channel,
 even for single channel data.
 
 If an audio file cannot be loaded, you might need to install additional packages.
@@ -23,9 +23,6 @@ import warnings
 import os.path
 import numpy as np
 from .audiomodules import *
-
-
-__pdoc__ = {}
 
 
 def load_wave(filepath, verbose=0):
@@ -464,7 +461,7 @@ class AudioLoader(object):
     -----
     ```
     import audioio as aio
-    with aio.open_audio_loader(filepath, 60.0, 10.0) as data:
+    with aio.AudioLoader(filepath, 60.0, 10.0) as data:
         # do something with the content of the file:
         x = data[0:10000]
         y = data[10000:20000]
@@ -1231,10 +1228,6 @@ class AudioLoader(object):
                           (filepath, need_install))
         return self
 
-
-__pdoc__['open_audio_loader'] = "Alias for the `AudioLoader` class."
-open_audio_loader = AudioLoader
-                
     
 def demo(file_path, plot):
     """ Demo of the audioloader functions.
@@ -1267,7 +1260,7 @@ def demo(file_path, plot):
     
     print('')
     print("try AudioLoader:")
-    with open_audio_loader(file_path, 4.0, 1.0, 1) as data:
+    with AudioLoader(file_path, 4.0, 1.0, 1) as data:
         print('samplerate: %g' % data.samplerate)
         print('channels: %d %d' % (data.channels, data.shape[1]))
         print('frames: %d %d' % (len(data), data.shape[0]))

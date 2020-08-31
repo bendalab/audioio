@@ -34,13 +34,14 @@ dnf install libsndfile libsndfile-devel libffi-devel
 ```
 
 Then you can install one of the many python wrappers for the sndfile
-library, e.g. SoundFile or wavefile:
+library, e.g. [SoundFile](http://pysoundfile.readthedocs.org) or [wavefile](https://github.com/vokimon/python-wavefile):
 ```sh
 sudo pip install SoundFile
 sudo pip install wavefile
 ```
 
-MP3 and similar formats are supported by the audioread module.
+MP3 and similar formats are supported by the 
+[audioread](https://github.com/beetbox/audioread) module.
 Install ffmpeg and friends with
 ```
 sudo apt-get install libav-tools python3-audioread
@@ -62,7 +63,7 @@ dnf install libportaudio portaudio-devel
 ```
 on rpm based systems.
 
-Then you need to install the python packages sounddevice or PyAudio:
+Then you need to install the python packages [sounddevice](https://python-sounddevice.readthedocs.io) or [PyAudio](https://people.csail.mit.edu/hubert/pyaudio):
 ```
 sudo pip install sounddevice
 sudo pip install PyAudio
@@ -71,14 +72,13 @@ sudo pip install PyAudio
 
 ## Windows
 
-For file I/O based on the the [sndfile
-library](http://www.mega-nerd.com/libsndfile/) install the SoundFile
-module:
+For file I/O based on the the [sndfile library](http://www.mega-nerd.com/libsndfile/)
+install the [SoundFile](http://pysoundfile.readthedocs.org) module:
 ```sh
 pip install SoundFile
 ```
 
-For playing sounds install simpleaudio:
+For playing sounds install [simpleaudio](https://simpleaudio.readthedocs.io):
 ```sh
 pip install simpleaudio
 ```

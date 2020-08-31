@@ -22,9 +22,10 @@ provide own code for decoding files and accessing audio hardware.
 - Platform independent interface for loading and writing audio files.
 - Simple `load_audio()` function for loading a whole audio file.
 - Support for blockwise random-access loading of large audio files (`class AudioLoader`).
-- Simple `write_audio()` for writing data to an audio file. 
+- Simple `write_audio()` function for writing data to an audio file. 
 - Platform independent playback of numpy arrays (`play()`).
 - Support of synchronous (blocking) and asynchronous (non blocking) playback.
+- Automatic resampling of data for playback to match supported sampling rates.
 - Detailed and platform specific installation instructions for audio packages.
 
 
@@ -37,7 +38,7 @@ pip install audioio
 
 Then you can use already installed audio packages for reading and
 writing audio files and for playing audio data. However, the support
-provided by the python standard library is limited to very basic WAV
+provided by the python standard library is limited to very basic wave
 files and playback support is very limited. If you need support for
 other audio file formats or for better sound output, you need to
 install additional packages.
@@ -164,18 +165,18 @@ All the audio modules AudioIO is using.
 
 For file I/O:
 
-- [wave](https://docs.python.org/3.8/library/wave.html): simple wav file interface of the python standard library
-- [ewave](https://github.com/melizalab/py-ewave): extended WAV files. 
-- [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): simple scipy wav file interface.
+- [wave](https://docs.python.org/3.8/library/wave.html): simple wave file interface of the python standard library.
+- [ewave](https://github.com/melizalab/py-ewave): extended wave files. 
+- [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): simple scipy wave file interface.
 - [SoundFile](http://pysoundfile.readthedocs.org): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
 - [wavefile](https://github.com/vokimon/python-wavefile): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
-- [audioread](https://github.com/beetbox/audioread): MP3 file support
-- [scikits.audiolab](http://cournape.github.io/audiolab): no longer active
+- [audioread](https://github.com/beetbox/audioread): MP3 file support.
+- [scikits.audiolab](http://cournape.github.io/audiolab): seems to be no longer active.
 
 For playing sounds:
 
-- [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com)
-- [pyaudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com)
-- [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA directly, runs well on windows.
-- [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): audio via the outdated OSS of the python standard library
-- [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio of the python standard library
+- [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com).
+- [PyAudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com).
+- [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA on Linux, runs well on windows.
+- [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): playback via the outdated OSS interface of the python standard library.
+- [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio playback of the python standard library, asynchronous playback only with wave files.
