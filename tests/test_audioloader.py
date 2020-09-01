@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_raises
+from nose.tools import assert_true, assert_false, assert_equal, assert_raises
 import os
 import numpy as np
 import audioio.audiowriter as aw
@@ -109,6 +109,28 @@ def test_audio_files():
     assert_raises(IOError, al.load_audio, filename)
     os.remove(filename)
     am.enable_module()
+
+
+def test_blocks():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename)
+    full_data, rate = al.load_audio(filename)
+    tolerance = 2.0**(-15)
+    for n in [5000, len(full_data)+100]:
+        read_data = []
+        with al.AudioLoader(filename) as data:
+            for x in al.blocks(data, 5000, 10):
+                read_data.append(x[:-10].copy())
+        read_data = np.vstack(read_data)
+        assert_equal(full_data.shape[0]-10, read_data.shape[0], 'len of blocked data differ from input data')
+        assert_equal(full_data.shape[1], read_data.shape[1], 'columns of blocked data differ from input data')
+        assert_false(np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed')
+
+    def wrong_blocks(data):
+        for x in al.blocks(data, 10, 20):
+            pass
+    assert_raises(ValueError, wrong_blocks, full_data)
 
 
 def test_unwrap():

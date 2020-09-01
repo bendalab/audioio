@@ -19,9 +19,9 @@ provide own code for decoding files and accessing audio hardware.
 
 - Audio data are always numpy arrays of floats with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
-- Platform independent interface for loading and writing audio files.
 - Simple `load_audio()` function for loading a whole audio file.
 - Support for blockwise random-access loading of large audio files (`class AudioLoader`).
+- `blocks()` generator for iterating over blocks of data with optional overlap.
 - Simple `write_audio()` function for writing data to an audio file. 
 - Platform independent playback of numpy arrays (`play()`).
 - Support of synchronous (blocking) and asynchronous (non blocking) playback.
@@ -87,6 +87,15 @@ with aio.open_audio_loader('audio/file.wav', 60.0) as data:
      for i in range(len(data)//block):
      	 x = data[i*block:(i+1)*block]
      	 # ... do something with x and rate
+```
+
+Even simpler, iterate in blocks over the file with overlap:
+```
+ from scipy.signal import spectrogram
+ nfft = 2048
+ with aio.AudioLoader('some/audio.wav') as data:
+     for x in aio.blocks(data, 100*nfft, nfft//2):
+         f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
 ```
 
 See API documentation of the

@@ -3,6 +3,7 @@ Loading data from audio files.
 
 - `load_audio()` loads a whole audio file at once.
 - `AudioLoader` allow to read data from audio files in chunks.
+- `blocks()`: generator for blockwise processing of array data.
 - `unwrap()` unwraps clipped data that are folded into the available data range.
 
 The read in data are always numpy arrays of floats ranging between -1 and 1.
@@ -401,6 +402,69 @@ def load_audio(filepath, verbose=0):
         raise IOError('failed to load data from file "%s".%s' %
                       (filepath, need_install))
     return data, rate
+
+
+def blocks(data, block_size, noverlap=0):
+    """ Generator for blockwise processing of array data.
+
+    Parameters
+    ----------
+    data: array
+        Data to loop over. First dimension is time.
+    block_size: int
+        Len of data blocks to be returned.
+    noverlap: int
+        Number of indices successive data points should overlap.
+
+    Yields
+    ------
+    data: array
+        Successive slices of the input data.
+
+    Raises
+    ------
+    ValueError
+        `noverlap` larger or equal to `block_size`.
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio import blocks
+    data = np.arange(20)
+    for x in blocks(data, 6, 2):
+        print(x)
+    ```
+    results in
+    ```text
+    [0 1 2 3 4 5]
+    [4 5 6 7 8 9]
+    [ 8  9 10 11 12 13]
+    [12 13 14 15 16 17]
+    [16 17 18 19]
+    ```
+
+    Use it for processing long audio data, like computing a spectrogram with overlap:
+    ```
+    from scipy.signal import spectrogram
+    from audioio import AudioLoader, blocks
+    nfft = 2048
+    with AudioLoader('some/audio.wav') as data:
+        for x in blocks(data, 100*nfft, nfft//2):
+            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+    ```
+    """
+    if noverlap >= block_size:
+        raise ValueError('noverlap=%d larger than block_size=%d' % (noverlap, block_size))
+    m = block_size - noverlap
+    n = (len(data)-noverlap)//m
+    if n == 0:
+        yield data[:]
+    else:
+        for k in range(n):
+            yield data[k*m:k*m+block_size]
+        if len(data) - (k*m+block_size) > 0:
+            yield data[(k+1)*m:]
 
 
 def unwrap(data):
