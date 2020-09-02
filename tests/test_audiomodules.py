@@ -45,6 +45,7 @@ def test_main():
     assert_raises(SystemExit, am.main, ['prog', '--help'])
     assert_raises(SystemExit, am.main, ['prog', '--version'])
     am.main(['prog'])
+    am.main()
     for module in am.audio_modules.keys():
         am.main(['prog', module])
     
