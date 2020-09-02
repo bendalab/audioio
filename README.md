@@ -91,11 +91,11 @@ with aio.open_audio_loader('audio/file.wav', 60.0) as data:
 
 Even simpler, iterate in blocks over the file with overlap:
 ```
- from scipy.signal import spectrogram
- nfft = 2048
- with aio.AudioLoader('some/audio.wav') as data:
-     for x in aio.blocks(data, 100*nfft, nfft//2):
-         f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+from scipy.signal import spectrogram
+nfft = 2048
+with aio.AudioLoader('some/audio.wav') as data:
+    for x in aio.blocks(data, 100*nfft, nfft//2):
+        f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
 ```
 
 See API documentation of the
