@@ -274,7 +274,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ValueError: Invalid sampling rate (after some attemps of resampling).
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
         """
         if self.handle is None:
             self.open()
@@ -318,7 +319,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ValueError: Invalid sampling rate (after some attemps of resampling).
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
         
         See also
         --------
@@ -383,7 +385,10 @@ class PlayAudio(object):
 
         Raises
         ------
-        ImportError: pyaudio module is not available.            
+        ImportError
+            PyAudio module is not available.
+        OSError
+            Cannot open audio device.
 
         Documentation
         -------------
@@ -416,15 +421,21 @@ class PlayAudio(object):
         os.dup(oldstderr)
         os.close(oldstderr)
         os.remove(tmpfile)
+        self.close = self._close_pyaudio
+        self.stop = self._stop_pyaudio
+        try:
+            info = self.handle.get_default_output_device_info()
+            self.max_channels = info['maxOutputChannels']
+            self.default_rate = info['defaultSampleRate']
+            self.device_index = info['index']
+        except Exception as e:
+            if self.verbose > 0:
+                print(str(e))
+            self.handle.terminate()
+            raise OSError('failed to initialize audio device')
         self.index = 0
         self.data = None
         self._do_play = self._play_pyaudio
-        self.close = self._close_pyaudio
-        self.stop = self._stop_pyaudio
-        info = self.handle.get_default_output_device_info()
-        self.max_channels = info['maxOutputChannels']
-        self.default_rate = info['defaultSampleRate']
-        self.device_index = info['index']
         return self
 
     def _callback_pyaudio(self, in_data, frames, time_info, status):
@@ -488,7 +499,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ValueError: Invalid sampling rate (after some attemps of resampling).
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
         """
         # check channel count:
         channels = self.channels
@@ -557,7 +569,10 @@ class PlayAudio(object):
 
         Raises
         ------
-        ImportError: sounddevice module is not available.            
+        ImportError
+           sounddevice module is not available.            
+        OSError
+            Cannot open audio device.
 
         Documentation
         -------------
@@ -575,14 +590,19 @@ class PlayAudio(object):
         self.handle = True
         self.index = 0
         self.data = None
-        self._do_play = self._play_sounddevice
+        self.stream = None
         self.close = self._close_sounddevice
         self.stop = self._stop_sounddevice
-        self.device_index = sounddevice.default.device[1]
-        info = sounddevice.query_devices(self.device_index)
-        self.max_channels = info['max_output_channels']
-        self.default_rate = info['default_samplerate']
-        self.stream = None
+        try:
+            self.device_index = sounddevice.default.device[1]
+            info = sounddevice.query_devices(self.device_index)
+            self.max_channels = info['max_output_channels']
+            self.default_rate = info['default_samplerate']
+        except Exception as e:
+            if self.verbose > 0:
+                print(str(e))
+            raise OSError('failed to initialize audio device')
+        self._do_play = self._play_sounddevice
         return self
 
     def _callback_sounddevice(self, out_data, frames, time_info, status):
@@ -655,7 +675,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ValueError: Invalid sampling rate (after some attemps of resampling).
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
         """
         # check channel count:
         channels = self.channels
@@ -721,7 +742,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ImportError: simpleaudio module is not available.
+        ImportError
+            simpleaudio module is not available.
 
         Documentation
         -------------
@@ -751,7 +773,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ValueError: Invalid sampling rate (after some attemps of resampling).
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
         """
         rates = [self.rate, 44100, 22050]
         scales = [1, None, None]
@@ -761,6 +784,10 @@ class PlayAudio(object):
                 scale = self.rate/float(rate)
             if scale != 1:
                 self._down_sample(self.channels, scale)
+            oldstderr = os.dup(2)
+            os.close(2)
+            tmpfile = 'tmpfile.tmp'
+            os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
             try:
                 self.handle = simpleaudio.play_buffer(self.data, self.channels,
                                                       2, int(self.rate))
@@ -769,6 +796,15 @@ class PlayAudio(object):
             except ValueError:
                 if self.verbose > 0:
                     print('invalid sampling rate of %g Hz' % rate)
+            except Exception as e:
+                if self.verbose > 0:
+                    print(str(e))
+                return
+            finally:
+                os.close(2)
+                os.dup(oldstderr)
+                os.close(oldstderr)
+                os.remove(tmpfile)
         if not success:
             raise ValueError('No valid sampling rate found')
         elif blocking:
@@ -790,7 +826,10 @@ class PlayAudio(object):
 
         Raises
         ------
-        ImportError: ossaudiodev module is not available.
+        ImportError
+            ossaudiodev module is not available.
+        OSError
+            Cannot open audio device.
 
         Documentation
         -------------
@@ -806,15 +845,20 @@ class PlayAudio(object):
         """
         if not audio_modules['ossaudiodev']:
             raise ImportError
-        handle = ossaudiodev.open('w')
-        handle.close()
         self.handle = True
+        self.close = self._close_ossaudiodev
+        self.stop = self._stop_ossaudiodev
         self.osshandle = None
         self.run = False
         self.play_thread = None
+        try:
+            handle = ossaudiodev.open('w')
+            handle.close()
+        except Exception as e:
+            if self.verbose > 0:
+                print(str(e))
+            raise OSError('failed to initialize audio device')
         self._do_play = self._play_ossaudiodev
-        self.close = self._close_ossaudiodev
-        self.stop = self._stop_ossaudiodev
         return self
 
     def _stop_ossaudiodev(self):
@@ -844,7 +888,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ValueError: Invalid sampling rate (after some attemps of resampling).
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
 
         Parameters
         ----------
@@ -906,7 +951,8 @@ class PlayAudio(object):
 
         Raises
         ------
-        ImportError: winsound module is not available.
+        ImportError
+            winsound module is not available.
 
         Documentation
         -------------
@@ -924,8 +970,11 @@ class PlayAudio(object):
 
     def _stop_winsound(self):
         """Stop any ongoing activity of the winsound module."""
-        winsound.PlaySound(None, winsound.SND_MEMORY)
-    
+        try:
+            winsound.PlaySound(None, winsound.SND_MEMORY)
+        except Exception as e:
+            pass
+        
     def _play_winsound(self, blocking=True):
         """
         Play audio data using the winsound module.
@@ -949,7 +998,12 @@ class PlayAudio(object):
             except AttributeError:
                 w.writeframes(self.data.tostring())
             w.close()
-            winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
+            try:
+                winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
+            except Exception as e:
+                if self.verbose > 0:
+                    print(str(e))
+                return
         else:
             if self.verbose > 0:
                 print('Warning: asynchronous playback is limited to playing wav files by the winsound module. Install an alternative package as recommended by the audiomodules script. ')
@@ -965,7 +1019,12 @@ class PlayAudio(object):
             except AttributeError:
                 w.writeframes(self.data.tostring())
             w.close()
-            winsound.PlaySound(self.audio_file, winsound.SND_ASYNC)
+            try:
+                winsound.PlaySound(self.audio_file, winsound.SND_ASYNC)
+            except Exception as e:
+                if self.verbose > 0:
+                    print(str(e))
+                return
         
     def _close_winsound(self):
         """Close audio output using winsound module. """
