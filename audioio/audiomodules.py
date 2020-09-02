@@ -651,7 +651,7 @@ def installation_instruction(module):
     return msg
 
 
-def main(args):
+def main(args=None):
     """ Command line program for listing installation status of audio modules.
 
     Run this module as a script
@@ -675,6 +675,8 @@ def main(args):
     args: list of strings
         Command line arguments as provided by sys.argv
     """
+    if args is None:
+        args = sys.argv
     if len(args) > 1 :
         if args[1] == '--version':
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
@@ -712,4 +714,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
