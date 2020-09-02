@@ -124,8 +124,7 @@ def note2freq(note, a4freq=440.0):
 
 
 def fade_in(data, rate, fadetime):
-    """
-    Fade in a signal in place.
+    """Fade in a signal in place.
 
     The first `fadetime` seconds of the data are multiplied with a squared sine in place.
     
@@ -149,8 +148,7 @@ def fade_in(data, rate, fadetime):
 
         
 def fade_out(data, rate, fadetime):
-    """
-    Fade out a signal in place.
+    """Fade out a signal in place.
 
     The last `fadetime` seconds of the data are multiplied with a squared sine in place.
     
@@ -174,8 +172,7 @@ def fade_out(data, rate, fadetime):
 
 
 def fade(data, rate, fadetime):
-    """
-    Fade in and out a signal in place.
+    """Fade in and out a signal in place.
 
     The first and last `fadetime` seconds of the data are multiplied with
     a squared sine in place.
@@ -763,8 +760,7 @@ class PlayAudio(object):
             self.handle.stop()
     
     def _play_simpleaudio(self, blocking=True):
-        """
-        Play audio data using the simpleaudio package.
+        """Play audio data using the simpleaudio package.
 
         Parameters
         ----------
@@ -811,7 +807,7 @@ class PlayAudio(object):
             self.handle.wait_done()
         
     def _close_simpleaudio(self):
-        """Close audio output using simpleaudio package. """
+        """Close audio output using simpleaudio package."""
         self._stop_simpleaudio()
         simpleaudio.stop_all()
         self.handle = None
@@ -883,8 +879,7 @@ class PlayAudio(object):
             self.run = False
         
     def _play_ossaudiodev(self, blocking=True):
-        """
-        Play audio data using the ossaudiodev module.
+        """Play audio data using the ossaudiodev module.
 
         Raises
         ------
@@ -937,7 +932,7 @@ class PlayAudio(object):
             self.play_thread.start()
 
     def _close_ossaudiodev(self):
-        """Close audio output using ossaudiodev module. """
+        """Close audio output using ossaudiodev module."""
         self._stop_ossaudiodev()
         self.handle = None
         self._do_play = self._play
@@ -976,8 +971,7 @@ class PlayAudio(object):
             pass
         
     def _play_winsound(self, blocking=True):
-        """
-        Play audio data using the winsound module.
+        """Play audio data using the winsound module.
 
         Parameters
         ----------
@@ -1027,7 +1021,7 @@ class PlayAudio(object):
                 return
         
     def _close_winsound(self):
-        """Close audio output using winsound module. """
+        """Close audio output using winsound module."""
         self._stop_winsound()
         self.handle = None
         if len(self.audio_file) > 0 and os.path.isfile(self.audio_file):
@@ -1099,8 +1093,7 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
     
 def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
          fadetime=0.05, blocking=True, verbose=0):
-    """
-    Playback a tone.
+    """Playback a tone.
 
     Create an PlayAudio instance on the globale variable handle.
 
@@ -1130,8 +1123,7 @@ def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
 
 
 def demo():
-    """ Demonstrate the playaudio module.
-    """
+    """ Demonstrate the playaudio module."""
     print('play mono beep 1')
     audio = PlayAudio(verbose=2)
     audio.beep(1.0, 440.0)
@@ -1161,7 +1153,7 @@ def demo():
 
 
 def main(args):
-    """ Call demo with command line arguments.
+    """Call demo with command line arguments.
 
     Parameters
     ----------

@@ -27,8 +27,7 @@ from .audiomodules import *
 
 
 def load_wave(filepath, verbose=0):
-    """
-    Load wav file using the wave module from pythons standard libray.
+    """Load wav file using the wave module from pythons standard libray.
     
     Documentation
     -------------
@@ -84,8 +83,7 @@ def load_wave(filepath, verbose=0):
 
     
 def load_ewave(filepath, verbose=0):
-    """
-    Load wav file using ewave module.
+    """Load wav file using ewave module.
 
     Documentation
     -------------
@@ -127,8 +125,7 @@ def load_ewave(filepath, verbose=0):
 
     
 def load_wavfile(filepath, verbose=0):
-    """
-    Load wav file using scipy.io.wavfile.
+    """Load wav file using scipy.io.wavfile.
 
     Documentation
     -------------
@@ -176,8 +173,7 @@ def load_wavfile(filepath, verbose=0):
 
 
 def load_soundfile(filepath, verbose=0):
-    """
-    Load audio file using SoundFile (based on libsndfile).
+    """Load audio file using SoundFile (based on libsndfile).
 
     Documentation
     -------------
@@ -217,8 +213,7 @@ def load_soundfile(filepath, verbose=0):
 
 
 def load_wavefile(filepath, verbose=0):
-    """
-    Load audio file using wavefile (based on libsndfile).
+    """Load audio file using wavefile (based on libsndfile).
 
     Documentation
     -------------
@@ -253,8 +248,7 @@ def load_wavefile(filepath, verbose=0):
 
 
 def load_audioread(filepath, verbose=0):
-    """
-    Load audio file using audioread.
+    """Load audio file using audioread.
 
     Documentation
     -------------
@@ -312,15 +306,14 @@ audio_loader_funcs = (
     ('ewave', load_ewave),
     ('scipy.io.wavfile', load_wavfile)
     )
-""" List of implemented load functions.
+"""List of implemented load functions.
 
 Each element of the list is a tuple with the module's name and the load function.
 """    
 
 
 def load_audio(filepath, verbose=0):
-    """
-    Call this function to load all channels of audio data from a file.
+    """Call this function to load all channels of audio data from a file.
     
     This function tries different python modules to load the audio file.
 
@@ -405,7 +398,7 @@ def load_audio(filepath, verbose=0):
 
 
 def blocks(data, block_size, noverlap=0):
-    """ Generator for blockwise processing of array data.
+    """Generator for blockwise processing of array data.
 
     Parameters
     ----------
@@ -468,8 +461,7 @@ def blocks(data, block_size, noverlap=0):
 
 
 def unwrap(data):
-    """
-    Fixes data that exceeded the -1 to 1 range.
+    """Fixes data that exceeded the -1 to 1 range.
 
     If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
     they get wrapped around. This functions tries to undo this wrapping.
@@ -720,7 +712,7 @@ class AudioLoader(object):
         self.buffer = np.empty((0, self.channels))
 
     def _update_buffer(self, start, stop):
-        """ Make sure that the buffer contains data between start and stop.
+        """Make sure that the buffer contains data between start and stop.
 
         Parameters
         ----------
@@ -736,7 +728,7 @@ class AudioLoader(object):
             self._load_buffer(offset, r_offset, r_size)
 
     def _read_indices(self, start, stop):
-        """ Compute position and size for next read from file.
+        """Compute position and size for next read from file.
 
         This takes buffersize and backsize into account.
 
@@ -774,7 +766,7 @@ class AudioLoader(object):
         return offset, size
 
     def _recycle_buffer(self, offset, size):
-        """ Recycle buffer contents and return indices for data to be loaded from file.
+        """Recycle buffer contents and return indices for data to be loaded from file.
 
         Move already existing parts of the buffer to their new position (as
         returned by _read_indices() ) and return position and size of
@@ -891,13 +883,13 @@ class AudioLoader(object):
         return self
 
     def _close_wave(self):
-        """ Close the audio file using the wave module. """
+        """Close the audio file using the wave module. """
         if self.sf is not None:
             self.sf.close()
             self.sf = None
 
     def _load_buffer_wave(self, offset, r_offset, r_size):
-        """ Load new data from file using the wave module.
+        """Load new data from file using the wave module.
 
         Parameters
         ----------
@@ -969,13 +961,13 @@ class AudioLoader(object):
         return self
 
     def _close_ewave(self):
-        """ Close the audio file using the ewave module. """
+        """Close the audio file using the ewave module. """
         if self.sf is not None:
             del self.sf
             self.sf = None
 
     def _load_buffer_ewave(self, offset, r_offset, r_size):
-        """ Load new data from file using the wave module.
+        """Load new data from file using the wave module.
 
         Parameters
         ----------
@@ -1047,13 +1039,13 @@ class AudioLoader(object):
         return self
 
     def _close_soundfile(self):
-        """ Close the audio file using the SoundFile module. """
+        """Close the audio file using the SoundFile module. """
         if self.sf is not None:
             self.sf.close()
             self.sf = None
 
     def _load_buffer_soundfile(self, offset, r_offset, r_size):
-        """ Load new data from file using the wave module.
+        """Load new data from file using the wave module.
 
         Parameters
         ----------
@@ -1118,13 +1110,13 @@ class AudioLoader(object):
         return self
 
     def _close_wavefile(self):
-        """ Close the audio file using the wavefile module. """
+        """Close the audio file using the wavefile module. """
         if self.sf is not None:
             self.sf.close()
             self.sf = None
 
     def _load_buffer_wavefile(self, offset, r_offset, r_size):
-        """ Load new data from file using the wave module.
+        """Load new data from file using the wave module.
 
         Parameters
         ----------
@@ -1198,13 +1190,13 @@ class AudioLoader(object):
         return self
 
     def _close_audioread(self):
-        """ Close the audio file using the audioread module. """
+        """Close the audio file using the audioread module. """
         if self.sf is not None:
             self.sf.__exit__(None, None, None)
             self.sf = None
 
     def _load_buffer_audioread(self, offset, r_offset, r_size):
-        """ Load new data from file using the wave module.
+        """Load new data from file using the wave module.
 
         audioread can only iterate through a file once.
 
@@ -1373,7 +1365,7 @@ class AudioLoader(object):
 
     
 def demo(file_path, plot):
-    """ Demo of the audioloader functions.
+    """Demo of the audioloader functions.
 
     Parameters
     ----------
@@ -1442,7 +1434,7 @@ def demo(file_path, plot):
 
 
 def main(args):
-    """ Call demo with command line arguments.
+    """Call demo with command line arguments.
 
     Parameters
     ----------

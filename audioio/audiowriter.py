@@ -58,8 +58,7 @@ def encodings_wave(format):
 
 
 def write_wave(filepath, data, samplerate, format=None, encoding=None):
-    """
-    Write audio data using the wave module from pythons standard libray.
+    """Write audio data using the wave module from pythons standard libray.
     
     Documentation
     -------------
@@ -166,8 +165,7 @@ def encodings_ewave(format):
 
 
 def write_ewave(filepath, data, samplerate, format=None, encoding=None):
-    """
-    Write audio data using the ewave module from pythons standard libray.
+    """Write audio data using the ewave module from pythons standard libray.
 
     Documentation
     -------------
@@ -261,8 +259,7 @@ def encodings_wavfile(format):
 
 
 def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
-    """
-    Write audio data using the scipy.io.wavfile module.
+    """Write audio data using the scipy.io.wavfile module.
     
     Documentation
     -------------
@@ -360,8 +357,7 @@ def encodings_soundfile(format):
 
 
 def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
-    """
-    Write audio data using the SoundFile module (based on libsndfile).
+    """Write audio data using the SoundFile module (based on libsndfile).
     
     Documentation
     -------------
@@ -454,8 +450,7 @@ def encodings_wavefile(format):
 
     
 def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
-    """
-    Write audio data using the wavefile module (based on libsndfile).
+    """Write audio data using the wavefile module (based on libsndfile).
     
     Documentation
     -------------
@@ -602,8 +597,7 @@ Each element of the list is a tuple with the module's name and the write functio
 
 
 def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=0):
-    """
-    Write audio data to file.
+    """Write audio data to file.
 
     Parameters
     ----------
@@ -670,7 +664,7 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
 
 
 def demo(file_path, encoding=''):
-    """ Demo of the audiowriter functions.
+    """Demo of the audiowriter functions.
 
     Parameters
     ----------
@@ -692,7 +686,7 @@ def demo(file_path, encoding=''):
     
 
 def main(args):
-    """ Call demo with command line arguments.
+    """Call demo with command line arguments.
 
     Parameters
     ----------
