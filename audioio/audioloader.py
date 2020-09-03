@@ -686,10 +686,11 @@ class AudioLoader(object):
             if step is None:
                 step = 1
             else:
-                start = int(start)
+                step = int(step)
             self._update_buffer(start, stop)
             newindex = slice(start-self.offset, stop-self.offset, step)
         elif hasattr(index, '__len__'):
+            index = [inx if inx >= 0 else inx+len(self) for inx in index]
             start = min(index)
             stop = max(index)
             self._update_buffer(start, stop+1)
@@ -698,6 +699,8 @@ class AudioLoader(object):
             if index > self.frames:
                 raise IndexError
             index = int(index)
+            if index < 0:
+                index += len(self)
             self._update_buffer(index, index+1)
             newindex = index-self.offset
         if type(key) is tuple:

@@ -40,22 +40,15 @@ def test_audioloader():
             ntests = 1000
             step = int(len(data)/ntests)
             failed = -1
+            print('  check first and las single frame access...')
+            assert_false(np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with %s module' % lib)
+            assert_false(np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with %s module' % lib)
             print('  check random single frame access...')
-            for inx in np.random.randint(0, len(data), ntests):
+            for inx in np.random.randint(-len(data), len(data), ntests):
                 if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
                     failed = inx
                     break
             assert_true(failed < 0, 'single random frame access failed at index %d with %s module' % (failed, lib))
-            failed = -1
-            print('  check random multiple frame access...')
-            for k in range(ntests//50):
-                m = len(data)//10   # TODO: the test fails for audioread when m = len(data) !!!
-                for n in range(1, 10):
-                    inx = np.random.randint(0, m, n) + np.random.randint(10)*m
-                    if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
-                        failed = 1
-                        break
-                    assert_equal(failed, -1, ('single random frame access failed with %s module at indices ' % lib) + str(inx))
             failed = -1
             print('  check random frame slice access...')
             for inx in np.random.randint(0, len(data)-nframes, ntests):
@@ -77,6 +70,23 @@ def test_audioloader():
                     failed = inx
                     break
             assert_true(failed < 0, 'frame slice access backward failed at index %d with %s module' % (failed, lib))
+            failed = -1
+            print('  check backward slice access with negative indices...')
+            for inx in range(0, len(data)-nframes, step):
+                if np.any(np.abs(full_data[-inx:-inx+nframes] - data[-inx:-inx+nframes]) > tolerance):
+                    failed = -inx
+                    break
+            assert_true(failed < 0, 'frame slice access backward with negative indices failed at index %d with %s module' % (failed, lib))
+            failed = -1
+            print('  check random multiple frame access...')
+            for k in range(ntests//50):
+                m = len(data)//10   # TODO: the test fails for audioread when m = len(data) !!!
+                for n in range(1, 10):
+                    inx = np.random.randint(0, m, n) + np.random.randint(10)*m
+                    if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
+                        failed = 1
+                        break
+                    assert_equal(failed, -1, ('single random frame access failed with %s module at indices ' % lib) + str(inx))
 
     os.remove(filename)
     am.enable_module()
