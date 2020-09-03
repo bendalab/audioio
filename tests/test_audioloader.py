@@ -34,36 +34,49 @@ def test_audioloader():
         # load on demand:
         if lib == 'scipy.io.wavfile':
             continue
-        with al.AudioLoader(filename, 10.0, 2.0, verbose=2) as data:
+        with al.AudioLoader(filename, 10.0, 2.0, verbose=0) as data:
             nframes = int(1.5*data.samplerate)
             # check access:
             ntests = 1000
             step = int(len(data)/ntests)
-            success = -1
+            failed = -1
             print('  check random single frame access...')
             for inx in np.random.randint(0, len(data), ntests):
                 if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
-                    success = inx
+                    failed = inx
                     break
-            assert_true(success < 0, 'single random frame access failed at index %d with %s module' % (success, lib))
+            assert_true(failed < 0, 'single random frame access failed at index %d with %s module' % (failed, lib))
+            failed = -1
+            print('  check random multiple frame access...')
+            for k in range(ntests//50):
+                m = len(data)//10   # TODO: the test fails for audioread when m = len(data) !!!
+                for n in range(1, 10):
+                    inx = np.random.randint(0, m, n) + np.random.randint(10)*m
+                    if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
+                        failed = 1
+                        break
+                    assert_equal(failed, -1, ('single random frame access failed with %s module at indices ' % lib) + str(inx))
+            failed = -1
             print('  check random frame slice access...')
             for inx in np.random.randint(0, len(data)-nframes, ntests):
                 if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
-                    success = inx
+                    failed = inx
                     break
-            assert_true(success < 0, 'random frame slice access failed at index %d with %s module' % (success, lib))
+            assert_true(failed < 0, 'random frame slice access failed at index %d with %s module' % (failed, lib))
+            failed = -1
             print('  check forward slice access...')
             for inx in range(0, len(data)-nframes, step):
                 if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
-                    success = inx
+                    failed = inx
                     break
-            assert_true(success < 0, 'frame slice access forward failed at index %d with %s module' % (success, lib))
+            assert_true(failed < 0, 'frame slice access forward failed at index %d with %s module' % (failed, lib))
+            failed = -1
             print('  check backward slice access...')
             for inx in range(len(data)-nframes, 0, -step):
                 if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
-                    success = inx
+                    failed = inx
                     break
-            assert_true(success < 0, 'frame slice access backward failed at index %d with %s module' % (success, lib))
+            assert_true(failed < 0, 'frame slice access backward failed at index %d with %s module' % (failed, lib))
 
     os.remove(filename)
     am.enable_module()

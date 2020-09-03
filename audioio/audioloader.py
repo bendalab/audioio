@@ -692,7 +692,7 @@ class AudioLoader(object):
         elif hasattr(index, '__len__'):
             start = min(index)
             stop = max(index)
-            self._update_buffer(start, stop)
+            self._update_buffer(start, stop+1)
             newindex = [inx-self.offset for inx in index]
         else:
             if index > self.frames:
@@ -705,7 +705,6 @@ class AudioLoader(object):
             return self.buffer[newkey]
         else:
             return self.buffer[newindex]
-        return 0
 
     def _init_buffer(self):
         """Allocate a buffer of size zero."""
@@ -1249,6 +1248,7 @@ class AudioLoader(object):
             n = self.read_offset + self.read_buffer.shape[0] - r_offset
             if n > r_size:
                 n = r_size
+            print('*', offset, r_offset, r_size, n, self.buffer.shape, self.read_buffer.shape)
             self.buffer[r_offset - offset:r_offset - offset + n,:] = self.read_buffer[-n:,:] / (2.0**15-1.0)
             if self.verbose > 1:
                 print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
