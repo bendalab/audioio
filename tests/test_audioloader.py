@@ -195,12 +195,8 @@ def test_multiple():
 
 def test_modules():
     am.enable_module()
-    # generate data:
     filename = 'test.wav'
-    samplerate = 44100.0
-    duration = 10.0
-    t = np.arange(0.0, duration, 1.0/samplerate)
-    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    write_audio_file(filename, 1.0)
     for lib, load_file in al.audio_loader_funcs:
         print(lib)
         am.disable_module(lib)
@@ -216,21 +212,31 @@ def test_modules():
         if lib not in load_funcs:
             continue
         assert_raises(ImportError, load_funcs[lib], filename, 10.0, 2.0)
-        am.enable_module(lib)
+        if am.select_module(lib):
+            # check double opening:
+            load_funcs[lib](filename)
+            load_funcs[lib](filename)
+            data.close()
+    os.remove(filename)
+    am.enable_module()
         
 
 def test_audio_files():
     am.enable_module()
     assert_raises(ValueError, al.load_audio, '')
     assert_raises(FileNotFoundError, al.load_audio, 'xxx.wav')
+    assert_raises(ValueError, al.AudioLoader, '')
+    assert_raises(FileNotFoundError, al.AudioLoader, 'xxx.wav')
     filename = 'test.wav'
     df = open(filename, 'w')
     df.close()
     assert_raises(EOFError, al.load_audio, filename)
+    assert_raises(EOFError, al.AudioLoader, filename)
     os.remove(filename)
     write_audio_file(filename)
     am.disable_module()
     assert_raises(IOError, al.load_audio, filename)
+    assert_raises(IOError, al.AudioLoader, filename)
     os.remove(filename)
     am.enable_module()
 

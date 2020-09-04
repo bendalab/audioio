@@ -1310,8 +1310,7 @@ class AudioLoader(object):
         if len(filepath) == 0:
             raise ValueError('input argument filepath is empty string!')
         if not os.path.isfile(filepath):
-            FileNotFoundException = getattr(__builtins__,'FileNotFoundError', IOError)
-            raise FileNotFoundException('file "%s" not found' % filepath)
+            raise FileNotFoundError('file "%s" not found' % filepath)
         if os.path.getsize(filepath) <= 0:
             raise EOFError('file "%s" is empty (size=0)!' % filepath)
         # list of implemented open functions:
