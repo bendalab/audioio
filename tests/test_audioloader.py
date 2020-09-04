@@ -18,53 +18,169 @@ def write_audio_file(filename, duration=20.0):
     aw.write_wave(filename, data, samplerate, encoding=encoding)
 
 
-def test_audioloader():
+def test_single_frame():
     am.enable_module()
     filename = 'test.wav'
-    write_audio_file(filename)
+    write_audio_file(filename, 20.0)
     tolerance = 2.0**(-15)
-
+    ntests = 500
     for lib in am.installed_modules('fileio'):
-        print('')
-        print('%s module:' % lib)
-        am.select_module(lib)
-        # load full data:
-        full_data, rate = al.load_audio(filename, verbose=2)
-
-        # load on demand:
         if lib == 'scipy.io.wavfile':
             continue
-        with al.AudioLoader(filename, 10.0, 2.0, verbose=2) as data:
-            nframes = int(1.5*data.samplerate)
-            # check access:
-            ntests = 1000
-            step = int(len(data)/ntests)
-            success = -1
-            print('  check random single frame access...')
-            for inx in np.random.randint(0, len(data), ntests):
+        print('')
+        print('check single frame access for module %s ...' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=2)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+            assert_false(np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with %s module' % lib)
+            assert_false(np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with %s module' % lib)
+            failed = -1
+            for inx in np.random.randint(-len(data), len(data), ntests):
                 if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
-                    success = inx
+                    failed = inx
                     break
-            assert_true(success < 0, 'single random frame access failed at index %d with %s module' % (success, lib))
-            print('  check random frame slice access...')
-            for inx in np.random.randint(0, len(data)-nframes, ntests):
-                if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
-                    success = inx
-                    break
-            assert_true(success < 0, 'random frame slice access failed at index %d with %s module' % (success, lib))
-            print('  check forward slice access...')
-            for inx in range(0, len(data)-nframes, step):
-                if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
-                    success = inx
-                    break
-            assert_true(success < 0, 'frame slice access forward failed at index %d with %s module' % (success, lib))
-            print('  check backward slice access...')
-            for inx in range(len(data)-nframes, 0, -step):
-                if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
-                    success = inx
-                    break
-            assert_true(success < 0, 'frame slice access backward failed at index %d with %s module' % (success, lib))
+            assert_true(failed < 0, 'single random frame access failed at index %d with %s module' % (failed, lib))
+    os.remove(filename)
+    am.enable_module()
 
+
+def test_slice():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 20.0)
+    tolerance = 2.0**(-15)
+    ntests = 100
+    for lib in am.installed_modules('fileio'):
+        if lib == 'scipy.io.wavfile':
+            continue
+        print('')
+        print('random frame slice access for module %s' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=2)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+            for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
+                nframes = int(time*data.samplerate)
+                failed = -1
+                for inx in np.random.randint(0, len(data)-nframes, ntests):
+                    if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
+                        failed = inx
+                        break
+                assert_true(failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+    os.remove(filename)
+    am.enable_module()
+
+
+def test_forward():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 40.0)
+    tolerance = 2.0**(-15)
+    nsteps = 200
+    for lib in am.installed_modules('fileio'):
+        if lib == 'scipy.io.wavfile':
+            continue
+        print('')
+        print('forward slice access for module %s' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=2)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+            for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
+                nframes = int(time*data.samplerate)
+                step = int(len(data)/nsteps)
+                failed = -1
+                for inx in range(0, len(data)-nframes, step):
+                    if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
+                        failed = inx
+                        break
+                assert_true(failed < 0, 'frame slice access forward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+    os.remove(filename)
+    am.enable_module()
+
+
+def test_backward():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 40.0)
+    tolerance = 2.0**(-15)
+    nsteps = 200
+    for lib in am.installed_modules('fileio'):
+        if lib == 'scipy.io.wavfile':
+            continue
+        print('')
+        print('backward slice access for module %s' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=2)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+            for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
+                nframes = int(time*data.samplerate)
+                step = int(len(data)/nsteps)
+                failed = -1
+                print('  check backward slice access...')
+                for inx in range(len(data)-nframes, 0, -step):
+                    if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
+                        failed = inx
+                        break
+                assert_true(failed < 0, 'frame slice access backward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+    os.remove(filename)
+    am.enable_module()
+
+
+def test_negative():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 40.0)
+    tolerance = 2.0**(-15)
+    nsteps = 200
+    for lib in am.installed_modules('fileio'):
+        if lib == 'scipy.io.wavfile':
+            continue
+        print('')
+        print('negative slice access for module %s' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=2)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+            for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
+                nframes = int(time*data.samplerate)
+                step = int(len(data)/nsteps)
+                failed = -1
+                for inx in range(0, len(data)-nframes, step):
+                    if np.any(np.abs(full_data[-inx:-inx+nframes] - data[-inx:-inx+nframes]) > tolerance):
+                        failed = -inx
+                        break
+                assert_true(failed < 0, 'frame slice access backward with negative indices failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+    os.remove(filename)
+    am.enable_module()
+
+
+def test_multiple():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 20.0)
+    tolerance = 2.0**(-15)
+    ntests = 100
+    for lib in am.installed_modules('fileio'):
+        if lib == 'scipy.io.wavfile':
+            continue
+        print('')
+        print('multiple indices access for module %s' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=2)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=0) as data:
+            for time in [0.1, 1.5, 2.0, 5.5, 8.0, 20.0]:
+                nframes = int(time*data.samplerate)
+                if nframes > 0.9*len(data):
+                    nframes = len(data)
+                for n in [1, 2, 4, 8, 16]:     # number of indices
+                    offs = 0
+                    if len(data) > nframes:
+                        offs = np.random.randint(len(data)-nframes)
+                    failed = -1
+                    for k in range(ntests):
+                        inx = np.random.randint(0, nframes, n) + offs
+                        if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
+                            failed = 1
+                            break
+                    assert_equal(failed, -1, ('multiple random frame access failed with %s module at indices ' % lib) + str(inx))
     os.remove(filename)
     am.enable_module()
 
