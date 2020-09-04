@@ -161,8 +161,6 @@ def test_multiple():
     for lib in am.installed_modules('fileio'):
         if lib == 'scipy.io.wavfile':
             continue
-        if lib == 'audioread':   # not working yet!
-            continue
         print('')
         print('multiple indices access for module %s' % lib)
         am.select_module(lib)
@@ -172,7 +170,7 @@ def test_multiple():
                 nframes = int(time*data.samplerate)
                 if nframes > 0.9*len(data):
                     nframes = len(data)
-                for n in [1, 2, 4, 8, 16, 32]:     # number of indices
+                for n in [1, 2, 4, 8, 16]:     # number of indices
                     offs = 0
                     if len(data) > nframes:
                         offs = np.random.randint(len(data)-nframes)

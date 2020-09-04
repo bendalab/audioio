@@ -1200,8 +1200,6 @@ class AudioLoader(object):
         r_size: int
            Number of frames to be read from file.
         """
-        #print('BUFFERS IN')
-        #print('BUFFERS IN', self.offset+len(self.buffer), self.offset+r_size,)
         if ( self.read_offset + self.read_buffer.shape[0] >= r_offset + r_size
              and self.read_offset < r_offset + r_size ):
             # read_buffer overlaps at the end of the requested interval:
@@ -1215,9 +1213,7 @@ class AudioLoader(object):
                 print('  recycle %6d frames from the front of the read buffer at %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset+n, self.read_offset-self.offset, self.read_offset-self.offset+n))
             r_size -= n
-            #print('BUFFERS OVERLAP', n, r_size)
             if r_size <= 0:
-                #print('BUFFERS OVERLAP RETURN', self.offset, self.offset+len(self.buffer), r_offset, r_offset+r_size+n)
                 return
         # go back to beginning of file:
         if r_offset < self.read_offset:
@@ -1228,7 +1224,6 @@ class AudioLoader(object):
             self.sf_iter = self.sf.__iter__()
             self.read_buffer = np.zeros((0,0))
             self.read_offset = 0
-            #print('BUFFERS OUT REWIND')
         # read to position:
         while self.read_offset + self.read_buffer.shape[0] < r_offset:
             self.read_offset += self.read_buffer.shape[0]
@@ -1238,7 +1233,6 @@ class AudioLoader(object):
                 else:
                     buffer = next(self.sf_iter)
             except StopIteration:
-                #print('STOPITERATION 1')
                 self.read_buffer = np.zeros((0,0))
                 self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
@@ -1250,17 +1244,17 @@ class AudioLoader(object):
         # recycle file data:
         if ( self.read_offset + self.read_buffer.shape[0] > r_offset
              and self.read_offset <= r_offset ):
+            i = r_offset - self.read_offset
             n = self.read_offset + self.read_buffer.shape[0] - r_offset
             if n > r_size:
                 n = r_size
-            self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[-n:,:] / (2.0**15-1.0)
+            self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
             if self.verbose > 2:
                 print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
                           r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
             r_offset += n
             r_size -= n
-            #print('BUFFERS OUT RECYCLE', self.offset, len(self.buffer), r_offset, r_size, self.read_offset, self.read_buffer.shape[0])
         # read data:
         if self.verbose > 2 and r_size > 0:
             print('  read    %6d frames at %d-%d (%d-%d in buffer)'
@@ -1273,7 +1267,6 @@ class AudioLoader(object):
                 else:
                     buffer = next(self.sf_iter)
             except StopIteration:
-                #print('STOPITERATION 2')
                 self.read_buffer = np.zeros((0,0))
                 self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
@@ -1290,12 +1283,9 @@ class AudioLoader(object):
                           % (n, r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
                 r_offset += n
                 r_size -= n
-            #print('BUFFERS OUT READ')
         if self.verbose > 1:
             print('  loaded  %d frames at %d-%d'
                   % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
-        #print('BUFFERS OUT 2', self.offset+len(self.buffer), self.offset+r_size)
-        #print('BUFFERS OUT DONE')
 
                                 
     def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
