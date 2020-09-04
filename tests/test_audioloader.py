@@ -34,6 +34,10 @@ def test_single_frame():
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             assert_false(np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with %s module' % lib)
             assert_false(np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with %s module' % lib)
+            def access_end(n):
+                x = data[len(data)+n]
+            for n in range(10):
+                assert_raises(IndexError, access_end, n)
             failed = -1
             for inx in np.random.randint(-len(data), len(data), ntests):
                 if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
@@ -58,6 +62,10 @@ def test_slice():
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
+            for n in range(5):
+                assert_false(np.any(np.abs(data[:n]-full_data[:n]) > tolerance), 'zero slice up to %d does not match' % n)
+            for n in range(1, 5):
+                assert_false(np.any(np.abs(data[:50:n]-full_data[:50:n]) > tolerance), 'step slice with step=%d does not match' % n)
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
                 nframes = int(time*data.samplerate)
                 failed = -1
@@ -227,6 +235,17 @@ def test_audio_files():
     am.enable_module()
 
 
+def test_iter():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 1.0)
+    full_data, rate = al.load_audio(filename)
+    tolerance = 2.0**(-15)
+    with al.AudioLoader(filename, 0.2) as data:
+        for k, x in enumerate(data):
+            assert_false(np.any(np.abs(x-full_data[k]) > tolerance), 'iteration %d does not match' % k)
+
+        
 def test_blocks():
     am.enable_module()
     filename = 'test.wav'
@@ -236,7 +255,7 @@ def test_blocks():
     for n in [5000, len(full_data)+100]:
         read_data = []
         with al.AudioLoader(filename) as data:
-            for x in al.blocks(data, 5000, 10):
+            for x in al.blocks(data, n, 10):
                 read_data.append(x[:-10].copy())
         read_data = np.vstack(read_data)
         assert_equal(full_data.shape[0]-10, read_data.shape[0], 'len of blocked data differ from input data')
