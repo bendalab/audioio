@@ -1200,7 +1200,9 @@ class AudioLoader(object):
     def _load_buffer_audioread(self, offset, r_offset, r_size):
         """Load new data from file using the wave module.
 
-        audioread can only iterate through a file once.
+        audioread can only iterate through a file once and in blocksizes that are
+        given by audioread. Therefore we keep yet another buffer: `self.read_buffer`
+        at file offset `self.read_offset` containing whatever audioread returned.
 
         Parameters
         ----------
@@ -1213,12 +1215,17 @@ class AudioLoader(object):
         """
         if ( self.read_offset + self.read_buffer.shape[0] >= r_offset + r_size
              and self.read_offset < r_offset + r_size ):
+            # read_buffer overlaps at the end of the requested interval:
             n = r_offset + r_size - self.read_offset
+            if n > r_size:
+                n = r_size
             self.buffer[self.read_offset-offset:self.read_offset-offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
             if self.verbose > 1:
                 print('  recycle %6d frames from the front of the read buffer to %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset+n, self.read_offset-offset, self.read_offset-offset+n))
             r_size -= n
+            if r_size <= 0:
+                return
         # go back to beginning of file:
         if r_offset < self.read_offset:
             if self.verbose > 1:
@@ -1251,7 +1258,6 @@ class AudioLoader(object):
             n = self.read_offset + self.read_buffer.shape[0] - r_offset
             if n > r_size:
                 n = r_size
-            print('*', offset, r_offset, r_size, n, self.buffer.shape, self.read_buffer.shape)
             self.buffer[r_offset - offset:r_offset - offset + n,:] = self.read_buffer[-n:,:] / (2.0**15-1.0)
             if self.verbose > 1:
                 print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
