@@ -767,7 +767,7 @@ class AudioLoader(object):
                 if offset < 0:
                     offset = 0
                     size = self.frames - offset
-        if self.verbose > 1:
+        if self.verbose > 2:
             print('  request %6d frames at %d-%d' % (size, offset, offset+size))
         return offset, size
 
@@ -811,7 +811,7 @@ class AudioLoader(object):
             self.buffer[:n,:] = buffer
             r_offset += n
             r_size -= n
-            if self.verbose > 1:
+            if self.verbose > 2:
                 print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the front at %d-%d (%d-%d in buffer)'
                        % (n, self.offset+m-i, self.offset+m-i+n, m, offset, offset+n, 0, n))
         elif ( offset + size > self.offset and
@@ -822,7 +822,7 @@ class AudioLoader(object):
             allocate_buffer(size)
             self.buffer[-n:,:] = buffer
             r_size -= n
-            if self.verbose > 1:
+            if self.verbose > 2:
                 print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the end at %d-%d (%d-%d in buffer)'
                        % (n, self.offset, self.offset+n, m, offset+size-n, offset+size, size-n, size))
         else:
@@ -853,7 +853,7 @@ class AudioLoader(object):
             The wave module is not installed
         """
         self.verbose = verbose
-        if self.verbose > 1:
+        if self.verbose > 0:
             print('open_wave(filepath) with filepath=%s' % filepath)
         if not audio_modules['wave']:
             self.samplerate = 0.0
@@ -912,10 +912,7 @@ class AudioLoader(object):
         else:
             self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor
         if self.verbose > 1:
-            print('  read %6d frames at %d' % (r_size, r_offset))
-        if self.verbose > 0:
-            print('  loaded %d frames from %d up to %d'
-                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+            print('  loaded %6d frames at %d' % (r_size, r_offset))
         
 
     # ewave interface:        
@@ -939,7 +936,7 @@ class AudioLoader(object):
             The ewave module is not installed.
         """
         self.verbose = verbose
-        if self.verbose > 1:
+        if self.verbose > 0:
             print('open_ewave(filepath) with filepath=%s' % filepath)
         if not audio_modules['ewave']:
             self.samplerate = 0.0
@@ -984,7 +981,7 @@ class AudioLoader(object):
         if len(buffer.shape) == 1:
             buffer = np.reshape(buffer,(-1, 1))
         self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer
-        if self.verbose > 0:
+        if self.verbose > 1:
             print('  loaded %d frames from %d up to %d'
                   % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
 
@@ -1010,7 +1007,7 @@ class AudioLoader(object):
             The SoundFile module is not installed
         """
         self.verbose = verbose
-        if self.verbose > 1:
+        if self.verbose > 0:
             print('open_soundfile(filepath) with filepath=%s' % filepath)
         if not audio_modules['soundfile']:
             self.samplerate = 0.0
@@ -1056,7 +1053,7 @@ class AudioLoader(object):
         """
         self.sf.seek(r_offset, soundfile.SEEK_SET)
         self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = self.sf.read(r_size, always_2d=True)
-        if self.verbose > 0:
+        if self.verbose > 1:
             print('  loaded %d frames from %d up to %d'
                   % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
 
@@ -1082,7 +1079,7 @@ class AudioLoader(object):
             The wavefile module is not installed
         """
         self.verbose = verbose
-        if self.verbose > 1:
+        if self.verbose > 0:
             print('open_wavefile(filepath) with filepath=%s' % filepath)
         if not audio_modules['wavefile']:
             self.samplerate = 0.0
@@ -1126,7 +1123,7 @@ class AudioLoader(object):
         buffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
         self.sf.read(buffer)
         self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer.T
-        if self.verbose > 0:
+        if self.verbose > 1:
             print('  loaded %d frames from %d up to %d'
                   % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
 
@@ -1155,7 +1152,7 @@ class AudioLoader(object):
             The audioread module is not installed
         """
         self.verbose = verbose
-        if self.verbose > 1:
+        if self.verbose > 0:
             print('open_audio_read(filepath) with filepath=%s' % filepath)
         if not audio_modules['audioread']:
             self.samplerate = 0.0
@@ -1203,30 +1200,35 @@ class AudioLoader(object):
         r_size: int
            Number of frames to be read from file.
         """
-        print('BUFFERS IN', self.offset+len(self.buffer), self.offset+r_size,)
+        #print('BUFFERS IN')
+        #print('BUFFERS IN', self.offset+len(self.buffer), self.offset+r_size,)
         if ( self.read_offset + self.read_buffer.shape[0] >= r_offset + r_size
              and self.read_offset < r_offset + r_size ):
             # read_buffer overlaps at the end of the requested interval:
+            i = 0
             n = r_offset + r_size - self.read_offset
             if n > r_size:
+                i += n - r_size
                 n = r_size
-            self.buffer[self.read_offset-self.offset:self.read_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
-            if self.verbose > 1:
-                print('  recycle %6d frames from the front of the read buffer to %d-%d (%d-%d in buffer)'
+            self.buffer[self.read_offset+i-self.offset:self.read_offset+i-self.offset+n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            if self.verbose > 2:
+                print('  recycle %6d frames from the front of the read buffer at %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset+n, self.read_offset-self.offset, self.read_offset-self.offset+n))
             r_size -= n
+            #print('BUFFERS OVERLAP', n, r_size)
             if r_size <= 0:
-                print('BUFFERS OUT 1', self.offset+len(self.buffer), self.offset+r_size)
+                #print('BUFFERS OVERLAP RETURN', self.offset, self.offset+len(self.buffer), r_offset, r_offset+r_size+n)
                 return
         # go back to beginning of file:
         if r_offset < self.read_offset:
-            if self.verbose > 1:
+            if self.verbose > 2:
                 print('  rewind')
             self._close_audioread()
             self.sf = audioread.audio_open(self.filepath)
             self.sf_iter = self.sf.__iter__()
             self.read_buffer = np.zeros((0,0))
             self.read_offset = 0
+            #print('BUFFERS OUT REWIND')
         # read to position:
         while self.read_offset + self.read_buffer.shape[0] < r_offset:
             self.read_offset += self.read_buffer.shape[0]
@@ -1236,6 +1238,7 @@ class AudioLoader(object):
                 else:
                     buffer = next(self.sf_iter)
             except StopIteration:
+                #print('STOPITERATION 1')
                 self.read_buffer = np.zeros((0,0))
                 self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
@@ -1251,14 +1254,15 @@ class AudioLoader(object):
             if n > r_size:
                 n = r_size
             self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[-n:,:] / (2.0**15-1.0)
-            if self.verbose > 1:
+            if self.verbose > 2:
                 print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
                           r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
             r_offset += n
             r_size -= n
+            #print('BUFFERS OUT RECYCLE', self.offset, len(self.buffer), r_offset, r_size, self.read_offset, self.read_buffer.shape[0])
         # read data:
-        if self.verbose > 1 and r_size > 0:
+        if self.verbose > 2 and r_size > 0:
             print('  read    %6d frames at %d-%d (%d-%d in buffer)'
                    % (r_size, r_offset, r_offset+r_size, r_offset-self.offset, r_offset+r_size-self.offset))
         while r_size > 0:
@@ -1269,6 +1273,7 @@ class AudioLoader(object):
                 else:
                     buffer = next(self.sf_iter)
             except StopIteration:
+                #print('STOPITERATION 2')
                 self.read_buffer = np.zeros((0,0))
                 self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
@@ -1279,16 +1284,18 @@ class AudioLoader(object):
             if n > r_size:
                 n = r_size
             if n > 0:
-                self.buffer[r_offset-self.offset:r_offset+n-self.offset,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
+                self.buffer[r_offset-self.offset:r_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
                 if self.verbose > 2:
                     print('    read  %6d frames to %d-%d (%d-%d in buffer)'
                           % (n, r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
                 r_offset += n
                 r_size -= n
-        if self.verbose > 0:
+            #print('BUFFERS OUT READ')
+        if self.verbose > 1:
             print('  loaded  %d frames at %d-%d'
                   % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
-        print('BUFFERS OUT 2', self.offset+len(self.buffer), self.offset+r_size)
+        #print('BUFFERS OUT 2', self.offset+len(self.buffer), self.offset+r_size)
+        #print('BUFFERS OUT DONE')
 
                                 
     def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
@@ -1344,7 +1351,7 @@ class AudioLoader(object):
                 not_installed.append(lib)
                 continue
             try:
-                open_file(filepath, buffersize, backsize, verbose)
+                open_file(filepath, buffersize, backsize, verbose-1)
                 if self.frames > 0:
                     success = True
                     if verbose > 0:
