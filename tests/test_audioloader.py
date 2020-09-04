@@ -161,7 +161,7 @@ def test_multiple():
     for lib in am.installed_modules('fileio'):
         if lib == 'scipy.io.wavfile':
             continue
-        if lib != 'audioread':   # not working yet!
+        if lib == 'audioread':   # not working yet!
             continue
         print('')
         print('multiple indices access for module %s' % lib)
