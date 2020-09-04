@@ -20,16 +20,16 @@ for further instructions.
 
 ## Feaures
 
-- Audio data are always numpy arrays of floats with values ranging between -1 and 1 ...
+- Audio data are always *numpy arrays of floats* with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
 - Simple `load_audio()` function for loading a whole audio file.
-- Support for blockwise random-access loading of large audio files (`class AudioLoader`).
+- Support for *blockwise random-access* loading of large audio files (`class AudioLoader`).
 - `blocks()` generator for iterating over blocks of data with optional overlap.
 - Simple `write_audio()` function for writing data to an audio file. 
 - Platform independent playback of numpy arrays (`play()`).
-- Support of synchronous (blocking) and asynchronous (non blocking) playback.
-- Automatic resampling of data for playback to match supported sampling rates.
-- Detailed and platform specific installation instructions for audio packages.
+- Support of *synchronous* (blocking) and *asynchronous* (non blocking) playback.
+- *Automatic resampling* of data for playback to match supported sampling rates.
+- Detailed and *platform specific installation instructions* for audio packages.
 """
 
 setup(
