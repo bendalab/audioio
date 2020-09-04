@@ -695,9 +695,6 @@ class AudioLoader(object):
             stop = max(index)
             self._update_buffer(start, stop+1)
             newindex = [inx-self.offset for inx in index]
-            for inx in newindex:
-                if inx >= len(self.buffer):
-                    print('INDEX TO LARGE', inx, len(self.buffer), self.offset, len(self), stop+1, self.offset+inx, self.offset+len(self.buffer), start, stop)
         else:
             if index > self.frames:
                 raise IndexError

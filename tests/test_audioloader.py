@@ -30,8 +30,8 @@ def test_single_frame():
         print('')
         print('check single frame access for module %s ...' % lib)
         am.select_module(lib)
-        full_data, rate = al.load_audio(filename, verbose=2)
-        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             assert_false(np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with %s module' % lib)
             assert_false(np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with %s module' % lib)
             failed = -1
@@ -56,8 +56,8 @@ def test_slice():
         print('')
         print('random frame slice access for module %s' % lib)
         am.select_module(lib)
-        full_data, rate = al.load_audio(filename, verbose=2)
-        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
                 nframes = int(time*data.samplerate)
                 failed = -1
@@ -82,8 +82,8 @@ def test_forward():
         print('')
         print('forward slice access for module %s' % lib)
         am.select_module(lib)
-        full_data, rate = al.load_audio(filename, verbose=2)
-        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
                 nframes = int(time*data.samplerate)
                 step = int(len(data)/nsteps)
@@ -109,8 +109,8 @@ def test_backward():
         print('')
         print('backward slice access for module %s' % lib)
         am.select_module(lib)
-        full_data, rate = al.load_audio(filename, verbose=2)
-        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
                 nframes = int(time*data.samplerate)
                 step = int(len(data)/nsteps)
@@ -137,8 +137,8 @@ def test_negative():
         print('')
         print('negative slice access for module %s' % lib)
         am.select_module(lib)
-        full_data, rate = al.load_audio(filename, verbose=2)
-        with al.AudioLoader(filename, 5.0, 2.0, verbose=3) as data:
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
                 nframes = int(time*data.samplerate)
                 step = int(len(data)/nsteps)
@@ -164,8 +164,8 @@ def test_multiple():
         print('')
         print('multiple indices access for module %s' % lib)
         am.select_module(lib)
-        full_data, rate = al.load_audio(filename, verbose=2)
-        with al.AudioLoader(filename, 5.0, 2.0, verbose=0) as data:
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0, 20.0]:
                 nframes = int(time*data.samplerate)
                 if nframes > 0.9*len(data):
@@ -197,7 +197,7 @@ def test_modules():
         print(lib)
         am.disable_module(lib)
         assert_raises(ImportError, load_file, filename)
-        data = al.AudioLoader(verbose=2)
+        data = al.AudioLoader(verbose=4)
         load_funcs = {
             'soundfile': data.open_soundfile,
             'wavefile': data.open_wavefile,
