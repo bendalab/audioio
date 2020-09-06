@@ -267,6 +267,14 @@ def test_blocks():
         assert_equal(full_data.shape[0]-10, read_data.shape[0], 'len of blocked data differ from input data')
         assert_equal(full_data.shape[1], read_data.shape[1], 'columns of blocked data differ from input data')
         assert_false(np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed')
+        read_data = []
+        with al.AudioLoader(filename) as data:
+            for x in data.blocks(n, 10):
+                read_data.append(x[:-10].copy())
+        read_data = np.vstack(read_data)
+        assert_equal(full_data.shape[0]-10, read_data.shape[0], 'len of blocked data differ from input data')
+        assert_equal(full_data.shape[1], read_data.shape[1], 'columns of blocked data differ from input data')
+        assert_false(np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed')
 
     def wrong_blocks(data):
         for x in al.blocks(data, 10, 20):

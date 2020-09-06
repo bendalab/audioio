@@ -94,7 +94,7 @@ Even simpler, iterate in blocks over the file with overlap:
 from scipy.signal import spectrogram
 nfft = 2048
 with aio.AudioLoader('some/audio.wav') as data:
-    for x in aio.blocks(data, 100*nfft, nfft//2):
+    for x in data.blocks(100*nfft, nfft//2):
         f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
 ```
 

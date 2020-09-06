@@ -534,7 +534,7 @@ class AudioLoader(object):
     from scipy.signal import spectrogram
     nfft = 2048
     with aio.AudioLoader('some/audio.wav') as data:
-        for x in aio.blocks(data, 100*nfft, nfft//2):
+        for x in data.blocks(100*nfft, nfft//2):
             f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
     ```
 
@@ -589,6 +589,10 @@ class AudioLoader(object):
         Open an audio file by trying available audio modules.
     open_*()
         Open an audio file with the respective audio module.
+    __getitem__
+        Access data of the audio file.
+    blocks()
+        Generator for blockwise processing of AudioLoader data.
     close()
         Close the file.
 
@@ -656,6 +660,7 @@ class AudioLoader(object):
         return self.__next__()
 
     def __getitem__(self, key):
+        """Access data of the audio file."""
         if type(key) is tuple:
             index = key[0]
         else:
@@ -703,6 +708,40 @@ class AudioLoader(object):
             return self.buffer[newkey]
         else:
             return self.buffer[newindex]
+
+    def blocks(self, block_size, noverlap=0):
+        """Generator for blockwise processing of AudioLoader data.
+
+        Parameters
+        ----------
+        block_size: int
+            Len of data blocks to be returned.
+        noverlap: int
+            Number of indices successive data points should overlap.
+
+        Yields
+        ------
+        data: array
+            Successive slices of the data managed by AudioLoader.
+
+        Raises
+        ------
+        ValueError
+            `noverlap` larger or equal to `block_size`.
+
+        Examples
+        --------
+        Use it for processing long audio data, like computing a spectrogram with overlap:
+        ```
+        from scipy.signal import spectrogram
+        from audioio import AudioLoader, blocks
+        nfft = 2048
+        with AudioLoader('some/audio.wav') as data:
+            for x in data.blocks(100*nfft, nfft//2):
+                f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+        ```
+        """
+        return blocks(self, block_size, noverlap)
 
     def _init_buffer(self):
         """Allocate a buffer of size zero."""
