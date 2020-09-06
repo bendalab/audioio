@@ -72,8 +72,8 @@ There is no need to install additional audio packages.
 For instructions on specific packages, run `audiomodules` with the name of
 the package supplied as argument:
 
-```
-audiomodules soundfile
+```sh
+> audiomodules soundfile
 ```
 This produces something like this:
 ```text
@@ -664,14 +664,14 @@ def main(args=None):
     > python -m audioio.auidomodules
     ```
     or, when the audioio package is installed on your system, simply run
-    ```
+    ```sh
     > audiomodules
     ```
     for an overview of audio packages, their installation status, and recommendations on
     how to install further audio packages.
 
     The '--help' argument prints out a help message:
-    ```
+    ```sh
     > audiomodules --help
     ```
 
