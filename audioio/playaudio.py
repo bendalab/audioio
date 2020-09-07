@@ -229,10 +229,6 @@ class PlayAudio(object):
     """
     
     def __init__(self, verbose=0):
-        """Initialize module for playing audio.
-
-        See `PlayAudio` documentation for details.
-        """
         self.verbose = verbose
         self.handle = None
         self._do_play = self._play

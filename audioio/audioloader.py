@@ -608,12 +608,6 @@ class AudioLoader(object):
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
-        """Initialize the AudioLoader instance.
-
-        If filepath is not None open the file.
-
-        See documentation of the class for more information.
-        """
         self.sf = None
         self.samplerate = 0.0
         self.channels = 0
