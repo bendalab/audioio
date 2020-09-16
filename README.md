@@ -1,9 +1,9 @@
 [![PyPI license](https://img.shields.io/pypi/l/audioio.svg)](https://pypi.python.org/pypi/audioio/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/audioio.svg)](https://pypi.python.org/pypi/audioio/)
+<!-- [![PyPI pyversions](https://img.shields.io/pypi/pyversions/audioio.svg)](https://pypi.python.org/pypi/audioio/) -->
 [![Build Status](https://travis-ci.com/bendalab/audioio.svg?branch=master)](https://travis-ci.com/bendalab/audioio)
 [![codecov](https://codecov.io/gh/bendalab/audioio/branch/master/graph/badge.svg)](https://codecov.io/gh/bendalab/audioio)
 [![PyPI version](https://badge.fury.io/py/audioio.svg)](https://badge.fury.io/py/audioio)
-[![PyPI download total](https://img.shields.io/pypi/dt/audioio.svg)](https://pypi.python.org/pypi/audioio/)
+<!-- [![PyPI download total](https://img.shields.io/pypi/dt/audioio.svg)](https://pypi.python.org/pypi/audioio/) see https://github.com/Naereen/badges#pypi-downloads -->
 
 # AudioIO 
 
