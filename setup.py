@@ -42,7 +42,7 @@ setup(
     long_description_content_type = "text/markdown",
     url = "https://github.com/bendalab/audioio",
     classifiers = [
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
