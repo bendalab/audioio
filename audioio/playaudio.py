@@ -421,6 +421,8 @@ class PlayAudio(object):
             self.max_channels = info['maxOutputChannels']
             self.default_rate = info['defaultSampleRate']
             self.device_index = info['index']
+            self.handle.is_format_supported(48000, output_device=self.device_index,
+                                            output_channels=1, output_format=pyaudio.paInt16)
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
