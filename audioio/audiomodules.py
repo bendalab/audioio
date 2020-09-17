@@ -128,6 +128,11 @@ audio_pip_packages = {}
 """ Dictionary with pip package names of the audio modules.
 Keys are the module names, values are pip package names. """
 
+audio_conda_packages = {}
+""" Dictionary with conda package names of the audio modules.
+Keys are the module names, values are conda package names,
+optionally with a channel specification. """
+
 audio_deb_packages = {}
 """ Dictionary with Linux DEB packages of the audio modules.
 Keys are the module names, values are the package names. """
@@ -171,6 +176,7 @@ try:
 except ImportError:
     audio_modules['ewave'] = False
 audio_pip_packages['ewave'] = 'ewave'
+audio_conda_packages['ewave'] = '-c auto ewave'
 audio_infos['ewave'] = """The ewave package supports more types of WAV-files than the standard wave module.
 For documentation see https://github.com/melizalab/py-ewave"""
 
@@ -182,6 +188,7 @@ try:
 except ImportError:
     audio_modules['scipy.io.wavfile'] = False
 audio_pip_packages['scipy.io.wavfile'] = 'scipy'
+audio_conda_packages['scipy.io.wavfile'] = 'scipy'
 audio_deb_packages['scipy.io.wavfile'] = 'python3-scipy'
 audio_rpm_packages['scipy.io.wavfile'] = 'python3-scipy'
 audio_infos['scipy.io.wavfile'] = """The scipy package provides very basic functions for reading WAV files.
@@ -195,6 +202,7 @@ try:
 except ImportError:
     audio_modules['soundfile'] = False
 audio_pip_packages['soundfile'] = 'SoundFile'
+audio_conda_packages['soundfile'] = '-c conda-forge pysoundfile'
 audio_deb_packages['soundfile'] = 'python3-soundfile'
 audio_required_deb_packages['soundfile'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
 audio_required_rpm_packages['soundfile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
@@ -226,6 +234,7 @@ try:
 except ImportError:
     audio_modules['audioread'] = False
 audio_pip_packages['audioread'] = 'audioread'
+audio_conda_packages['audioread'] = '-c conda-forge audioread'
 audio_deb_packages['audioread'] = 'python3-audioread'
 audio_rpm_packages['audioread'] = 'python3-audioread'
 audio_required_deb_packages['audioread'] = ['libav-tools']
@@ -241,6 +250,7 @@ try:
 except ImportError:
     audio_modules['pyaudio'] = False
 audio_pip_packages['pyaudio'] = 'PyAudio'
+audio_conda_packages['pyaudio'] = 'pyaudio'
 audio_deb_packages['pyaudio'] = 'python3-pyaudio'
 audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
 audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
@@ -263,6 +273,7 @@ try:
 except ImportError:
     audio_modules['sounddevice'] = False
 audio_pip_packages['sounddevice'] = 'sounddevice'
+audio_conda_packages['sounddevice'] = '-c conda-forge python-sounddevice'
 audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'portaudio19-dev', 'python3-cffi']
 audio_required_rpm_packages['sounddevice'] = ['libportaudio', 'portaudio-devel', 'python3-cffi']
 audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
