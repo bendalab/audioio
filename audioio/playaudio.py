@@ -591,6 +591,9 @@ class PlayAudio(object):
             info = sounddevice.query_devices(self.device_index)
             self.max_channels = info['max_output_channels']
             self.default_rate = info['default_samplerate']
+            sounddevice.check_output_settings(device=self.device_index,
+                                              channels=1, dtype=np.int16,
+                                              samplerate=48000)
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
