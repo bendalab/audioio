@@ -82,7 +82,7 @@ Installation instructions for the soundfile module:
 ---------------------------------------------------
 The soundfile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
-See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
+See http://pysoundfile.readthedocs.org for a documentation of the soundfile python wrapper
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
 
 First, install the following packages:
@@ -100,7 +100,7 @@ sudo apt-get install python3-soundfile
 """
 
 import sys
-from os.path import exists
+import os
 from .version import __version__, __year__
 
 
@@ -117,11 +117,13 @@ audio_infos = {}
 Keys are the module names, values are the informations. """
 
 audio_instructions_linux = {}
-""" Dictionary with installation instructions for windows.
+""" Dictionary with general installation instructions for linux that
+are needed in addition to installing some packages.
 Keys are the module names, values are the instructions. """
 
 audio_instructions_windows = {}
-""" Dictionary with installation instructions for windows.
+""" Dictionary with general installation instructions for windows that
+are needed in addition to installing some packages.
 Keys are the module names, values are the instructions. """
 
 audio_pip_packages = {}
@@ -208,7 +210,7 @@ audio_required_deb_packages['soundfile'] = ['libsndfile1', 'libsndfile1-dev', 'l
 audio_required_rpm_packages['soundfile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
 audio_infos['soundfile'] = """The soundfile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
-See http://pysoundfile.readthedocs.org for a documentation of the soundfile package
+See http://pysoundfile.readthedocs.org for a documentation of the soundfile python wrapper
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
 audio_fileio.append('wavefile')
@@ -223,7 +225,7 @@ audio_required_deb_packages['wavefile'] = ['libsndfile1', 'libsndfile1-dev', 'li
 audio_required_rpm_packages['wavefile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
 audio_infos['wavefile'] = """The wavefile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
-See https://github.com/vokimon/python-wavefile for documentation of the wavefile package
+See https://github.com/vokimon/python-wavefile for documentation of the wavefile python wrapper
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
         
 audio_fileio.append('audioread')
@@ -615,9 +617,11 @@ def installation_instruction(module):
     install_pip_win = "pip install"
     install_pip = install_pip_deb
 
+    install_conda = "conda install"
+
     # check operating system:
     if sys.platform[0:5] == "linux":
-        if exists('/etc/redhat-release') or exists('/etc/fedora-release'):
+        if os.path.exists('/etc/redhat-release') or os.path.exists('/etc/fedora-release'):
             install_package = install_package_rpm
             install_pip = install_pip_rpm
             package = audio_rpm_packages.get(module, None)
@@ -634,6 +638,11 @@ def installation_instruction(module):
         install_package = ''
         install_pip = install_pip_win
         instruction = audio_instructions_windows.get(module, None)
+    # check conda:
+    conda = "CONDA_DEFAULT_ENV" in os.environ
+    conda_package = audio_conda_packages.get(module, None)
+    if conda:
+        install_pip = install_pip.replace('sudo ', '')
 
     pip_package = audio_pip_packages.get(module, None)
         
@@ -651,14 +660,19 @@ def installation_instruction(module):
     dist_inst = None
     if package is not None:
         if pip_inst is None:
-            dist_inst = 'Install module from your distributions package:\n\n%s %s' % (install_package, package)
+            dist_inst = 'Install module from your distribution\'s package:\n\n%s %s' % (install_package, package)
         else:
             dist_inst = 'or alternatively from your distribution\'s package:\n\n%s %s' % (install_package, package)
+
+    conda_inst = None
+    if conda and conda_package is not None:
+        conda_inst = 'Install the %s module with conda:\n\n%s %s' % (module, install_conda, conda_package)
+        req_inst = pip_inst = dist_inst = instruction = None
 
     info = audio_infos.get(module, None)
 
     msg = ''
-    for s in [info, req_inst, pip_inst, dist_inst, instruction]:
+    for s in [info, conda_inst, req_inst, pip_inst, dist_inst, instruction]:
         if s is not None:
             if len(msg) > 0:
                 msg += '\n\n'
