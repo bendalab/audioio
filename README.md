@@ -192,3 +192,7 @@ For playing sounds:
 - [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA on Linux, runs well on windows.
 - [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): playback via the outdated OSS interface of the python standard library.
 - [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio playback of the python standard library, asynchronous playback only with wave files.
+
+Other intersting audio packages that might be included into AudioIO soon:
+
+- [Pydub](https://github.com/jiaaro/pydub): nice mp3 support, playback via simlpeaudio or pyaudio.
