@@ -249,9 +249,9 @@ audio_pip_packages['audioread'] = 'audioread'
 audio_conda_packages['audioread'] = '-c conda-forge audioread'
 audio_deb_packages['audioread'] = 'python3-audioread'
 audio_rpm_packages['audioread'] = 'python3-audioread'
-audio_required_deb_packages['audioread'] = ['libav-tools']
-audio_required_rpm_packages['audioread'] = ['ffmpeg', 'ffmpeg-devel']
-audio_required_brew_packages['audioread'] = ['libav', 'ffmpeg']
+audio_required_deb_packages['audioread'] = ['libav-tools', 'libavcodec-extra']
+audio_required_rpm_packages['audioread'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
+audio_required_brew_packages['audioread'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
 audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
 For documentation see https://github.com/beetbox/audioread"""
         
@@ -623,6 +623,7 @@ def installation_instruction(module):
     install_package = None
     package = None
     required_packages = None
+    multiline = False
     instruction = None
         
     install_pip_deb = "sudo pip install"
@@ -650,6 +651,7 @@ def installation_instruction(module):
         install_pip = install_pip_osx
         package = audio_brew_packages.get(module, None)
         required_packages = audio_required_brew_packages.get(module, None)
+        multiline = True
     elif sys.platform[0:3] == "win":
         install_package = ''
         install_pip = install_pip_win
@@ -664,10 +666,14 @@ def installation_instruction(module):
         
     req_inst = None
     if required_packages is not None:
-        if pip_package is None and package is None:
-            req_inst = 'Install the following packages:\n\n%s %s' % (install_package, ' '.join(required_packages))
+        if multiline:
+            ps = '\n'.join([install_package + ' ' + p for p in required_packages])
         else:
-            req_inst = 'First, install the following packages:\n\n%s %s' % (install_package, ' '.join(required_packages))
+            ps = install_package + ' ' + ' '.join(required_packages)
+        if pip_package is None and package is None:
+            req_inst = 'Install the following packages:\n\n' + ps
+        else:
+            req_inst = 'First, install the following packages:\n\n' + ps
     
     pip_inst = None
     if pip_package is not None:
