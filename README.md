@@ -29,7 +29,7 @@ provide own code for decoding files and accessing audio hardware.
 - Platform independent playback of numpy arrays (`play()`).
 - Support of *synchronous* (blocking) and *asynchronous* (non blocking) playback.
 - *Automatic resampling* of data for playback to match supported sampling rates.
-- Detailed and *platform specific installation instructions* for audio packages.
+- Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux, homebrew for MacOS) for all supported audio packages.
 
 
 ## Installation

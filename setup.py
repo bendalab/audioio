@@ -29,7 +29,7 @@ for further instructions.
 - Platform independent playback of numpy arrays (`play()`).
 - Support of *synchronous* (blocking) and *asynchronous* (non blocking) playback.
 - *Automatic resampling* of data for playback to match supported sampling rates.
-- Detailed and *platform specific installation instructions* for audio packages.
+- Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux, homebrew for MacOS) for all supported audio packages.
 """
 
 setup(
@@ -41,6 +41,7 @@ setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     url = "https://github.com/bendalab/audioio",
+    license = "GPLv3",
     classifiers = [
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
@@ -49,7 +50,13 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python",
         "Operating System :: OS Independent",
-    ],
+        "Topic :: Multimedia :: Sound/Audio",
+        "Topic :: Multimedia :: Sound/Audio :: Analysis",
+        "Topic :: Multimedia :: Sound/Audio :: Conversion",
+        "Topic :: Multimedia :: Sound/Audio :: Editors",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        ],
     packages = find_packages(exclude = ['contrib', 'docs', 'tests*']),
     entry_points = {
         'console_scripts': [
