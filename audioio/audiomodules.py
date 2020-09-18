@@ -255,6 +255,23 @@ audio_required_brew_packages['audioread'] = ['libav --with-libvorbis --with-sdl 
 audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
 For documentation see https://github.com/beetbox/audioread"""
         
+audio_fileio.append('pydub')
+try:
+    import pydub
+    audio_modules['pydub'] = True
+    audio_installed.append('pydub')
+except ImportError:
+    audio_modules['pydub'] = False
+audio_pip_packages['pydub'] = 'pydub'
+audio_conda_packages['pydub'] = '-c conda-forge pydub'
+audio_deb_packages['pydub'] = 'python3-pydub'
+audio_rpm_packages['pydub'] = 'python3-pydub'
+audio_required_deb_packages['pydub'] = ['libav-tools', 'libavcodec-extra']
+audio_required_rpm_packages['pydub'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
+audio_required_brew_packages['pydub'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
+audio_infos['pydub'] = """The pydub package uses libav/ffmpeg to make mp3 files readable.
+For documentation see https://github.com/jiaaro/pydub"""
+        
 audio_device.append('pyaudio')
 try:
     import pyaudio
