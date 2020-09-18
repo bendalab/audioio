@@ -143,6 +143,10 @@ audio_rpm_packages = {}
 """ Dictionary with Linux RPM packages of the audio modules.
 Keys are the module names, values are the package names. """
 
+audio_brew_packages = {}
+""" Dictionary with macOS homebrew packages of the audio modules.
+Keys are the module names, values are the package (formulae) names. """
+
 audio_required_deb_packages = {}
 """ Dictionary with Linux DEB packages required for the audio modules.
 Keys are the module names, values are lists of string with package names. """
@@ -150,6 +154,10 @@ Keys are the module names, values are lists of string with package names. """
 audio_required_rpm_packages = {}
 """ Dictionary with Linux RPM packages required for the audio modules.
 Keys are the module names, values are lists of string with package names. """
+
+audio_required_brew_packages = {}
+""" Dictionary with macOS homebrew packages required for the audio modules.
+Keys are the module names, values are lists of string with package (formulae) names. """
 
 audio_fileio = []
 """ List of audio modules used for reading and writing audio files. """
@@ -193,6 +201,7 @@ audio_pip_packages['scipy.io.wavfile'] = 'scipy'
 audio_conda_packages['scipy.io.wavfile'] = 'scipy'
 audio_deb_packages['scipy.io.wavfile'] = 'python3-scipy'
 audio_rpm_packages['scipy.io.wavfile'] = 'python3-scipy'
+audio_brew_packages['scipy.io.wavfile'] = 'scipy'
 audio_infos['scipy.io.wavfile'] = """The scipy package provides very basic functions for reading WAV files.
 For documentation see http://docs.scipy.org/doc/scipy/reference/io.html"""
 
@@ -223,6 +232,7 @@ except ImportError:
 audio_pip_packages['wavefile'] = 'wavefile'
 audio_required_deb_packages['wavefile'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
 audio_required_rpm_packages['wavefile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
+audio_required_brew_packages['wavefile'] = ['libsndfile', 'libffi']
 audio_infos['wavefile'] = """The wavefile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
 See https://github.com/vokimon/python-wavefile for documentation of the wavefile python wrapper
@@ -241,6 +251,7 @@ audio_deb_packages['audioread'] = 'python3-audioread'
 audio_rpm_packages['audioread'] = 'python3-audioread'
 audio_required_deb_packages['audioread'] = ['libav-tools']
 audio_required_rpm_packages['audioread'] = ['ffmpeg', 'ffmpeg-devel']
+audio_required_brew_packages['audioread'] = ['libav', 'ffmpeg']
 audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
 For documentation see https://github.com/beetbox/audioread"""
         
@@ -257,6 +268,7 @@ audio_deb_packages['pyaudio'] = 'python3-pyaudio'
 audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
 audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
 audio_required_rpm_packages['pyaudio'] = ['libportaudio', 'portaudio-devel']
+audio_required_brew_packages['pyaudio'] = ['portaudio']
 audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library (http://www.portaudio.com).
 For documentation see https://people.csail.mit.edu/hubert/pyaudio"""
 audio_instructions_windows['pyaudio'] = """Download an appropriate (latest version, 32 or 64 bit) wheel from
@@ -278,6 +290,7 @@ audio_pip_packages['sounddevice'] = 'sounddevice'
 audio_conda_packages['sounddevice'] = '-c conda-forge python-sounddevice'
 audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'portaudio19-dev', 'python3-cffi']
 audio_required_rpm_packages['sounddevice'] = ['libportaudio', 'portaudio-devel', 'python3-cffi']
+audio_required_brew_packages['sounddevice'] = ['portaudio']
 audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
 If you have trouble with pyaudio, try this as an alternative.
 For documentation see https://python-sounddevice.readthedocs.io"""
@@ -606,6 +619,7 @@ def installation_instruction(module):
     """
     install_package_deb = "sudo apt-get install"
     install_package_rpm = "dnf install"
+    install_package_brew = "brew install"
     install_package = None
     package = None
     required_packages = None
@@ -632,8 +646,10 @@ def installation_instruction(module):
             required_packages = audio_required_deb_packages.get(module, None)
         instruction = audio_instructions_linux.get(module, None)
     elif sys.platform == "darwin":
-        install_package = ''
+        install_package = install_package_brew
         install_pip = install_pip_osx
+        package = audio_brew_packages.get(module, None)
+        required_packages = audio_required_brew_packages.get(module, None)
     elif sys.platform[0:3] == "win":
         install_package = ''
         install_pip = install_pip_win
