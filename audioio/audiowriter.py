@@ -4,6 +4,7 @@ Writing numpy arrays of floats to audio files.
 - `write_audio()`: write audio data to file.
 - `available_formats()`: audio file formats supported by any of the installed audio modules.
 - `available_encodings()`: encodings of an audio file format supported by any of the installed audio modules.
+- `format_from_extension()`: deduce audio file format from file extension.
 
 The data to be written are 1-D or 2-D numpy arrays of floats ranging between -1 and 1
 with first axis time and second axis channel.
@@ -17,9 +18,40 @@ For a demo, run the script as:
 python -m audioio.audiowriter
 ```
 """
- 
+
+import os
+import array
 import numpy as np
 from .audiomodules import *
+
+
+def format_from_extension(filepath):
+    """Deduce audio file format from file extension.
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the audio file.
+
+    Returns
+    -------
+    format: string
+        Audio format deduced from file extension.
+    """
+    if not filepath:
+        return None
+    ext = os.path.splitext(filepath)[1]
+    if not ext:
+        return None
+    if ext[0] == '.':
+        ext = ext[1:]
+    if not ext:
+        return None
+    ext = ext.upper()
+    if ext == 'WAVE':
+        return 'WAV'
+    ext = ext.replace('MPEG' , 'MP')
+    return ext
 
 
 def formats_wave():
@@ -91,6 +123,8 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['wave']:
         raise ImportError
 
+    if not format:
+        format = format_from_extension(filepath)
     if format and format.upper() != 'WAV':
         raise ValueError('file format %s not supported by wave module' % format)
 
@@ -198,6 +232,8 @@ def write_ewave(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['ewave']:
         raise ImportError
 
+    if not format:
+        format = format_from_extension(filepath)
     if format and format.upper() != 'WAV' and format.upper() != 'WAVEX':
         raise ValueError('file format %s not supported by ewave module' % format)
 
@@ -292,6 +328,8 @@ def write_wavfile(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
 
+    if not format:
+        format = format_from_extension(filepath)
     if format and format.upper() != 'WAV':
         raise ValueError('file format %s not supported by scipy.io.wavfile module' % format)
 
@@ -388,6 +426,8 @@ def write_soundfile(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['soundfile']:
         raise ImportError
 
+    if not format:
+        format = format_from_extension(filepath)
     if format is not None:
         if len(format) == 0:
             format = None
@@ -483,11 +523,8 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     if not audio_modules['wavefile']:
         raise ImportError
 
-    if format is None:
-        format = ''
-    if len(format) == 0:
-        format = filepath.split('.')[-1]
-        # TODO: we need a mapping from file extensions to formats and default encoding!
+    if not format:
+        format = format_from_extension(filepath)
     format = format.upper()
     try:
         format_value = getattr(wavefile.Format, format)
@@ -516,6 +553,101 @@ def write_wavefile(filepath, data, samplerate, format=None, encoding=None):
     with wavefile.WaveWriter(filepath, channels=channels, samplerate=int(samplerate),
                              format=format_value|encoding_value) as w:
         w.write(data.T)
+
+
+def formats_pydub():
+    """Audio file formats supported by the Pydub module.
+
+    Returns
+    -------
+    formats: list of strings
+        List of supported file formats as strings.
+    """
+    if not audio_modules['pydub']:
+        return []
+    else:
+        return ['WAV']
+
+
+def encodings_pydub(format):
+    """Encodings of an audio file format supported by the Pydub module.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of strings
+        List of supported encodings as strings.
+    """
+    if not audio_modules['pydub']:
+        return []
+    elif format.upper() != 'WAV':
+        return []
+    else:
+        return ['PCM_32', 'PCM_16', 'PCM_U8']
+
+
+def write_pydub(filepath, data, samplerate, format=None, encoding=None):
+    """Write audio data using the Pydub module.
+    
+    Documentation
+    -------------
+    https://github.com/jiaaro/pydub
+
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    format: string or None
+        File format, everything ffmpeg or avtools are supporting.
+    encoding: string or None
+        Encoding of the data.
+        If None or empty string use 'PCM_16'.
+
+    Raises
+    ------
+    ImportError
+        The Pydub module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
+    """
+    if not audio_modules['pydub']:
+        raise ImportError
+
+    if not format:
+        format = format_from_extension(filepath)
+        
+    #if format and format.upper() != 'WAV':
+    #    raise ValueError('file format %s not supported by Pydub module' % format)
+
+    #pydub_encodings = {'PCM_32': [4, 'i4'],
+    #                  'PCM_16': [2, 'i2'],
+    #                  'PCM_U8': [1, 'u1'] }
+    #if encoding is None:
+    #    encoding = ''
+    #if len(encoding) == 0:
+    #    encoding = 'PCM_16'
+    #encoding = encoding.upper()
+    #if not encoding in pydub_encodings:
+    #    raise ValueError('file encoding %s not supported by Pydub module' % encoding)
+    channels = 1
+    if len(data.shape) > 1:
+        channels = data.shape[1]
+    print(len(data))
+    data = array.array('l', (np.ravel(data)*(2**31-1)).astype(np.int32))
+    print(len(data))
+    sound = pydub.AudioSegment(data, sample_width=4, frame_rate=2*samplerate, channels=channels)
+    sound.export(filepath) # , format=format, codec=encoding)
 
 
 audio_formats_funcs = (
@@ -588,7 +720,8 @@ audio_writer_funcs = (
     ('wavefile', write_wavefile),
     ('wave', write_wave),
     ('ewave', write_ewave),
-    ('scipy.io.wavfile', write_wavfile)
+    ('scipy.io.wavfile', write_wavfile),
+    ('pydub', write_pydub)
     )
 """ List of implemented write functions.
 
@@ -673,11 +806,13 @@ def demo(file_path, encoding=''):
     encoding: string
         Encoding to be used.
     """
-    print('')
     print('generate data ...')
     samplerate = 44100.0
-    t = np.arange(0.0, 2.0, 1.0/samplerate)
-    data = np.sin(2.0*np.pi*880.0*t)
+    channels = 2
+    t = np.arange(0.0, 1.0, 1.0/samplerate)
+    data = np.zeros((len(t), channels))
+    for c in range(channels):
+        data[:,c] = np.sin(2.0*np.pi*(440.0+c*8.0)*t)
         
     print("write_audio(%s) ..." % file_path)
     write_audio(file_path, data, samplerate, encoding=encoding, verbose=2)
@@ -693,8 +828,6 @@ def main(args):
     args: list of strings
         Command line arguments as provided by sys.argv
     """
-    print("Checking audiowriter module ...")
-
     help = False
     file_path = None
     encoding = ''

@@ -269,7 +269,7 @@ audio_rpm_packages['pydub'] = 'python3-pydub'
 audio_required_deb_packages['pydub'] = ['libav-tools', 'libavcodec-extra']
 audio_required_rpm_packages['pydub'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
 audio_required_brew_packages['pydub'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
-audio_infos['pydub'] = """The pydub package uses libav/ffmpeg to make mp3 files readable.
+audio_infos['pydub'] = """The pydub package uses libav/ffmpeg to make mp3 files readable and writeable.
 For documentation see https://github.com/jiaaro/pydub"""
         
 audio_device.append('pyaudio')
