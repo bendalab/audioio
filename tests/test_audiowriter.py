@@ -82,7 +82,7 @@ def test_write_read():
 
         # write, read, and check:
         for lib in am.installed_modules('fileio'):
-            if lib == 'audioread':
+            if lib in ['audioread', 'pydub']:
                 continue
             print('')
             print('%s module:' % lib)
@@ -117,7 +117,7 @@ def test_dimensions():
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread':
+        if lib in ['audioread', 'pydub']:
             continue
         print('%s module...' % lib)
         am.select_module(lib)
@@ -134,7 +134,7 @@ def test_dimensions():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread':
+        if lib in ['audioread', 'pydub']:
             continue
         print('%s module...' % lib)
         am.select_module(lib)
@@ -152,7 +152,7 @@ def test_dimensions():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 2))
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread':
+        if lib in ['audioread', 'pydub']:
             continue
         print('%s module...' % lib)
         am.select_module(lib)

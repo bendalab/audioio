@@ -668,7 +668,6 @@ def write_pydub(filepath, data, samplerate, format=None, encoding=None):
     int_data = (data*(2**31-1)).astype(np.int32)
     sound = pydub.AudioSegment(int_data.ravel(), sample_width=4,
                                frame_rate=samplerate, channels=channels)
-    print(filepath, format, encoding)
     sound.export(filepath, format=format.lower(), codec=encoding)
 
 
