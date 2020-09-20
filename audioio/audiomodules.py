@@ -252,7 +252,8 @@ audio_rpm_packages['audioread'] = 'python3-audioread'
 audio_required_deb_packages['audioread'] = ['libav-tools', 'libavcodec-extra']
 audio_required_rpm_packages['audioread'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
 audio_required_brew_packages['audioread'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
-audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mp3 files readable.
+audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mpeg files readable.
+Install this package for reading mpeg files.
 For documentation see https://github.com/beetbox/audioread"""
         
 audio_fileio.append('pydub')
@@ -269,7 +270,8 @@ audio_rpm_packages['pydub'] = 'python3-pydub'
 audio_required_deb_packages['pydub'] = ['libav-tools', 'libavcodec-extra']
 audio_required_rpm_packages['pydub'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
 audio_required_brew_packages['pydub'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
-audio_infos['pydub'] = """The pydub package uses libav/ffmpeg to make mp3 files readable and writeable.
+audio_infos['pydub'] = """The pydub package uses libav/ffmpeg to make mpeg files readable and writeable.
+Install this package if you need to write mpeg files.
 For documentation see https://github.com/jiaaro/pydub"""
         
 audio_device.append('pyaudio')
@@ -588,14 +590,13 @@ def missing_modules(func='all'):
             mods.append('soundfile')
         if 'audioread' not in audio_installed:
             mods.append('audioread')
+        if 'pydub' not in audio_installed:
+            mods.append('pydub')
     if func in ['all', 'device']:
         if 'pyaudio' not in audio_installed and \
            'sounddevice' not in audio_installed and \
            'simpleaudio' not in audio_installed:
-            if sys.platform[0:3] == "win":
-                mods.append('simpleaudio')
-            else:
-                mods.append('sounddevice')
+            mods.append('simpleaudio')
     return mods
 
 
