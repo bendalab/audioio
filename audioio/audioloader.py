@@ -288,6 +288,10 @@ def load_audioread(filepath, verbose=0):
         for buffer in af:
             fulldata = np.frombuffer(buffer, dtype='<i2').reshape(-1, af.channels)
             n = fulldata.shape[0]
+            if index + n > len(data):
+                n = len(fulldata) - index
+            if n <= 0:
+                break
             data[index:index+n,:] = fulldata[:n,:]
             index += n
     return data/(2.0**15-1.0), float(rate)

@@ -595,6 +595,12 @@ def encodings_pydub(format):
     encodings: list of strings
         List of supported encodings as strings.
     """
+    pydub_encodings = {'pcm_s16le': 'PCM_16',
+                       'pcm_s24le': 'PCM_24',
+                       'pcm_s32le': 'PCM_32',
+                       'pcm_f32le': 'FLOAT',
+                       'pcm_f64le': 'DOUBLE',
+                       }    
     if not audio_modules['pydub']:
         return []
     if format.upper() not in formats_pydub():
@@ -613,7 +619,10 @@ def encodings_pydub(format):
                 continue
             cols = line.split()
             if len(cols) > 2 and cols[0][0] == 'A':
-                encodings.append(cols[1].upper())
+                encoding = cols[1]
+                if encoding in pydub_encodings:
+                    encoding = pydub_encodings[encoding]
+                encodings.append(encoding.upper())
     return encodings
 
 def write_pydub(filepath, data, samplerate, format=None, encoding=None):
@@ -654,8 +663,17 @@ def write_pydub(filepath, data, samplerate, format=None, encoding=None):
         format = format_from_extension(filepath)
     if format and format.upper() not in formats_pydub():
         raise ValueError('file format %s not supported by Pydub module' % format)
-    
+
+    pydub_encodings = {'PCM_16': 'pcm_s16le',
+                       'PCM_24': 'pcm_s24le',
+                       'PCM_32': 'pcm_s32le',
+                       'DOUBLE': 'pcm_f32le',
+                       'FLOAT': 'pcm_f64le',
+                       }    
     if encoding:
+        encoding = encoding.upper()
+        if encoding in pydub_encodings:
+            encoding = pydub_encodings[encoding]
         if encoding not in encodings_pydub(format):
             raise ValueError('file encoding %s not supported by Pydub module' % encoding)
         encoding = encoding.lower()

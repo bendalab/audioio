@@ -69,6 +69,8 @@ def test_write_read():
     ## format = 'OGG'
     ## encodings = ['VORBIS']
 
+    mpeg_filename = 'test.mp3'
+
     # fix parameter:
     format = format.upper()
 
@@ -95,6 +97,15 @@ def test_write_read():
                     data_read, samplerate_read = al.load_audio(filename, verbose=2)
                     check(samplerate, data, samplerate_read, data_read, lib, encoding)
 
+        """
+        if 'audioread' in am.installed_modules('fileio') and 'pydub' in am.installed_modules('fileio'):
+            am.select_module('pydub')
+            aw.write_audio(mpeg_filename, data, samplerate)
+            am.select_module('audioread')
+            data_read, samplerate_read = al.load_audio(mpeg_filename, verbose=2)
+            check(samplerate, data, samplerate_read, data_read, 'pydub', '')
+        """ 
+
         am.enable_module()
         print('')
         print('audioio')
@@ -103,9 +114,12 @@ def test_write_read():
             if encoding == '' or encoding in aw.available_encodings(format):
                 print(encoding)
                 aw.write_audio(filename, data, samplerate, format=format, encoding=encoding)
-                data_read, samplerate_read = al.load_audio(filename, verbose=2)
+                data_read, samplerate_read = al.load_audio(filename, verbose=0)
                 check(samplerate, data, samplerate_read, data_read, 'audioio', encoding)
-    os.remove(filename)
+    if os.path.isfile(filename):
+        os.remove(filename)
+    if os.path.isfile(mpeg_filename):
+        os.remove(mpeg_filename)
 
     
 def test_dimensions():
@@ -117,11 +131,14 @@ def test_dimensions():
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'pydub']:
+        if lib == 'audioread' or (lib == 'pydub' and
+                                  'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)
         am.select_module(lib)
         aw.write_audio(filename, data, samplerate)
+        if lib == 'pydub':
+            am.select_module('audioread')
         data_read, samplerate_read = al.load_audio(filename)
         assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
         assert_equal(data_read.shape[1], 1, 'read in data must be a 2-D array with one column')
@@ -134,11 +151,14 @@ def test_dimensions():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'pydub']:
+        if lib == 'audioread' or (lib == 'pydub' and
+                                  'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)
         am.select_module(lib)
         aw.write_audio(filename, data, samplerate)
+        if lib == 'pydub':
+            am.select_module('audioread')
         data_read, samplerate_read = al.load_audio(filename)
         assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
         assert_equal(data_read.shape[1], 1, 'read in data must be a 2-D array with one column')
@@ -152,11 +172,14 @@ def test_dimensions():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 2))
     for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'pydub']:
+        if lib == 'audioread' or (lib == 'pydub' and
+                                  'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)
         am.select_module(lib)
         aw.write_audio(filename, data, samplerate)
+        if lib == 'pydub':
+            am.select_module('audioread')
         data_read, samplerate_read = al.load_audio(filename)
         assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
         assert_equal(data_read.shape[1], 2, 'read in data must be a 2-D array with two columns')
