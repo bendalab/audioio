@@ -205,6 +205,8 @@ def test_demo():
     am.enable_module()
     filename = 'test.wav'
     aw.demo(filename)
+    aw.demo(filename, channels=1)
+    aw.demo(filename, channels=2, encoding='PCM_16')
     os.remove(filename)
 
 
@@ -214,5 +216,6 @@ def test_main():
     aw.main(['prog', '-h'])
     aw.main(['prog', filename])
     aw.main(['prog', '-m', 'wave', filename])
+    aw.main(['prog', '-m', 'wave', '-n', '1', filename])
     aw.main(['prog', '-m', 'wave', filename, 'PCM_16'])
     os.remove(filename)

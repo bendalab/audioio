@@ -643,11 +643,10 @@ def write_pydub(filepath, data, samplerate, format=None, encoding=None):
     channels = 1
     if len(data.shape) > 1:
         channels = data.shape[1]
-    print(len(data))
-    data = array.array('l', (np.ravel(data)*(2**31-1)).astype(np.int32))
-    print(len(data))
-    sound = pydub.AudioSegment(data, sample_width=4, frame_rate=2*samplerate, channels=channels)
-    sound.export(filepath) # , format=format, codec=encoding)
+    int_data = (data*(2**31-1)).astype(np.int32)
+    sound = pydub.AudioSegment(int_data.ravel(), sample_width=4,
+                               frame_rate=samplerate, channels=channels)
+    sound.export(filepath, format=format.lower()) # , codec=encoding)
 
 
 audio_formats_funcs = (
@@ -796,7 +795,7 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
         raise IOError('failed to write data to file "%s"' % filepath)
 
 
-def demo(file_path, encoding=''):
+def demo(file_path, channels=2, encoding=''):
     """Demo of the audiowriter functions.
 
     Parameters
@@ -808,7 +807,6 @@ def demo(file_path, encoding=''):
     """
     print('generate data ...')
     samplerate = 44100.0
-    channels = 2
     t = np.arange(0.0, 1.0, 1.0/samplerate)
     data = np.zeros((len(t), channels))
     for c in range(channels):
@@ -832,15 +830,22 @@ def main(args):
     file_path = None
     encoding = ''
     mod = False
+    nchan = False
+    channels = 2
     for arg in args[1:]:
         if mod:
             select_module(arg)
             mod = False
+        elif nchan:
+            channels = int(arg)
+            nchan = False
         elif arg == '-h':
             help = True
             break
         elif arg == '-m':
             mod = True
+        elif arg == '-n':
+            nchan = True
         elif file_path is None:
             file_path = arg
         else:
@@ -852,10 +857,10 @@ def main(args):
     if help:
         print('')
         print('Usage:')
-        print('  python -m audioio.audiowriter [-m module] [<filename>] [<encoding>]')
+        print('  python -m audioio.audiowriter [-m module] [-n channels] [<filename>] [<encoding>]')
         return
 
-    demo(file_path, encoding)
+    demo(file_path, channels=channels, encoding=encoding)
 
 
 if __name__ == "__main__":
