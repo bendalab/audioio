@@ -20,7 +20,7 @@ python -m audioio.audiowriter
 """
 
 import os
-import array
+import subprocess
 import numpy as np
 from .audiomodules import *
 
@@ -565,9 +565,22 @@ def formats_pydub():
     """
     if not audio_modules['pydub']:
         return []
-    else:
-        return ['WAV']
-
+    formats = []
+    command = [pydub.AudioSegment.converter, '-formats']
+    with open(os.devnull, 'rb') as devnull:
+        p = subprocess.Popen(command, stdin=devnull, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, universal_newlines=True)
+        skip = True
+        for line in p.communicate()[0].split('\n'):
+            if '--' in line[:3]:
+                skip = False
+                continue
+            if skip:
+                continue
+            cols = line.split()
+            if len(cols) > 2 and 'E' in cols[0]:
+                formats.append(cols[1].upper())
+    return formats
 
 def encodings_pydub(format):
     """Encodings of an audio file format supported by the Pydub module.
@@ -584,11 +597,24 @@ def encodings_pydub(format):
     """
     if not audio_modules['pydub']:
         return []
-    elif format.upper() != 'WAV':
+    if format.upper() not in formats_pydub():
         return []
-    else:
-        return ['PCM_32', 'PCM_16', 'PCM_U8']
-
+    encodings = []
+    command = [pydub.AudioSegment.converter, '-encoders']
+    with open(os.devnull, 'rb') as devnull:
+        p = subprocess.Popen(command, stdin=devnull, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, universal_newlines=True)
+        skip = True
+        for line in p.communicate()[0].split('\n'):
+            if '--' in line[:3]:
+                skip = False
+                continue
+            if skip:
+                continue
+            cols = line.split()
+            if len(cols) > 2 and cols[0][0] == 'A':
+                encodings.append(cols[1].upper())
+    return encodings
 
 def write_pydub(filepath, data, samplerate, format=None, encoding=None):
     """Write audio data using the Pydub module.
@@ -626,27 +652,24 @@ def write_pydub(filepath, data, samplerate, format=None, encoding=None):
 
     if not format:
         format = format_from_extension(filepath)
+    if format and format.upper() not in formats_pydub():
+        raise ValueError('file format %s not supported by Pydub module' % format)
+    
+    if encoding:
+        if encoding not in encodings_pydub(format):
+            raise ValueError('file encoding %s not supported by Pydub module' % encoding)
+        encoding = encoding.lower()
+    else:
+        encoding = None
         
-    #if format and format.upper() != 'WAV':
-    #    raise ValueError('file format %s not supported by Pydub module' % format)
-
-    #pydub_encodings = {'PCM_32': [4, 'i4'],
-    #                  'PCM_16': [2, 'i2'],
-    #                  'PCM_U8': [1, 'u1'] }
-    #if encoding is None:
-    #    encoding = ''
-    #if len(encoding) == 0:
-    #    encoding = 'PCM_16'
-    #encoding = encoding.upper()
-    #if not encoding in pydub_encodings:
-    #    raise ValueError('file encoding %s not supported by Pydub module' % encoding)
     channels = 1
     if len(data.shape) > 1:
         channels = data.shape[1]
     int_data = (data*(2**31-1)).astype(np.int32)
     sound = pydub.AudioSegment(int_data.ravel(), sample_width=4,
                                frame_rate=samplerate, channels=channels)
-    sound.export(filepath, format=format.lower()) # , codec=encoding)
+    print(filepath, format, encoding)
+    sound.export(filepath, format=format.lower(), codec=encoding)
 
 
 audio_formats_funcs = (
@@ -654,7 +677,8 @@ audio_formats_funcs = (
     ('wavefile', formats_wavefile),
     ('wave', formats_wave),
     ('ewave', formats_ewave),
-    ('scipy.io.wavfile', formats_wavfile)
+    ('scipy.io.wavfile', formats_wavfile),
+    ('pydub', formats_pydub)
     )
 """ List of implemented formats functions.
 
@@ -681,7 +705,8 @@ audio_encodings_funcs = (
     ('wavefile', encodings_wavefile),
     ('wave', encodings_wave),
     ('ewave', encodings_ewave),
-    ('scipy.io.wavfile', encodings_wavfile)
+    ('scipy.io.wavfile', encodings_wavfile),
+    ('pydub', encodings_pydub)
     )
 """ List of implemented encodings functions.
 
