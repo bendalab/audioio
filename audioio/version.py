@@ -7,7 +7,7 @@ __pdoc__['__version__'] = True
 __pdoc__['__year__'] = True
 
 
-__version__ = '0.9.5'
+__version__ = '0.10.0'
 """ Current version of the audioio package. """
 
 __year__ = '2020'
