@@ -17,6 +17,7 @@ addons:
     - libsndfile1
     - libsndfile1-dev
     - libffi-dev
+    - libav-tools
     - libportaudio2
     - portaudio19-dev
     - osspd
@@ -30,7 +31,7 @@ install:
   - pip install git+https://github.com/melizalab/py-ewave
   - pip install pydub
   - pip install pyaudio
-  - pip install simpleaudio
+  - pip install sounddevice
   - pip install nose nose-cov
   - pip install codecov
   - pip install pdoc3
