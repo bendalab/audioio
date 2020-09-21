@@ -200,6 +200,7 @@ def test_write_read_modules():
     for lib, write_func in aw.audio_writer_funcs:
         if not am.select_module(lib):
             continue
+        assert_raises(ValueError, write_func, '', data, samplerate)
         assert_raises(ValueError, write_func, filename, data, samplerate, format='xxx')
         write_func(filename, data, samplerate, format='')
         os.remove(filename)
@@ -207,6 +208,13 @@ def test_write_read_modules():
         write_func(filename, data, samplerate, encoding='')
         os.remove(filename)
         am.enable_module()
+    assert_raises(ValueError, aw.write_audio, '', data, samplerate)
+    assert_raises(IOError, aw.write_audio, filename, data, samplerate, format='xxx')
+    aw.write_audio(filename, data, samplerate, format='')
+    os.remove(filename)
+    assert_raises(IOError, aw.write_audio, filename, data, samplerate, encoding='xxx')
+    aw.write_audio(filename, data, samplerate, encoding='')
+    os.remove(filename)
     # test for not available modules:
     for lib, write_func in aw.audio_writer_funcs:
         am.disable_module(lib)
@@ -222,6 +230,23 @@ def test_write_read_modules():
         formats = formats_func()
         assert_equal(len(formats), 0, 'no format should be returned for disabled module %s' % lib)
         am.enable_module(lib)
+
+
+def test_extensions():
+    f = aw.format_from_extension(None)
+    assert_true(f is None, 'None filepath')
+    f = aw.format_from_extension('file')
+    assert_true(f is None, 'filepath withouth extension')
+    f = aw.format_from_extension('file.')
+    assert_true(f is None, 'filepath withouth extension')
+    f = aw.format_from_extension('file.wave')
+    assert_equal(f, 'WAV', 'filepath with wave')
+    f = aw.format_from_extension('file.wav')
+    assert_equal(f, 'WAV', 'filepath with wav')
+    f = aw.format_from_extension('file.ogg')
+    assert_equal(f, 'OGG', 'filepath with wav')
+    f = aw.format_from_extension('file.mpeg4')
+    assert_equal(f, 'MP4', 'filepath with wav')
 
 
 def test_demo():
