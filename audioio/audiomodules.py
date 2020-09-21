@@ -252,7 +252,7 @@ audio_rpm_packages['audioread'] = 'python3-audioread'
 audio_required_deb_packages['audioread'] = ['libav-tools', 'libavcodec-extra']
 audio_required_rpm_packages['audioread'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
 audio_required_brew_packages['audioread'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
-audio_infos['audioread'] = """The audioread package uses ffmpeg and friends to make mpeg files readable.
+audio_infos['audioread'] = """The audioread package uses libav (https://libav.org/) or ffmpeg (https://ffmpeg.org/) to make mpeg files readable.
 Install this package for reading mpeg files.
 For documentation see https://github.com/beetbox/audioread"""
         
@@ -270,7 +270,7 @@ audio_rpm_packages['pydub'] = 'python3-pydub'
 audio_required_deb_packages['pydub'] = ['libav-tools', 'libavcodec-extra']
 audio_required_rpm_packages['pydub'] = ['ffmpeg', 'ffmpeg-devel', 'libavcodec-extra']
 audio_required_brew_packages['pydub'] = ['libav --with-libvorbis --with-sdl --with-theora', 'ffmpeg --with-libvorbis --with-sdl2 --with-theora']
-audio_infos['pydub'] = """The pydub package uses libav/ffmpeg to make mpeg files readable and writeable.
+audio_infos['pydub'] = """The pydub package uses libav (https://libav.org/) or ffmpeg (https://ffmpeg.org/) to make mpeg files readable and writeable.
 Install this package if you need to write mpeg files.
 For documentation see https://github.com/jiaaro/pydub"""
         

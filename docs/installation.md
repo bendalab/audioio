@@ -20,11 +20,13 @@ get platform specific installation instructions for this module. E.g.
 
 ## Linux
 
+### Reading and writing audio files
+
 For file I/O you might want to install the
 [sndfile library](http://www.mega-nerd.com/libsndfile/)
 for accessing a wide range of audio file formats.
 
-On debian based systems:
+On Debian based systems:
 ```sh
 sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
 ```
@@ -33,24 +35,32 @@ on rpm based systems:
 dnf install libsndfile libsndfile-devel libffi-devel
 ```
 
-Then you can install one of the many python wrappers for the sndfile
-library, e.g. [SoundFile](http://pysoundfile.readthedocs.org) or [wavefile](https://github.com/vokimon/python-wavefile):
+Then you can install one of the python wrappers for the sndfile
+library, e.g. [SoundFile](http://pysoundfile.readthedocs.org) or
+[wavefile](https://github.com/vokimon/python-wavefile):
 ```sh
 sudo pip install SoundFile
 sudo pip install wavefile
 ```
 
-MP3 and similar formats are supported by the 
-[audioread](https://github.com/beetbox/audioread) module.
-Install ffmpeg and friends with
+### Reading and writing mpeg files
+
+MPEG and similar formats are supported by libav (https://libav.org)
+and ffmpeg (https://ffmpeg.org/) via
+[audioread](https://github.com/beetbox/audioread) for reading
+and [Pydub](https://github.com/jiaaro/pydub) for writing.
+Install them with
 ```
-sudo apt-get install libav-tools python3-audioread
+sudo apt-get install libav-tools python3-audioread python3-pydub
 ```
 on debian based systems and with
 ```
-dnf install ffmpeg ffmpeg-devel python3-audioread
+dnf install ffmpeg ffmpeg-devel python3-audioread python3-pydub
 ```
 on rpm based systems.
+
+
+### Playback
 
 For playing sounds, the [portaudio library](http://www.portaudio.com)
 is the gold standard. Install this library with
