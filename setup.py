@@ -11,16 +11,16 @@ files and devices.
 [Documentation](https://bendalab.github.io/audioio) |
 [API Reference](https://bendalab.github.io/audioio/api)
 
-The AudioIO modules try to use whatever audio modules installed on
-your system to achieve their tasks. The AudioIO package does not
-provide own code for decoding files and accessing audio hardware.
+The AudioIO modules try to use whatever audio packages are installed on
+your system to achieve their tasks. AudioIO itself does not provide own
+code for decoding files and accessing audio hardware.
 
 See [installation](https://bendalab.github.io/audioio/installation)
-for further instructions.
+for further instructions and recommendations on additional audio packages.
 
 ## Feaures
 
-- Audio data are always *numpy arrays of floats* with values ranging between -1 and 1 ...
+- Audio data are always *numpy arrays of floats* (`np.float64`) with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
 - `load_audio()` function for loading a whole audio file.
 - *Blockwise random-access* loading of large audio files (`class AudioLoader`).

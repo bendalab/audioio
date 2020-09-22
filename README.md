@@ -13,14 +13,14 @@ files and devices.
 [Documentation](https://bendalab.github.io/audioio) |
 [API Reference](https://bendalab.github.io/audioio/api)
 
-The AudioIO modules try to use whatever audio modules installed on
-your system to achieve their tasks. The AudioIO package does not
-provide own code for decoding files and accessing audio hardware.
+The AudioIO modules try to use whatever audio packages are installed
+on your system to achieve their tasks. AudioIO itself does not provide
+own code for decoding files and accessing audio hardware.
 
 
 ## Feaures
 
-- Audio data are always *numpy arrays of floats* with values ranging between -1 and 1 ...
+- Audio data are always *numpy arrays of floats* (`np.float64`) with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
 - `load_audio()` function for loading a whole audio file.
 - *Blockwise random-access* loading of large audio files (`class AudioLoader`).
@@ -40,14 +40,15 @@ pip install audioio
 ```
 
 Then you can use already installed audio packages for reading and
-writing audio files and for playing audio data. However, the support
-provided by the python standard library is limited to very basic wave
-files and playback support is very limited. If you need support for
-other audio file formats or for better sound output, you need to
+writing audio files and for playing audio data. However, audio file
+formats supported by the python standard library are limited to basic
+wave files and playback capabilities are poor. If you need support for
+additional audio file formats or proper sound output, you need to
 install additional packages.
 
 See [installation](https://bendalab.github.io/audioio/installation)
-for further instructions on additional audio packages.
+for further instructions and recommendations on additional audio
+packages.
 
 
 ## Usage
@@ -175,7 +176,7 @@ module for details.
 
 All the audio modules AudioIO is using.
 
-For file I/O:
+Reading and writing audio files:
 
 - [wave](https://docs.python.org/3.8/library/wave.html): simple wave file interface of the python standard library.
 - [ewave](https://github.com/melizalab/py-ewave): extended wave files. 
@@ -186,10 +187,16 @@ For file I/O:
 - [Pydub](https://github.com/jiaaro/pydub): mpeg support for reading and writing, playback via simlpeaudio or pyaudio.
 - [scikits.audiolab](http://cournape.github.io/audiolab): seems to be no longer active.
 
-For playing sounds:
+Playing sounds:
 
 - [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com).
 - [PyAudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com).
 - [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA on Linux, runs well on windows.
 - [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): playback via the outdated OSS interface of the python standard library.
 - [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio playback of the python standard library, asynchronous playback only with wave files.
+
+Related audio software:
+
+- [diapason](https://github.com/Soundphy/diapason): musical notes like `playaudio.note2freq`.
+- [librosa](https://librosa.org/): audio and music processing in python.
+- [TimeView](https://github.com/j9ac9k/timeview): GUI application to view and analyze time series signal data.
