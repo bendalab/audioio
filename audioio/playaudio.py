@@ -391,7 +391,7 @@ class PlayAudio(object):
         Installation
         ------------
         ```
-        sudo apt-get install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+        sudo apt install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
         ```
         
         On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
@@ -576,7 +576,7 @@ class PlayAudio(object):
         Installation
         ------------
         ```
-        sudo apt-get install -y libportaudio2 portaudio19-dev
+        sudo apt install -y libportaudio2 portaudio19-dev
         sudo pip install sounddevice
         ```
         """
@@ -837,7 +837,7 @@ class PlayAudio(object):
         The ossaudiodev module needs an oss `/dev/dsp` device file.
         Enable an oss emulation via alsa by installing
         ```
-        sudo apt-get install -y osspd
+        sudo apt install -y osspd
         ```
         """
         if not audio_modules['ossaudiodev']:

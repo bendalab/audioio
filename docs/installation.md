@@ -36,9 +36,9 @@ provides direct support of the native sound systems.
 ## Debian-based Linux
 
 ```sh
-sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
+sudo apt install libsndfile1 libsndfile1-dev libffi-dev
 sudo pip install SoundFile
-sudo apt-get install libav-tools python3-audioread python3-pydub
+sudo apt install libav-tools python3-audioread python3-pydub
 sudo pip install simpleaudio
 ```
 

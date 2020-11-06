@@ -18,7 +18,7 @@ on your system to achieve their tasks. AudioIO itself does not provide
 own code for decoding files and accessing audio hardware.
 
 
-## Feaures
+## Features
 
 - Audio data are always *numpy arrays of floats* (`np.float64`) with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.

@@ -87,7 +87,7 @@ and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
 
 First, install the following packages:
 
-sudo apt-get install libsndfile1 libsndfile1-dev libffi-dev
+sudo apt install libsndfile1 libsndfile1-dev libffi-dev
 
 Install the soundfile module with pip:
 
@@ -95,7 +95,7 @@ sudo pip install SoundFile
 
 or alternatively from your distribution's package:
 
-sudo apt-get install python3-soundfile
+sudo apt install python3-soundfile
 ```
 """
 
@@ -635,7 +635,7 @@ def installation_instruction(module):
     msg: multi-line string
         Installation instruction for the requested module.
     """
-    install_package_deb = "sudo apt-get install"
+    install_package_deb = "sudo apt install"
     install_package_rpm = "dnf install"
     install_package_brew = "brew install"
     install_package = None

@@ -18,7 +18,7 @@ code for decoding files and accessing audio hardware.
 See [installation](https://bendalab.github.io/audioio/installation)
 for further instructions and recommendations on additional audio packages.
 
-## Feaures
+## Features
 
 - Audio data are always *numpy arrays of floats* (`np.float64`) with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
@@ -35,7 +35,7 @@ for further instructions and recommendations on additional audio packages.
 setup(
     name = 'audioio',
     version = __version__,
-    author = 'Jan Benda, Joerg Henninger',
+    author = 'Jan Benda, Jörg Henninger',
     author_email = "jan.benda@uni-tuebingen.de",
     description = "Platform independent interfacing of numpy arrays of floats with audio files and devices.",
     long_description = long_description,
