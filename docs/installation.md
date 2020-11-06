@@ -38,7 +38,7 @@ provides direct support of the native sound systems.
 ```sh
 sudo apt install libsndfile1 libsndfile1-dev libffi-dev
 sudo pip install SoundFile
-sudo apt install libav-tools python3-audioread python3-pydub
+sudo apt install ffmpeg python3-audioread python3-pydub
 sudo pip install simpleaudio
 ```
 

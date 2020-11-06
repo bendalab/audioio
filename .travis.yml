@@ -1,6 +1,6 @@
 os: linux
 
-dist: xenial
+dist: bionic
 
 language: python
 
@@ -17,7 +17,7 @@ addons:
     - libsndfile1
     - libsndfile1-dev
     - libffi-dev
-    - libav-tools
+    - ffmpeg
     - libportaudio2
     - portaudio19-dev
     - osspd
