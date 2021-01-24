@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>audioio.audioconverter API documentation</title>
+<meta name="description" content="Command line script for converting audio files …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audioconverter</code></h1>
+</header>
+<section id="section-intro">
+<p>Command line script for converting audio files.</p>
+<pre><code class="language-sh">audioconverter -o test.wav test.mp3
+</code></pre>
+<p>converts 'test.mp3' to 'test.wav'.</p>
+<p>The script basically reads the files with <code>audioloader.load_audio()</code>
+and writes them with <code>audiowriter.write_audio()</code>. Thus, all formats
+supported by these functions and the installed python audio modules
+are supported. This implies that MP3 files can be read via the
+<a href="https://github.com/beetbox/audioread">audioread</a> module, but they
+cannot be written (use the <code>ffmpeg</code> or <code>avconv</code> tools for that).
+Output file formats are limited to what the
+<a href="http://www.mega-nerd.com/libsndfile/">sndfile library</a> supports
+(this is actually a lot), provided the
+<a href="http://pysoundfile.readthedocs.org">SoundFile</a> or
+<a href="https://github.com/vokimon/python-wavefile">wavefile</a> python
+packages are
+<a href="https://bendalab.github.io/audioio/installation">installed</a>.</p>
+<p>Run</p>
+<pre><code class="language-sh">audioconverter -l
+</code></pre>
+<p>for a list of supported output file formats and</p>
+<pre><code class="language-sh">audioconverter -f wav -l
+</code></pre>
+<p>for a list of supported encodings for a given output format.</p>
+<p>Running</p>
+<pre><code class="language-sh">audioconverter --help
+</code></pre>
+<p>prints</p>
+<pre><code class="language-text">usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING]
+                      [-o OUTPATH]
+                      [file [file ...]]
+
+Convert audio file formats.
+
+positional arguments:
+  file         input audio files
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --version    show program's version number and exit
+  -v           print debug output
+  -l           list supported file formats and encodings
+  -f FORMAT    audio format of output file
+  -e ENCODING  audio encoding of output file
+  -o OUTPATH   path or filename of output file.
+
+version 0.9.4 by Benda-Lab (2020-2020)
+</code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Command line script for converting audio files.
+
+```sh
+audioconverter -o test.wav test.mp3
+```
+converts &#39;test.mp3&#39; to &#39;test.wav&#39;.
+
+The script basically reads the files with `audioloader.load_audio()`
+and writes them with `audiowriter.write_audio()`. Thus, all formats
+supported by these functions and the installed python audio modules
+are supported. This implies that MP3 files can be read via the
+[audioread](https://github.com/beetbox/audioread) module, but they
+cannot be written (use the `ffmpeg` or `avconv` tools for that).
+Output file formats are limited to what the
+[sndfile library](http://www.mega-nerd.com/libsndfile/) supports
+(this is actually a lot), provided the
+[SoundFile](http://pysoundfile.readthedocs.org) or
+[wavefile](https://github.com/vokimon/python-wavefile) python
+packages are
+[installed](https://bendalab.github.io/audioio/installation).
+
+Run
+```sh
+audioconverter -l
+```
+for a list of supported output file formats and
+```sh
+audioconverter -f wav -l
+```
+for a list of supported encodings for a given output format.
+
+Running
+```sh
+audioconverter --help
+```
+prints
+```text
+usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING]
+                      [-o OUTPATH]
+                      [file [file ...]]
+
+Convert audio file formats.
+
+positional arguments:
+  file         input audio files
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --version    show program&#39;s version number and exit
+  -v           print debug output
+  -l           list supported file formats and encodings
+  -f FORMAT    audio format of output file
+  -e ENCODING  audio encoding of output file
+  -o OUTPATH   path or filename of output file.
+
+version 0.9.4 by Benda-Lab (2020-2020)
+```
+&#34;&#34;&#34;
+
+import os
+import sys
+import argparse
+from .version import __version__, __year__
+from .audioloader import load_audio
+from .audiowriter import write_audio, available_formats, available_encodings
+
+
+def check_format(format):
+    &#34;&#34;&#34;
+    Check whether requested audio format is valid and supported.
+
+    If the format is not available print an error message on console.
+
+    Parameters
+    ----------
+    format: string
+        Audio format to be checked.
+
+    Returns
+    -------
+    valid: bool
+        True if the requested audio format is valid.
+    &#34;&#34;&#34;
+    if format and format.upper() not in available_formats():
+        print(&#39;! invalid audio format &#34;%s&#34;!&#39; % format)
+        print(&#39;run&#39;)
+        print(&#39;&gt; %s -l&#39; % __file__ )
+        print(&#39;for a list of available formats&#39;)
+        return False
+    else:
+        return True
+
+
+def main(cargs=None):
+    &#34;&#34;&#34;
+    Command line script for converting audio files.
+
+    Parameters
+    ----------
+    cargs: None or list of strings
+        Alternative command line arguments (without the initial program name).
+    &#34;&#34;&#34;
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description=&#39;Convert audio file formats.&#39;,
+        epilog=&#39;version %s by Benda-Lab (2020-%s)&#39; % (__version__, __year__))
+    parser.add_argument(&#39;--version&#39;, action=&#39;version&#39;, version=__version__)
+    parser.add_argument(&#39;-v&#39;, action=&#39;store_true&#39;, dest=&#39;verbose&#39;,
+                        help=&#39;print debug output&#39;)
+    parser.add_argument(&#39;-l&#39;, dest=&#39;list_formats&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list supported file formats and encodings&#39;)
+    parser.add_argument(&#39;-f&#39;, dest=&#39;audio_format&#39;, default=None, type=str, metavar=&#39;FORMAT&#39;,
+                        help=&#39;audio format of output file&#39;)
+    parser.add_argument(&#39;-e&#39;, dest=&#39;audio_encoding&#39;, default=None, type=str, metavar=&#39;ENCODING&#39;,
+                        help=&#39;audio encoding of output file&#39;)
+    parser.add_argument(&#39;-o&#39;, dest=&#39;outpath&#39;, default=None, type=str,
+                        help=&#39;path or filename of output file.&#39;)
+    parser.add_argument(&#39;file&#39;, nargs=&#39;*&#39;, default=&#39;&#39;, type=str,
+                        help=&#39;input audio files&#39;)
+    args = parser.parse_args(cargs)
+
+    print(args.audio_format)
+    if not check_format(args.audio_format):
+        sys.exit(-1)
+
+    if args.list_formats:
+        if not args.audio_format:
+            print(&#39;available audio formats:&#39;)
+            for f in available_formats():
+                print(&#39;  %s&#39; % f)
+        else:
+            print(&#39;available encodings for audio format %s:&#39; % args.audio_format)
+            for e in available_encodings(args.audio_format):
+                print(&#39;  %s&#39; % e)
+        return
+
+    # convert files:
+    for infile in args.file:
+        # output file:
+        if not args.outpath or os.path.isdir(args.outpath):
+            outfile = infile
+            if args.outpath:
+                outfile = os.path.join(args.outpath, outfile)
+            if not args.audio_format:
+                args.audio_format = &#39;wav&#39;
+            outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
+        else:
+            outfile = args.outpath
+            ext = os.path.splitext(outfile)[1].lstrip(&#39;.&#39;)
+            if args.audio_format:
+                outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
+            elif len(ext) &gt; 0:
+                args.audio_format = ext
+            else:
+                args.audio_format = &#39;wav&#39;
+                outfile = outfile + os.extsep + args.audio_format
+        check_format(args.audio_format)
+        if os.path.realpath(infile) == os.path.realpath(outfile):
+            print(&#39;! cannot convert &#34;%s&#34; to itself !&#39; % infile)
+            if len(args.file) == 1:
+                sys.exit(-1)
+            break
+        # read in audio:
+        data, samplingrate = load_audio(infile)
+        # write out audio:
+        write_audio(outfile, data, samplingrate,
+                    format=args.audio_format, encoding=args.audio_encoding)
+        # message:
+        if args.verbose:
+            print(&#39;converted audio file &#34;%s&#34; to &#34;%s&#34;&#39; % (infile, outfile))
+
+
+if __name__ == &#39;__main__&#39;:
+    main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audioconverter.check_format"><code class="name flex">
+<span>def <span class="ident">check_format</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check whether requested audio format is valid and supported.</p>
+<p>If the format is not available print an error message on console.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>string</code></dt>
+<dd>Audio format to be checked.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>valid</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True if the requested audio format is valid.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_format(format):
+    &#34;&#34;&#34;
+    Check whether requested audio format is valid and supported.
+
+    If the format is not available print an error message on console.
+
+    Parameters
+    ----------
+    format: string
+        Audio format to be checked.
+
+    Returns
+    -------
+    valid: bool
+        True if the requested audio format is valid.
+    &#34;&#34;&#34;
+    if format and format.upper() not in available_formats():
+        print(&#39;! invalid audio format &#34;%s&#34;!&#39; % format)
+        print(&#39;run&#39;)
+        print(&#39;&gt; %s -l&#39; % __file__ )
+        print(&#39;for a list of available formats&#39;)
+        return False
+    else:
+        return True</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioconverter.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>cargs=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Command line script for converting audio files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cargs</code></strong> :&ensp;<code>None</code> or <code>list</code> of <code>strings</code></dt>
+<dd>Alternative command line arguments (without the initial program name).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(cargs=None):
+    &#34;&#34;&#34;
+    Command line script for converting audio files.
+
+    Parameters
+    ----------
+    cargs: None or list of strings
+        Alternative command line arguments (without the initial program name).
+    &#34;&#34;&#34;
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description=&#39;Convert audio file formats.&#39;,
+        epilog=&#39;version %s by Benda-Lab (2020-%s)&#39; % (__version__, __year__))
+    parser.add_argument(&#39;--version&#39;, action=&#39;version&#39;, version=__version__)
+    parser.add_argument(&#39;-v&#39;, action=&#39;store_true&#39;, dest=&#39;verbose&#39;,
+                        help=&#39;print debug output&#39;)
+    parser.add_argument(&#39;-l&#39;, dest=&#39;list_formats&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list supported file formats and encodings&#39;)
+    parser.add_argument(&#39;-f&#39;, dest=&#39;audio_format&#39;, default=None, type=str, metavar=&#39;FORMAT&#39;,
+                        help=&#39;audio format of output file&#39;)
+    parser.add_argument(&#39;-e&#39;, dest=&#39;audio_encoding&#39;, default=None, type=str, metavar=&#39;ENCODING&#39;,
+                        help=&#39;audio encoding of output file&#39;)
+    parser.add_argument(&#39;-o&#39;, dest=&#39;outpath&#39;, default=None, type=str,
+                        help=&#39;path or filename of output file.&#39;)
+    parser.add_argument(&#39;file&#39;, nargs=&#39;*&#39;, default=&#39;&#39;, type=str,
+                        help=&#39;input audio files&#39;)
+    args = parser.parse_args(cargs)
+
+    print(args.audio_format)
+    if not check_format(args.audio_format):
+        sys.exit(-1)
+
+    if args.list_formats:
+        if not args.audio_format:
+            print(&#39;available audio formats:&#39;)
+            for f in available_formats():
+                print(&#39;  %s&#39; % f)
+        else:
+            print(&#39;available encodings for audio format %s:&#39; % args.audio_format)
+            for e in available_encodings(args.audio_format):
+                print(&#39;  %s&#39; % e)
+        return
+
+    # convert files:
+    for infile in args.file:
+        # output file:
+        if not args.outpath or os.path.isdir(args.outpath):
+            outfile = infile
+            if args.outpath:
+                outfile = os.path.join(args.outpath, outfile)
+            if not args.audio_format:
+                args.audio_format = &#39;wav&#39;
+            outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
+        else:
+            outfile = args.outpath
+            ext = os.path.splitext(outfile)[1].lstrip(&#39;.&#39;)
+            if args.audio_format:
+                outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
+            elif len(ext) &gt; 0:
+                args.audio_format = ext
+            else:
+                args.audio_format = &#39;wav&#39;
+                outfile = outfile + os.extsep + args.audio_format
+        check_format(args.audio_format)
+        if os.path.realpath(infile) == os.path.realpath(outfile):
+            print(&#39;! cannot convert &#34;%s&#34; to itself !&#39; % infile)
+            if len(args.file) == 1:
+                sys.exit(-1)
+            break
+        # read in audio:
+        data, samplingrate = load_audio(infile)
+        # write out audio:
+        write_audio(outfile, data, samplingrate,
+                    format=args.audio_format, encoding=args.audio_encoding)
+        # message:
+        if args.verbose:
+            print(&#39;converted audio file &#34;%s&#34; to &#34;%s&#34;&#39; % (infile, outfile))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.audioconverter.check_format" href="#audioio.audioconverter.check_format">check_format</a></code></li>
+<li><code><a title="audioio.audioconverter.main" href="#audioio.audioconverter.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

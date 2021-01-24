@@ -1,0 +1,4113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>audioio.audioloader API documentation</title>
+<meta name="description" content="Loading data from audio files …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audioloader</code></h1>
+</header>
+<section id="section-intro">
+<p>Loading data from audio files.</p>
+<ul>
+<li><code><a title="audioio.audioloader.load_audio" href="#audioio.audioloader.load_audio">load_audio()</a></code> loads a whole audio file at once.</li>
+<li><code><a title="audioio.audioloader.AudioLoader" href="#audioio.audioloader.AudioLoader">AudioLoader</a></code> allow to read data from audio files in chunks.</li>
+<li><code><a title="audioio.audioloader.blocks" href="#audioio.audioloader.blocks">blocks()</a></code>: generator for blockwise processing of array data.</li>
+<li><code><a title="audioio.audioloader.unwrap" href="#audioio.audioloader.unwrap">unwrap()</a></code> unwraps clipped data that are folded into the available data range.</li>
+</ul>
+<p>The read in data are always numpy arrays of floats ranging between -1 and 1.
+The arrays are 2-D arrays with first axis time and second axis channel,
+even for single channel data.</p>
+<p>If an audio file cannot be loaded, you might need to install additional packages.
+See <a href="https://bendalab.github.io/audioio/installation">installation</a>
+for further instructions.</p>
+<p>For a demo run the module as:</p>
+<pre><code>python -m audioio.audioloader audiofile.wav
+</code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Loading data from audio files.
+
+- `load_audio()` loads a whole audio file at once.
+- `AudioLoader` allow to read data from audio files in chunks.
+- `blocks()`: generator for blockwise processing of array data.
+- `unwrap()` unwraps clipped data that are folded into the available data range.
+
+The read in data are always numpy arrays of floats ranging between -1 and 1.
+The arrays are 2-D arrays with first axis time and second axis channel,
+even for single channel data.
+
+If an audio file cannot be loaded, you might need to install additional packages.
+See [installation](https://bendalab.github.io/audioio/installation)
+for further instructions.
+
+For a demo run the module as:
+```
+python -m audioio.audioloader audiofile.wav
+```
+&#34;&#34;&#34;
+ 
+import warnings
+import os.path
+import numpy as np
+from .audiomodules import *
+
+
+def load_wave(filepath, verbose=0):
+    &#34;&#34;&#34;Load wav file using the wave module from pythons standard libray.
+    
+    Documentation
+    -------------
+    https://docs.python.org/3.8/library/wave.html
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+        If 2 print information about soundfile
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The wave module is not installed
+    *
+        Loading of the data failed
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wave&#39;]:
+        raise ImportError
+
+    wf = wave.open(filepath, &#39;r&#39;)   # &#39;with&#39; is not supported by wave
+    (nchannels, sampwidth, rate, nframes, comptype, compname) = wf.getparams()
+    if verbose &gt; 1:
+        # this should be a separate function with the sndheader module and for all audio formats
+        print(&#39;channels       : %d&#39; % nchannels)
+        print(&#39;bytes          : %d&#39; % sampwidth)
+        print(&#39;sampling rate  : %g&#39; % rate)
+        print(&#39;frames         : %d&#39; % nframes)
+        print(&#39;compression type: %s&#39; % comptype)
+        print(&#39;compression name: %s&#39; % compname)
+    buffer = wf.readframes(nframes)
+    factor = 2.0**(sampwidth*8-1)
+    if sampwidth == 1:
+        dtype = &#39;u1&#39;
+        buffer = np.frombuffer(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = buffer.astype(&#39;d&#39;)/factor - 1.0
+    else:
+        dtype = &#39;i%d&#39; % sampwidth
+        buffer = np.frombuffer(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = buffer.astype(&#39;d&#39;)/factor
+    wf.close()
+    return data, float(rate)
+
+    
+def load_ewave(filepath, verbose=0):
+    &#34;&#34;&#34;Load wav file using ewave module.
+
+    Documentation
+    -------------
+    https://github.com/melizalab/py-ewave
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The ewave module is not installed
+    *
+        Loading of the data failed
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;ewave&#39;]:
+        raise ImportError
+
+    data = np.array([])
+    rate = 0.0
+    with ewave.open(filepath, &#39;r&#39;) as wf:
+        rate = wf.sampling_rate
+        buffer = wf.read()
+        data = ewave.rescale(buffer, &#39;float&#39;)
+    if len(data.shape) == 1:
+        data = np.reshape(data,(-1, 1))
+    return data, float(rate)
+
+    
+def load_wavfile(filepath, verbose=0):
+    &#34;&#34;&#34;Load wav file using scipy.io.wavfile.
+
+    Documentation
+    -------------
+    http://docs.scipy.org/doc/scipy/reference/io.html
+    Does not support blocked read.
+    
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The scipy.io module is not installed
+    *
+        Loading of the data failed
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;scipy.io.wavfile&#39;]:
+        raise ImportError
+
+    if verbose &lt; 2:
+        warnings.filterwarnings(&#34;ignore&#34;)
+    rate, data = wavfile.read(filepath)
+    if verbose &lt; 2:
+        warnings.filterwarnings(&#34;always&#34;)
+    if data.dtype == np.uint8:
+        data = data / 128.0 - 1.0
+    elif np.issubdtype(data.dtype, np.signedinteger):
+        data = data / (2.0**(data.dtype.itemsize*8-1))
+    else:
+        data = data.astype(np.float64, copy=False)
+    if len(data.shape) == 1:
+        data = np.reshape(data,(-1, 1))
+    return data, float(rate)
+
+
+def load_soundfile(filepath, verbose=0):
+    &#34;&#34;&#34;Load audio file using SoundFile (based on libsndfile).
+
+    Documentation
+    -------------
+    http://pysoundfile.readthedocs.org
+    http://www.mega-nerd.com/libsndfile
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The soundfile module is not installed.
+    *
+        Loading of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundfile&#39;]:
+        raise ImportError
+
+    data = np.array([])
+    rate = 0.0
+    with soundfile.SoundFile(filepath, &#39;r&#39;) as sf:
+        rate = sf.samplerate
+        data = sf.read(frames=-1, dtype=&#39;float64&#39;, always_2d=True)
+    return data, float(rate)
+
+
+def load_wavefile(filepath, verbose=0):
+    &#34;&#34;&#34;Load audio file using wavefile (based on libsndfile).
+
+    Documentation
+    -------------
+    https://github.com/vokimon/python-wavefile
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The wavefile module is not installed.
+    *
+        Loading of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wavefile&#39;]:
+        raise ImportError
+
+    rate, data = wavefile.load(filepath)
+    return data.astype(np.float64, copy=False).T, float(rate)
+
+
+def load_audioread(filepath, verbose=0):
+    &#34;&#34;&#34;Load audio file using audioread.
+
+    Documentation
+    -------------
+    https://github.com/beetbox/audioread
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The audioread module is not installed.
+    *
+        Loading of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;audioread&#39;]:
+        raise ImportError
+    
+    data = np.array([])
+    rate = 0.0
+    with audioread.audio_open(filepath) as af:
+        rate = af.samplerate
+        data = np.zeros((int(np.ceil(af.samplerate*af.duration)), af.channels),
+                        dtype=&#34;&lt;i2&#34;)
+        index = 0
+        for buffer in af:
+            fulldata = np.frombuffer(buffer, dtype=&#39;&lt;i2&#39;).reshape(-1, af.channels)
+            n = fulldata.shape[0]
+            if index + n &gt; len(data):
+                n = len(fulldata) - index
+            if n &lt;= 0:
+                break
+            data[index:index+n,:] = fulldata[:n,:]
+            index += n
+    return data/(2.0**15-1.0), float(rate)
+
+
+audio_loader_funcs = (
+    (&#39;soundfile&#39;, load_soundfile),
+    (&#39;audioread&#39;, load_audioread),
+    (&#39;wave&#39;, load_wave),
+    (&#39;wavefile&#39;, load_wavefile),
+    (&#39;ewave&#39;, load_ewave),
+    (&#39;scipy.io.wavfile&#39;, load_wavfile)
+    )
+&#34;&#34;&#34;List of implemented load functions.
+
+Each element of the list is a tuple with the module&#39;s name and the load function.
+&#34;&#34;&#34;    
+
+
+def load_audio(filepath, verbose=0):
+    &#34;&#34;&#34;Call this function to load all channels of audio data from a file.
+    
+    This function tries different python modules to load the audio file.
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, even for single channel data.
+        First dimension is time, second is channel.
+        Data values range maximally between -1 and 1.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ValueError
+        Empty `filepath`.
+    FileNotFoundError
+        `filepath` is not an existing file.
+    EOFError
+        File size of `filepath` is zero.
+    IOError
+        Failed to load data.
+
+    Example
+    -------
+    ```
+    import matplotlib.pyplot as plt
+    from audioio import load_audio
+    
+    data, rate = load_audio(&#39;some/audio.wav&#39;)
+    plt.plot(np.arange(len(data))/rate, data[:,0])
+    plt.show()
+    ```
+    &#34;&#34;&#34;
+    # check values:
+    if filepath is None or len(filepath) == 0:
+        raise ValueError(&#39;input argument filepath is empty string!&#39;)
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(&#39;file &#34;%s&#34; not found&#39; % filepath)
+    if os.path.getsize(filepath) &lt;= 0:
+        raise EOFError(&#39;file &#34;%s&#34; is empty (size=0)!&#39; % filepath)
+
+    # load an audio file by trying various modules:
+    success = False
+    not_installed = []
+    for lib, load_file in audio_loader_funcs:
+        if not audio_modules[lib]:
+            if verbose &gt; 1:
+                print(&#39;unable to load data from file &#34;%s&#34; using %s module: module not available&#39; %
+                      (filepath, lib))
+            not_installed.append(lib)
+            continue
+        try:
+            data, rate = load_file(filepath, verbose)
+            if len(data) &gt; 0:
+                success = True
+                if verbose &gt; 0:
+                    print(&#39;loaded data from file &#34;%s&#34; using %s module&#39; %
+                          (filepath, lib))
+                    if verbose &gt; 1:
+                        print(&#39;  sampling rate: %g Hz&#39; % rate)
+                        print(&#39;  channels     : %d&#39; % data.shape[1])
+                        print(&#39;  data values  : %d&#39; % len(data))
+                break
+        except Exception as e:
+            pass
+    if not success:
+        need_install = &#34;&#34;
+        if len(not_installed) &gt; 0:
+            need_install = &#34; You may need to install one of the &#34; + \
+              &#39;, &#39;.join(not_installed) + &#34; packages.&#34;
+        raise IOError(&#39;failed to load data from file &#34;%s&#34;.%s&#39; %
+                      (filepath, need_install))
+    return data, rate
+
+
+def blocks(data, block_size, noverlap=0):
+    &#34;&#34;&#34;Generator for blockwise processing of array data.
+
+    Parameters
+    ----------
+    data: array
+        Data to loop over. First dimension is time.
+    block_size: int
+        Len of data blocks to be returned.
+    noverlap: int
+        Number of indices successive data points should overlap.
+
+    Yields
+    ------
+    data: array
+        Successive slices of the input data.
+
+    Raises
+    ------
+    ValueError
+        `noverlap` larger or equal to `block_size`.
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio import blocks
+    data = np.arange(20)
+    for x in blocks(data, 6, 2):
+        print(x)
+    ```
+    results in
+    ```text
+    [0 1 2 3 4 5]
+    [4 5 6 7 8 9]
+    [ 8  9 10 11 12 13]
+    [12 13 14 15 16 17]
+    [16 17 18 19]
+    ```
+
+    Use it for processing long audio data, like computing a spectrogram with overlap:
+    ```
+    from scipy.signal import spectrogram
+    from audioio import AudioLoader, blocks
+    nfft = 2048
+    with AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in blocks(data, 100*nfft, nfft//2):
+            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+    ```
+    &#34;&#34;&#34;
+    if noverlap &gt;= block_size:
+        raise ValueError(&#39;noverlap=%d larger than block_size=%d&#39; % (noverlap, block_size))
+    m = block_size - noverlap
+    n = (len(data)-noverlap)//m
+    if n == 0:
+        yield data[:]
+    else:
+        for k in range(n):
+            yield data[k*m:k*m+block_size]
+        if len(data) - (k*m+block_size) &gt; 0:
+            yield data[(k+1)*m:]
+
+
+def unwrap(data):
+    &#34;&#34;&#34;Fixes data that exceeded the -1 to 1 range.
+
+    If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
+    they get wrapped around. This functions tries to undo this wrapping.
+    
+    Parameters
+    ----------
+    data: 1D or 2D ndarray
+        Data to be fixed.
+
+    Returns
+    -------
+    data: same as input data
+        The fixed data.
+    &#34;&#34;&#34;
+    if len(data.shape) &gt; 1:
+        for c in range(data.shape[1]):
+            data[:,c] = unwrap(data[:,c])
+    else:
+        for k in range(20):
+            dd = (data[1:] &lt; -0.8) &amp; (np.diff(data) &lt;= -1.0)
+            du = (data[1:] &gt; 0.8) &amp; (np.diff(data) &gt;= 1.0)
+            if np.sum(dd) == 0 and np.sum(du) == 0:
+                break
+            data[1:][dd] += 2.0
+            data[1:][du] -= 2.0
+    return data
+
+
+class AudioLoader(object):
+    &#34;&#34;&#34;Buffered reading of audio data for random access of the data in the file.
+    
+    The class allows for reading very large audio files that do not fit into memory.
+    An AudioLoader instance can be used like a huge read-only numpy array, i.e.
+    ```
+    data = AudioLoader(&#39;path/to/audio/file.wav&#39;)
+    x = data[10000:20000,0]
+    ```
+    The first index specifies the frame, the second one the channel.
+
+    Behind the scenes AudioLoader tries to open the audio file with all available
+    audio modules until it succeeds (first line). It then reads data from the file
+    as necessary for the requested data (second line).
+
+    Reading sequentially through the file is always possible. Some
+    modules, however, (e.g. audioread, needed for mp3 files) can only
+    read forward. If previous data are requested, then the file is read
+    from the beginning. This slows down access to previous data
+    considerably. Use the `backsize` argument of the open function to
+    make sure some data are loaded into the buffer before the requested
+    frame. Then a subsequent access to the data within backsize `seconds`
+    before that frame can still be handled without the need to reread
+    the file from the beginning.
+
+    Usage
+    -----
+    With context management:
+    ```
+    import audioio as aio
+    with aio.AudioLoader(filepath, 60.0, 10.0) as data:
+        # do something with the content of the file:
+        x = data[0:10000]
+        y = data[10000:20000]
+        z = x + y
+    ```
+
+    For using a specific audio module, here the audioread module:
+    ```
+    data = aio.AudioLoader()
+    with data.open_audioread(filepath, 60.0, 10.0):
+        # do something ...
+    ```
+
+    Use `blocks()` for sequential, blockwise reading and processing:
+    ```
+    from scipy.signal import spectrogram
+    nfft = 2048
+    with aio.AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in data.blocks(100*nfft, nfft//2):
+            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+    ```
+
+    For loop iterates over single frames (1-D arrays containing samples for each channel):
+    ```
+    with aio.AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in data:
+            print(x)
+    ```
+    
+    Traditional open and close:
+    ```
+    data = aio.AudioLoader(filepath, 60.0)
+    x = data[:,:]  # read the whole file
+    data.close()
+    ```
+        
+    this is the same as:
+    ```
+    data = aio.AudioLoader()
+    data.open(filepath, 60.0)
+    ...
+    ```
+    
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Attributes
+    ----------
+    samplerate: float
+        The sampling rate of the data in seconds.
+    channels: int
+        The number of channels.
+    frames: int
+        The number of frames in the file.
+    shape: tuple
+        Frames and channels of the data.
+
+    Methods
+    -------
+    len()
+        Number of frames.
+    open()
+        Open an audio file by trying available audio modules.
+    open_*()
+        Open an audio file with the respective audio module.
+    __getitem__
+        Access data of the audio file.
+    blocks()
+        Generator for blockwise processing of AudioLoader data.
+    close()
+        Close the file.
+
+    Notes
+    -----
+    Access via `__getitem__` or `__next__` is slow!
+    Even worse, using numpy functions on this class first converts
+    it to a numpy array - that is something we actually do not want!
+    We should subclass directly from numpy.ndarray .
+    For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+    When subclassing, there is an offset argument, that might help to
+    speed up `__getitem__` .
+    &#34;&#34;&#34;
+    
+    def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
+        self.sf = None
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        self.buffersize = 0
+        self.backsize = 0
+        self.buffer = np.zeros((0,0))
+        self.verbose = verbose
+        self.close = self._close
+        if filepath is not None:
+            self.open(filepath, buffersize, backsize, verbose)
+
+    def _close(self):
+        pass
+
+    def __del__(self):
+        self.close()
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, ex_type, ex_value, tb):
+        self.__del__()
+        return (ex_value is None)
+        
+    def __len__(self):
+        return self.frames
+
+    def __iter__(self):
+        self.iter_counter = -1
+        return self
+
+    def __next__(self):
+        self.iter_counter += 1
+        if self.iter_counter &gt;= self.frames:
+            raise StopIteration
+        else:
+            self._update_buffer(self.iter_counter, self.iter_counter+1)
+            return self.buffer[self.iter_counter-self.offset,:]
+
+    def next(self):  # python 2
+        return self.__next__()
+
+    def __getitem__(self, key):
+        &#34;&#34;&#34;Access data of the audio file.&#34;&#34;&#34;
+        if type(key) is tuple:
+            index = key[0]
+        else:
+            index = key
+        if isinstance(index, slice):
+            start = index.start
+            stop = index.stop
+            step = index.step
+            if start is None:
+                start=0
+            else:
+                start = int(start)
+            if start &lt; 0:
+                start += len(self)
+            if stop is None:
+                stop = len(self)
+            else:
+                stop = int(stop)
+            if stop &lt; 0:
+                stop += len(self)
+            if stop &gt; self.frames:
+                stop = self.frames
+            if step is None:
+                step = 1
+            else:
+                step = int(step)
+            self._update_buffer(start, stop)
+            newindex = slice(start-self.offset, stop-self.offset, step)
+        elif hasattr(index, &#39;__len__&#39;):
+            index = [inx if inx &gt;= 0 else inx+len(self) for inx in index]
+            start = min(index)
+            stop = max(index)
+            self._update_buffer(start, stop+1)
+            newindex = [inx-self.offset for inx in index]
+        else:
+            if index &gt; self.frames:
+                raise IndexError
+            index = int(index)
+            if index &lt; 0:
+                index += len(self)
+            self._update_buffer(index, index+1)
+            newindex = index-self.offset
+        if type(key) is tuple:
+            newkey = (newindex,) + key[1:]
+            return self.buffer[newkey]
+        else:
+            return self.buffer[newindex]
+
+    def blocks(self, block_size, noverlap=0):
+        &#34;&#34;&#34;Generator for blockwise processing of AudioLoader data.
+
+        Parameters
+        ----------
+        block_size: int
+            Len of data blocks to be returned.
+        noverlap: int
+            Number of indices successive data points should overlap.
+
+        Yields
+        ------
+        data: array
+            Successive slices of the data managed by AudioLoader.
+
+        Raises
+        ------
+        ValueError
+            `noverlap` larger or equal to `block_size`.
+
+        Examples
+        --------
+        Use it for processing long audio data, like computing a spectrogram with overlap:
+        ```
+        from scipy.signal import spectrogram
+        from audioio import AudioLoader, blocks
+        nfft = 2048
+        with AudioLoader(&#39;some/audio.wav&#39;) as data:
+            for x in data.blocks(100*nfft, nfft//2):
+                f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+        ```
+        &#34;&#34;&#34;
+        return blocks(self, block_size, noverlap)
+
+    def _init_buffer(self):
+        &#34;&#34;&#34;Allocate a buffer of size zero.&#34;&#34;&#34;
+        self.buffer = np.empty((0, self.channels))
+
+    def _update_buffer(self, start, stop):
+        &#34;&#34;&#34;Make sure that the buffer contains data between start and stop.
+
+        Parameters
+        ----------
+        start: int
+            Index of the first frame for the buffer.
+        stop: int
+            Index of the last frame for the buffer.
+        &#34;&#34;&#34;
+        if start &lt; self.offset or stop &gt; self.offset + self.buffer.shape[0]:
+            offset, size = self._read_indices(start, stop)
+            r_offset, r_size = self._recycle_buffer(offset, size)
+            self.offset = offset
+            # load buffer content from file, this is backend specific:
+            self._load_buffer(r_offset, r_size)
+
+    def _read_indices(self, start, stop):
+        &#34;&#34;&#34;Compute position and size for next read from file.
+
+        This takes buffersize and backsize into account.
+
+        Parameters
+        ----------
+        start: int
+            Index of the first requested frame.
+        stop: int
+            Index of the last requested frame.
+
+        Returns
+        -------
+        offset: int
+           Frame index for the first frame in the buffer.
+        size: int
+           Number of frames the buffer should hold.
+        &#34;&#34;&#34;
+        offset = start
+        size = stop-start
+        if size &lt; self.buffersize:
+            back = self.backsize
+            if self.buffersize - size &lt; back:
+                back = self.buffersize - size
+            offset -= back
+            size = self.buffersize
+            if offset &lt; 0:
+                offset = 0
+            if offset + size &gt; self.frames:
+                offset = self.frames - size
+                if offset &lt; 0:
+                    offset = 0
+                    size = self.frames - offset
+        if self.verbose &gt; 2:
+            print(&#39;  request %6d frames at %d-%d&#39; % (size, offset, offset+size))
+        return offset, size
+
+    def _recycle_buffer(self, offset, size):
+        &#34;&#34;&#34;Recycle buffer contents and return indices for data to be loaded from file.
+
+        Move already existing parts of the buffer to their new position (as
+        returned by _read_indices() ) and return position and size of
+        data chunk that still needs to be loaded from file.
+
+        Parameters
+        ----------
+        offset: int
+           Frame index for the first frame in the buffer.
+        size: int
+           Number of frames the buffer should hold.
+
+        Returns
+        -------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        def allocate_buffer(size):
+            &#34;&#34;&#34;Make sure the buffer has the right size.&#34;&#34;&#34;
+            if size != self.buffer.shape[0]:
+                self.buffer = np.empty((size, self.channels))
+
+        r_offset = offset
+        r_size = size
+        if ( offset &gt;= self.offset and
+             offset &lt; self.offset + self.buffer.shape[0] ):
+            i = self.offset + self.buffer.shape[0] - offset
+            n = i
+            if n &gt; size:
+                n = size
+            m = self.buffer.shape[0]
+            buffer = self.buffer[-i:m-i+n,:]
+            allocate_buffer(size)
+            self.buffer[:n,:] = buffer
+            r_offset += n
+            r_size -= n
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from %d-%d of the old %d-sized buffer to the front at %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.offset+m-i, self.offset+m-i+n, m, offset, offset+n, 0, n))
+        elif ( offset + size &gt; self.offset and
+            offset + size &lt;= self.offset + self.buffer.shape[0] ):
+            n = offset + size - self.offset
+            m = self.buffer.shape[0]
+            buffer = self.buffer[:n,:]
+            allocate_buffer(size)
+            self.buffer[-n:,:] = buffer
+            r_size -= n
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from %d-%d of the old %d-sized buffer to the end at %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.offset, self.offset+n, m, offset+size-n, offset+size, size-n, size))
+        else:
+            allocate_buffer(size)
+        return r_offset, r_size
+
+    
+    # wave interface:        
+    def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the wave module.
+
+        Note: we assume that setpos() and tell() use integer numbers!
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The wave module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_wave(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;wave&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_wave()
+        self.sf = wave.open(filepath, &#39;r&#39;)
+        self.samplerate = float(self.sf.getframerate())
+        sampwidth = self.sf.getsampwidth()
+        if sampwidth == 1:
+            self.dtype = &#39;u1&#39;
+        else:
+            self.dtype = &#39;i%d&#39; % sampwidth
+        self.factor = 1.0/(2.0**(sampwidth*8-1))
+        self.channels = self.sf.getnchannels()
+        self.frames = self.sf.getnframes()
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_wave
+        self._load_buffer = self._load_buffer_wave
+        # read 1 frame to determine the unit of the position values:
+        self.p0 = self.sf.tell()
+        self.sf.readframes(1)
+        self.pfac = self.sf.tell() - self.p0
+        self.sf.setpos(self.p0)
+        return self
+
+    def _close_wave(self):
+        &#34;&#34;&#34;Close the audio file using the wave module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.close()
+            self.sf = None
+
+    def _load_buffer_wave(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        self.sf.setpos(r_offset*self.pfac + self.p0)
+        buffer = self.sf.readframes(r_size)
+        buffer = np.frombuffer(buffer, dtype=self.dtype).reshape((-1, self.channels))
+        if self.dtype[0] == &#39;u&#39;:
+            self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor - 1.0
+        else:
+            self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %6d frames at %d&#39; % (r_size, r_offset))
+        
+
+    # ewave interface:        
+    def open_ewave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the ewave module.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The ewave module is not installed.
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_ewave(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;ewave&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_ewave()
+        self.sf = ewave.open(filepath, &#39;r&#39;)
+        self.samplerate = float(self.sf.sampling_rate)
+        self.channels = self.sf.nchannels
+        self.frames = self.sf.nframes
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_ewave
+        self._load_buffer = self._load_buffer_ewave
+        return self
+
+    def _close_ewave(self):
+        &#34;&#34;&#34;Close the audio file using the ewave module. &#34;&#34;&#34;
+        if self.sf is not None:
+            del self.sf
+            self.sf = None
+
+    def _load_buffer_ewave(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        buffer = self.sf.read(frames=r_size, offset=r_offset, memmap=&#39;r&#39;)
+        buffer = ewave.rescale(buffer, &#39;float&#39;)
+        if len(buffer.shape) == 1:
+            buffer = np.reshape(buffer,(-1, 1))
+        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %d frames from %d up to %d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+            
+    # soundfile interface:        
+    def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the SoundFile module.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The SoundFile module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_soundfile(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;soundfile&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_soundfile()
+        self.sf = soundfile.SoundFile(filepath, &#39;r&#39;)
+        self.samplerate = float(self.sf.samplerate)
+        self.channels = self.sf.channels
+        self.frames = 0
+        if self.sf.seekable():
+            self.frames = self.sf.seek(0, soundfile.SEEK_END)
+            self.sf.seek(0, soundfile.SEEK_SET)
+        # TODO: if not seekable, we cannot handle that file!
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_soundfile
+        self._load_buffer = self._load_buffer_soundfile
+        return self
+
+    def _close_soundfile(self):
+        &#34;&#34;&#34;Close the audio file using the SoundFile module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.close()
+            self.sf = None
+
+    def _load_buffer_soundfile(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        self.sf.seek(r_offset, soundfile.SEEK_SET)
+        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = self.sf.read(r_size, always_2d=True)
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %d frames from %d up to %d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+            
+    # wavefile interface:        
+    def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the wavefile module.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The wavefile module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_wavefile(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;wavefile&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_wavefile()
+        self.sf = wavefile.WaveReader(filepath)
+        self.samplerate = float(self.sf.samplerate)
+        self.channels = self.sf.channels
+        self.frames = self.sf.frames
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_wavefile
+        self._load_buffer = self._load_buffer_wavefile
+        return self
+
+    def _close_wavefile(self):
+        &#34;&#34;&#34;Close the audio file using the wavefile module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.close()
+            self.sf = None
+
+    def _load_buffer_wavefile(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        self.sf.seek(r_offset, wavefile.Seek.SET)
+        buffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
+        self.sf.read(buffer)
+        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer.T
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %d frames from %d up to %d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+            
+    # audioread interface:        
+    def open_audioread(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the audioread module.
+
+        Note, that audioread can only read forward, therefore random and
+        backward access is really slow.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The audioread module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_audio_read(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;audioread&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_audioread()
+        self.sf = audioread.audio_open(filepath)
+        self.samplerate = float(self.sf.samplerate)
+        self.channels = self.sf.channels
+        self.frames = int(np.ceil(self.samplerate*self.sf.duration))
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.read_buffer = np.zeros((0,0))
+        self.read_offset = 0
+        self.close = self._close_audioread
+        self._load_buffer = self._load_buffer_audioread
+        self.filepath = filepath
+        self.sf_iter = self.sf.__iter__()
+        return self
+
+    def _close_audioread(self):
+        &#34;&#34;&#34;Close the audio file using the audioread module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.__exit__(None, None, None)
+            self.sf = None
+
+    def _load_buffer_audioread(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        audioread can only iterate through a file once and in blocksizes that are
+        given by audioread. Therefore we keep yet another buffer: `self.read_buffer`
+        at file offset `self.read_offset` containing whatever audioread returned.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        if ( self.read_offset + self.read_buffer.shape[0] &gt;= r_offset + r_size
+             and self.read_offset &lt; r_offset + r_size ):
+            # read_buffer overlaps at the end of the requested interval:
+            i = 0
+            n = r_offset + r_size - self.read_offset
+            if n &gt; r_size:
+                i += n - r_size
+                n = r_size
+            self.buffer[self.read_offset+i-self.offset:self.read_offset+i-self.offset+n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from the front of the read buffer at %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.read_offset, self.read_offset+n, self.read_offset-self.offset, self.read_offset-self.offset+n))
+            r_size -= n
+            if r_size &lt;= 0:
+                return
+        # go back to beginning of file:
+        if r_offset &lt; self.read_offset:
+            if self.verbose &gt; 2:
+                print(&#39;  rewind&#39;)
+            self._close_audioread()
+            self.sf = audioread.audio_open(self.filepath)
+            self.sf_iter = self.sf.__iter__()
+            self.read_buffer = np.zeros((0,0))
+            self.read_offset = 0
+        # read to position:
+        while self.read_offset + self.read_buffer.shape[0] &lt; r_offset:
+            self.read_offset += self.read_buffer.shape[0]
+            try:
+                if hasattr(self.sf_iter, &#39;next&#39;):
+                    buffer = self.sf_iter.next()
+                else:
+                    buffer = next(self.sf_iter)
+            except StopIteration:
+                self.read_buffer = np.zeros((0,0))
+                self.buffer[r_offset-self.offset:,:] = 0.0
+                if self.verbose &gt; 1:
+                    print(&#39;  caught StopIteration, padded buffer with %d zeros&#39; % r_size)
+                break
+            self.read_buffer = np.frombuffer(buffer, dtype=&#39;&lt;i2&#39;).reshape(-1, self.channels)
+            if self.verbose &gt; 2:
+                print(&#39;  read forward by %d frames&#39; % self.read_buffer.shape[0])
+        # recycle file data:
+        if ( self.read_offset + self.read_buffer.shape[0] &gt; r_offset
+             and self.read_offset &lt;= r_offset ):
+            i = r_offset - self.read_offset
+            n = self.read_offset + self.read_buffer.shape[0] - r_offset
+            if n &gt; r_size:
+                n = r_size
+            self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
+                          r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
+            r_offset += n
+            r_size -= n
+        # read data:
+        if self.verbose &gt; 2 and r_size &gt; 0:
+            print(&#39;  read    %6d frames at %d-%d (%d-%d in buffer)&#39;
+                   % (r_size, r_offset, r_offset+r_size, r_offset-self.offset, r_offset+r_size-self.offset))
+        while r_size &gt; 0:
+            self.read_offset += self.read_buffer.shape[0]
+            try:
+                if hasattr(self.sf_iter, &#39;next&#39;):
+                    buffer = self.sf_iter.next()
+                else:
+                    buffer = next(self.sf_iter)
+            except StopIteration:
+                self.read_buffer = np.zeros((0,0))
+                self.buffer[r_offset-self.offset:,:] = 0.0
+                if self.verbose &gt; 1:
+                    print(&#39;  caught StopIteration, padded buffer with %d zeros&#39; % r_size)
+                break
+            self.read_buffer = np.frombuffer(buffer, dtype=&#39;&lt;i2&#39;).reshape(-1, self.channels)
+            n = self.read_buffer.shape[0]
+            if n &gt; r_size:
+                n = r_size
+            if n &gt; 0:
+                self.buffer[r_offset-self.offset:r_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
+                if self.verbose &gt; 2:
+                    print(&#39;    read  %6d frames to %d-%d (%d-%d in buffer)&#39;
+                          % (n, r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
+                r_offset += n
+                r_size -= n
+        if self.verbose &gt; 1:
+            print(&#39;  loaded  %d frames at %d-%d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+                                
+    def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ValueError
+            Empty `filepath`.
+        FileNotFoundError
+            `filepath` is not an existing file.
+        EOFError
+            File size of `filepath` is zero.
+        IOError
+            Failed to load data.
+        &#34;&#34;&#34;
+        self.buffer = np.array([])
+        self.samplerate = 0.0
+        if len(filepath) == 0:
+            raise ValueError(&#39;input argument filepath is empty string!&#39;)
+        if not os.path.isfile(filepath):
+            raise FileNotFoundError(&#39;file &#34;%s&#34; not found&#39; % filepath)
+        if os.path.getsize(filepath) &lt;= 0:
+            raise EOFError(&#39;file &#34;%s&#34; is empty (size=0)!&#39; % filepath)
+        # list of implemented open functions:
+        audio_open = [
+            [&#39;soundfile&#39;, self.open_soundfile],
+            [&#39;audioread&#39;, self.open_audioread],
+            [&#39;wave&#39;, self.open_wave],
+            [&#39;wavefile&#39;, self.open_wavefile],
+            [&#39;ewave&#39;, self.open_ewave]
+            ]
+        # open an audio file by trying various modules:
+        success = False
+        not_installed = []
+        for lib, open_file in audio_open:
+            if not audio_modules[lib]:
+                if verbose &gt; 1:
+                    print(&#39;failed to load data from file &#34;%s&#34; using %s module&#39; %
+                          (filepath, lib))
+                not_installed.append(lib)
+                continue
+            try:
+                open_file(filepath, buffersize, backsize, verbose-1)
+                if self.frames &gt; 0:
+                    success = True
+                    if verbose &gt; 0:
+                        print(&#39;opened audio file &#34;%s&#34; using %s&#39; % (filepath, lib))
+                        if verbose &gt; 1:
+                            print(&#39;  sampling rate: %g Hz&#39; % self.samplerate)
+                            print(&#39;  data values  : %d&#39; % self.frames)
+                    break
+            except Exception as e:
+                    pass
+        if not success:
+            need_install = &#34;&#34;
+            if len(not_installed) &gt; 0:
+                need_install = &#34; You may need to install one of the &#34; + \
+                  &#39;, &#39;.join(not_installed) + &#34; packages.&#34;
+            raise IOError(&#39;failed to load data from file &#34;%s&#34;.%s&#39; %
+                          (filepath, need_install))
+        return self
+
+    
+def demo(file_path, plot):
+    &#34;&#34;&#34;Demo of the audioloader functions.
+
+    Parameters
+    ----------
+    file_path: string
+        File path of an audio file.
+    plot: bool
+        If True also plot the loaded data.
+    &#34;&#34;&#34;
+    print(&#39;&#39;)
+    print(&#34;try load_audio:&#34;)
+    full_data, rate = load_audio(file_path, 1)
+    if plot:
+        plt.plot(np.arange(len(full_data))/rate, full_data[:,0])
+        plt.show()
+
+    if audio_modules[&#39;soundfile&#39;] and audio_modules[&#39;audioread&#39;]:
+        print(&#39;&#39;)
+        print(&#34;cross check:&#34;)
+        data1, rate1 = load_soundfile(file_path)
+        data2, rate2 = load_audioread(file_path)
+        n = min((len(data1), len(data2)))
+        print(&#34;rms difference is %g&#34; % np.std(data1[:n]-data2[:n]))
+        if plot:
+            plt.plot(np.arange(len(data1))/rate1, data1[:,0])
+            plt.plot(np.arange(len(data2))/rate2, data2[:,0])
+            plt.show()
+    
+    print(&#39;&#39;)
+    print(&#34;try AudioLoader:&#34;)
+    with AudioLoader(file_path, 4.0, 1.0, 1) as data:
+        print(&#39;samplerate: %g&#39; % data.samplerate)
+        print(&#39;channels: %d %d&#39; % (data.channels, data.shape[1]))
+        print(&#39;frames: %d %d&#39; % (len(data), data.shape[0]))
+        nframes = int(1.5*data.samplerate)
+        # check access:
+        print(&#39;check random single frame access&#39;)
+        for inx in np.random.randint(0, len(data), 1000):
+            if np.any(np.abs(full_data[inx] - data[inx]) &gt; 2.0**(-14)):
+                print(&#39;single random frame access failed&#39;, inx, full_data[inx], data[inx])
+        print(&#39;check random frame slice access&#39;)
+        for inx in np.random.randint(0, len(data)-nframes, 1000):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) &gt; 2.0**(-14)):
+                print(&#39;random frame slice access failed&#39;, inx)
+        print(&#39;check frame slice access forward&#39;)
+        for inx in range(0, len(data)-nframes, 10):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) &gt; 2.0**(-14)):
+                print(&#39;frame slice access forward failed&#39;, inx)
+        print(&#39;check frame slice access backward&#39;)
+        for inx in range(len(data)-nframes, 0, -10):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) &gt; 2.0**(-14)):
+                print(&#39;frame slice access backward failed&#39;, inx)
+        # forward:
+        for i in range(0, len(data), nframes):
+            print(&#39;forward %d-%d&#39; % (i, i+nframes))
+            x = data[i:i+nframes,0]
+            if plot:
+                plt.plot((i+np.arange(len(x)))/rate, x)
+                plt.show()
+        # and backwards:
+        for i in reversed(range(0, len(data), nframes)):
+            print(&#39;backward %d-%d&#39; % (i, i+nframes))
+            x = data[i:i+nframes,0]
+            if plot:
+                plt.plot((i+np.arange(len(x)))/rate, x)
+                plt.show()
+
+
+def main(args):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv
+    &#34;&#34;&#34;
+    print(&#34;Checking audioloader module ...&#34;)
+
+    help = False
+    plot = False
+    file_path = None
+    mod = False
+    for arg in args[1:]:
+        if mod:
+            if not select_module(arg):
+                print(&#39;can not select module %s that is not installed&#39; % arg)
+                return
+            mod = False
+        elif arg == &#39;-h&#39;:
+            help = True
+            break
+        elif arg == &#39;-p&#39;:
+            plot = True
+        elif arg == &#39;-m&#39;:
+            mod = True
+        else:
+            file_path = arg
+            break
+
+    if help:
+        print(&#39;&#39;)
+        print(&#39;Usage:&#39;)
+        print(&#39;  python -m audioio.audioloader [-m &lt;module&gt;] [-p] &lt;audio/file.wav&gt;&#39;)
+        print(&#39;  -m: audio module to be used&#39;)
+        print(&#39;  -p: plot loaded data&#39;)
+        return
+
+    if plot:
+        import matplotlib.pyplot as plt
+
+    demo(file_path, plot)
+
+
+if __name__ == &#34;__main__&#34;:
+    import sys
+    main(sys.argv)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="audioio.audioloader.audio_loader_funcs"><code class="name">var <span class="ident">audio_loader_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>List of implemented load functions.</p>
+<p>Each element of the list is a tuple with the module's name and the load function.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audioloader.blocks"><code class="name flex">
+<span>def <span class="ident">blocks</span></span>(<span>data, block_size, noverlap=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generator for blockwise processing of array data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>Data to loop over. First dimension is time.</dd>
+<dt><strong><code>block_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Len of data blocks to be returned.</dd>
+<dt><strong><code>noverlap</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of indices successive data points should overlap.</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>Successive slices of the input data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd><code>noverlap</code> larger or equal to <code>block_size</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>import numpy as np
+from audioio import blocks
+data = np.arange(20)
+for x in blocks(data, 6, 2):
+    print(x)
+</code></pre>
+<p>results in</p>
+<pre><code class="language-text">[0 1 2 3 4 5]
+[4 5 6 7 8 9]
+[ 8  9 10 11 12 13]
+[12 13 14 15 16 17]
+[16 17 18 19]
+</code></pre>
+<p>Use it for processing long audio data, like computing a spectrogram with overlap:</p>
+<pre><code>from scipy.signal import spectrogram
+from audioio import AudioLoader, blocks
+nfft = 2048
+with AudioLoader('some/audio.wav') as data:
+    for x in blocks(data, 100*nfft, nfft//2):
+        f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def blocks(data, block_size, noverlap=0):
+    &#34;&#34;&#34;Generator for blockwise processing of array data.
+
+    Parameters
+    ----------
+    data: array
+        Data to loop over. First dimension is time.
+    block_size: int
+        Len of data blocks to be returned.
+    noverlap: int
+        Number of indices successive data points should overlap.
+
+    Yields
+    ------
+    data: array
+        Successive slices of the input data.
+
+    Raises
+    ------
+    ValueError
+        `noverlap` larger or equal to `block_size`.
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio import blocks
+    data = np.arange(20)
+    for x in blocks(data, 6, 2):
+        print(x)
+    ```
+    results in
+    ```text
+    [0 1 2 3 4 5]
+    [4 5 6 7 8 9]
+    [ 8  9 10 11 12 13]
+    [12 13 14 15 16 17]
+    [16 17 18 19]
+    ```
+
+    Use it for processing long audio data, like computing a spectrogram with overlap:
+    ```
+    from scipy.signal import spectrogram
+    from audioio import AudioLoader, blocks
+    nfft = 2048
+    with AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in blocks(data, 100*nfft, nfft//2):
+            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+    ```
+    &#34;&#34;&#34;
+    if noverlap &gt;= block_size:
+        raise ValueError(&#39;noverlap=%d larger than block_size=%d&#39; % (noverlap, block_size))
+    m = block_size - noverlap
+    n = (len(data)-noverlap)//m
+    if n == 0:
+        yield data[:]
+    else:
+        for k in range(n):
+            yield data[k*m:k*m+block_size]
+        if len(data) - (k*m+block_size) &gt; 0:
+            yield data[(k+1)*m:]</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>file_path, plot)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Demo of the audioloader functions.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>file_path</code></strong> :&ensp;<code>string</code></dt>
+<dd>File path of an audio file.</dd>
+<dt><strong><code>plot</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True also plot the loaded data.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo(file_path, plot):
+    &#34;&#34;&#34;Demo of the audioloader functions.
+
+    Parameters
+    ----------
+    file_path: string
+        File path of an audio file.
+    plot: bool
+        If True also plot the loaded data.
+    &#34;&#34;&#34;
+    print(&#39;&#39;)
+    print(&#34;try load_audio:&#34;)
+    full_data, rate = load_audio(file_path, 1)
+    if plot:
+        plt.plot(np.arange(len(full_data))/rate, full_data[:,0])
+        plt.show()
+
+    if audio_modules[&#39;soundfile&#39;] and audio_modules[&#39;audioread&#39;]:
+        print(&#39;&#39;)
+        print(&#34;cross check:&#34;)
+        data1, rate1 = load_soundfile(file_path)
+        data2, rate2 = load_audioread(file_path)
+        n = min((len(data1), len(data2)))
+        print(&#34;rms difference is %g&#34; % np.std(data1[:n]-data2[:n]))
+        if plot:
+            plt.plot(np.arange(len(data1))/rate1, data1[:,0])
+            plt.plot(np.arange(len(data2))/rate2, data2[:,0])
+            plt.show()
+    
+    print(&#39;&#39;)
+    print(&#34;try AudioLoader:&#34;)
+    with AudioLoader(file_path, 4.0, 1.0, 1) as data:
+        print(&#39;samplerate: %g&#39; % data.samplerate)
+        print(&#39;channels: %d %d&#39; % (data.channels, data.shape[1]))
+        print(&#39;frames: %d %d&#39; % (len(data), data.shape[0]))
+        nframes = int(1.5*data.samplerate)
+        # check access:
+        print(&#39;check random single frame access&#39;)
+        for inx in np.random.randint(0, len(data), 1000):
+            if np.any(np.abs(full_data[inx] - data[inx]) &gt; 2.0**(-14)):
+                print(&#39;single random frame access failed&#39;, inx, full_data[inx], data[inx])
+        print(&#39;check random frame slice access&#39;)
+        for inx in np.random.randint(0, len(data)-nframes, 1000):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) &gt; 2.0**(-14)):
+                print(&#39;random frame slice access failed&#39;, inx)
+        print(&#39;check frame slice access forward&#39;)
+        for inx in range(0, len(data)-nframes, 10):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) &gt; 2.0**(-14)):
+                print(&#39;frame slice access forward failed&#39;, inx)
+        print(&#39;check frame slice access backward&#39;)
+        for inx in range(len(data)-nframes, 0, -10):
+            if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) &gt; 2.0**(-14)):
+                print(&#39;frame slice access backward failed&#39;, inx)
+        # forward:
+        for i in range(0, len(data), nframes):
+            print(&#39;forward %d-%d&#39; % (i, i+nframes))
+            x = data[i:i+nframes,0]
+            if plot:
+                plt.plot((i+np.arange(len(x)))/rate, x)
+                plt.show()
+        # and backwards:
+        for i in reversed(range(0, len(data), nframes)):
+            print(&#39;backward %d-%d&#39; % (i, i+nframes))
+            x = data[i:i+nframes,0]
+            if plot:
+                plt.plot((i+np.arange(len(x)))/rate, x)
+                plt.show()</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_audio"><code class="name flex">
+<span>def <span class="ident">load_audio</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call this function to load all channels of audio data from a file.</p>
+<p>This function tries different python modules to load the audio file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, even for single channel data.
+First dimension is time, second is channel.
+Data values range maximally between -1 and 1.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Empty <code>filepath</code>.</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd><code>filepath</code> is not an existing file.</dd>
+<dt><code>EOFError</code></dt>
+<dd>File size of <code>filepath</code> is zero.</dd>
+<dt><code>IOError</code></dt>
+<dd>Failed to load data.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>import matplotlib.pyplot as plt
+from audioio import load_audio
+
+data, rate = load_audio('some/audio.wav')
+plt.plot(np.arange(len(data))/rate, data[:,0])
+plt.show()
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_audio(filepath, verbose=0):
+    &#34;&#34;&#34;Call this function to load all channels of audio data from a file.
+    
+    This function tries different python modules to load the audio file.
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, even for single channel data.
+        First dimension is time, second is channel.
+        Data values range maximally between -1 and 1.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ValueError
+        Empty `filepath`.
+    FileNotFoundError
+        `filepath` is not an existing file.
+    EOFError
+        File size of `filepath` is zero.
+    IOError
+        Failed to load data.
+
+    Example
+    -------
+    ```
+    import matplotlib.pyplot as plt
+    from audioio import load_audio
+    
+    data, rate = load_audio(&#39;some/audio.wav&#39;)
+    plt.plot(np.arange(len(data))/rate, data[:,0])
+    plt.show()
+    ```
+    &#34;&#34;&#34;
+    # check values:
+    if filepath is None or len(filepath) == 0:
+        raise ValueError(&#39;input argument filepath is empty string!&#39;)
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(&#39;file &#34;%s&#34; not found&#39; % filepath)
+    if os.path.getsize(filepath) &lt;= 0:
+        raise EOFError(&#39;file &#34;%s&#34; is empty (size=0)!&#39; % filepath)
+
+    # load an audio file by trying various modules:
+    success = False
+    not_installed = []
+    for lib, load_file in audio_loader_funcs:
+        if not audio_modules[lib]:
+            if verbose &gt; 1:
+                print(&#39;unable to load data from file &#34;%s&#34; using %s module: module not available&#39; %
+                      (filepath, lib))
+            not_installed.append(lib)
+            continue
+        try:
+            data, rate = load_file(filepath, verbose)
+            if len(data) &gt; 0:
+                success = True
+                if verbose &gt; 0:
+                    print(&#39;loaded data from file &#34;%s&#34; using %s module&#39; %
+                          (filepath, lib))
+                    if verbose &gt; 1:
+                        print(&#39;  sampling rate: %g Hz&#39; % rate)
+                        print(&#39;  channels     : %d&#39; % data.shape[1])
+                        print(&#39;  data values  : %d&#39; % len(data))
+                break
+        except Exception as e:
+            pass
+    if not success:
+        need_install = &#34;&#34;
+        if len(not_installed) &gt; 0:
+            need_install = &#34; You may need to install one of the &#34; + \
+              &#39;, &#39;.join(not_installed) + &#34; packages.&#34;
+        raise IOError(&#39;failed to load data from file &#34;%s&#34;.%s&#39; %
+                      (filepath, need_install))
+    return data, rate</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_audioread"><code class="name flex">
+<span>def <span class="ident">load_audioread</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load audio file using audioread.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/beetbox/audioread">https://github.com/beetbox/audioread</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages (not used).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, first dimension is time, second is channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The audioread module is not installed.</dd>
+</dl>
+<p>*
+Loading of the data failed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_audioread(filepath, verbose=0):
+    &#34;&#34;&#34;Load audio file using audioread.
+
+    Documentation
+    -------------
+    https://github.com/beetbox/audioread
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The audioread module is not installed.
+    *
+        Loading of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;audioread&#39;]:
+        raise ImportError
+    
+    data = np.array([])
+    rate = 0.0
+    with audioread.audio_open(filepath) as af:
+        rate = af.samplerate
+        data = np.zeros((int(np.ceil(af.samplerate*af.duration)), af.channels),
+                        dtype=&#34;&lt;i2&#34;)
+        index = 0
+        for buffer in af:
+            fulldata = np.frombuffer(buffer, dtype=&#39;&lt;i2&#39;).reshape(-1, af.channels)
+            n = fulldata.shape[0]
+            if index + n &gt; len(data):
+                n = len(fulldata) - index
+            if n &lt;= 0:
+                break
+            data[index:index+n,:] = fulldata[:n,:]
+            index += n
+    return data/(2.0**15-1.0), float(rate)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_ewave"><code class="name flex">
+<span>def <span class="ident">load_ewave</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load wav file using ewave module.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/melizalab/py-ewave">https://github.com/melizalab/py-ewave</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages (not used).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, first dimension is time, second is channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The ewave module is not installed</dd>
+</dl>
+<p>*
+Loading of the data failed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_ewave(filepath, verbose=0):
+    &#34;&#34;&#34;Load wav file using ewave module.
+
+    Documentation
+    -------------
+    https://github.com/melizalab/py-ewave
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The ewave module is not installed
+    *
+        Loading of the data failed
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;ewave&#39;]:
+        raise ImportError
+
+    data = np.array([])
+    rate = 0.0
+    with ewave.open(filepath, &#39;r&#39;) as wf:
+        rate = wf.sampling_rate
+        buffer = wf.read()
+        data = ewave.rescale(buffer, &#39;float&#39;)
+    if len(data.shape) == 1:
+        data = np.reshape(data,(-1, 1))
+    return data, float(rate)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_soundfile"><code class="name flex">
+<span>def <span class="ident">load_soundfile</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load audio file using SoundFile (based on libsndfile).</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="http://pysoundfile.readthedocs.org">http://pysoundfile.readthedocs.org</a>
+<a href="http://www.mega-nerd.com/libsndfile">http://www.mega-nerd.com/libsndfile</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages (not used).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, first dimension is time, second is channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The soundfile module is not installed.</dd>
+</dl>
+<p>*
+Loading of the data failed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_soundfile(filepath, verbose=0):
+    &#34;&#34;&#34;Load audio file using SoundFile (based on libsndfile).
+
+    Documentation
+    -------------
+    http://pysoundfile.readthedocs.org
+    http://www.mega-nerd.com/libsndfile
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The soundfile module is not installed.
+    *
+        Loading of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundfile&#39;]:
+        raise ImportError
+
+    data = np.array([])
+    rate = 0.0
+    with soundfile.SoundFile(filepath, &#39;r&#39;) as sf:
+        rate = sf.samplerate
+        data = sf.read(frames=-1, dtype=&#39;float64&#39;, always_2d=True)
+    return data, float(rate)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_wave"><code class="name flex">
+<span>def <span class="ident">load_wave</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load wav file using the wave module from pythons standard libray.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://docs.python.org/3.8/library/wave.html">https://docs.python.org/3.8/library/wave.html</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.
+If 2 print information about soundfile</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, first dimension is time, second is channel</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wave module is not installed</dd>
+</dl>
+<p>*
+Loading of the data failed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_wave(filepath, verbose=0):
+    &#34;&#34;&#34;Load wav file using the wave module from pythons standard libray.
+    
+    Documentation
+    -------------
+    https://docs.python.org/3.8/library/wave.html
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+        If 2 print information about soundfile
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The wave module is not installed
+    *
+        Loading of the data failed
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wave&#39;]:
+        raise ImportError
+
+    wf = wave.open(filepath, &#39;r&#39;)   # &#39;with&#39; is not supported by wave
+    (nchannels, sampwidth, rate, nframes, comptype, compname) = wf.getparams()
+    if verbose &gt; 1:
+        # this should be a separate function with the sndheader module and for all audio formats
+        print(&#39;channels       : %d&#39; % nchannels)
+        print(&#39;bytes          : %d&#39; % sampwidth)
+        print(&#39;sampling rate  : %g&#39; % rate)
+        print(&#39;frames         : %d&#39; % nframes)
+        print(&#39;compression type: %s&#39; % comptype)
+        print(&#39;compression name: %s&#39; % compname)
+    buffer = wf.readframes(nframes)
+    factor = 2.0**(sampwidth*8-1)
+    if sampwidth == 1:
+        dtype = &#39;u1&#39;
+        buffer = np.frombuffer(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = buffer.astype(&#39;d&#39;)/factor - 1.0
+    else:
+        dtype = &#39;i%d&#39; % sampwidth
+        buffer = np.frombuffer(buffer, dtype=dtype).reshape(-1, nchannels)
+        data = buffer.astype(&#39;d&#39;)/factor
+    wf.close()
+    return data, float(rate)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_wavefile"><code class="name flex">
+<span>def <span class="ident">load_wavefile</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load audio file using wavefile (based on libsndfile).</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/vokimon/python-wavefile">https://github.com/vokimon/python-wavefile</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages (not used).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, first dimension is time, second is channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wavefile module is not installed.</dd>
+</dl>
+<p>*
+Loading of the data failed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_wavefile(filepath, verbose=0):
+    &#34;&#34;&#34;Load audio file using wavefile (based on libsndfile).
+
+    Documentation
+    -------------
+    https://github.com/vokimon/python-wavefile
+
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages (not used).
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The wavefile module is not installed.
+    *
+        Loading of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wavefile&#39;]:
+        raise ImportError
+
+    rate, data = wavefile.load(filepath)
+    return data.astype(np.float64, copy=False).T, float(rate)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.load_wavfile"><code class="name flex">
+<span>def <span class="ident">load_wavfile</span></span>(<span>filepath, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load wav file using scipy.io.wavfile.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="http://docs.scipy.org/doc/scipy/reference/io.html">http://docs.scipy.org/doc/scipy/reference/io.html</a>
+Does not support blocked read.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>The full path and name of the file to load.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>All data traces as an 2-D numpy array, first dimension is time, second is channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The scipy.io module is not installed</dd>
+</dl>
+<p>*
+Loading of the data failed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_wavfile(filepath, verbose=0):
+    &#34;&#34;&#34;Load wav file using scipy.io.wavfile.
+
+    Documentation
+    -------------
+    http://docs.scipy.org/doc/scipy/reference/io.html
+    Does not support blocked read.
+    
+    Parameters
+    ----------
+    filepath: string
+        The full path and name of the file to load.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Returns
+    -------
+    data: array
+        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The scipy.io module is not installed
+    *
+        Loading of the data failed
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;scipy.io.wavfile&#39;]:
+        raise ImportError
+
+    if verbose &lt; 2:
+        warnings.filterwarnings(&#34;ignore&#34;)
+    rate, data = wavfile.read(filepath)
+    if verbose &lt; 2:
+        warnings.filterwarnings(&#34;always&#34;)
+    if data.dtype == np.uint8:
+        data = data / 128.0 - 1.0
+    elif np.issubdtype(data.dtype, np.signedinteger):
+        data = data / (2.0**(data.dtype.itemsize*8-1))
+    else:
+        data = data.astype(np.float64, copy=False)
+    if len(data.shape) == 1:
+        data = np.reshape(data,(-1, 1))
+    return data, float(rate)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>args</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as provided by sys.argv</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(args):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv
+    &#34;&#34;&#34;
+    print(&#34;Checking audioloader module ...&#34;)
+
+    help = False
+    plot = False
+    file_path = None
+    mod = False
+    for arg in args[1:]:
+        if mod:
+            if not select_module(arg):
+                print(&#39;can not select module %s that is not installed&#39; % arg)
+                return
+            mod = False
+        elif arg == &#39;-h&#39;:
+            help = True
+            break
+        elif arg == &#39;-p&#39;:
+            plot = True
+        elif arg == &#39;-m&#39;:
+            mod = True
+        else:
+            file_path = arg
+            break
+
+    if help:
+        print(&#39;&#39;)
+        print(&#39;Usage:&#39;)
+        print(&#39;  python -m audioio.audioloader [-m &lt;module&gt;] [-p] &lt;audio/file.wav&gt;&#39;)
+        print(&#39;  -m: audio module to be used&#39;)
+        print(&#39;  -p: plot loaded data&#39;)
+        return
+
+    if plot:
+        import matplotlib.pyplot as plt
+
+    demo(file_path, plot)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.unwrap"><code class="name flex">
+<span>def <span class="ident">unwrap</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fixes data that exceeded the -1 to 1 range.</p>
+<p>If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
+they get wrapped around. This functions tries to undo this wrapping.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1D</code> or <code>2D ndarray</code></dt>
+<dd>Data to be fixed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>same as input data</code></dt>
+<dd>The fixed data.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unwrap(data):
+    &#34;&#34;&#34;Fixes data that exceeded the -1 to 1 range.
+
+    If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
+    they get wrapped around. This functions tries to undo this wrapping.
+    
+    Parameters
+    ----------
+    data: 1D or 2D ndarray
+        Data to be fixed.
+
+    Returns
+    -------
+    data: same as input data
+        The fixed data.
+    &#34;&#34;&#34;
+    if len(data.shape) &gt; 1:
+        for c in range(data.shape[1]):
+            data[:,c] = unwrap(data[:,c])
+    else:
+        for k in range(20):
+            dd = (data[1:] &lt; -0.8) &amp; (np.diff(data) &lt;= -1.0)
+            du = (data[1:] &gt; 0.8) &amp; (np.diff(data) &gt;= 1.0)
+            if np.sum(dd) == 0 and np.sum(du) == 0:
+                break
+            data[1:][dd] += 2.0
+            data[1:][du] -= 2.0
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="audioio.audioloader.AudioLoader"><code class="flex name class">
+<span>class <span class="ident">AudioLoader</span></span>
+<span>(</span><span>filepath=None, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Buffered reading of audio data for random access of the data in the file.</p>
+<p>The class allows for reading very large audio files that do not fit into memory.
+An AudioLoader instance can be used like a huge read-only numpy array, i.e.</p>
+<pre><code>data = AudioLoader('path/to/audio/file.wav')
+x = data[10000:20000,0]
+</code></pre>
+<p>The first index specifies the frame, the second one the channel.</p>
+<p>Behind the scenes AudioLoader tries to open the audio file with all available
+audio modules until it succeeds (first line). It then reads data from the file
+as necessary for the requested data (second line).</p>
+<p>Reading sequentially through the file is always possible. Some
+modules, however, (e.g. audioread, needed for mp3 files) can only
+read forward. If previous data are requested, then the file is read
+from the beginning. This slows down access to previous data
+considerably. Use the <code>backsize</code> argument of the open function to
+make sure some data are loaded into the buffer before the requested
+frame. Then a subsequent access to the data within backsize <code>seconds</code>
+before that frame can still be handled without the need to reread
+the file from the beginning.</p>
+<h2 id="usage">Usage</h2>
+<p>With context management:</p>
+<pre><code>import audioio as aio
+with aio.AudioLoader(filepath, 60.0, 10.0) as data:
+    # do something with the content of the file:
+    x = data[0:10000]
+    y = data[10000:20000]
+    z = x + y
+</code></pre>
+<p>For using a specific audio module, here the audioread module:</p>
+<pre><code>data = aio.AudioLoader()
+with data.open_audioread(filepath, 60.0, 10.0):
+    # do something ...
+</code></pre>
+<p>Use <code><a title="audioio.audioloader.blocks" href="#audioio.audioloader.blocks">blocks()</a></code> for sequential, blockwise reading and processing:</p>
+<pre><code>from scipy.signal import spectrogram
+nfft = 2048
+with aio.AudioLoader('some/audio.wav') as data:
+    for x in data.blocks(100*nfft, nfft//2):
+        f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+</code></pre>
+<p>For loop iterates over single frames (1-D arrays containing samples for each channel):</p>
+<pre><code>with aio.AudioLoader('some/audio.wav') as data:
+    for x in data:
+        print(x)
+</code></pre>
+<p>Traditional open and close:</p>
+<pre><code>data = aio.AudioLoader(filepath, 60.0)
+x = data[:,:]  # read the whole file
+data.close()
+</code></pre>
+<p>this is the same as:</p>
+<pre><code>data = aio.AudioLoader()
+data.open(filepath, 60.0)
+...
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>samplerate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate of the data in seconds.</dd>
+<dt><strong><code>channels</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of channels.</dd>
+<dt><strong><code>frames</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of frames in the file.</dd>
+<dt><strong><code>shape</code></strong> :&ensp;<code>tuple</code></dt>
+<dd>Frames and channels of the data.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>len()
+Number of frames.
+open()
+Open an audio file by trying available audio modules.
+open_*()
+Open an audio file with the respective audio module.
+<strong>getitem</strong>
+Access data of the audio file.
+blocks()
+Generator for blockwise processing of AudioLoader data.
+close()
+Close the file.</p>
+<h2 id="notes">Notes</h2>
+<p>Access via <code>__getitem__</code> or <code>__next__</code> is slow!
+Even worse, using numpy functions on this class first converts
+it to a numpy array - that is something we actually do not want!
+We should subclass directly from numpy.ndarray .
+For details see <a href="http://docs.scipy.org/doc/numpy/user/basics.subclassing.html">http://docs.scipy.org/doc/numpy/user/basics.subclassing.html</a>
+When subclassing, there is an offset argument, that might help to
+speed up <code>__getitem__</code> .</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AudioLoader(object):
+    &#34;&#34;&#34;Buffered reading of audio data for random access of the data in the file.
+    
+    The class allows for reading very large audio files that do not fit into memory.
+    An AudioLoader instance can be used like a huge read-only numpy array, i.e.
+    ```
+    data = AudioLoader(&#39;path/to/audio/file.wav&#39;)
+    x = data[10000:20000,0]
+    ```
+    The first index specifies the frame, the second one the channel.
+
+    Behind the scenes AudioLoader tries to open the audio file with all available
+    audio modules until it succeeds (first line). It then reads data from the file
+    as necessary for the requested data (second line).
+
+    Reading sequentially through the file is always possible. Some
+    modules, however, (e.g. audioread, needed for mp3 files) can only
+    read forward. If previous data are requested, then the file is read
+    from the beginning. This slows down access to previous data
+    considerably. Use the `backsize` argument of the open function to
+    make sure some data are loaded into the buffer before the requested
+    frame. Then a subsequent access to the data within backsize `seconds`
+    before that frame can still be handled without the need to reread
+    the file from the beginning.
+
+    Usage
+    -----
+    With context management:
+    ```
+    import audioio as aio
+    with aio.AudioLoader(filepath, 60.0, 10.0) as data:
+        # do something with the content of the file:
+        x = data[0:10000]
+        y = data[10000:20000]
+        z = x + y
+    ```
+
+    For using a specific audio module, here the audioread module:
+    ```
+    data = aio.AudioLoader()
+    with data.open_audioread(filepath, 60.0, 10.0):
+        # do something ...
+    ```
+
+    Use `blocks()` for sequential, blockwise reading and processing:
+    ```
+    from scipy.signal import spectrogram
+    nfft = 2048
+    with aio.AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in data.blocks(100*nfft, nfft//2):
+            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+    ```
+
+    For loop iterates over single frames (1-D arrays containing samples for each channel):
+    ```
+    with aio.AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in data:
+            print(x)
+    ```
+    
+    Traditional open and close:
+    ```
+    data = aio.AudioLoader(filepath, 60.0)
+    x = data[:,:]  # read the whole file
+    data.close()
+    ```
+        
+    this is the same as:
+    ```
+    data = aio.AudioLoader()
+    data.open(filepath, 60.0)
+    ...
+    ```
+    
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Attributes
+    ----------
+    samplerate: float
+        The sampling rate of the data in seconds.
+    channels: int
+        The number of channels.
+    frames: int
+        The number of frames in the file.
+    shape: tuple
+        Frames and channels of the data.
+
+    Methods
+    -------
+    len()
+        Number of frames.
+    open()
+        Open an audio file by trying available audio modules.
+    open_*()
+        Open an audio file with the respective audio module.
+    __getitem__
+        Access data of the audio file.
+    blocks()
+        Generator for blockwise processing of AudioLoader data.
+    close()
+        Close the file.
+
+    Notes
+    -----
+    Access via `__getitem__` or `__next__` is slow!
+    Even worse, using numpy functions on this class first converts
+    it to a numpy array - that is something we actually do not want!
+    We should subclass directly from numpy.ndarray .
+    For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+    When subclassing, there is an offset argument, that might help to
+    speed up `__getitem__` .
+    &#34;&#34;&#34;
+    
+    def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
+        self.sf = None
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        self.buffersize = 0
+        self.backsize = 0
+        self.buffer = np.zeros((0,0))
+        self.verbose = verbose
+        self.close = self._close
+        if filepath is not None:
+            self.open(filepath, buffersize, backsize, verbose)
+
+    def _close(self):
+        pass
+
+    def __del__(self):
+        self.close()
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, ex_type, ex_value, tb):
+        self.__del__()
+        return (ex_value is None)
+        
+    def __len__(self):
+        return self.frames
+
+    def __iter__(self):
+        self.iter_counter = -1
+        return self
+
+    def __next__(self):
+        self.iter_counter += 1
+        if self.iter_counter &gt;= self.frames:
+            raise StopIteration
+        else:
+            self._update_buffer(self.iter_counter, self.iter_counter+1)
+            return self.buffer[self.iter_counter-self.offset,:]
+
+    def next(self):  # python 2
+        return self.__next__()
+
+    def __getitem__(self, key):
+        &#34;&#34;&#34;Access data of the audio file.&#34;&#34;&#34;
+        if type(key) is tuple:
+            index = key[0]
+        else:
+            index = key
+        if isinstance(index, slice):
+            start = index.start
+            stop = index.stop
+            step = index.step
+            if start is None:
+                start=0
+            else:
+                start = int(start)
+            if start &lt; 0:
+                start += len(self)
+            if stop is None:
+                stop = len(self)
+            else:
+                stop = int(stop)
+            if stop &lt; 0:
+                stop += len(self)
+            if stop &gt; self.frames:
+                stop = self.frames
+            if step is None:
+                step = 1
+            else:
+                step = int(step)
+            self._update_buffer(start, stop)
+            newindex = slice(start-self.offset, stop-self.offset, step)
+        elif hasattr(index, &#39;__len__&#39;):
+            index = [inx if inx &gt;= 0 else inx+len(self) for inx in index]
+            start = min(index)
+            stop = max(index)
+            self._update_buffer(start, stop+1)
+            newindex = [inx-self.offset for inx in index]
+        else:
+            if index &gt; self.frames:
+                raise IndexError
+            index = int(index)
+            if index &lt; 0:
+                index += len(self)
+            self._update_buffer(index, index+1)
+            newindex = index-self.offset
+        if type(key) is tuple:
+            newkey = (newindex,) + key[1:]
+            return self.buffer[newkey]
+        else:
+            return self.buffer[newindex]
+
+    def blocks(self, block_size, noverlap=0):
+        &#34;&#34;&#34;Generator for blockwise processing of AudioLoader data.
+
+        Parameters
+        ----------
+        block_size: int
+            Len of data blocks to be returned.
+        noverlap: int
+            Number of indices successive data points should overlap.
+
+        Yields
+        ------
+        data: array
+            Successive slices of the data managed by AudioLoader.
+
+        Raises
+        ------
+        ValueError
+            `noverlap` larger or equal to `block_size`.
+
+        Examples
+        --------
+        Use it for processing long audio data, like computing a spectrogram with overlap:
+        ```
+        from scipy.signal import spectrogram
+        from audioio import AudioLoader, blocks
+        nfft = 2048
+        with AudioLoader(&#39;some/audio.wav&#39;) as data:
+            for x in data.blocks(100*nfft, nfft//2):
+                f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+        ```
+        &#34;&#34;&#34;
+        return blocks(self, block_size, noverlap)
+
+    def _init_buffer(self):
+        &#34;&#34;&#34;Allocate a buffer of size zero.&#34;&#34;&#34;
+        self.buffer = np.empty((0, self.channels))
+
+    def _update_buffer(self, start, stop):
+        &#34;&#34;&#34;Make sure that the buffer contains data between start and stop.
+
+        Parameters
+        ----------
+        start: int
+            Index of the first frame for the buffer.
+        stop: int
+            Index of the last frame for the buffer.
+        &#34;&#34;&#34;
+        if start &lt; self.offset or stop &gt; self.offset + self.buffer.shape[0]:
+            offset, size = self._read_indices(start, stop)
+            r_offset, r_size = self._recycle_buffer(offset, size)
+            self.offset = offset
+            # load buffer content from file, this is backend specific:
+            self._load_buffer(r_offset, r_size)
+
+    def _read_indices(self, start, stop):
+        &#34;&#34;&#34;Compute position and size for next read from file.
+
+        This takes buffersize and backsize into account.
+
+        Parameters
+        ----------
+        start: int
+            Index of the first requested frame.
+        stop: int
+            Index of the last requested frame.
+
+        Returns
+        -------
+        offset: int
+           Frame index for the first frame in the buffer.
+        size: int
+           Number of frames the buffer should hold.
+        &#34;&#34;&#34;
+        offset = start
+        size = stop-start
+        if size &lt; self.buffersize:
+            back = self.backsize
+            if self.buffersize - size &lt; back:
+                back = self.buffersize - size
+            offset -= back
+            size = self.buffersize
+            if offset &lt; 0:
+                offset = 0
+            if offset + size &gt; self.frames:
+                offset = self.frames - size
+                if offset &lt; 0:
+                    offset = 0
+                    size = self.frames - offset
+        if self.verbose &gt; 2:
+            print(&#39;  request %6d frames at %d-%d&#39; % (size, offset, offset+size))
+        return offset, size
+
+    def _recycle_buffer(self, offset, size):
+        &#34;&#34;&#34;Recycle buffer contents and return indices for data to be loaded from file.
+
+        Move already existing parts of the buffer to their new position (as
+        returned by _read_indices() ) and return position and size of
+        data chunk that still needs to be loaded from file.
+
+        Parameters
+        ----------
+        offset: int
+           Frame index for the first frame in the buffer.
+        size: int
+           Number of frames the buffer should hold.
+
+        Returns
+        -------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        def allocate_buffer(size):
+            &#34;&#34;&#34;Make sure the buffer has the right size.&#34;&#34;&#34;
+            if size != self.buffer.shape[0]:
+                self.buffer = np.empty((size, self.channels))
+
+        r_offset = offset
+        r_size = size
+        if ( offset &gt;= self.offset and
+             offset &lt; self.offset + self.buffer.shape[0] ):
+            i = self.offset + self.buffer.shape[0] - offset
+            n = i
+            if n &gt; size:
+                n = size
+            m = self.buffer.shape[0]
+            buffer = self.buffer[-i:m-i+n,:]
+            allocate_buffer(size)
+            self.buffer[:n,:] = buffer
+            r_offset += n
+            r_size -= n
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from %d-%d of the old %d-sized buffer to the front at %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.offset+m-i, self.offset+m-i+n, m, offset, offset+n, 0, n))
+        elif ( offset + size &gt; self.offset and
+            offset + size &lt;= self.offset + self.buffer.shape[0] ):
+            n = offset + size - self.offset
+            m = self.buffer.shape[0]
+            buffer = self.buffer[:n,:]
+            allocate_buffer(size)
+            self.buffer[-n:,:] = buffer
+            r_size -= n
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from %d-%d of the old %d-sized buffer to the end at %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.offset, self.offset+n, m, offset+size-n, offset+size, size-n, size))
+        else:
+            allocate_buffer(size)
+        return r_offset, r_size
+
+    
+    # wave interface:        
+    def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the wave module.
+
+        Note: we assume that setpos() and tell() use integer numbers!
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The wave module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_wave(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;wave&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_wave()
+        self.sf = wave.open(filepath, &#39;r&#39;)
+        self.samplerate = float(self.sf.getframerate())
+        sampwidth = self.sf.getsampwidth()
+        if sampwidth == 1:
+            self.dtype = &#39;u1&#39;
+        else:
+            self.dtype = &#39;i%d&#39; % sampwidth
+        self.factor = 1.0/(2.0**(sampwidth*8-1))
+        self.channels = self.sf.getnchannels()
+        self.frames = self.sf.getnframes()
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_wave
+        self._load_buffer = self._load_buffer_wave
+        # read 1 frame to determine the unit of the position values:
+        self.p0 = self.sf.tell()
+        self.sf.readframes(1)
+        self.pfac = self.sf.tell() - self.p0
+        self.sf.setpos(self.p0)
+        return self
+
+    def _close_wave(self):
+        &#34;&#34;&#34;Close the audio file using the wave module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.close()
+            self.sf = None
+
+    def _load_buffer_wave(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        self.sf.setpos(r_offset*self.pfac + self.p0)
+        buffer = self.sf.readframes(r_size)
+        buffer = np.frombuffer(buffer, dtype=self.dtype).reshape((-1, self.channels))
+        if self.dtype[0] == &#39;u&#39;:
+            self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor - 1.0
+        else:
+            self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %6d frames at %d&#39; % (r_size, r_offset))
+        
+
+    # ewave interface:        
+    def open_ewave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the ewave module.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The ewave module is not installed.
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_ewave(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;ewave&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_ewave()
+        self.sf = ewave.open(filepath, &#39;r&#39;)
+        self.samplerate = float(self.sf.sampling_rate)
+        self.channels = self.sf.nchannels
+        self.frames = self.sf.nframes
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_ewave
+        self._load_buffer = self._load_buffer_ewave
+        return self
+
+    def _close_ewave(self):
+        &#34;&#34;&#34;Close the audio file using the ewave module. &#34;&#34;&#34;
+        if self.sf is not None:
+            del self.sf
+            self.sf = None
+
+    def _load_buffer_ewave(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        buffer = self.sf.read(frames=r_size, offset=r_offset, memmap=&#39;r&#39;)
+        buffer = ewave.rescale(buffer, &#39;float&#39;)
+        if len(buffer.shape) == 1:
+            buffer = np.reshape(buffer,(-1, 1))
+        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %d frames from %d up to %d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+            
+    # soundfile interface:        
+    def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the SoundFile module.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The SoundFile module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_soundfile(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;soundfile&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_soundfile()
+        self.sf = soundfile.SoundFile(filepath, &#39;r&#39;)
+        self.samplerate = float(self.sf.samplerate)
+        self.channels = self.sf.channels
+        self.frames = 0
+        if self.sf.seekable():
+            self.frames = self.sf.seek(0, soundfile.SEEK_END)
+            self.sf.seek(0, soundfile.SEEK_SET)
+        # TODO: if not seekable, we cannot handle that file!
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_soundfile
+        self._load_buffer = self._load_buffer_soundfile
+        return self
+
+    def _close_soundfile(self):
+        &#34;&#34;&#34;Close the audio file using the SoundFile module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.close()
+            self.sf = None
+
+    def _load_buffer_soundfile(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        self.sf.seek(r_offset, soundfile.SEEK_SET)
+        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = self.sf.read(r_size, always_2d=True)
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %d frames from %d up to %d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+            
+    # wavefile interface:        
+    def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the wavefile module.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The wavefile module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_wavefile(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;wavefile&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_wavefile()
+        self.sf = wavefile.WaveReader(filepath)
+        self.samplerate = float(self.sf.samplerate)
+        self.channels = self.sf.channels
+        self.frames = self.sf.frames
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.close = self._close_wavefile
+        self._load_buffer = self._load_buffer_wavefile
+        return self
+
+    def _close_wavefile(self):
+        &#34;&#34;&#34;Close the audio file using the wavefile module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.close()
+            self.sf = None
+
+    def _load_buffer_wavefile(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        self.sf.seek(r_offset, wavefile.Seek.SET)
+        buffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
+        self.sf.read(buffer)
+        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer.T
+        if self.verbose &gt; 1:
+            print(&#39;  loaded %d frames from %d up to %d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+            
+    # audioread interface:        
+    def open_audioread(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading using the audioread module.
+
+        Note, that audioread can only read forward, therefore random and
+        backward access is really slow.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The audioread module is not installed
+        &#34;&#34;&#34;
+        self.verbose = verbose
+        if self.verbose &gt; 0:
+            print(&#39;open_audio_read(filepath) with filepath=%s&#39; % filepath)
+        if not audio_modules[&#39;audioread&#39;]:
+            self.samplerate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_audioread()
+        self.sf = audioread.audio_open(filepath)
+        self.samplerate = float(self.sf.samplerate)
+        self.channels = self.sf.channels
+        self.frames = int(np.ceil(self.samplerate*self.sf.duration))
+        self.shape = (self.frames, self.channels)
+        self.buffersize = int(buffersize*self.samplerate)
+        self.backsize = int(backsize*self.samplerate)
+        self._init_buffer()
+        self.offset = 0
+        self.read_buffer = np.zeros((0,0))
+        self.read_offset = 0
+        self.close = self._close_audioread
+        self._load_buffer = self._load_buffer_audioread
+        self.filepath = filepath
+        self.sf_iter = self.sf.__iter__()
+        return self
+
+    def _close_audioread(self):
+        &#34;&#34;&#34;Close the audio file using the audioread module. &#34;&#34;&#34;
+        if self.sf is not None:
+            self.sf.__exit__(None, None, None)
+            self.sf = None
+
+    def _load_buffer_audioread(self, r_offset, r_size):
+        &#34;&#34;&#34;Load new data from file using the wave module.
+
+        audioread can only iterate through a file once and in blocksizes that are
+        given by audioread. Therefore we keep yet another buffer: `self.read_buffer`
+        at file offset `self.read_offset` containing whatever audioread returned.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        &#34;&#34;&#34;
+        if ( self.read_offset + self.read_buffer.shape[0] &gt;= r_offset + r_size
+             and self.read_offset &lt; r_offset + r_size ):
+            # read_buffer overlaps at the end of the requested interval:
+            i = 0
+            n = r_offset + r_size - self.read_offset
+            if n &gt; r_size:
+                i += n - r_size
+                n = r_size
+            self.buffer[self.read_offset+i-self.offset:self.read_offset+i-self.offset+n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from the front of the read buffer at %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.read_offset, self.read_offset+n, self.read_offset-self.offset, self.read_offset-self.offset+n))
+            r_size -= n
+            if r_size &lt;= 0:
+                return
+        # go back to beginning of file:
+        if r_offset &lt; self.read_offset:
+            if self.verbose &gt; 2:
+                print(&#39;  rewind&#39;)
+            self._close_audioread()
+            self.sf = audioread.audio_open(self.filepath)
+            self.sf_iter = self.sf.__iter__()
+            self.read_buffer = np.zeros((0,0))
+            self.read_offset = 0
+        # read to position:
+        while self.read_offset + self.read_buffer.shape[0] &lt; r_offset:
+            self.read_offset += self.read_buffer.shape[0]
+            try:
+                if hasattr(self.sf_iter, &#39;next&#39;):
+                    buffer = self.sf_iter.next()
+                else:
+                    buffer = next(self.sf_iter)
+            except StopIteration:
+                self.read_buffer = np.zeros((0,0))
+                self.buffer[r_offset-self.offset:,:] = 0.0
+                if self.verbose &gt; 1:
+                    print(&#39;  caught StopIteration, padded buffer with %d zeros&#39; % r_size)
+                break
+            self.read_buffer = np.frombuffer(buffer, dtype=&#39;&lt;i2&#39;).reshape(-1, self.channels)
+            if self.verbose &gt; 2:
+                print(&#39;  read forward by %d frames&#39; % self.read_buffer.shape[0])
+        # recycle file data:
+        if ( self.read_offset + self.read_buffer.shape[0] &gt; r_offset
+             and self.read_offset &lt;= r_offset ):
+            i = r_offset - self.read_offset
+            n = self.read_offset + self.read_buffer.shape[0] - r_offset
+            if n &gt; r_size:
+                n = r_size
+            self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            if self.verbose &gt; 2:
+                print(&#39;  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)&#39;
+                       % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
+                          r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
+            r_offset += n
+            r_size -= n
+        # read data:
+        if self.verbose &gt; 2 and r_size &gt; 0:
+            print(&#39;  read    %6d frames at %d-%d (%d-%d in buffer)&#39;
+                   % (r_size, r_offset, r_offset+r_size, r_offset-self.offset, r_offset+r_size-self.offset))
+        while r_size &gt; 0:
+            self.read_offset += self.read_buffer.shape[0]
+            try:
+                if hasattr(self.sf_iter, &#39;next&#39;):
+                    buffer = self.sf_iter.next()
+                else:
+                    buffer = next(self.sf_iter)
+            except StopIteration:
+                self.read_buffer = np.zeros((0,0))
+                self.buffer[r_offset-self.offset:,:] = 0.0
+                if self.verbose &gt; 1:
+                    print(&#39;  caught StopIteration, padded buffer with %d zeros&#39; % r_size)
+                break
+            self.read_buffer = np.frombuffer(buffer, dtype=&#39;&lt;i2&#39;).reshape(-1, self.channels)
+            n = self.read_buffer.shape[0]
+            if n &gt; r_size:
+                n = r_size
+            if n &gt; 0:
+                self.buffer[r_offset-self.offset:r_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
+                if self.verbose &gt; 2:
+                    print(&#39;    read  %6d frames to %d-%d (%d-%d in buffer)&#39;
+                          % (n, r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
+                r_offset += n
+                r_size -= n
+        if self.verbose &gt; 1:
+            print(&#39;  loaded  %d frames at %d-%d&#39;
+                  % (self.buffer.shape[0], self.offset, self.offset+self.buffer.shape[0]))
+
+                                
+    def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+        &#34;&#34;&#34;Open audio file for reading.
+
+        Parameters
+        ----------
+        filepath: string
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If &gt;0 show detailed error/warning messages.
+
+        Raises
+        ------
+        ValueError
+            Empty `filepath`.
+        FileNotFoundError
+            `filepath` is not an existing file.
+        EOFError
+            File size of `filepath` is zero.
+        IOError
+            Failed to load data.
+        &#34;&#34;&#34;
+        self.buffer = np.array([])
+        self.samplerate = 0.0
+        if len(filepath) == 0:
+            raise ValueError(&#39;input argument filepath is empty string!&#39;)
+        if not os.path.isfile(filepath):
+            raise FileNotFoundError(&#39;file &#34;%s&#34; not found&#39; % filepath)
+        if os.path.getsize(filepath) &lt;= 0:
+            raise EOFError(&#39;file &#34;%s&#34; is empty (size=0)!&#39; % filepath)
+        # list of implemented open functions:
+        audio_open = [
+            [&#39;soundfile&#39;, self.open_soundfile],
+            [&#39;audioread&#39;, self.open_audioread],
+            [&#39;wave&#39;, self.open_wave],
+            [&#39;wavefile&#39;, self.open_wavefile],
+            [&#39;ewave&#39;, self.open_ewave]
+            ]
+        # open an audio file by trying various modules:
+        success = False
+        not_installed = []
+        for lib, open_file in audio_open:
+            if not audio_modules[lib]:
+                if verbose &gt; 1:
+                    print(&#39;failed to load data from file &#34;%s&#34; using %s module&#39; %
+                          (filepath, lib))
+                not_installed.append(lib)
+                continue
+            try:
+                open_file(filepath, buffersize, backsize, verbose-1)
+                if self.frames &gt; 0:
+                    success = True
+                    if verbose &gt; 0:
+                        print(&#39;opened audio file &#34;%s&#34; using %s&#39; % (filepath, lib))
+                        if verbose &gt; 1:
+                            print(&#39;  sampling rate: %g Hz&#39; % self.samplerate)
+                            print(&#39;  data values  : %d&#39; % self.frames)
+                    break
+            except Exception as e:
+                    pass
+        if not success:
+            need_install = &#34;&#34;
+            if len(not_installed) &gt; 0:
+                need_install = &#34; You may need to install one of the &#34; + \
+                  &#39;, &#39;.join(not_installed) + &#34; packages.&#34;
+            raise IOError(&#39;failed to load data from file &#34;%s&#34;.%s&#39; %
+                          (filepath, need_install))
+        return self</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="audioio.audioloader.AudioLoader.blocks"><code class="name flex">
+<span>def <span class="ident">blocks</span></span>(<span>self, block_size, noverlap=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generator for blockwise processing of AudioLoader data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>block_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Len of data blocks to be returned.</dd>
+<dt><strong><code>noverlap</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of indices successive data points should overlap.</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>Successive slices of the data managed by AudioLoader.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd><code>noverlap</code> larger or equal to <code>block_size</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<p>Use it for processing long audio data, like computing a spectrogram with overlap:</p>
+<pre><code>from scipy.signal import spectrogram
+from audioio import AudioLoader, blocks
+nfft = 2048
+with AudioLoader('some/audio.wav') as data:
+    for x in data.blocks(100*nfft, nfft//2):
+        f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def blocks(self, block_size, noverlap=0):
+    &#34;&#34;&#34;Generator for blockwise processing of AudioLoader data.
+
+    Parameters
+    ----------
+    block_size: int
+        Len of data blocks to be returned.
+    noverlap: int
+        Number of indices successive data points should overlap.
+
+    Yields
+    ------
+    data: array
+        Successive slices of the data managed by AudioLoader.
+
+    Raises
+    ------
+    ValueError
+        `noverlap` larger or equal to `block_size`.
+
+    Examples
+    --------
+    Use it for processing long audio data, like computing a spectrogram with overlap:
+    ```
+    from scipy.signal import spectrogram
+    from audioio import AudioLoader, blocks
+    nfft = 2048
+    with AudioLoader(&#39;some/audio.wav&#39;) as data:
+        for x in data.blocks(100*nfft, nfft//2):
+            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+    ```
+    &#34;&#34;&#34;
+    return blocks(self, block_size, noverlap)</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.next"><code class="name flex">
+<span>def <span class="ident">next</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def next(self):  # python 2
+    return self.__next__()</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.open"><code class="name flex">
+<span>def <span class="ident">open</span></span>(<span>self, filepath, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open audio file for reading.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Empty <code>filepath</code>.</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd><code>filepath</code> is not an existing file.</dd>
+<dt><code>EOFError</code></dt>
+<dd>File size of <code>filepath</code> is zero.</dd>
+<dt><code>IOError</code></dt>
+<dd>Failed to load data.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    &#34;&#34;&#34;Open audio file for reading.
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ValueError
+        Empty `filepath`.
+    FileNotFoundError
+        `filepath` is not an existing file.
+    EOFError
+        File size of `filepath` is zero.
+    IOError
+        Failed to load data.
+    &#34;&#34;&#34;
+    self.buffer = np.array([])
+    self.samplerate = 0.0
+    if len(filepath) == 0:
+        raise ValueError(&#39;input argument filepath is empty string!&#39;)
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(&#39;file &#34;%s&#34; not found&#39; % filepath)
+    if os.path.getsize(filepath) &lt;= 0:
+        raise EOFError(&#39;file &#34;%s&#34; is empty (size=0)!&#39; % filepath)
+    # list of implemented open functions:
+    audio_open = [
+        [&#39;soundfile&#39;, self.open_soundfile],
+        [&#39;audioread&#39;, self.open_audioread],
+        [&#39;wave&#39;, self.open_wave],
+        [&#39;wavefile&#39;, self.open_wavefile],
+        [&#39;ewave&#39;, self.open_ewave]
+        ]
+    # open an audio file by trying various modules:
+    success = False
+    not_installed = []
+    for lib, open_file in audio_open:
+        if not audio_modules[lib]:
+            if verbose &gt; 1:
+                print(&#39;failed to load data from file &#34;%s&#34; using %s module&#39; %
+                      (filepath, lib))
+            not_installed.append(lib)
+            continue
+        try:
+            open_file(filepath, buffersize, backsize, verbose-1)
+            if self.frames &gt; 0:
+                success = True
+                if verbose &gt; 0:
+                    print(&#39;opened audio file &#34;%s&#34; using %s&#39; % (filepath, lib))
+                    if verbose &gt; 1:
+                        print(&#39;  sampling rate: %g Hz&#39; % self.samplerate)
+                        print(&#39;  data values  : %d&#39; % self.frames)
+                break
+        except Exception as e:
+                pass
+    if not success:
+        need_install = &#34;&#34;
+        if len(not_installed) &gt; 0:
+            need_install = &#34; You may need to install one of the &#34; + \
+              &#39;, &#39;.join(not_installed) + &#34; packages.&#34;
+        raise IOError(&#39;failed to load data from file &#34;%s&#34;.%s&#39; %
+                      (filepath, need_install))
+    return self</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.open_audioread"><code class="name flex">
+<span>def <span class="ident">open_audioread</span></span>(<span>self, filepath, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open audio file for reading using the audioread module.</p>
+<p>Note, that audioread can only read forward, therefore random and
+backward access is really slow.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The audioread module is not installed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_audioread(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    &#34;&#34;&#34;Open audio file for reading using the audioread module.
+
+    Note, that audioread can only read forward, therefore random and
+    backward access is really slow.
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ImportError
+        The audioread module is not installed
+    &#34;&#34;&#34;
+    self.verbose = verbose
+    if self.verbose &gt; 0:
+        print(&#39;open_audio_read(filepath) with filepath=%s&#39; % filepath)
+    if not audio_modules[&#39;audioread&#39;]:
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        raise ImportError
+    if self.sf is not None:
+        self._close_audioread()
+    self.sf = audioread.audio_open(filepath)
+    self.samplerate = float(self.sf.samplerate)
+    self.channels = self.sf.channels
+    self.frames = int(np.ceil(self.samplerate*self.sf.duration))
+    self.shape = (self.frames, self.channels)
+    self.buffersize = int(buffersize*self.samplerate)
+    self.backsize = int(backsize*self.samplerate)
+    self._init_buffer()
+    self.offset = 0
+    self.read_buffer = np.zeros((0,0))
+    self.read_offset = 0
+    self.close = self._close_audioread
+    self._load_buffer = self._load_buffer_audioread
+    self.filepath = filepath
+    self.sf_iter = self.sf.__iter__()
+    return self</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.open_ewave"><code class="name flex">
+<span>def <span class="ident">open_ewave</span></span>(<span>self, filepath, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open audio file for reading using the ewave module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The ewave module is not installed.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_ewave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    &#34;&#34;&#34;Open audio file for reading using the ewave module.
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ImportError
+        The ewave module is not installed.
+    &#34;&#34;&#34;
+    self.verbose = verbose
+    if self.verbose &gt; 0:
+        print(&#39;open_ewave(filepath) with filepath=%s&#39; % filepath)
+    if not audio_modules[&#39;ewave&#39;]:
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        raise ImportError
+    if self.sf is not None:
+        self._close_ewave()
+    self.sf = ewave.open(filepath, &#39;r&#39;)
+    self.samplerate = float(self.sf.sampling_rate)
+    self.channels = self.sf.nchannels
+    self.frames = self.sf.nframes
+    self.shape = (self.frames, self.channels)
+    self.buffersize = int(buffersize*self.samplerate)
+    self.backsize = int(backsize*self.samplerate)
+    self._init_buffer()
+    self.offset = 0
+    self.close = self._close_ewave
+    self._load_buffer = self._load_buffer_ewave
+    return self</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.open_soundfile"><code class="name flex">
+<span>def <span class="ident">open_soundfile</span></span>(<span>self, filepath, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open audio file for reading using the SoundFile module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The SoundFile module is not installed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    &#34;&#34;&#34;Open audio file for reading using the SoundFile module.
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ImportError
+        The SoundFile module is not installed
+    &#34;&#34;&#34;
+    self.verbose = verbose
+    if self.verbose &gt; 0:
+        print(&#39;open_soundfile(filepath) with filepath=%s&#39; % filepath)
+    if not audio_modules[&#39;soundfile&#39;]:
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        raise ImportError
+    if self.sf is not None:
+        self._close_soundfile()
+    self.sf = soundfile.SoundFile(filepath, &#39;r&#39;)
+    self.samplerate = float(self.sf.samplerate)
+    self.channels = self.sf.channels
+    self.frames = 0
+    if self.sf.seekable():
+        self.frames = self.sf.seek(0, soundfile.SEEK_END)
+        self.sf.seek(0, soundfile.SEEK_SET)
+    # TODO: if not seekable, we cannot handle that file!
+    self.shape = (self.frames, self.channels)
+    self.buffersize = int(buffersize*self.samplerate)
+    self.backsize = int(backsize*self.samplerate)
+    self._init_buffer()
+    self.offset = 0
+    self.close = self._close_soundfile
+    self._load_buffer = self._load_buffer_soundfile
+    return self</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.open_wave"><code class="name flex">
+<span>def <span class="ident">open_wave</span></span>(<span>self, filepath, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open audio file for reading using the wave module.</p>
+<p>Note: we assume that setpos() and tell() use integer numbers!</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wave module is not installed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    &#34;&#34;&#34;Open audio file for reading using the wave module.
+
+    Note: we assume that setpos() and tell() use integer numbers!
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ImportError
+        The wave module is not installed
+    &#34;&#34;&#34;
+    self.verbose = verbose
+    if self.verbose &gt; 0:
+        print(&#39;open_wave(filepath) with filepath=%s&#39; % filepath)
+    if not audio_modules[&#39;wave&#39;]:
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        raise ImportError
+    if self.sf is not None:
+        self._close_wave()
+    self.sf = wave.open(filepath, &#39;r&#39;)
+    self.samplerate = float(self.sf.getframerate())
+    sampwidth = self.sf.getsampwidth()
+    if sampwidth == 1:
+        self.dtype = &#39;u1&#39;
+    else:
+        self.dtype = &#39;i%d&#39; % sampwidth
+    self.factor = 1.0/(2.0**(sampwidth*8-1))
+    self.channels = self.sf.getnchannels()
+    self.frames = self.sf.getnframes()
+    self.shape = (self.frames, self.channels)
+    self.buffersize = int(buffersize*self.samplerate)
+    self.backsize = int(backsize*self.samplerate)
+    self._init_buffer()
+    self.offset = 0
+    self.close = self._close_wave
+    self._load_buffer = self._load_buffer_wave
+    # read 1 frame to determine the unit of the position values:
+    self.p0 = self.sf.tell()
+    self.sf.readframes(1)
+    self.pfac = self.sf.tell() - self.p0
+    self.sf.setpos(self.p0)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="audioio.audioloader.AudioLoader.open_wavefile"><code class="name flex">
+<span>def <span class="ident">open_wavefile</span></span>(<span>self, filepath, buffersize=10.0, backsize=0.0, verbose=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Open audio file for reading using the wavefile module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the file.</dd>
+<dt><strong><code>buffersize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Size of internal buffer in seconds.</dd>
+<dt><strong><code>backsize</code></strong> :&ensp;<code>float</code></dt>
+<dd>Part of the buffer to be loaded before the requested start index in seconds.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wavefile module is not installed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    &#34;&#34;&#34;Open audio file for reading using the wavefile module.
+
+    Parameters
+    ----------
+    filepath: string
+        Name of the file.
+    buffersize: float
+        Size of internal buffer in seconds.
+    backsize: float
+        Part of the buffer to be loaded before the requested start index in seconds.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ImportError
+        The wavefile module is not installed
+    &#34;&#34;&#34;
+    self.verbose = verbose
+    if self.verbose &gt; 0:
+        print(&#39;open_wavefile(filepath) with filepath=%s&#39; % filepath)
+    if not audio_modules[&#39;wavefile&#39;]:
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.offset = 0
+        raise ImportError
+    if self.sf is not None:
+        self._close_wavefile()
+    self.sf = wavefile.WaveReader(filepath)
+    self.samplerate = float(self.sf.samplerate)
+    self.channels = self.sf.channels
+    self.frames = self.sf.frames
+    self.shape = (self.frames, self.channels)
+    self.buffersize = int(buffersize*self.samplerate)
+    self.backsize = int(backsize*self.samplerate)
+    self._init_buffer()
+    self.offset = 0
+    self.close = self._close_wavefile
+    self._load_buffer = self._load_buffer_wavefile
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="audioio.audioloader.audio_loader_funcs" href="#audioio.audioloader.audio_loader_funcs">audio_loader_funcs</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="audioio.audioloader.blocks" href="#audioio.audioloader.blocks">blocks</a></code></li>
+<li><code><a title="audioio.audioloader.demo" href="#audioio.audioloader.demo">demo</a></code></li>
+<li><code><a title="audioio.audioloader.load_audio" href="#audioio.audioloader.load_audio">load_audio</a></code></li>
+<li><code><a title="audioio.audioloader.load_audioread" href="#audioio.audioloader.load_audioread">load_audioread</a></code></li>
+<li><code><a title="audioio.audioloader.load_ewave" href="#audioio.audioloader.load_ewave">load_ewave</a></code></li>
+<li><code><a title="audioio.audioloader.load_soundfile" href="#audioio.audioloader.load_soundfile">load_soundfile</a></code></li>
+<li><code><a title="audioio.audioloader.load_wave" href="#audioio.audioloader.load_wave">load_wave</a></code></li>
+<li><code><a title="audioio.audioloader.load_wavefile" href="#audioio.audioloader.load_wavefile">load_wavefile</a></code></li>
+<li><code><a title="audioio.audioloader.load_wavfile" href="#audioio.audioloader.load_wavfile">load_wavfile</a></code></li>
+<li><code><a title="audioio.audioloader.main" href="#audioio.audioloader.main">main</a></code></li>
+<li><code><a title="audioio.audioloader.unwrap" href="#audioio.audioloader.unwrap">unwrap</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="audioio.audioloader.AudioLoader" href="#audioio.audioloader.AudioLoader">AudioLoader</a></code></h4>
+<ul class="two-column">
+<li><code><a title="audioio.audioloader.AudioLoader.blocks" href="#audioio.audioloader.AudioLoader.blocks">blocks</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.next" href="#audioio.audioloader.AudioLoader.next">next</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.open" href="#audioio.audioloader.AudioLoader.open">open</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.open_audioread" href="#audioio.audioloader.AudioLoader.open_audioread">open_audioread</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.open_ewave" href="#audioio.audioloader.AudioLoader.open_ewave">open_ewave</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.open_soundfile" href="#audioio.audioloader.AudioLoader.open_soundfile">open_soundfile</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.open_wave" href="#audioio.audioloader.AudioLoader.open_wave">open_wave</a></code></li>
+<li><code><a title="audioio.audioloader.AudioLoader.open_wavefile" href="#audioio.audioloader.AudioLoader.open_wavefile">open_wavefile</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
