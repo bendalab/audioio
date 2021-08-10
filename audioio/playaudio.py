@@ -781,10 +781,10 @@ class PlayAudio(object):
                 scale = self.rate/float(rate)
             if scale != 1:
                 self._down_sample(self.channels, scale)
-            oldstderr = os.dup(2)
-            os.close(2)
-            tmpfile = 'tmpfile.tmp'
-            os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
+            #oldstderr = os.dup(2)
+            #os.close(2)
+            #tmpfile = 'tmpfile.tmp'  XXXX Use tempfile module!!!!
+            #os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
             try:
                 self.handle = simpleaudio.play_buffer(self.data, self.channels,
                                                       2, int(self.rate))
@@ -797,11 +797,11 @@ class PlayAudio(object):
                 if self.verbose > 0:
                     print(str(e))
                 return
-            finally:
-                os.close(2)
-                os.dup(oldstderr)
-                os.close(oldstderr)
-                os.remove(tmpfile)
+            #finally:
+                #os.close(2)
+                #os.dup(oldstderr)
+                #os.close(oldstderr)
+                #os.remove(tmpfile)
         if not success:
             raise ValueError('No valid sampling rate found')
         elif blocking:
