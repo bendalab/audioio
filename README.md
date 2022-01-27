@@ -1,5 +1,5 @@
 [![PyPI license](https://img.shields.io/pypi/l/audioio.svg)](https://pypi.python.org/pypi/audioio/)
-[![Build Status](https://github.com/bendalab/audioio/actions/workflows/runchecks.yml/badge.svg?branch=master)](https://github.com/bendalab/audioio/actions/workflows/runchecks.yml)
+[![Run tests](https://github.com/bendalab/audioio/actions/workflows/runchecks.yml/badge.svg?branch=master&event=push)](https://github.com/bendalab/audioio/actions/workflows/runchecks.yml)
 [![codecov](https://codecov.io/gh/bendalab/audioio/branch/master/graph/badge.svg)](https://codecov.io/gh/bendalab/audioio)
 [![PyPI version](https://badge.fury.io/py/audioio.svg)](https://badge.fury.io/py/audioio)
 <!-- [![PyPI pyversions](https://img.shields.io/pypi/pyversions/audioio.svg)](https://pypi.python.org/pypi/audioio/) -->
