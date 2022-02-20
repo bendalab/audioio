@@ -3,6 +3,7 @@ on: [push]
 
 jobs:
   run-checks:
+    if: github.repository == 'janscience/audioio'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout audioio
