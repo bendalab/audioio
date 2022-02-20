@@ -30,7 +30,7 @@ echo "Building API reference docs for $PACKAGE"
 echo
 
 cd "$PACKAGEROOT"
-pdoc3 --html --output-dir "$BUILDROOT/api-tmp" $PACKAGE
+pdoc3 --html --config sort_identifiers=False --output-dir "$BUILDROOT/api-tmp" $PACKAGE
 mv "$BUILDROOT/api-tmp/$PACKAGE" "$BUILDROOT/api"
 rmdir "$BUILDROOT/api-tmp"
 cd - > /dev/null
