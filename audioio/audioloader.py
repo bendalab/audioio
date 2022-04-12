@@ -18,6 +18,11 @@ For a demo run the module as:
 ```
 python -m audioio.audioloader audiofile.wav
 ```
+
+## TODO
+
+- add functions that retrieve metadata from audio files
+- see sndhdr from the standad library and the libsndfile-based modules.
 """
  
 import warnings
@@ -38,8 +43,7 @@ def load_wave(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages.
-        If 2 print information about soundfile
+        Not used.
 
     Returns
     -------
@@ -60,14 +64,6 @@ def load_wave(filepath, verbose=0):
 
     wf = wave.open(filepath, 'r')   # 'with' is not supported by wave
     (nchannels, sampwidth, rate, nframes, comptype, compname) = wf.getparams()
-    if verbose > 1:
-        # this should be a separate function with the sndheader module and for all audio formats
-        print('channels       : %d' % nchannels)
-        print('bytes          : %d' % sampwidth)
-        print('sampling rate  : %g' % rate)
-        print('frames         : %d' % nframes)
-        print('compression type: %s' % comptype)
-        print('compression name: %s' % compname)
     buffer = wf.readframes(nframes)
     factor = 2.0**(sampwidth*8-1)
     if sampwidth == 1:
@@ -94,7 +90,7 @@ def load_ewave(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages (not used).
+        Not used.
 
     Returns
     -------
@@ -137,7 +133,7 @@ def load_wavfile(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages.
+        If larger than zero show detailed error/warning messages.
 
     Returns
     -------
@@ -185,7 +181,7 @@ def load_soundfile(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages (not used).
+        Not used.
 
     Returns
     -------
@@ -224,7 +220,7 @@ def load_wavefile(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages (not used).
+        Not used.
 
     Returns
     -------
@@ -259,7 +255,7 @@ def load_audioread(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages (not used).
+        Not used.
 
     Returns
     -------
@@ -321,7 +317,7 @@ def load_audio(filepath, verbose=0):
     filepath: string
         The full path and name of the file to load.
     verbose: int
-        If >0 show detailed error/warning messages.
+        If larger than zero show detailed error/warning messages.
 
     Returns
     -------
@@ -572,7 +568,7 @@ class AudioLoader(object):
     backsize: float
         Part of the buffer to be loaded before the requested start index in seconds.
     verbose: int
-        If >0 show detailed error/warning messages.
+        If larger than zero show detailed error/warning messages.
 
     Attributes
     ----------
@@ -874,7 +870,7 @@ class AudioLoader(object):
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
-            If >0 show detailed error/warning messages.
+            If larger than zero show detailed error/warning messages.
 
         Raises
         ------
@@ -957,7 +953,7 @@ class AudioLoader(object):
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
-            If >0 show detailed error/warning messages.
+            If larger than zero show detailed error/warning messages.
 
         Raises
         ------
@@ -1028,7 +1024,7 @@ class AudioLoader(object):
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
-            If >0 show detailed error/warning messages.
+            If larger than zero show detailed error/warning messages.
 
         Raises
         ------
@@ -1100,7 +1096,7 @@ class AudioLoader(object):
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
-            If >0 show detailed error/warning messages.
+            If larger than zero show detailed error/warning messages.
 
         Raises
         ------
@@ -1173,7 +1169,7 @@ class AudioLoader(object):
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
-            If >0 show detailed error/warning messages.
+            If larger than zero show detailed error/warning messages.
 
         Raises
         ------
@@ -1329,7 +1325,7 @@ class AudioLoader(object):
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
-            If >0 show detailed error/warning messages.
+            If larger than zero show detailed error/warning messages.
 
         Raises
         ------
