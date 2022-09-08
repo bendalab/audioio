@@ -339,8 +339,8 @@ def load_audio(filepath, verbose=0):
     IOError
         Failed to load data.
 
-    Example
-    -------
+    Examples
+    --------
     ```
     import matplotlib.pyplot as plt
     from audioio import load_audio
@@ -439,7 +439,8 @@ def blocks(data, block_size, noverlap=0):
     nfft = 2048
     with AudioLoader('some/audio.wav') as data:
         for x in blocks(data, 100*nfft, nfft//2):
-            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+            f, t, Sxx = spectrogram(x, fs=data.samplerate,
+                                    nperseg=nfft, noverlap=nfft//2)
     ```
     """
     if noverlap >= block_size:
@@ -535,7 +536,8 @@ class AudioLoader(object):
     nfft = 2048
     with aio.AudioLoader('some/audio.wav') as data:
         for x in data.blocks(100*nfft, nfft//2):
-            f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+            f, t, Sxx = spectrogram(x, fs=data.samplerate,
+                                    nperseg=nfft, noverlap=nfft//2)
     ```
 
     For loop iterates over single frames (1-D arrays containing samples for each channel):
@@ -732,7 +734,8 @@ class AudioLoader(object):
         nfft = 2048
         with AudioLoader('some/audio.wav') as data:
             for x in data.blocks(100*nfft, nfft//2):
-                f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+                f, t, Sxx = spectrogram(x, fs=data.samplerate,
+                                        nperseg=nfft, noverlap=nfft//2)
         ```
         """
         return blocks(self, block_size, noverlap)

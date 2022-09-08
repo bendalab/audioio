@@ -801,8 +801,8 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
     IOError
         Writing of the data failed.
 
-    Example
-    -------
+    Examples
+    --------
     ```
     import numpy as np
     from audioio import write_audio

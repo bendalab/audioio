@@ -85,7 +85,7 @@ loading the entire file into memory. This is really handy for
 analysing very long sound recordings:
 ```
 # open audio file with a buffer holding 60 seconds of data:
-with aio.open_audio_loader('audio/file.wav', 60.0) as data:
+with aio.AudioLoader('audio/file.wav', 60.0) as data:
      block = 1000
      rate = data.samplerate
      for i in range(len(data)//block):
