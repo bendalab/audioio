@@ -579,9 +579,13 @@ class AudioLoader(object):
     channels: int
         The number of channels.
     frames: int
-        The number of frames in the file.
+        The number of frames in the file. Same as `len()`.
     shape: tuple
         Frames and channels of the data.
+    offset: int
+        Index of first frame in the current buffer.
+    buffer: array of floats
+        The curently available data from the file.
 
     Methods
     -------
@@ -593,6 +597,8 @@ class AudioLoader(object):
         Open an audio file with the respective audio module.
     __getitem__
         Access data of the audio file.
+    update_buffer()
+        Update the internal buffer for a range of frames.
     blocks()
         Generator for blockwise processing of AudioLoader data.
     close()
@@ -649,7 +655,7 @@ class AudioLoader(object):
         if self.iter_counter >= self.frames:
             raise StopIteration
         else:
-            self._update_buffer(self.iter_counter, self.iter_counter+1)
+            self.update_buffer(self.iter_counter, self.iter_counter+1)
             return self.buffer[self.iter_counter-self.offset,:]
 
     def next(self):  # python 2
@@ -683,13 +689,13 @@ class AudioLoader(object):
                 step = 1
             else:
                 step = int(step)
-            self._update_buffer(start, stop)
+            self.update_buffer(start, stop)
             newindex = slice(start-self.offset, stop-self.offset, step)
         elif hasattr(index, '__len__'):
             index = [inx if inx >= 0 else inx+len(self) for inx in index]
             start = min(index)
             stop = max(index)
-            self._update_buffer(start, stop+1)
+            self.update_buffer(start, stop+1)
             newindex = [inx-self.offset for inx in index]
         else:
             if index > self.frames:
@@ -697,7 +703,7 @@ class AudioLoader(object):
             index = int(index)
             if index < 0:
                 index += len(self)
-            self._update_buffer(index, index+1)
+            self.update_buffer(index, index+1)
             newindex = index-self.offset
         if type(key) is tuple:
             newkey = (newindex,) + key[1:]
@@ -744,7 +750,7 @@ class AudioLoader(object):
         """Allocate a buffer of size zero."""
         self.buffer = np.empty((0, self.channels))
 
-    def _update_buffer(self, start, stop):
+    def update_buffer(self, start, stop):
         """Make sure that the buffer contains data between start and stop.
 
         Parameters
