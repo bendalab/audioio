@@ -126,7 +126,10 @@ def note2freq(note, a4freq=440.0):
 def fade_in(data, rate, fadetime):
     """Fade in a signal in place.
 
-    The first `fadetime` seconds of the data are multiplied with a squared sine in place.
+    The first `fadetime` seconds of the data are multiplied with a
+    squared sine in place. If `fadetime` is larger than half the
+    duration of the data, then `fadetime` is reduced to half of the
+    duration.
     
     Parameters
     ----------
@@ -138,7 +141,9 @@ def fade_in(data, rate, fadetime):
     fadetime: float
         Time for fading in in seconds.
     """
-    nr = int(np.round(fadetime*rate))
+    if len(data) < 4:
+        return
+    nr = min(int(np.round(fadetime*rate)), len(data)//2) 
     x = np.arange(float(nr))/float(nr) # 0 to pi/2
     y = np.sin(0.5*np.pi*x)**2.0
     if len(data.shape) > 1:
@@ -150,7 +155,10 @@ def fade_in(data, rate, fadetime):
 def fade_out(data, rate, fadetime):
     """Fade out a signal in place.
 
-    The last `fadetime` seconds of the data are multiplied with a squared sine in place.
+    The last `fadetime` seconds of the data are multiplied with a
+    squared sine in place. If `fadetime` is larger than half the
+    duration of the data, then `fadetime` is reduced to half of the
+    duration.
     
     Parameters
     ----------
@@ -162,7 +170,9 @@ def fade_out(data, rate, fadetime):
     fadetime: float
         Time for fading out in seconds.
     """
-    nr = int(np.round(fadetime*rate))
+    if len(data) < 4:
+        return
+    nr = min(int(np.round(fadetime*rate)), len(data)//2) 
     x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi
     y = np.sin(0.5*np.pi*x)**2.0
     if len(data.shape) > 1:
@@ -174,8 +184,10 @@ def fade_out(data, rate, fadetime):
 def fade(data, rate, fadetime):
     """Fade in and out a signal in place.
 
-    The first and last `fadetime` seconds of the data are multiplied with
-    a squared sine in place.
+    The first and last `fadetime` seconds of the data are multiplied
+    with a squared sine in place. If `fadetime` is larger than half the
+    duration of the data, then `fadetime` is reduced to half of the
+    duration.
         
     Parameters
     ----------
