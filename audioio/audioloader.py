@@ -392,7 +392,7 @@ def load_audio(filepath, verbose=0):
     return data, rate
 
 
-def blocks(data, block_size, noverlap=0):
+def blocks(data, block_size, noverlap=0, start=0, stop=None):
     """Generator for blockwise processing of array data.
 
     Parameters
@@ -403,6 +403,10 @@ def blocks(data, block_size, noverlap=0):
         Len of data blocks to be returned.
     noverlap: int
         Number of indices successive data points should overlap.
+    start: int
+        Optional first index from which on to return blocks of data.
+    stop: int
+        Optional last index until which to return blocks of data.
 
     Yields
     ------
@@ -445,15 +449,17 @@ def blocks(data, block_size, noverlap=0):
     """
     if noverlap >= block_size:
         raise ValueError('noverlap=%d larger than block_size=%d' % (noverlap, block_size))
+    if stop is None:
+        stop = len(data)
     m = block_size - noverlap
-    n = (len(data)-noverlap)//m
+    n = (stop-start-noverlap)//m
     if n == 0:
-        yield data[:]
+        yield data[start:stop]
     else:
         for k in range(n):
-            yield data[k*m:k*m+block_size]
-        if len(data) - (k*m+block_size) > 0:
-            yield data[(k+1)*m:]
+            yield data[start+k*m:start+k*m+block_size]
+        if stop - start - (k*m+block_size) > 0:
+            yield data[start+(k+1)*m:]
 
 
 def unwrap(data):
@@ -711,7 +717,7 @@ class AudioLoader(object):
         else:
             return self.buffer[newindex]
 
-    def blocks(self, block_size, noverlap=0):
+    def blocks(self, block_size, noverlap=0, start=0, stop=None):
         """Generator for blockwise processing of AudioLoader data.
 
         Parameters
@@ -720,6 +726,10 @@ class AudioLoader(object):
             Len of data blocks to be returned.
         noverlap: int
             Number of indices successive data points should overlap.
+        start: int
+            Optional first index from which on to return blocks of data.
+        stop: int
+            Optional last index until which to return blocks of data.
 
         Yields
         ------
@@ -744,7 +754,7 @@ class AudioLoader(object):
                                         nperseg=nfft, noverlap=nfft//2)
         ```
         """
-        return blocks(self, block_size, noverlap)
+        return blocks(self, block_size, noverlap, start, stop)
 
     def _init_buffer(self):
         """Allocate a buffer of size zero."""
