@@ -605,6 +605,8 @@ class AudioLoader(object):
         Access data of the audio file.
     update_buffer()
         Update the internal buffer for a range of frames.
+    load_buffer()
+        Load a range of frames into a buffer.
     blocks()
         Generator for blockwise processing of AudioLoader data.
     close()
@@ -775,7 +777,9 @@ class AudioLoader(object):
             r_offset, r_size = self._recycle_buffer(offset, size)
             self.offset = offset
             # load buffer content from file, this is backend specific:
-            self._load_buffer(r_offset, r_size)
+            self.load_buffer(r_offset, r_size,
+                             self.buffer[r_offset-self.offset:
+                                         r_offset+r_size-self.offset,:])
             if self.verbose > 1:
                 print('  loaded %d frames from %d up to %d'
                       % (self.buffer.shape[0], self.offset,
@@ -928,7 +932,7 @@ class AudioLoader(object):
         self._init_buffer()
         self.offset = 0
         self.close = self._close_wave
-        self._load_buffer = self._load_buffer_wave
+        self.load_buffer = self._load_buffer_wave
         # read 1 frame to determine the unit of the position values:
         self.p0 = self.sf.tell()
         self.sf.readframes(1)
@@ -942,7 +946,7 @@ class AudioLoader(object):
             self.sf.close()
             self.sf = None
 
-    def _load_buffer_wave(self, r_offset, r_size):
+    def _load_buffer_wave(self, r_offset, r_size, buffer):
         """Load new data from file using the wave module.
 
         Parameters
@@ -951,14 +955,16 @@ class AudioLoader(object):
            First frame to be read from file.
         r_size: int
            Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
         """
         self.sf.setpos(r_offset*self.pfac + self.p0)
-        buffer = self.sf.readframes(r_size)
-        buffer = np.frombuffer(buffer, dtype=self.dtype).reshape((-1, self.channels))
+        fbuffer = self.sf.readframes(r_size)
+        fbuffer = np.frombuffer(fbuffer, dtype=self.dtype).reshape((-1, self.channels))
         if self.dtype[0] == 'u':
-            self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor - 1.0
+            buffer[:, :] = fbuffer * self.factor - 1.0
         else:
-            self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer * self.factor
+            buffer[:, :] = fbuffer * self.factor
         
 
     # ewave interface:        
@@ -1003,7 +1009,7 @@ class AudioLoader(object):
         self._init_buffer()
         self.offset = 0
         self.close = self._close_ewave
-        self._load_buffer = self._load_buffer_ewave
+        self.load_buffer = self._load_buffer_ewave
         return self
 
     def _close_ewave(self):
@@ -1012,7 +1018,7 @@ class AudioLoader(object):
             del self.sf
             self.sf = None
 
-    def _load_buffer_ewave(self, r_offset, r_size):
+    def _load_buffer_ewave(self, r_offset, r_size, buffer):
         """Load new data from file using the wave module.
 
         Parameters
@@ -1021,12 +1027,14 @@ class AudioLoader(object):
            First frame to be read from file.
         r_size: int
            Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
         """
-        buffer = self.sf.read(frames=r_size, offset=r_offset, memmap='r')
-        buffer = ewave.rescale(buffer, 'float')
-        if len(buffer.shape) == 1:
-            buffer = np.reshape(buffer,(-1, 1))
-        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer
+        fbuffer = self.sf.read(frames=r_size, offset=r_offset, memmap='r')
+        fbuffer = ewave.rescale(fbuffer, 'float')
+        if len(fbuffer.shape) == 1:
+            fbuffer = np.reshape(fbuffer,(-1, 1))
+        buffer[:,:] = fbuffer
 
             
     # soundfile interface:        
@@ -1075,7 +1083,7 @@ class AudioLoader(object):
         self._init_buffer()
         self.offset = 0
         self.close = self._close_soundfile
-        self._load_buffer = self._load_buffer_soundfile
+        self.load_buffer = self._load_buffer_soundfile
         return self
 
     def _close_soundfile(self):
@@ -1084,7 +1092,7 @@ class AudioLoader(object):
             self.sf.close()
             self.sf = None
 
-    def _load_buffer_soundfile(self, r_offset, r_size):
+    def _load_buffer_soundfile(self, r_offset, r_size, buffer):
         """Load new data from file using the wave module.
 
         Parameters
@@ -1093,9 +1101,11 @@ class AudioLoader(object):
            First frame to be read from file.
         r_size: int
            Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
         """
         self.sf.seek(r_offset, soundfile.SEEK_SET)
-        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = self.sf.read(r_size, always_2d=True)
+        buffer[:, :] = self.sf.read(r_size, always_2d=True)
 
             
     # wavefile interface:        
@@ -1140,7 +1150,7 @@ class AudioLoader(object):
         self._init_buffer()
         self.offset = 0
         self.close = self._close_wavefile
-        self._load_buffer = self._load_buffer_wavefile
+        self.load_buffer = self._load_buffer_wavefile
         return self
 
     def _close_wavefile(self):
@@ -1149,7 +1159,7 @@ class AudioLoader(object):
             self.sf.close()
             self.sf = None
 
-    def _load_buffer_wavefile(self, r_offset, r_size):
+    def _load_buffer_wavefile(self, r_offset, r_size, buffer):
         """Load new data from file using the wave module.
 
         Parameters
@@ -1158,11 +1168,13 @@ class AudioLoader(object):
            First frame to be read from file.
         r_size: int
            Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
         """
         self.sf.seek(r_offset, wavefile.Seek.SET)
-        buffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
-        self.sf.read(buffer)
-        self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = buffer.T
+        fbuffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
+        self.sf.read(fbuffer)
+        buffer[:,:] = fbuffer.T
 
             
     # audioread interface:        
@@ -1212,7 +1224,7 @@ class AudioLoader(object):
         self.read_buffer = np.zeros((0,0))
         self.read_offset = 0
         self.close = self._close_audioread
-        self._load_buffer = self._load_buffer_audioread
+        self.load_buffer = self._load_buffer_audioread
         self.filepath = filepath
         self.sf_iter = self.sf.__iter__()
         return self
@@ -1223,7 +1235,7 @@ class AudioLoader(object):
             self.sf.__exit__(None, None, None)
             self.sf = None
 
-    def _load_buffer_audioread(self, r_offset, r_size):
+    def _load_buffer_audioread(self, r_offset, r_size, buffer):
         """Load new data from file using the wave module.
 
         audioread can only iterate through a file once and in blocksizes that are
@@ -1236,7 +1248,10 @@ class AudioLoader(object):
            First frame to be read from file.
         r_size: int
            Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
         """
+        b_offset = 0
         if ( self.read_offset + self.read_buffer.shape[0] >= r_offset + r_size
              and self.read_offset < r_offset + r_size ):
             # read_buffer overlaps at the end of the requested interval:
@@ -1245,7 +1260,8 @@ class AudioLoader(object):
             if n > r_size:
                 i += n - r_size
                 n = r_size
-            self.buffer[self.read_offset+i-self.offset:self.read_offset+i-self.offset+n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            buffer[self.read_offset+i-r_offset:self.read_offset+i+n-r_offset,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            #self.buffer[self.read_offset+i-self.offset:self.read_offset+i-self.offset+n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
             if self.verbose > 2:
                 print('  recycle %6d frames from the front of the read buffer at %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset+n, self.read_offset-self.offset, self.read_offset-self.offset+n))
@@ -1266,16 +1282,17 @@ class AudioLoader(object):
             self.read_offset += self.read_buffer.shape[0]
             try:
                 if hasattr(self.sf_iter, 'next'):
-                    buffer = self.sf_iter.next()
+                    fbuffer = self.sf_iter.next()
                 else:
-                    buffer = next(self.sf_iter)
+                    fbuffer = next(self.sf_iter)
             except StopIteration:
                 self.read_buffer = np.zeros((0,0))
-                self.buffer[r_offset-self.offset:,:] = 0.0
+                buffer[:,:] = 0.0
+                #self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
                     print('  caught StopIteration, padded buffer with %d zeros' % r_size)
                 break
-            self.read_buffer = np.frombuffer(buffer, dtype='<i2').reshape(-1, self.channels)
+            self.read_buffer = np.frombuffer(fbuffer, dtype='<i2').reshape(-1, self.channels)
             if self.verbose > 2:
                 print('  read forward by %d frames' % self.read_buffer.shape[0])
         # recycle file data:
@@ -1285,11 +1302,13 @@ class AudioLoader(object):
             n = self.read_offset + self.read_buffer.shape[0] - r_offset
             if n > r_size:
                 n = r_size
-            self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            buffer[:n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
+            #self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
             if self.verbose > 2:
                 print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
                           r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
+            b_offset += n
             r_offset += n
             r_size -= n
         # read data:
@@ -1300,24 +1319,27 @@ class AudioLoader(object):
             self.read_offset += self.read_buffer.shape[0]
             try:
                 if hasattr(self.sf_iter, 'next'):
-                    buffer = self.sf_iter.next()
+                    fbuffer = self.sf_iter.next()
                 else:
-                    buffer = next(self.sf_iter)
+                    fbuffer = next(self.sf_iter)
             except StopIteration:
                 self.read_buffer = np.zeros((0,0))
-                self.buffer[r_offset-self.offset:,:] = 0.0
+                buffer[b_offset:,:] = 0.0
+                #self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
                     print('  caught StopIteration, padded buffer with %d zeros' % r_size)
                 break
-            self.read_buffer = np.frombuffer(buffer, dtype='<i2').reshape(-1, self.channels)
+            self.read_buffer = np.frombuffer(fbuffer, dtype='<i2').reshape(-1, self.channels)
             n = self.read_buffer.shape[0]
             if n > r_size:
                 n = r_size
             if n > 0:
-                self.buffer[r_offset-self.offset:r_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
+                buffer[b_offset:b_offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
+                #self.buffer[r_offset-self.offset:r_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
                 if self.verbose > 2:
                     print('    read  %6d frames to %d-%d (%d-%d in buffer)'
                           % (n, r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
+                b_offset += n
                 r_offset += n
                 r_size -= n
 
