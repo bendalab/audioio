@@ -1261,7 +1261,6 @@ class AudioLoader(object):
                 i += n - r_size
                 n = r_size
             buffer[self.read_offset+i-r_offset:self.read_offset+i+n-r_offset,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
-            #self.buffer[self.read_offset+i-self.offset:self.read_offset+i-self.offset+n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
             if self.verbose > 2:
                 print('  recycle %6d frames from the front of the read buffer at %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset+n, self.read_offset-self.offset, self.read_offset-self.offset+n))
@@ -1288,7 +1287,6 @@ class AudioLoader(object):
             except StopIteration:
                 self.read_buffer = np.zeros((0,0))
                 buffer[:,:] = 0.0
-                #self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
                     print('  caught StopIteration, padded buffer with %d zeros' % r_size)
                 break
@@ -1303,7 +1301,6 @@ class AudioLoader(object):
             if n > r_size:
                 n = r_size
             buffer[:n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
-            #self.buffer[r_offset - self.offset:r_offset - self.offset + n,:] = self.read_buffer[i:i+n,:] / (2.0**15-1.0)
             if self.verbose > 2:
                 print('  recycle %6d frames from the end of the read buffer at %d-%d to %d-%d (%d-%d in buffer)'
                        % (n, self.read_offset, self.read_offset + self.read_buffer.shape[0],
@@ -1325,7 +1322,6 @@ class AudioLoader(object):
             except StopIteration:
                 self.read_buffer = np.zeros((0,0))
                 buffer[b_offset:,:] = 0.0
-                #self.buffer[r_offset-self.offset:,:] = 0.0
                 if self.verbose > 1:
                     print('  caught StopIteration, padded buffer with %d zeros' % r_size)
                 break
@@ -1335,7 +1331,6 @@ class AudioLoader(object):
                 n = r_size
             if n > 0:
                 buffer[b_offset:b_offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
-                #self.buffer[r_offset-self.offset:r_offset-self.offset+n,:] = self.read_buffer[:n,:] / (2.0**15-1.0)
                 if self.verbose > 2:
                     print('    read  %6d frames to %d-%d (%d-%d in buffer)'
                           % (n, r_offset, r_offset+n, r_offset-self.offset, r_offset+n-self.offset))
