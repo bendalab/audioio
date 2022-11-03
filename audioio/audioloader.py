@@ -22,7 +22,12 @@ python -m audioio.audioloader audiofile.wav
 ## TODO
 
 - add functions that retrieve metadata from audio files
-- see sndhdr from the standad library and the libsndfile-based modules.
+- see the libsndfile-based modules.
+- see here for reading wave chunks:
+  https://gist.github.com/josephernest/3f22c5ed5dabf1815f16efa8fa53d476
+- there is also a cue list for tagging segments in WAV files:
+  https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#cue
+  http://fhein.users.ak.tu-berlin.de/Alias/Studio/ProTools/audio-formate/wav/overview.html
 """
  
 import warnings
