@@ -30,6 +30,7 @@ for further instructions and recommendations on additional audio packages.
 - *Synchronous* (blocking) and *asynchronous* (non blocking) playback.
 - *Automatic resampling* of data for playback to match supported sampling rates.
 - Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages.
+- Read meta data and cue lists.
 """
 
 setup(
