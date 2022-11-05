@@ -241,6 +241,15 @@ def test_audio_files():
     am.enable_module()
 
 
+def test_metadata():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 44.1)
+    al.audio_metadata(filename, store_empty=False)
+    al.audio_metadata(filename, store_empty=True)
+    al.audio_metadata(filename, verbose=2)
+
+    
 def test_iter():
     am.enable_module()
     filename = 'test.wav'

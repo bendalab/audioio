@@ -1,8 +1,9 @@
 """
 Loading data from audio files.
 
-- `load_audio()` loads a whole audio file at once.
-- `AudioLoader` allow to read data from audio files in chunks.
+- `load_audio()`: loads a whole audio file at once.
+- `audio_metadata()`: read meta-data of an audio file.
+- `AudioLoader`: allow to read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 - `unwrap()` unwraps clipped data that are folded into the available data range.
 
@@ -18,17 +19,13 @@ For a demo run the module as:
 ```
 python -m audioio.audioloader audiofile.wav
 ```
-
-## TODO
-
-- add functions that retrieve metadata from audio files
-- see the libsndfile-based modules.
 """
  
 import warnings
 import os.path
 import numpy as np
 from .audiomodules import *
+from .wavemetadata import metadata_wave
 
 
 def load_wave(filepath, verbose=0):
@@ -392,6 +389,42 @@ def load_audio(filepath, verbose=0):
     return data, rate
 
 
+def audio_metadata(file, store_empty=False, verbose=0):
+    """ Read meta-data of an audio file.
+
+    Parameters
+    ----------
+    file: string or file handle
+        The wave file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+    verbose: int
+        Verbosity level.
+
+    Returns
+    -------
+    meta_data: nested dict
+        Meta data contained in the wave file.
+        First level contains blocks of meta data
+        (for example, keys 'INFO' or 'BEXT', values are dictionaries).
+        Second level are dictionaries of key-value pairs.
+        The values do not need to be strings.
+    cues: list of dict
+        Cues contained in the wave file. Each item in the list provides
+        - 'id': Id of the cue.
+        - 'pos': Position of the cue in samples.
+        - 'length': Number of samples the cue covers (optional).
+        - 'repeats': How often the cue segment should be repeated (optional).
+        - 'label': Label of the cue (optional).
+        - 'note': Note on the cue (optional).
+        - 'text': Description of cue segment (optional).
+    """
+    try:
+        return metadata_wave(file, store_empty, verbose)
+    except ValueError: # not a wave file
+        return {}, []
+
+
 def blocks(data, block_size, noverlap=0, start=0, stop=None):
     """Generator for blockwise processing of array data.
 
@@ -609,6 +642,8 @@ class AudioLoader(object):
         Load a range of frames into a buffer.
     blocks()
         Generator for blockwise processing of AudioLoader data.
+    metadata()
+        Meta-data stored along with the audio data.
     close()
         Close the file.
 
@@ -881,6 +916,37 @@ class AudioLoader(object):
             allocate_buffer(size)
         return r_offset, r_size
 
+
+    def metadata(store_empty=False):
+        """ Read meta-data of the audio file.
+
+        This default implementation does nothing.
+
+        Parameters
+        ----------
+        store_empty: bool
+            If `False` do not add meta data with empty values.
+
+        Returns
+        -------
+        meta_data: nested dict
+            Meta data contained in the wave file.
+            First level contains blocks of meta data
+            (for example, keys 'INFO' or 'BEXT', values are dictionaries).
+            Second level are dictionaries of key-value pairs.
+            The values do not need to be strings.
+        cues: list of dict
+            Cues contained in the wave file. Each item in the list provides
+            - 'id': Id of the cue.
+            - 'pos': Position of the cue in samples.
+            - 'length': Number of samples the cue covers (optional).
+            - 'repeats': How often the cue segment should be repeated (optional).
+            - 'label': Label of the cue (optional).
+            - 'note': Note on the cue (optional).
+            - 'text': Description of cue segment (optional).
+        """
+        return {}, []
+
     
     # wave interface:        
     def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
@@ -933,6 +999,7 @@ class AudioLoader(object):
         self.offset = 0
         self.close = self._close_wave
         self.load_buffer = self._load_buffer_wave
+        self.metadata = self._metadata_wave
         # read 1 frame to determine the unit of the position values:
         self.p0 = self.sf.tell()
         self.sf.readframes(1)
@@ -965,7 +1032,17 @@ class AudioLoader(object):
             buffer[:, :] = fbuffer * self.factor - 1.0
         else:
             buffer[:, :] = fbuffer * self.factor
-        
+
+
+    def _metadata_wave(store_empty=False):
+        """ Read meta-data of a wave file.
+
+        See also
+        --------
+        metadata()
+        """
+        return metadata_wave(self.sf, store_empty, self.verbose)
+
 
     # ewave interface:        
     def open_ewave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
@@ -1010,6 +1087,7 @@ class AudioLoader(object):
         self.offset = 0
         self.close = self._close_ewave
         self.load_buffer = self._load_buffer_ewave
+        self.metadata = self._metadata_wave
         return self
 
     def _close_ewave(self):

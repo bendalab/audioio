@@ -86,7 +86,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
         - 'id': Id of the cue.
         - 'pos': Position of the cue in samples.
         - 'length': Number of samples the cue covers (optional, from PLST or LTXT chunk).
-        - 'repeats': How often the cue segment should be repeated (optional, from PLST chunk)).
+        - 'repeats': How often the cue segment should be repeated (optional, from PLST chunk).
         - 'label': Label of the cue (optional, from LABL chunk).
         - 'note': Note on the cue (optional, from NOTE chunk).
         - 'text': Description of cue segment (optional, from LTXT chunk).
