@@ -99,12 +99,12 @@ def metadata_wave(file, store_empty=False, verbose=0):
 
     def riff_chunk(sf):
         """ Read and check the RIFF file header. """
-        str1 = sf.read(4)
-        if str1 != b'RIFF':
+        str1 = sf.read(4).decode('ascii')
+        if str1 != 'RIFF':
             raise ValueError("Not a wave file.")
         fsize = struct.unpack('<I', sf.read(4))[0] + 8
-        str2 = sf.read(4)
-        if (str2 != b'WAVE'):
+        str2 = sf.read(4).decode('ascii')
+        if str2 != 'WAVE':
             raise ValueError("Not a wave file.")
         return fsize
 
@@ -188,7 +188,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
                             c['text'] = text
                             break
                 else:
-                    if verbose:
+                    if verbose > 0:
                         print('  skip', key, size, list_size)
                     sf.read(size)
                 list_size -= 12 + size
@@ -280,6 +280,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
     file_pos = None
     if hasattr(file, 'read'):
         file_pos = sf.tell()
+        sf.seek(0, 0)
     else:
         sf = open(file, 'rb')
     fsize = riff_chunk(sf)
@@ -300,7 +301,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
             md = ixml_chunk(sf)
             meta_data['IXML'] = md
         else:
-            if verbose:
+            if verbose > 0:
                 print('skip', chunk)
             skip_chunk(sf)
             if verbose > 1:

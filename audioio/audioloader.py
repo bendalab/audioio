@@ -659,6 +659,7 @@ class AudioLoader(object):
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
+        self.filepath = None
         self.sf = None
         self.samplerate = 0.0
         self.channels = 0
@@ -917,7 +918,7 @@ class AudioLoader(object):
         return r_offset, r_size
 
 
-    def metadata(store_empty=False):
+    def metadata(self, store_empty=False):
         """ Read meta-data of the audio file.
 
         This default implementation does nothing.
@@ -945,7 +946,10 @@ class AudioLoader(object):
             - 'note': Note on the cue (optional).
             - 'text': Description of cue segment (optional).
         """
-        return {}, []
+        try:
+            return metadata_wave(self.filepath, store_empty, self.verbose)
+        except ValueError:
+            return {}, []
 
     
     # wave interface:        
@@ -983,6 +987,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_wave()
         self.sf = wave.open(filepath, 'r')
+        self.filepath = filepath
         self.samplerate = float(self.sf.getframerate())
         sampwidth = self.sf.getsampwidth()
         if sampwidth == 1:
@@ -1034,14 +1039,14 @@ class AudioLoader(object):
             buffer[:, :] = fbuffer * self.factor
 
 
-    def _metadata_wave(store_empty=False):
+    def _metadata_wave(self, store_empty=False):
         """ Read meta-data of a wave file.
 
         See also
         --------
         metadata()
         """
-        return metadata_wave(self.sf, store_empty, self.verbose)
+        return metadata_wave(self.filepath, store_empty, self.verbose)
 
 
     # ewave interface:        
@@ -1077,6 +1082,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_ewave()
         self.sf = ewave.open(filepath, 'r')
+        self.filepath = filepath
         self.samplerate = float(self.sf.sampling_rate)
         self.channels = self.sf.nchannels
         self.frames = self.sf.nframes
@@ -1148,6 +1154,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_soundfile()
         self.sf = soundfile.SoundFile(filepath, 'r')
+        self.filepath = filepath
         self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = 0
@@ -1219,6 +1226,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_wavefile()
         self.sf = wavefile.WaveReader(filepath)
+        self.filepath = filepath
         self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = self.sf.frames
@@ -1291,6 +1299,7 @@ class AudioLoader(object):
         if self.sf is not None:
             self._close_audioread()
         self.sf = audioread.audio_open(filepath)
+        self.filepath = filepath
         self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = int(np.ceil(self.samplerate*self.sf.duration))
