@@ -10,6 +10,7 @@ For wave chunks see:
 
 - https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#cue
 - http://fhein.users.ak.tu-berlin.de/Alias/Studio/ProTools/audio-formate/wav/overview.html
+- http://www.gallery.co.uk/ixml/
 
 For tag names see:
 
@@ -60,13 +61,15 @@ info_tags = dict(AGES='Rated',
                  IMAC='MACAdress')
 
 
-def metadata_wave(file, verbose=0):
+def metadata_wave(file, store_empty=False, verbose=0):
     """ Read metadata of a wave file.
 
     Parameters
     ----------
     file: string or file handle
         The wave file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
     verbose: int
         Verbosity level.
 
@@ -133,7 +136,7 @@ def metadata_wave(file, verbose=0):
                     c['repeats'] = repeats
                     break
 
-    def info_chunks(sf, list_size):
+    def info_chunks(sf, list_size, store_empty):
         """ Read in meta data from info list chunk. """
         md = {}
         while list_size >= 8:
@@ -144,7 +147,8 @@ def metadata_wave(file, verbose=0):
             list_size -= 8 + size
             if key in info_tags:
                 key = info_tags[key]
-            md[key] = value
+            if value or store_empty:
+                md[key] = value
         if list_size > 0:
             sf.seek(list_size, 1)
         return md
@@ -156,7 +160,7 @@ def metadata_wave(file, verbose=0):
         list_type = sf.read(4).decode('ascii').upper()
         list_size -= 4
         if list_type == 'INFO':
-            md = info_chunks(sf, list_size)
+            md = info_chunks(sf, list_size, store_empty)
         elif list_type == 'ADTL':
             while list_size >= 8:
                 key = sf.read(4).decode('ascii').rstrip(' \x00').upper()
@@ -194,7 +198,7 @@ def metadata_wave(file, verbose=0):
             print('ERROR: unknown list type', list_type)
         return md
 
-    def bext_chunk(sf):
+    def bext_chunk(sf, store_empty=True):
         """ Read in meta-data from the broadcast-audio extension chunk.
 
         See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
@@ -221,25 +225,54 @@ def metadata_wave(file, verbose=0):
         md = {}
         size = struct.unpack('<I', sf.read(4))[0]
         size += size % 2
-        md['Description'] = sf.read(256).decode('ascii').rstrip(' \x00')
-        md['Originator'] = sf.read(32).decode('ascii').rstrip(' \x00')
-        md['OriginatorReference'] = sf.read(32).decode('ascii').rstrip(' \x00')
-        md['OriginationDate'] = sf.read(10).decode('ascii').rstrip(' \x00')
-        md['OriginationTime'] = sf.read(8).decode('ascii').rstrip(' \x00')
-        md['TimeReference'] = struct.unpack('<Q', sf.read(8))[0]
-        md['Version'] = struct.unpack('<H', sf.read(2))[0]
-        md['UMID'] = sf.read(64).decode('ascii').rstrip(' \x00')
+        s = sf.read(256).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['Description'] = s
+        s = sf.read(32).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['Originator'] = s
+        s = sf.read(32).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['OriginatorReference'] = s
+        s = sf.read(10).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['OriginationDate'] = s
+        s = sf.read(8).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['OriginationTime'] = s
+        reference, version = struct.unpack('<QH', sf.read(10))
+        if reference > 0 or store_empty:
+            md['TimeReference'] = reference
+        if version > 0 or store_empty:
+            md['Version'] = version
+        s = sf.read(64).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['UMID'] = s
         lvalue, lrange, peak, momentary, shortterm = struct.unpack('<hhhhh', sf.read(10))
-        md['LoudnessValue'] = lvalue
-        md['LoudnessRange'] = lrange
-        md['MaxTruePeakLevel'] = peak
-        md['MaxMomentaryLoudness'] = momentary
-        md['MaxShortTermLoudness'] = shortterm
-        md['Reserved'] = sf.read(180).decode('ascii').rstrip(' \x00')
+        if lvalue > 0 or store_empty:
+            md['LoudnessValue'] = lvalue
+        if lrange > 0 or store_empty:
+            md['LoudnessRange'] = lrange
+        if peak > 0 or store_empty:
+            md['MaxTruePeakLevel'] = peak
+        if momentary > 0 or store_empty:
+            md['MaxMomentaryLoudness'] = momentary
+        if shortterm > 0 or store_empty:
+            md['MaxShortTermLoudness'] = shortterm
+        s = sf.read(180).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['Reserved'] = s
         size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
-        md['CodingHistory'] = sf.read(size).decode('ascii').rstrip(' \x00')
+        s = sf.read(size).decode('ascii').rstrip(' \x00')
+        if s or store_empty:
+            md['CodingHistory'] = s
         return md
 
+    def ixml_chunk(sf):
+        size = struct.unpack('<I', sf.read(4))[0]
+        size += size % 2
+        xmls = sf.read(size).decode('ascii').rstrip(' \x00')
+        return xmls
             
     meta_data = {}
     cues = []
@@ -250,7 +283,7 @@ def metadata_wave(file, verbose=0):
     else:
         sf = open(file, 'rb')
     fsize = riff_chunk(sf)
-    while (sf.tell() < fsize):
+    while (sf.tell() < fsize - 8):
         chunk = sf.read(4).decode('ascii').upper()
         if chunk == 'LIST':
             md = list_chunk(sf, cues, verbose)
@@ -261,12 +294,17 @@ def metadata_wave(file, verbose=0):
         elif chunk == 'PLST':
             playlist_chunk(sf, cues)
         elif chunk == 'BEXT':
-            md = bext_chunk(sf)
+            md = bext_chunk(sf, store_empty)
             meta_data['BEXT'] = md
+        elif chunk == 'IXML':
+            md = ixml_chunk(sf)
+            meta_data['IXML'] = md
         else:
             if verbose:
                 print('skip', chunk)
             skip_chunk(sf)
+            if verbose > 1:
+                print(f' file size={fsize}, file position={sf.tell()}')
     if file_pos is None:
         sf.close()
     else:
@@ -288,19 +326,28 @@ def main(args):
         print('Usage:')
         print('  python -m audioio.wavemetadata [--help] <audio/file.wav>')
         return
+
+    # read meta data:
+    meta_data, cues = metadata_wave(args[1], store_empty=False, verbose=1)
     
-    meta_data, cues = metadata_wave(args[1])   
+    # print meta data:
     print()
     print('meta data:')
     for sk in meta_data:
-        print(f'{sk}:')
         md = meta_data[sk]
-        for k in md:
-            print(f'  {k:22}: {md[k]}')
-    print()
-    print(f'{"cue":4} {"position":10} {"length":8} {"label":10} {"note":10} {"text":10}')
-    for c in cues:
-        print(f'{c["id"]:4} {c["pos"]:10} {c.get("length", 0):8} {c.get("label", ""):10} {c.get("note", ""):10} {c.get("text", ""):10}')
+        if isinstance(md, dict):
+            print(f'{sk}:')
+            for k in md:
+                print(f'  {k:22}: {md[k]}')
+        else:
+            print(f'{sk}:\n  {md}')
+            
+    # print cue table:
+    if len(cues) > 0:
+        print()
+        print(f'{"cue":4} {"position":10} {"length":8} {"label":10} {"note":10} {"text":10}')
+        for c in cues:
+            print(f'{c["id"]:4} {c["pos"]:10} {c.get("length", 0):8} {c.get("label", ""):10} {c.get("note", ""):10} {c.get("text", ""):10}')
 
 
 if __name__ == "__main__":
