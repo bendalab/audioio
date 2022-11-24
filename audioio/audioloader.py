@@ -919,9 +919,10 @@ class AudioLoader(object):
 
 
     def metadata(self, store_empty=False):
-        """ Read meta-data of the audio file.
+        """Read meta-data of the audio file.
 
-        This default implementation does nothing.
+        This default implementation tries to get wave file
+        metadata. If this fails it does nothing.
 
         Parameters
         ----------
