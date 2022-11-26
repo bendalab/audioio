@@ -76,11 +76,15 @@ def metadata_wave(file, store_empty=False, verbose=0):
     Returns
     -------
     meta_data: nested dict
-        Meta data contained in the wave file.
-        First level contains blocks of meta data
+        Meta data contained in the wave file.  Keys of the nested
+        dictionaries are always strings.  If the corresponding
+        values are dictionaries, then the key is the section name
+        of the metadata contained in the dictionary. All other
+        types of values are values for the respective key. In
+        particular they are strings, or list of strings. But other
+        simple types like ints or floats are also allowed.
+        First level contains sections of meta data
         (keys 'INFO' or 'BEXT', values are dictionaries).
-        Second level are dictionaries of key-value pairs.
-        The values do not need to be strings.
     cues: list of dict
         Cues contained in the wave file. Each item in the list provides
         - 'id': Id of the cue.

@@ -389,7 +389,7 @@ def load_audio(filepath, verbose=0):
     return data, rate
 
 
-def audio_metadata(file, store_empty=False, verbose=0):
+def audio_metadata(file, store_empty=False, first_only=False, verbose=0):
     """ Read meta-data of an audio file.
 
     Parameters
@@ -398,17 +398,21 @@ def audio_metadata(file, store_empty=False, verbose=0):
         The wave file.
     store_empty: bool
         If `False` do not add meta data with empty values.
+    first_only: bool
+        If `False` only store the first element of a list.
     verbose: int
         Verbosity level.
 
     Returns
     -------
     meta_data: nested dict
-        Meta data contained in the wave file.
-        First level contains blocks of meta data
-        (for example, keys 'INFO' or 'BEXT', values are dictionaries).
-        Second level are dictionaries of key-value pairs.
-        The values do not need to be strings.
+        Meta data contained in the audio file.  Keys of the nested
+        dictionaries are always strings.  If the corresponding
+        values are dictionaries, then the key is the section name
+        of the metadata contained in the dictionary. All other
+        types of values are values for the respective key. In
+        particular they are strings, or list of strings. But other
+        simple types like ints or floats are also allowed.
     cues: list of dict
         Cues contained in the wave file. Each item in the list provides
         - 'id': Id of the cue.
@@ -918,7 +922,7 @@ class AudioLoader(object):
         return r_offset, r_size
 
 
-    def metadata(self, store_empty=False):
+    def metadata(self, store_empty=False, first_only=False):
         """Read meta-data of the audio file.
 
         This default implementation tries to get wave file
@@ -928,15 +932,19 @@ class AudioLoader(object):
         ----------
         store_empty: bool
             If `False` do not add meta data with empty values.
+        first_only: bool
+            If `False` only store the first element of a list.
 
         Returns
         -------
         meta_data: nested dict
-            Meta data contained in the wave file.
-            First level contains blocks of meta data
-            (for example, keys 'INFO' or 'BEXT', values are dictionaries).
-            Second level are dictionaries of key-value pairs.
-            The values do not need to be strings.
+            Meta data contained in the audio file.  Keys of the nested
+            dictionaries are always strings.  If the corresponding
+            values are dictionaries, then the key is the section name
+            of the metadata contained in the dictionary. All other
+            types of values are values for the respective key. In
+            particular they are strings, or list of strings. But other
+            simple types like ints or floats are also allowed.
         cues: list of dict
             Cues contained in the wave file. Each item in the list provides
             - 'id': Id of the cue.
@@ -946,6 +954,7 @@ class AudioLoader(object):
             - 'label': Label of the cue (optional).
             - 'note': Note on the cue (optional).
             - 'text': Description of cue segment (optional).
+
         """
         try:
             return metadata_wave(self.filepath, store_empty, self.verbose)
@@ -1040,7 +1049,7 @@ class AudioLoader(object):
             buffer[:, :] = fbuffer * self.factor
 
 
-    def _metadata_wave(self, store_empty=False):
+    def _metadata_wave(self, store_empty=False, first_only=False):
         """ Read meta-data of a wave file.
 
         See also
