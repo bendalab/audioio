@@ -18,6 +18,7 @@ For tag names see:
 """
 
 import struct
+import xml.etree.ElementTree as ET
 
 
 # see https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
@@ -272,11 +273,24 @@ def metadata_wave(file, store_empty=False, verbose=0):
             md['CodingHistory'] = s
         return md
 
+    def parse_xml(element):
+        md = {}
+        for e in element:
+            if not e.text is None:
+                md[e.tag] = e.text
+            elif len(e.getchildren()) > 0:
+                md[e.tag] = parse_xml(e)
+            elif store_empty:
+                md[e.tag] = ''
+        return md
+
     def ixml_chunk(sf):
         size = struct.unpack('<I', sf.read(4))[0]
         size += size % 2
         xmls = sf.read(size).decode('ascii').rstrip(' \x00')
-        return xmls
+        root = ET.fromstring(xmls)
+        md = {root.tag: parse_xml(root)}
+        return md
             
     meta_data = {}
     cues = []
