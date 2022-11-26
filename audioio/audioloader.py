@@ -429,6 +429,24 @@ def audio_metadata(file, store_empty=False, first_only=False, verbose=0):
         return {}, []
 
 
+def flatten_metadata(md, keep_sections=False):
+    """
+    """
+    def flatten(cd, section):
+        df = {}
+        for k in cd:
+            if isinstance(cd[k], dict):
+                df.update(flatten(cd[k], section + k + '.'))
+            else:
+                if keep_sections:
+                    df[section+k] = cd[k]
+                else:
+                    df[k] = cd[k]
+        return df
+
+    return flatten(md, '')
+
+
 def blocks(data, block_size, noverlap=0, start=0, stop=None):
     """Generator for blockwise processing of array data.
 

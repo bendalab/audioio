@@ -23,6 +23,7 @@ if not '-m' in sys.argv:
     from .audiomodules import missing_modules, missing_modules_instructions
     from .audiomodules import installation_instruction
     from .audioloader import load_audio, audio_metadata, AudioLoader
+    from .audioloader import audio_metadata, flatten_metadata
     from .audioloader import blocks, unwrap
     from .wavemetadata import metadata_wave
     from .audiowriter import write_audio, available_formats, available_encodings
