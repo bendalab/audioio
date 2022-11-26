@@ -104,11 +104,11 @@ def metadata_wave(file, store_empty=False, verbose=0):
 
     def riff_chunk(sf):
         """ Read and check the RIFF file header. """
-        str1 = sf.read(4).decode('ascii')
+        str1 = sf.read(4).decode('latin-1')
         if str1 != 'RIFF':
             raise ValueError("Not a wave file.")
         fsize = struct.unpack('<I', sf.read(4))[0] + 8
-        str2 = sf.read(4).decode('ascii')
+        str2 = sf.read(4).decode('latin-1')
         if str2 != 'WAVE':
             raise ValueError("Not a wave file.")
         return fsize
@@ -125,7 +125,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
         size, n = struct.unpack('<II', sf.read(8))
         for c in range(n):
             id, pos = struct.unpack('<II', sf.read(8))
-            datachunkid = sf.read(4).decode('ascii').rstrip(' \x00').upper()
+            datachunkid = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
             chunkstart, blockstart, offset = struct.unpack('<III', sf.read(12))
             c = dict(id=id, pos=pos)
             cues.append(c)
@@ -145,10 +145,10 @@ def metadata_wave(file, store_empty=False, verbose=0):
         """ Read in meta data from info list chunk. """
         md = {}
         while list_size >= 8:
-            key = sf.read(4).decode('ascii').rstrip(' \x00')
+            key = sf.read(4).decode('latin-1').rstrip(' \x00')
             size = struct.unpack('<I', sf.read(4))[0]
             size += size % 2
-            value = sf.read(size).decode('ascii').rstrip(' \x00')
+            value = sf.read(size).decode('latin-1').rstrip(' \x00')
             list_size -= 8 + size
             if key in info_tags:
                 key = info_tags[key]
@@ -162,23 +162,23 @@ def metadata_wave(file, store_empty=False, verbose=0):
         """ Read in list chunk. """
         md = {}
         list_size = struct.unpack('<I', sf.read(4))[0]
-        list_type = sf.read(4).decode('ascii').upper()
+        list_type = sf.read(4).decode('latin-1').upper()
         list_size -= 4
         if list_type == 'INFO':
             md = info_chunks(sf, list_size, store_empty)
         elif list_type == 'ADTL':
             while list_size >= 8:
-                key = sf.read(4).decode('ascii').rstrip(' \x00').upper()
+                key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
                 size, id = struct.unpack('<II', sf.read(8))
                 size += size % 2 - 4
                 if key == 'LABL':
-                    label = sf.read(size).decode('ascii').rstrip(' \x00')
+                    label = sf.read(size).decode('latin-1').rstrip(' \x00')
                     for c in cues:
                         if c['id'] == id:
                             c['label'] = label
                             break
                 elif key == 'NOTE':
-                    note = sf.read(size).decode('ascii').rstrip(' \x00')
+                    note = sf.read(size).decode('latin-1').rstrip(' \x00')
                     for c in cues:
                         if c['id'] == id:
                             c['note'] = note
@@ -186,7 +186,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
                 elif key == 'LTXT':
                     length = struct.unpack('<I', sf.read(4))[0]
                     sf.read(12)
-                    text = sf.read(size - 4 - 12).decode('ascii').rstrip(' \x00')
+                    text = sf.read(size - 4 - 12).decode('latin-1').rstrip(' \x00')
                     for c in cues:
                         if c['id'] == id:
                             c['length'] = length
@@ -230,19 +230,19 @@ def metadata_wave(file, store_empty=False, verbose=0):
         md = {}
         size = struct.unpack('<I', sf.read(4))[0]
         size += size % 2
-        s = sf.read(256).decode('ascii').rstrip(' \x00')
+        s = sf.read(256).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['Description'] = s
-        s = sf.read(32).decode('ascii').rstrip(' \x00')
+        s = sf.read(32).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['Originator'] = s
-        s = sf.read(32).decode('ascii').rstrip(' \x00')
+        s = sf.read(32).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['OriginatorReference'] = s
-        s = sf.read(10).decode('ascii').rstrip(' \x00')
+        s = sf.read(10).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['OriginationDate'] = s
-        s = sf.read(8).decode('ascii').rstrip(' \x00')
+        s = sf.read(8).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['OriginationTime'] = s
         reference, version = struct.unpack('<QH', sf.read(10))
@@ -250,7 +250,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
             md['TimeReference'] = reference
         if version > 0 or store_empty:
             md['Version'] = version
-        s = sf.read(64).decode('ascii').rstrip(' \x00')
+        s = sf.read(64).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['UMID'] = s
         lvalue, lrange, peak, momentary, shortterm = struct.unpack('<hhhhh', sf.read(10))
@@ -264,11 +264,11 @@ def metadata_wave(file, store_empty=False, verbose=0):
             md['MaxMomentaryLoudness'] = momentary
         if shortterm > 0 or store_empty:
             md['MaxShortTermLoudness'] = shortterm
-        s = sf.read(180).decode('ascii').rstrip(' \x00')
+        s = sf.read(180).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['Reserved'] = s
         size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
-        s = sf.read(size).decode('ascii').rstrip(' \x00')
+        s = sf.read(size).decode('latin-1').rstrip(' \x00')
         if s or store_empty:
             md['CodingHistory'] = s
         return md
@@ -287,7 +287,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
     def ixml_chunk(sf):
         size = struct.unpack('<I', sf.read(4))[0]
         size += size % 2
-        xmls = sf.read(size).decode('ascii').rstrip(' \x00')
+        xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
         root = ET.fromstring(xmls)
         md = {root.tag: parse_xml(root)}
         return md
@@ -303,7 +303,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
         sf = open(file, 'rb')
     fsize = riff_chunk(sf)
     while (sf.tell() < fsize - 8):
-        chunk = sf.read(4).decode('ascii').upper()
+        chunk = sf.read(4).decode('latin-1').upper()
         if chunk == 'LIST':
             md = list_chunk(sf, cues, verbose)
             if len(md) > 0:
