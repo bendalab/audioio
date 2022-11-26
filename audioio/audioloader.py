@@ -617,6 +617,8 @@ class AudioLoader(object):
 
     Attributes
     ----------
+    filepath: str
+        Path and name of the file.
     samplerate: float
         The sampling rate of the data in seconds.
     channels: int
