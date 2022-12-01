@@ -649,6 +649,10 @@ class AudioLoader(object):
         Index of first frame in the current buffer.
     buffer: array of floats
         The curently available data from the file.
+    ampl_min: float
+        Minimum amplitude the file format supports. Always -1.0.
+    ampl_max: float
+        Maximum amplitude the file format supports. Always +1.0.
 
     Methods
     -------
@@ -689,6 +693,8 @@ class AudioLoader(object):
         self.channels = 0
         self.frames = 0
         self.shape = (0, 0)
+        self.ampl_min = -1.0
+        self.ampl_max = +1.0
         self.offset = 0
         self.buffersize = 0
         self.backsize = 0
