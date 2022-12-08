@@ -547,7 +547,297 @@ def unwrap(data):
     return data
 
 
-class AudioLoader(object):
+class BufferArray(object):
+    """Random access to 2D data of which only a part is held in memory.
+    
+    This is a base class for accessing large audio recordings either
+    from a file (class AudioLoader) or by computing it contents.  The
+    BufferArray behaves like a single big ndarray with first dimension
+    indexing the frames and second dimension indexing the channels of
+    the audio data. Internally it only holds a part of the data in
+    memory.
+
+    Classes inheriting BufferArray just need to implement
+    ```
+    self.load_buffer(offset, size, buffer)
+    ```
+    This function needs to load the supplied 2-D `buffer` with `size`
+    frames of data starting at `offset`.
+
+    In the constructor or some kind of opening function, you need to
+    set the following member variables, followed by a call to
+    `_init_buffer()`:
+    ```
+    self.samplerate      # number of frames per second
+    self.channels        # number of channels per frame
+    self.frames          # total number of frames
+    self.shape = (self.frames, self.channels)        
+    self.buffersize      # number of frames the buffer should hold
+    self.backsize        # number of frames kept for moving back
+    self._init_buffer()
+    ```
+    
+    Parameters
+    ----------
+    verbose: int
+        If larger than zero show detailed error/warning messages.
+
+    Attributes
+    ----------
+    samplerate: float
+        The sampling rate of the data in seconds.
+    channels: int
+        The number of channels.
+    frames: int
+        The number of frames. Same as `len()`.
+    shape: tuple
+        Frames and channels of the data.
+    offset: int
+        Index of first frame in the current buffer.
+    buffer: array of floats
+        The curently available data.
+    ampl_min: float
+        Minimum amplitude the data supports.
+    ampl_max: float
+        Maximum amplitude the data supports.
+
+    Methods
+    -------
+    len()
+        Number of frames.
+    __getitem__
+        Access data.
+    update_buffer()
+        Update the buffer for a range of frames.
+    load_buffer()
+        Load a range of frames into a buffer.
+
+    Notes
+    -----
+    Access via `__getitem__` or `__next__` is slow!
+    Even worse, using numpy functions on this class first converts
+    it to a numpy array - that is something we actually do not want!
+    We should subclass directly from numpy.ndarray .
+    For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+    When subclassing, there is an offset argument, that might help to
+    speed up `__getitem__` .
+
+    """
+    
+    def __init__(self, verbose=0):
+        self.samplerate = 0.0
+        self.channels = 0
+        self.frames = 0
+        self.shape = (0, 0)
+        self.ampl_min = -1.0
+        self.ampl_max = +1.0
+        self.offset = 0
+        self.buffersize = 0
+        self.backsize = 0
+        self.buffer = np.zeros((0,0))
+        self.verbose = verbose
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, ex_type, ex_value, tb):
+        self.__del__()
+        return (ex_value is None)
+        
+    def __len__(self):
+        return self.frames
+
+    def __iter__(self):
+        self.iter_counter = -1
+        return self
+
+    def __next__(self):
+        self.iter_counter += 1
+        if self.iter_counter >= self.frames:
+            raise StopIteration
+        else:
+            self.update_buffer(self.iter_counter, self.iter_counter+1)
+            return self.buffer[self.iter_counter-self.offset,:]
+
+    def next(self):  # python 2
+        return self.__next__()
+
+    def __getitem__(self, key):
+        """Access data of the audio file."""
+        if type(key) is tuple:
+            index = key[0]
+        else:
+            index = key
+        if isinstance(index, slice):
+            start = index.start
+            stop = index.stop
+            step = index.step
+            if start is None:
+                start=0
+            else:
+                start = int(start)
+            if start < 0:
+                start += len(self)
+            if stop is None:
+                stop = len(self)
+            else:
+                stop = int(stop)
+            if stop < 0:
+                stop += len(self)
+            if stop > self.frames:
+                stop = self.frames
+            if step is None:
+                step = 1
+            else:
+                step = int(step)
+            self.update_buffer(start, stop)
+            newindex = slice(start-self.offset, stop-self.offset, step)
+        elif hasattr(index, '__len__'):
+            index = [inx if inx >= 0 else inx+len(self) for inx in index]
+            start = min(index)
+            stop = max(index)
+            self.update_buffer(start, stop+1)
+            newindex = [inx-self.offset for inx in index]
+        else:
+            if index > self.frames:
+                raise IndexError
+            index = int(index)
+            if index < 0:
+                index += len(self)
+            self.update_buffer(index, index+1)
+            newindex = index-self.offset
+        if type(key) is tuple:
+            newkey = (newindex,) + key[1:]
+            return self.buffer[newkey]
+        else:
+            return self.buffer[newindex]
+
+    def _init_buffer(self):
+        """Allocate a buffer with zero frames but all the channels."""
+        self.buffer = np.empty((0, self.channels))
+        self.offset = 0
+
+    def update_buffer(self, start, stop):
+        """Make sure that the buffer contains data between start and stop.
+
+        Parameters
+        ----------
+        start: int
+            Index of the first frame for the buffer.
+        stop: int
+            Index of the last frame for the buffer.
+        """
+        if start < self.offset or stop > self.offset + self.buffer.shape[0]:
+            offset, size = self._read_indices(start, stop)
+            r_offset, r_size = self._recycle_buffer(offset, size)
+            self.offset = offset
+            # load buffer content from file, this is backend specific:
+            self.load_buffer(r_offset, r_size,
+                             self.buffer[r_offset-self.offset:
+                                         r_offset+r_size-self.offset,:])
+            if self.verbose > 1:
+                print('  loaded %d frames from %d up to %d'
+                      % (self.buffer.shape[0], self.offset,
+                         self.offset+self.buffer.shape[0]))
+
+    def _read_indices(self, start, stop):
+        """Compute position and size for next read from file.
+
+        This takes buffersize and backsize into account.
+
+        Parameters
+        ----------
+        start: int
+            Index of the first requested frame.
+        stop: int
+            Index of the last requested frame.
+
+        Returns
+        -------
+        offset: int
+           Frame index for the first frame in the buffer.
+        size: int
+           Number of frames the buffer should hold.
+        """
+        offset = start
+        size = stop - start
+        if size < self.buffersize:
+            back = self.backsize
+            if self.buffersize - size < back:
+                back = self.buffersize - size
+            offset -= back
+            size = self.buffersize
+            if offset < 0:
+                offset = 0
+            if offset + size > self.frames:
+                offset = self.frames - size
+                if offset < 0:
+                    offset = 0
+                    size = self.frames - offset
+        if self.verbose > 2:
+            print('  request %6d frames at %d-%d' % (size, offset, offset+size))
+        return offset, size
+
+    def _recycle_buffer(self, offset, size):
+        """Recycle buffer contents and return indices for data to be loaded from file.
+
+        Move already existing parts of the buffer to their new position (as
+        returned by _read_indices() ) and return position and size of
+        data chunk that still needs to be loaded from file.
+
+        Parameters
+        ----------
+        offset: int
+           Frame index for the first frame in the buffer.
+        size: int
+           Number of frames the buffer should hold.
+
+        Returns
+        -------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        """
+        def allocate_buffer(size):
+            """Make sure the buffer has the right size."""
+            if size != self.buffer.shape[0]:
+                self.buffer = np.empty((size, self.channels))
+
+        r_offset = offset
+        r_size = size
+        if ( offset >= self.offset and
+             offset < self.offset + self.buffer.shape[0] ):
+            i = self.offset + self.buffer.shape[0] - offset
+            n = i
+            if n > size:
+                n = size
+            m = self.buffer.shape[0]
+            buffer = self.buffer[-i:m-i+n,:]
+            allocate_buffer(size)
+            self.buffer[:n,:] = buffer
+            r_offset += n
+            r_size -= n
+            if self.verbose > 2:
+                print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the front at %d-%d (%d-%d in buffer)'
+                       % (n, self.offset+m-i, self.offset+m-i+n, m, offset, offset+n, 0, n))
+        elif ( offset + size > self.offset and
+            offset + size <= self.offset + self.buffer.shape[0] ):
+            n = offset + size - self.offset
+            m = self.buffer.shape[0]
+            buffer = self.buffer[:n,:]
+            allocate_buffer(size)
+            self.buffer[-n:,:] = buffer
+            r_size -= n
+            if self.verbose > 2:
+                print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the end at %d-%d (%d-%d in buffer)'
+                       % (n, self.offset, self.offset+n, m, offset+size-n, offset+size, size-n, size))
+        else:
+            allocate_buffer(size)
+        return r_offset, r_size
+
+    
+class AudioLoader(BufferArray):
     """Buffered reading of audio data for random access of the data in the file.
     
     The class allows for reading very large audio files that do not fit into memory.
@@ -687,19 +977,9 @@ class AudioLoader(object):
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
+        super().__init__(verbose)
         self.filepath = None
         self.sf = None
-        self.samplerate = 0.0
-        self.channels = 0
-        self.frames = 0
-        self.shape = (0, 0)
-        self.ampl_min = -1.0
-        self.ampl_max = +1.0
-        self.offset = 0
-        self.buffersize = 0
-        self.backsize = 0
-        self.buffer = np.zeros((0,0))
-        self.verbose = verbose
         self.close = self._close
         if filepath is not None:
             self.open(filepath, buffersize, backsize, verbose)
@@ -709,81 +989,6 @@ class AudioLoader(object):
 
     def __del__(self):
         self.close()
-
-    def __enter__(self):
-        return self
-        
-    def __exit__(self, ex_type, ex_value, tb):
-        self.__del__()
-        return (ex_value is None)
-        
-    def __len__(self):
-        return self.frames
-
-    def __iter__(self):
-        self.iter_counter = -1
-        return self
-
-    def __next__(self):
-        self.iter_counter += 1
-        if self.iter_counter >= self.frames:
-            raise StopIteration
-        else:
-            self.update_buffer(self.iter_counter, self.iter_counter+1)
-            return self.buffer[self.iter_counter-self.offset,:]
-
-    def next(self):  # python 2
-        return self.__next__()
-
-    def __getitem__(self, key):
-        """Access data of the audio file."""
-        if type(key) is tuple:
-            index = key[0]
-        else:
-            index = key
-        if isinstance(index, slice):
-            start = index.start
-            stop = index.stop
-            step = index.step
-            if start is None:
-                start=0
-            else:
-                start = int(start)
-            if start < 0:
-                start += len(self)
-            if stop is None:
-                stop = len(self)
-            else:
-                stop = int(stop)
-            if stop < 0:
-                stop += len(self)
-            if stop > self.frames:
-                stop = self.frames
-            if step is None:
-                step = 1
-            else:
-                step = int(step)
-            self.update_buffer(start, stop)
-            newindex = slice(start-self.offset, stop-self.offset, step)
-        elif hasattr(index, '__len__'):
-            index = [inx if inx >= 0 else inx+len(self) for inx in index]
-            start = min(index)
-            stop = max(index)
-            self.update_buffer(start, stop+1)
-            newindex = [inx-self.offset for inx in index]
-        else:
-            if index > self.frames:
-                raise IndexError
-            index = int(index)
-            if index < 0:
-                index += len(self)
-            self.update_buffer(index, index+1)
-            newindex = index-self.offset
-        if type(key) is tuple:
-            newkey = (newindex,) + key[1:]
-            return self.buffer[newkey]
-        else:
-            return self.buffer[newindex]
 
     def blocks(self, block_size, noverlap=0, start=0, stop=None):
         """Generator for blockwise processing of AudioLoader data.
@@ -823,130 +1028,6 @@ class AudioLoader(object):
         ```
         """
         return blocks(self, block_size, noverlap, start, stop)
-
-    def _init_buffer(self):
-        """Allocate a buffer of size zero."""
-        self.buffer = np.empty((0, self.channels))
-
-    def update_buffer(self, start, stop):
-        """Make sure that the buffer contains data between start and stop.
-
-        Parameters
-        ----------
-        start: int
-            Index of the first frame for the buffer.
-        stop: int
-            Index of the last frame for the buffer.
-        """
-        if start < self.offset or stop > self.offset + self.buffer.shape[0]:
-            offset, size = self._read_indices(start, stop)
-            r_offset, r_size = self._recycle_buffer(offset, size)
-            self.offset = offset
-            # load buffer content from file, this is backend specific:
-            self.load_buffer(r_offset, r_size,
-                             self.buffer[r_offset-self.offset:
-                                         r_offset+r_size-self.offset,:])
-            if self.verbose > 1:
-                print('  loaded %d frames from %d up to %d'
-                      % (self.buffer.shape[0], self.offset,
-                         self.offset+self.buffer.shape[0]))
-
-    def _read_indices(self, start, stop):
-        """Compute position and size for next read from file.
-
-        This takes buffersize and backsize into account.
-
-        Parameters
-        ----------
-        start: int
-            Index of the first requested frame.
-        stop: int
-            Index of the last requested frame.
-
-        Returns
-        -------
-        offset: int
-           Frame index for the first frame in the buffer.
-        size: int
-           Number of frames the buffer should hold.
-        """
-        offset = start
-        size = stop-start
-        if size < self.buffersize:
-            back = self.backsize
-            if self.buffersize - size < back:
-                back = self.buffersize - size
-            offset -= back
-            size = self.buffersize
-            if offset < 0:
-                offset = 0
-            if offset + size > self.frames:
-                offset = self.frames - size
-                if offset < 0:
-                    offset = 0
-                    size = self.frames - offset
-        if self.verbose > 2:
-            print('  request %6d frames at %d-%d' % (size, offset, offset+size))
-        return offset, size
-
-    def _recycle_buffer(self, offset, size):
-        """Recycle buffer contents and return indices for data to be loaded from file.
-
-        Move already existing parts of the buffer to their new position (as
-        returned by _read_indices() ) and return position and size of
-        data chunk that still needs to be loaded from file.
-
-        Parameters
-        ----------
-        offset: int
-           Frame index for the first frame in the buffer.
-        size: int
-           Number of frames the buffer should hold.
-
-        Returns
-        -------
-        r_offset: int
-           First frame to be read from file.
-        r_size: int
-           Number of frames to be read from file.
-        """
-        def allocate_buffer(size):
-            """Make sure the buffer has the right size."""
-            if size != self.buffer.shape[0]:
-                self.buffer = np.empty((size, self.channels))
-
-        r_offset = offset
-        r_size = size
-        if ( offset >= self.offset and
-             offset < self.offset + self.buffer.shape[0] ):
-            i = self.offset + self.buffer.shape[0] - offset
-            n = i
-            if n > size:
-                n = size
-            m = self.buffer.shape[0]
-            buffer = self.buffer[-i:m-i+n,:]
-            allocate_buffer(size)
-            self.buffer[:n,:] = buffer
-            r_offset += n
-            r_size -= n
-            if self.verbose > 2:
-                print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the front at %d-%d (%d-%d in buffer)'
-                       % (n, self.offset+m-i, self.offset+m-i+n, m, offset, offset+n, 0, n))
-        elif ( offset + size > self.offset and
-            offset + size <= self.offset + self.buffer.shape[0] ):
-            n = offset + size - self.offset
-            m = self.buffer.shape[0]
-            buffer = self.buffer[:n,:]
-            allocate_buffer(size)
-            self.buffer[-n:,:] = buffer
-            r_size -= n
-            if self.verbose > 2:
-                print('  recycle %6d frames from %d-%d of the old %d-sized buffer to the end at %d-%d (%d-%d in buffer)'
-                       % (n, self.offset, self.offset+n, m, offset+size-n, offset+size, size-n, size))
-        else:
-            allocate_buffer(size)
-        return r_offset, r_size
-
 
     def metadata(self, store_empty=False, first_only=False):
         """Read meta-data of the audio file.
@@ -1037,7 +1118,6 @@ class AudioLoader(object):
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
-        self.offset = 0
         self.close = self._close_wave
         self.load_buffer = self._load_buffer_wave
         self.metadata = self._metadata_wave
@@ -1126,7 +1206,6 @@ class AudioLoader(object):
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
-        self.offset = 0
         self.close = self._close_ewave
         self.load_buffer = self._load_buffer_ewave
         self.metadata = self._metadata_wave
@@ -1202,7 +1281,6 @@ class AudioLoader(object):
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
-        self.offset = 0
         self.close = self._close_soundfile
         self.load_buffer = self._load_buffer_soundfile
         return self
@@ -1270,7 +1348,6 @@ class AudioLoader(object):
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
-        self.offset = 0
         self.close = self._close_wavefile
         self.load_buffer = self._load_buffer_wavefile
         return self
@@ -1343,7 +1420,6 @@ class AudioLoader(object):
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
-        self.offset = 0
         self.read_buffer = np.zeros((0,0))
         self.read_offset = 0
         self.close = self._close_audioread
