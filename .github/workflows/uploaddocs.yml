@@ -60,9 +60,10 @@ jobs:
         # Personal Access Token (PAT):
         # - Generate it on your user's
         #   Settings->Developer settings->personal access tokens
-        #   Set 90 days, click repo.
-        # - Make it known on the repositories Settings->Secrets->Actions
-        #   under the name THUNDERFISH_DOCU.
+        #   Set 90 days or 1 year, click repo.
+        # - Make it known on the repositories (it is the bendalab repository)
+        #   Settings->Secrets and variables->Actions->Repository secrets
+        #   under the name AUDIOIO_DOCU.
         
         # NOTE:
         # the github.io/project page is the gh-pages branch of that project,
