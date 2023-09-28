@@ -805,10 +805,12 @@ class PlayAudio(object):
             except ValueError:
                 if self.verbose > 0:
                     print('invalid sampling rate of %g Hz' % rate)
+            except simpleaudio._simpleaudio.SimpleaudioError as e:
+                if self.verbose > 0:
+                    print(str(e))
             except Exception as e:
                 if self.verbose > 0:
                     print(str(e))
-                return
             #finally:
                 #os.close(2)
                 #os.dup(oldstderr)
