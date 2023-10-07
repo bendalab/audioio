@@ -27,6 +27,16 @@ import numpy as np
 from .audiomodules import *
 from .wavemetadata import metadata_wave
 
+has_numba = False
+try:
+    from numba import jit
+    has_numba = True
+except ImportError:
+    def jit(*args, **kwargs):
+        def decorator_jit(func):
+            return func
+        return decorator_jit
+
 
 def load_wave(filepath, verbose=0):
     """Load wav file using the wave module from pythons standard libray.
@@ -517,7 +527,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
             yield data[start+(k+1)*m:]
 
 
-def unwrap(data):
+def unwrap(data, thresh=0.01):
     """Fixes data that exceeded the -1 to 1 range.
 
     If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
@@ -527,23 +537,48 @@ def unwrap(data):
     ----------
     data: 1D or 2D ndarray
         Data to be fixed.
+    thresh: float
+        Only unwrap if step is above threshold.
 
     Returns
     -------
     data: same as input data
         The fixed data.
     """
-    if len(data.shape) > 1:
-        for c in range(data.shape[1]):
-            data[:,c] = unwrap(data[:,c])
-    else:
-        for k in range(20):
-            dd = (data[1:] < -0.8) & (np.diff(data) <= -1.0)
-            du = (data[1:] > 0.8) & (np.diff(data) >= 1.0)
+    @jit(nopython=True)
+    def unwrap_trace(data):
+        for k in range(1000):
+            dd = (data[1:] < -thresh) & (data[1:] - data[:-1] <= -1.0)
+            du = (data[1:] > thresh) & (data[1:] - data[:-1] >= 1.0)
+            if np.sum(dd) == 0 and np.sum(du) == 0:
+                break
+            for i in np.where(dd)[0]:
+                data[1:][i] += 2.0
+            for i in np.where(du)[0]:
+                data[1:][i] -= 2.0
+        return data
+
+    def unwrap_trace_nonumba(data):
+        for k in range(1000):
+            dd = (data[1:] < -thresh) & (np.diff(data) <= -1.0)
+            du = (data[1:] > thresh) & (np.diff(data) >= 1.0)
             if np.sum(dd) == 0 and np.sum(du) == 0:
                 break
             data[1:][dd] += 2.0
             data[1:][du] -= 2.0
+        return data
+
+    if len(data.shape) > 1:
+        for c in range(data.shape[1]):
+            if has_numba:
+                data[:,c] = unwrap_trace(data[:,c])
+            else:
+                data[:,c] = unwrap_trace_nonumba(data[:,c])
+    else:
+        if has_numba:
+            data = unwrap_trace(data)
+        else:
+            data = unwrap_trace_nonumba(data)
     return data
 
 
@@ -735,6 +770,9 @@ class BufferArray(object):
             self.load_buffer(r_offset, r_size,
                              self.buffer[r_offset-self.offset:
                                          r_offset+r_size-self.offset,:])
+            if self.unwrap:
+                # TODO: handle edge effects!
+                self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:])
             if self.verbose > 1:
                 print('  loaded %d frames from %d up to %d'
                       % (self.buffer.shape[0], self.offset,
@@ -981,6 +1019,7 @@ class AudioLoader(BufferArray):
         self.filepath = None
         self.sf = None
         self.close = self._close
+        self.unwrap = False
         if filepath is not None:
             self.open(filepath, buffersize, backsize, verbose)
 
@@ -1154,7 +1193,6 @@ class AudioLoader(BufferArray):
         else:
             buffer[:, :] = fbuffer * self.factor
 
-
     def _metadata_wave(self, store_empty=False, first_only=False):
         """ Read meta-data of a wave file.
 
@@ -1218,7 +1256,7 @@ class AudioLoader(BufferArray):
             self.sf = None
 
     def _load_buffer_ewave(self, r_offset, r_size, buffer):
-        """Load new data from file using the wave module.
+        """Load new data from file using the ewave module.
 
         Parameters
         ----------
@@ -1234,7 +1272,6 @@ class AudioLoader(BufferArray):
         if len(fbuffer.shape) == 1:
             fbuffer = np.reshape(fbuffer,(-1, 1))
         buffer[:,:] = fbuffer
-
             
     # soundfile interface:        
     def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
@@ -1292,7 +1329,7 @@ class AudioLoader(BufferArray):
             self.sf = None
 
     def _load_buffer_soundfile(self, r_offset, r_size, buffer):
-        """Load new data from file using the wave module.
+        """Load new data from file using the SoundFile module.
 
         Parameters
         ----------
@@ -1306,7 +1343,7 @@ class AudioLoader(BufferArray):
         self.sf.seek(r_offset, soundfile.SEEK_SET)
         buffer[:, :] = self.sf.read(r_size, always_2d=True)
 
-            
+        
     # wavefile interface:        
     def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the wavefile module.
@@ -1359,7 +1396,7 @@ class AudioLoader(BufferArray):
             self.sf = None
 
     def _load_buffer_wavefile(self, r_offset, r_size, buffer):
-        """Load new data from file using the wave module.
+        """Load new data from file using the wavefile module.
 
         Parameters
         ----------
@@ -1435,7 +1472,7 @@ class AudioLoader(BufferArray):
             self.sf = None
 
     def _load_buffer_audioread(self, r_offset, r_size, buffer):
-        """Load new data from file using the wave module.
+        """Load new data from file using the audioread module.
 
         audioread can only iterate through a file once and in blocksizes that are
         given by audioread. Therefore we keep yet another buffer: `self.read_buffer`
