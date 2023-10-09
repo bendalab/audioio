@@ -527,7 +527,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
             yield data[start+(k+1)*m:]
 
 
-def unwrap(data, thresh=0.01):
+def unwrap(data, rate, thresh=0.5, maxclip=0.01):
     """Fixes data that exceeded the -1 to 1 range.
 
     If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
@@ -537,8 +537,12 @@ def unwrap(data, thresh=0.01):
     ----------
     data: 1D or 2D ndarray
         Data to be fixed.
+    rate: float
+        Sampling rate of the data in Hertz.
     thresh: float
         Only unwrap if step is above threshold.
+    maxclip: float
+        Maximum duration of a clipped segment in seconds.
 
     Returns
     -------
@@ -547,6 +551,25 @@ def unwrap(data, thresh=0.01):
     """
     @jit(nopython=True)
     def unwrap_trace(data):
+        maxt = int(0.02*rate)
+        delta = 1.0 + thresh
+        iup0 = np.where((data[:-1] > thresh) & (data[1:] - data[:-1] <= -delta))[0] + 1
+        iup1 = np.where((data[1:] > thresh) & (data[1:] - data[:-1] >= delta))[0]
+        idown0 = np.where((data[:-1] < -thresh) & (data[1:] - data[:-1] >= delta))[0] + 1
+        idown1 = np.where((data[1:] < -thresh) & (data[1:] - data[:-1] <= -delta))[0]
+        sel = np.zeros(len(data), dtype=np.bool_)
+        for i0, i1 in zip(iup0, iup1):
+            if i0 < i1 and i1 - i0 < maxt:
+                sel[i0:i1+1] = True
+        data[sel] += 2.0
+        sel = np.zeros(len(data), dtype=np.bool_)
+        for i0, i1 in zip(idown0, idown1):
+            if i0 < i1 and i1 - i0 < maxt:
+                sel[i0:i1+1] = True
+        data[sel] -= 2.0
+        return data
+    
+    def unwrap_trace_old(data):
         for k in range(1000):
             dd = (data[1:] < -thresh) & (data[1:] - data[:-1] <= -1.0)
             du = (data[1:] > thresh) & (data[1:] - data[:-1] >= 1.0)
@@ -772,7 +795,9 @@ class BufferArray(object):
                                          r_offset+r_size-self.offset,:])
             if self.unwrap:
                 # TODO: handle edge effects!
-                self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:])
+                self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:], self.samplerate)
+                self.ampl_min = -2.0
+                self.ampl_max = +2.0
             if self.verbose > 1:
                 print('  loaded %d frames from %d up to %d'
                       % (self.buffer.shape[0], self.offset,
