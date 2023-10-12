@@ -5,6 +5,7 @@ Loading data from audio files.
 - `audio_metadata()`: read meta-data of an audio file.
 - `AudioLoader`: allow to read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
+- `despike()`: remove spikes.
 - `unwrap()` unwraps clipped data that are folded into the available data range.
 
 The read in data are always numpy arrays of floats ranging between -1 and 1.
@@ -525,6 +526,44 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
             yield data[start+k*m:start+k*m+block_size]
         if stop - start - (k*m+block_size) > 0:
             yield data[start+(k+1)*m:]
+
+
+def despike(data, thresh=1.0):
+    """Remove spikes. 
+
+    If single data points stick out by more than threshold, they are
+    replaced by the mean of the two directly preceeding and succeeding
+    data points. More exactly, spikes are removed if the product of
+    their left and right flanks (difference to their direct neighbors)
+    exceeds `thresh` squared.
+
+    Parameters
+    ----------
+    data: 1D or 2D ndarray
+        Data to be fixed.
+    thresh: float
+        Threshold defining a spike.
+
+    Returns
+    -------
+    data: same as input data
+        The fixed data.
+
+    """
+    @jit(nopython=True)
+    def despike_trace(data, th):
+        diff = np.diff(data)
+        sel = (diff[:-1]*diff[1:] < -th)
+        data[1:-1][sel] = 0.5*(data[:-2][sel] + data[2:][sel])
+        return data
+
+    th = thresh**2
+    if len(data.shape) > 1:
+        for c in range(data.shape[1]):
+            data[:,c] = despike_trace(data[:,c], th)
+    else:
+        data = despike_trace(data, th)
+    return data
 
 
 def unwrap(data, rate, thresh=0.5, maxclip=0.01):
