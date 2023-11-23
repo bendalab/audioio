@@ -648,7 +648,7 @@ class BufferArray(object):
     """Random access to 2D data of which only a part is held in memory.
     
     This is a base class for accessing large audio recordings either
-    from a file (class AudioLoader) or by computing it contents.  The
+    from a file (class AudioLoader) or by computing its contents.  The
     BufferArray behaves like a single big ndarray with first dimension
     indexing the frames and second dimension indexing the channels of
     the audio data. Internally it only holds a part of the data in
@@ -689,6 +689,8 @@ class BufferArray(object):
         The number of frames. Same as `len()`.
     shape: tuple
         Frames and channels of the data.
+    ndim: int
+        Number of dimensions: always 2 (frames and channels).
     offset: int
         Index of first frame in the current buffer.
     buffer: array of floats
@@ -726,6 +728,7 @@ class BufferArray(object):
         self.channels = 0
         self.frames = 0
         self.shape = (0, 0)
+        self.ndim = 2
         self.ampl_min = -1.0
         self.ampl_max = +1.0
         self.offset = 0
