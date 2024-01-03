@@ -135,7 +135,6 @@ def main(cargs=None):
         else:
             channels.append(int(c))
 
-    print(args.audio_format)
     if not check_format(args.audio_format):
         sys.exit(-1)
 
