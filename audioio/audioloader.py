@@ -1,20 +1,20 @@
-"""
-Loading data from audio files.
+"""Loading data from audio files.
 
-- `load_audio()`: loads a whole audio file at once.
+- `load_audio()`: load a whole audio file at once.
 - `audio_metadata()`: read meta-data of an audio file.
-- `AudioLoader`: allow to read data from audio files in chunks.
+- `AudioLoader`: read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 - `despike()`: remove spikes.
-- `unwrap()` unwraps clipped data that are folded into the available data range.
+- `unwrap()`: unwrap clipped data that are folded into the available data range.
 
 The read in data are always numpy arrays of floats ranging between -1 and 1.
 The arrays are 2-D arrays with first axis time and second axis channel,
 even for single channel data.
 
-If an audio file cannot be loaded, you might need to install additional packages.
-See [installation](https://bendalab.github.io/audioio/installation)
-for further instructions.
+If an audio file cannot be loaded, you might need to install
+additional packages.  See
+[installation](https://bendalab.github.io/audioio/installation) for
+further instructions.
 
 For a demo run the module as:
 ```
@@ -566,18 +566,16 @@ def despike(data, thresh=1.0):
     return data
 
 
-def unwrap(data, rate, thresh=0.5, maxclip=0.01):
-    """Fixes data that exceeded the -1 to 1 range.
+def unwrap(data, thresh=0.5, maxclip=0.01):
+    """Unwrap clipped data that are folded into the available data range.
 
-    If data that exceed the range from -1.0 to 1.0 are stored in a wav file,
-    they get wrapped around. This functions tries to undo this wrapping.
+    In some amplifiers/ADCs clipped data appear on the opposite side
+    of the input range. This function tries to undo this wrapping.
     
     Parameters
     ----------
     data: 1D or 2D ndarray
         Data to be fixed.
-    rate: float
-        Sampling rate of the data in Hertz.
     thresh: float
         Only unwrap if step is above threshold.
     maxclip: float
@@ -586,7 +584,7 @@ def unwrap(data, rate, thresh=0.5, maxclip=0.01):
     Returns
     -------
     data: same as input data
-        The fixed data.
+        The unwrapped data.
     """
     @jit(nopython=True)
     def unwrap_trace(data):

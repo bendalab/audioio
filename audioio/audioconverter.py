@@ -110,15 +110,30 @@ def main(cargs=None):
                         help='print debug output')
     parser.add_argument('-l', dest='list_formats', action='store_true',
                         help='list supported file formats and encodings')
-    parser.add_argument('-f', dest='audio_format', default=None, type=str, metavar='FORMAT',
-                        help='audio format of output file')
-    parser.add_argument('-e', dest='audio_encoding', default=None, type=str, metavar='ENCODING',
+    parser.add_argument('-f', dest='audio_format', default=None, type=str,
+                        metavar='FORMAT', help='audio format of output file')
+    parser.add_argument('-e', dest='audio_encoding', default=None, type=str,
+                        metavar='ENCODING',
                         help='audio encoding of output file')
+    parser.add_argument('-c', dest='channels', default='',
+                        type=str, metavar='CHANNELS',
+                        help='Comma and dash separated list of channels to be displayed (first channel is 0).')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                         help='path or filename of output file.')
     parser.add_argument('file', nargs='*', default='', type=str,
                         help='input audio files')
     args = parser.parse_args(cargs)
+
+    cs = [s.strip() for s in args.channels.split(',')]
+    channels = []
+    for c in cs:
+        if len(c) == 0:
+            continue
+        css = [s.strip() for s in c.split('-')]
+        if len(css) == 2:
+            channels.extend(list(range(int(css[0]), int(css[1])+1)))
+        else:
+            channels.append(int(c))
 
     print(args.audio_format)
     if not check_format(args.audio_format):
@@ -164,8 +179,12 @@ def main(cargs=None):
         # read in audio:
         data, samplingrate = load_audio(infile)
         # write out audio:
-        write_audio(outfile, data, samplingrate,
-                    format=args.audio_format, encoding=args.audio_encoding)
+        if len(channels) > 0:
+            write_audio(outfile, data[:,channels], samplingrate,
+                        format=args.audio_format, encoding=args.audio_encoding)
+        else:
+            write_audio(outfile, data, samplingrate,
+                        format=args.audio_format, encoding=args.audio_encoding)
         # message:
         if args.verbose:
             print('converted audio file "%s" to "%s"' % (infile, outfile))
