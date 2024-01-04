@@ -30,13 +30,14 @@ from .wavemetadata import metadata_wave
 
 has_numba = False
 try:
-    from numba import jit
+    from numba import jit, prange
     has_numba = True
 except ImportError:
     def jit(*args, **kwargs):
         def decorator_jit(func):
             return func
         return decorator_jit
+    prange = range
 
 
 def load_wave(filepath, verbose=0):
@@ -502,7 +503,8 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
     [16 17 18 19]
     ```
 
-    Use it for processing long audio data, like computing a spectrogram with overlap:
+    Use it for processing long audio data, like computing a
+    spectrogram with overlap:
     ```
     from scipy.signal import spectrogram
     from audioio import AudioLoader, blocks
@@ -512,6 +514,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
             f, t, Sxx = spectrogram(x, fs=data.samplerate,
                                     nperseg=nfft, noverlap=nfft//2)
     ```
+
     """
     if noverlap >= block_size:
         raise ValueError('noverlap=%d larger than block_size=%d' % (noverlap, block_size))
@@ -528,10 +531,10 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
             yield data[start+(k+1)*m:]
 
 
-def despike(data, thresh=1.0):
+def despike(data, thresh=1.0, n=1):
     """Remove spikes. 
 
-    If single data points stick out by more than threshold, they are
+    If single data points stick out by more than a threshold, they are
     replaced by the mean of the two directly preceeding and succeeding
     data points. More exactly, spikes are removed if the product of
     their left and right flanks (difference to their direct neighbors)
@@ -540,30 +543,48 @@ def despike(data, thresh=1.0):
     Parameters
     ----------
     data: 1D or 2D ndarray
-        Data to be fixed.
+        Data to be fixed in place.
     thresh: float
         Threshold defining a spike.
-
-    Returns
-    -------
-    data: same as input data
-        The fixed data.
-
+    n: int
+        Maximum width of spike.
     """
     @jit(nopython=True)
-    def despike_trace(data, th):
-        diff = np.diff(data)
-        sel = (diff[:-1]*diff[1:] < -th)
-        data[1:-1][sel] = 0.5*(data[:-2][sel] + data[2:][sel])
-        return data
+    def despike_trace(data, thresh, n):
+        for k in range(n, 0, -1):
+            for i in range(1, len(data)-k):
+                if (data[i] - data[i-1] > thresh and \
+                    data[i+k-1] - data[i+k] > thresh) or \
+                   (data[i-1] - data[i] > thresh and \
+                    data[i+k-1] - data[i+k] > thresh):
+                    for j in range(k):
+                        data[i+j] = ((k-j)*data[i-1] + (1+j)*data[i+k])/(k+1)
+        
+    @jit(nopython=True, parallel=True)
+    def despike_traces(data, thresh, n):
+        for c in prange(data.shape[1]):
+            despike_trace(data[:,c], thresh, n)
 
-    th = thresh**2
     if len(data.shape) > 1:
-        for c in range(data.shape[1]):
-            data[:,c] = despike_trace(data[:,c], th)
+        if has_numba and data.shape[1] > 1:
+            despike_traces(data, thresh, n)
+        else:
+            for c in range(data.shape[1]):
+                despike(data[:,c], thresh, n)
     else:
-        data = despike_trace(data, th)
-    return data
+        # not faster: 
+        #if has_numba:
+        #    despike_trace(data, thresh, n)
+        #else:
+            for k in range(n, 0, -1):
+                # find k-spikes:
+                diff = np.diff(data)
+                sel = ((diff[:-k] > thresh) & (diff[k:] < -thresh)) | \
+                      ((diff[:-k] < -thresh) & (diff[k:] > thresh))
+                # replace with weighted average of neighbors:
+                for j in range(1, k+1):
+                    data[j:-k-1+j][sel] = ((k+1-j)*data[:-1-k][sel] + \
+                                           j*data[1+k:][sel])/(k+1)
 
 
 def unwrap(data, thresh=0.5, maxclip=0.01):
@@ -575,7 +596,7 @@ def unwrap(data, thresh=0.5, maxclip=0.01):
     Parameters
     ----------
     data: 1D or 2D ndarray
-        Data to be fixed.
+        Data to be fixed in place.
     thresh: float
         Only unwrap if step is above threshold.
     maxclip: float
@@ -584,7 +605,7 @@ def unwrap(data, thresh=0.5, maxclip=0.01):
     Returns
     -------
     data: same as input data
-        The unwrapped data.
+        The unwrapped data, overwrite the input data.
     """
     @jit(nopython=True)
     def unwrap_trace(data):
