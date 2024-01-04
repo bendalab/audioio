@@ -844,7 +844,7 @@ class BufferArray(object):
                                          r_offset+r_size-self.offset,:])
             if self.unwrap:
                 # TODO: handle edge effects!
-                unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:], self.samplerate)
+                unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:])
                 self.ampl_min = -2.0
                 self.ampl_max = +2.0
             if self.verbose > 1:
@@ -952,7 +952,8 @@ class BufferArray(object):
 class AudioLoader(BufferArray):
     """Buffered reading of audio data for random access of the data in the file.
     
-    The class allows for reading very large audio files that do not fit into memory.
+    The class allows for reading very large audio files that do not
+    fit into memory.
     An AudioLoader instance can be used like a huge read-only numpy array, i.e.
     ```
     data = AudioLoader('path/to/audio/file.wav')
@@ -960,9 +961,10 @@ class AudioLoader(BufferArray):
     ```
     The first index specifies the frame, the second one the channel.
 
-    Behind the scenes AudioLoader tries to open the audio file with all available
-    audio modules until it succeeds (first line). It then reads data from the file
-    as necessary for the requested data (second line).
+    Behind the scenes AudioLoader tries to open the audio file with
+    all available audio modules until it succeeds (first line). It
+    then reads data from the file as necessary for the requested data
+    (second line).
 
     Reading sequentially through the file is always possible. Some
     modules, however, (e.g. audioread, needed for mp3 files) can only
@@ -1086,6 +1088,7 @@ class AudioLoader(BufferArray):
     For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
     When subclassing, there is an offset argument, that might help to
     speed up `__getitem__` .
+
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
