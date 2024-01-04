@@ -536,9 +536,7 @@ def despike(data, thresh=1.0, n=1):
 
     If single data points stick out by more than a threshold, they are
     replaced by the mean of the two directly preceeding and succeeding
-    data points. More exactly, spikes are removed if the product of
-    their left and right flanks (difference to their direct neighbors)
-    exceeds `thresh` squared.
+    data points.
 
     Parameters
     ----------
@@ -587,7 +585,7 @@ def despike(data, thresh=1.0, n=1):
                                            j*data[1+k:][sel])/(k+1)
 
 
-def unwrap(data, thresh=0.5, maxclip=0.01):
+def unwrap(data, thresh=1.5):
     """Unwrap clipped data that are folded into the available data range.
 
     In some amplifiers/ADCs clipped data appear on the opposite side
@@ -595,72 +593,62 @@ def unwrap(data, thresh=0.5, maxclip=0.01):
     
     Parameters
     ----------
-    data: 1D or 2D ndarray
+    data: 1D or 2D ndarray of floats
         Data to be fixed in place.
     thresh: float
-        Only unwrap if step is above threshold.
-    maxclip: float
-        Maximum duration of a clipped segment in seconds.
-
-    Returns
-    -------
-    data: same as input data
-        The unwrapped data, overwrite the input data.
+        Minimum difference between succeeding data points required
+        for initiating unwrapping.
     """
-    @jit(nopython=True)
-    def unwrap_trace(data):
-        maxt = int(0.02*rate)
-        delta = 1.0 + thresh
-        iup0 = np.where((data[:-1] > thresh) & (data[1:] - data[:-1] <= -delta))[0] + 1
-        iup1 = np.where((data[1:] > thresh) & (data[1:] - data[:-1] >= delta))[0]
-        idown0 = np.where((data[:-1] < -thresh) & (data[1:] - data[:-1] >= delta))[0] + 1
-        idown1 = np.where((data[1:] < -thresh) & (data[1:] - data[:-1] <= -delta))[0]
-        sel = np.zeros(len(data), dtype=np.bool_)
-        for i0, i1 in zip(iup0, iup1):
-            if i0 < i1 and i1 - i0 < maxt:
-                sel[i0:i1+1] = True
-        data[sel] += 2.0
-        sel = np.zeros(len(data), dtype=np.bool_)
-        for i0, i1 in zip(idown0, idown1):
-            if i0 < i1 and i1 - i0 < maxt:
-                sel[i0:i1+1] = True
-        data[sel] -= 2.0
-        return data
-    
-    def unwrap_trace_old(data):
-        for k in range(1000):
-            dd = (data[1:] < -thresh) & (data[1:] - data[:-1] <= -1.0)
-            du = (data[1:] > thresh) & (data[1:] - data[:-1] >= 1.0)
-            if np.sum(dd) == 0 and np.sum(du) == 0:
-                break
-            for i in np.where(dd)[0]:
-                data[1:][i] += 2.0
-            for i in np.where(du)[0]:
-                data[1:][i] -= 2.0
-        return data
 
-    def unwrap_trace_nonumba(data):
-        for k in range(1000):
-            dd = (data[1:] < -thresh) & (np.diff(data) <= -1.0)
-            du = (data[1:] > thresh) & (np.diff(data) >= 1.0)
-            if np.sum(dd) == 0 and np.sum(du) == 0:
-                break
-            data[1:][dd] += 2.0
-            data[1:][du] -= 2.0
-        return data
+    @jit(nopython=True)
+    def unwrap_trace(data, delta):
+        thresh = delta - 1.0
+        step = 0.0
+        for i in range(1, len(data)):
+            cstep = 0.0
+            dd = data[i] - data[i-1]
+            if data[i] >= 0:
+                if abs(dd - 2.0) < abs(dd):
+                    cstep = -2.0
+            if data[i] <= 0:
+                if abs(dd + 2.0) < abs(dd + cstep):
+                    cstep = +2.0
+            #if step != cstep and (cstep == 0.0 or \
+            #                      (abs(data[i-1]) > thresh and \
+            #                       abs(dd) > delta)):
+            if step != cstep and (cstep == 0.0 or abs(dd) > delta):
+                step = cstep
+            data[i] += step
+        
+    @jit(nopython=True, parallel=True)
+    def unwrap_traces(data, thresh):
+        for c in prange(data.shape[1]):
+            unwrap_trace(data[:,c], thresh)
 
     if len(data.shape) > 1:
-        for c in range(data.shape[1]):
-            if has_numba:
-                data[:,c] = unwrap_trace(data[:,c])
-            else:
-                data[:,c] = unwrap_trace_nonumba(data[:,c])
+        if has_numba:
+            unwrap_traces(data, thresh)
+        else:
+            for c in range(data.shape[1]):
+                unwrap(data[:,c], thresh)
     else:
         if has_numba:
-            data = unwrap_trace(data)
+            unwrap_trace(data, thresh)
         else:
-            data = unwrap_trace_nonumba(data)
-    return data
+            delta = thresh
+            thresh = delta - 1.0
+            udata = np.asarray(data) + np.array([-2, 0, 2]).reshape(3, 1)
+            udata[0, udata[0] < -2] = -np.inf
+            udata[2, udata[2] > 2] = np.inf
+            j = 1
+            for i in range(1, udata.shape[1]):
+                jn = np.argmin(np.abs(udata[:,i] - udata[1,i-1]))
+                if j != jn and (jn == 1 or \
+                                (abs(udata[1, i-1]) > thresh and \
+                                 abs(udata[1, i] - udata[1, i-1]) > delta)):
+                    j = jn
+                udata[1, i] = udata[j, i]
+            data[:] = udata[1]
 
 
 class BufferArray(object):
@@ -856,7 +844,7 @@ class BufferArray(object):
                                          r_offset+r_size-self.offset,:])
             if self.unwrap:
                 # TODO: handle edge effects!
-                self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:] = unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:], self.samplerate)
+                unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:], self.samplerate)
                 self.ampl_min = -2.0
                 self.ampl_max = +2.0
             if self.verbose > 1:
