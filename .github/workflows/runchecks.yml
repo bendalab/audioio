@@ -16,7 +16,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-	  sudo apt update
+          sudo apt update
           sudo apt install -y libblas-dev liblapack-dev gfortran libsndfile1 libsndfile1-dev libffi-dev ffmpeg libportaudio2 portaudio19-dev osspd libasound2-dev python3-dev
           python -m pip install --upgrade pip
           pip install wavefile
