@@ -535,7 +535,7 @@ class PlayAudio(object):
             scale_fac = int(np.ceil(self.rate/max_rate))
             scaled_rate = int(self.rate//scale_fac)
         rates = [self.rate, scaled_rate, 44100, 48000, 22050, self.default_rate]
-        scales = [1, scale_fac, None, None, None]
+        scales = [1, scale_fac, None, None, None, None]
         success = False
         for rate, scale in zip(rates, scales):
             try:
@@ -714,7 +714,7 @@ class PlayAudio(object):
             scale_fac = int(np.ceil(self.rate/max_rate))
             scaled_rate = int(self.rate//scale_fac)
         rates = [self.rate, scaled_rate, 44100, 48000, 22050, self.default_rate]
-        scales = [1, scale_fac, None, None, None]
+        scales = [1, scale_fac, None, None, None, None]
         success = False
         for rate, scale in zip(rates, scales):
             try:
@@ -801,7 +801,7 @@ class PlayAudio(object):
             No audio device for playback.
         """
         rates = [self.rate, 44100, 48000, 22050]
-        scales = [1, None, None]
+        scales = [1, None, None, None]
         success = False
         for rate, scale in zip(rates, scales):
             if scale is None:
@@ -876,7 +876,7 @@ class PlayAudio(object):
         """
         """
         rates = [self.rate, 44100, 48000, 22050]
-        scales = [1, None, None]
+        scales = [1, None, None, None]
         success = False
         for rate, scale in zip(rates, scales):
             if scale is None:
@@ -1009,7 +1009,7 @@ class PlayAudio(object):
             scale_fac = int(np.ceil(self.rate/max_rate))
             scaled_rate = int(self.rate//scale_fac)
         rates = [self.rate, scaled_rate, 44100, 48000, 22050, 8000]
-        scales = [1, scale_fac, None, None, None]
+        scales = [1, scale_fac, None, None, None, None]
         success = False
         for rate, scale in zip(rates, scales):
             set_rate = self.osshandle.speed(int(rate))
