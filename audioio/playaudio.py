@@ -1141,6 +1141,7 @@ class PlayAudio(object):
             sa = audio_open.pop(2)
             audio_open.insert(0, sa)
         # open audio device by trying various modules:
+        print('open(), verbose', self.verbose)
         success = False
         for lib, open_device in audio_open:
             if not audio_modules[lib]:
@@ -1218,6 +1219,7 @@ def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
     global handle
     if handle is None:
         handle = PlayAudio(verbose)
+    handle.verbose = verbose
     handle.beep(duration, frequency, amplitude, rate, fadetime, blocking)
 
 

@@ -21,6 +21,7 @@ def test_beep():
     for lib in am.installed_modules('device'):
         print(f'beep with {lib} module...')
         am.select_module(lib)
+        am.list_modules('device', True)
         try:
             ap.beep(blocking=True, verbose=2)
             ap.beep(blocking=False, verbose=2)
