@@ -87,7 +87,7 @@ def note2freq(note, a4freq=440.0):
         raise ValueError('no note specified')
     # note:
     if note[0] < 'a' or note[0] > 'g':
-        raise ValueError('invalid note %s' % note[0])
+        raise ValueError('invalid note', note[0])
     index = 0
     tonemap = [0, 2, 3, 5, 7, 8, 10]
     tone = tonemap[ord(note[index]) - ord('a')]
@@ -113,7 +113,7 @@ def note2freq(note, a4freq=440.0):
             index += 1
     # remaining characters:
     if index < len(note):
-        raise ValueError('invalid characters in note %s' % note)
+        raise ValueError('invalid characters in note', note)
     # compute frequency:
     if (tone >= 3 and not sharp) or (tone == 2 and flat):
         octave -= 1
@@ -281,6 +281,8 @@ class PlayAudio(object):
         ------
         ValueError
             Invalid sampling rate (after some attemps of resampling).
+        FileNotFoundError
+            No audio device for playback.
         """
         if self.handle is None:
             self.open()
@@ -326,6 +328,8 @@ class PlayAudio(object):
         ------
         ValueError
             Invalid sampling rate (after some attemps of resampling).
+        FileNotFoundError
+            No audio device for playback.
         
         See also
         --------
@@ -392,8 +396,8 @@ class PlayAudio(object):
         ------
         ImportError
             PyAudio module is not available.
-        OSError
-            Cannot open audio device.
+        FileNotFoundError
+            Failed to open audio device.
 
         Documentation
         -------------
@@ -439,7 +443,7 @@ class PlayAudio(object):
             if self.verbose > 0:
                 print(str(e))
             self.handle.terminate()
-            raise OSError('failed to initialize audio device')
+            raise FileNotFoundError('failed to initialize audio device')
         self.index = 0
         self.data = None
         self._do_play = self._play_pyaudio
@@ -578,8 +582,8 @@ class PlayAudio(object):
         ------
         ImportError
            sounddevice module is not available.            
-        OSError
-            Cannot open audio device.
+        FileNotFoundError
+            Failed to open audio device.
 
         Documentation
         -------------
@@ -611,7 +615,7 @@ class PlayAudio(object):
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
-            raise OSError('failed to initialize audio device')
+            raise FileNotFoundError('failed to initialize audio device')
         self._do_play = self._play_sounddevice
         return self
 
@@ -784,6 +788,8 @@ class PlayAudio(object):
         ------
         ValueError
             Invalid sampling rate (after some attemps of resampling).
+        FileNotFoundError
+            No audio device for playback.
         """
         rates = [self.rate, 44100, 22050]
         scales = [1, None, None]
@@ -799,17 +805,16 @@ class PlayAudio(object):
                 success = True
                 break
             except ValueError as e:
-                print('simpleaudio ValueError', str(e))
                 if self.verbose > 0:
                     print('invalid sampling rate of %g Hz' % rate)
             except simpleaudio._simpleaudio.SimpleaudioError as e:
-                print('simpleaudio SimpleaudioError', str(e))
                 if self.verbose > 0:
-                    print(str(e))
+                    print('simpleaudio SimpleaudioError:', str(e))
+                if 'Error opening' in str(e):
+                    raise FileNotFoundError('No audio device found')
             except Exception as e:
-                print('simpleaudio Exception', str(e))
                 if self.verbose > 0:
-                    print(str(e))
+                    print('simpleaudio Exception:', str(e))
         if not success:
             raise ValueError('No valid sampling rate found')
         elif blocking:
@@ -915,8 +920,8 @@ class PlayAudio(object):
         ------
         ImportError
             ossaudiodev module is not available.
-        OSError
-            Cannot open audio device.
+        FileNotFoundError
+            Failed to open audio device.
 
         Documentation
         -------------
@@ -944,7 +949,7 @@ class PlayAudio(object):
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
-            raise OSError('failed to initialize audio device')
+            raise FileNotFoundError('failed to initialize audio device')
         self._do_play = self._play_ossaudiodev
         return self
 
@@ -1140,17 +1145,18 @@ class PlayAudio(object):
         for lib, open_device in audio_open:
             if not audio_modules[lib]:
                 if self.verbose > 0:
-                    print('module %s not available' % lib)
+                    print(f'module {lib} not available')
                 continue
             try:
                 open_device()
                 success = True
                 if self.verbose > 0:
-                    print('successfully opened %s module for playing' % lib)
+                    print(f'successfully opened {lib} module for playing')
                 break
             except Exception as e:
                 if self.verbose > 0:
-                    print('failed to open %s module for playing:' % lib, str(e))
+                    print(f'failed to open {lib} module for playing:',
+                          type(e), str(e))
         if not success:
             warnings.warn('cannot open any device for audio output')
         return self

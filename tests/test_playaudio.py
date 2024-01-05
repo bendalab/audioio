@@ -8,23 +8,25 @@ import audioio.audiomodules as am
 def test_beep():
     am.enable_module()
     print()
-    print('default module...')
+    print('beep with default module...')
     try:
-        ap.beep(blocking=True)
-        ap.beep(0.5, 'a4', blocking=True)
-        ap.beep(blocking=False)
+        ap.beep(blocking=True, verbose=2)
+        ap.beep(0.5, 'a4', blocking=True, verbose=2)
+        ap.beep(blocking=False, verbose=2)
         time.sleep(2.0)
         ap.handle.close()
+        ap.handle = None
     except Exception as e:
         print('beep failed:', type(e), str(e))
     for lib in am.installed_modules('device'):
-        print('%s module...' % lib)
+        print(f'beep with {lib} module...')
         am.select_module(lib)
         try:
             ap.beep(blocking=True, verbose=2)
             ap.beep(blocking=False, verbose=2)
             time.sleep(2.0)
             ap.handle.close()
+            ap.handle = None
         except Exception as e:
             print('beep failed:', type(e), str(e))
         am.enable_module()
@@ -41,26 +43,28 @@ def test_play():
     # fade in and out:
     ap.fade(mono_data, rate, 0.1)
     ap.fade(stereo_data, rate, 0.1)
-    print('default module mono...')
+    print('play with default module mono...')
     ap.play(mono_data, rate, blocking=True)
     ap.play(mono_data, rate, blocking=False)
     time.sleep(2.0)
-    print('default module stereo...')
+    print('play with default module stereo...')
     ap.play(stereo_data, rate, blocking=True)
     ap.play(stereo_data, rate, blocking=False)
     time.sleep(2.0)
     ap.handle.close()
+    ap.handle = None
     for lib in am.installed_modules('device'):
-        print('%s module mono...' % lib)
+        print(f'play with {lib} module mono...')
         am.select_module(lib)
         ap.play(mono_data, rate, blocking=True, verbose=2)
         ap.play(mono_data, rate, blocking=False, verbose=2)
         time.sleep(2.0)
-        print('%s module stereo...' % lib)
+        print(f'play with {lib} module stereo...')
         ap.play(stereo_data, rate, blocking=True)
         ap.play(stereo_data, rate, blocking=False)
         time.sleep(2.0)
         ap.handle.close()
+        ap.handle = None
         am.enable_module()
 
 
@@ -78,13 +82,14 @@ def test_downsample():
     print()
     for lib in am.installed_modules('device'):
         am.select_module(lib)
-        print('%s module ...' % lib)
+        print(f'downsample wiht {lib} module ...')
         for rate in [45555.0, 100000.0, 600000.0]:
-            print(' rate %.0f Hz ...' % rate)
+            print(' test rate %.0f Hz ...' % rate)
             mono_data, stereo_data = sinewave(rate)
             ap.play(mono_data, rate, verbose=2)
             ap.play(stereo_data, rate, verbose=2)
         ap.handle.close()
+        ap.handle = None
         am.enable_module()
 
 

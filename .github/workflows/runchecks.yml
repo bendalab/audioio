@@ -31,6 +31,10 @@ jobs:
           pip install mkdocs
           pip install -r requirements.txt
 
+      - name: Check modules
+        run: python3 -m audioio.audiomodules
+        shell: bash
+
       - name: Run tests
         run: nosetests -vv -s --with-coverage --cover-package=audioio
         shell: bash
