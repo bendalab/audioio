@@ -380,8 +380,7 @@ class PlayAudio(object):
             else:
                 self.data = np.asarray(data, dtype=self.data.dtype, order='C')
         if self.verbose > 0:
-            print('adapted sampling rate from %g Hz down to %g Hz' %
-                  (self.rate, self.rate/scale))
+            print(f'adapted sampling rate from {self.rate:.1f}Hz down to {self.rate/scale:.1f}Hz')
         self.rate /= scale
         self.channels = channels
 
@@ -549,7 +548,7 @@ class PlayAudio(object):
                     break
             except Exception as e:
                 if self.verbose > 0:
-                    print('invalid sampling rate of %g Hz' % rate)
+                    print(f'invalid sampling rate of {rate}Hz')
                 if e.args[1] != pyaudio.paInvalidSampleRate:
                     raise
         if not success:
@@ -730,7 +729,7 @@ class PlayAudio(object):
                 if pae.args[1] != -9997:
                     raise
                 elif self.verbose > 0:
-                    print('invalid sampling rate of %g Hz' % rate)
+                    print(f'invalid sampling rate of {rate}Hz')
         if not success:
             raise ValueError('No valid sampling rate found')
         if channels != self.channels or scale != 1:
@@ -815,7 +814,7 @@ class PlayAudio(object):
                 break
             except ValueError as e:
                 if self.verbose > 0:
-                    print('invalid sampling rate of %g Hz' % rate)
+                    print(f'invalid sampling rate of {rate}Hz')
             except simpleaudio._simpleaudio.SimpleaudioError as e:
                 if self.verbose > 0:
                     print('simpleaudio SimpleaudioError:', str(e))
@@ -843,6 +842,8 @@ class PlayAudio(object):
         ------
         ImportError
             soundcard module is not available.
+        FileNotFoundError
+            Failed to open audio device.
 
         Documentation
         -------------
@@ -850,6 +851,14 @@ class PlayAudio(object):
         """
         if not audio_modules['soundcard']:
             raise ImportError
+        try:
+            self.handle = soundcard.default_speaker()
+        except IndexError:
+            raise FileNotFoundError('No audio device found')
+        except Exception as e:
+            print('soundcard Exception:', type(e).__name__, str(e))
+        if self.handle is None:
+            raise FileNotFoundError('No audio device found')
         self._do_play = self._play_soundcard
         self.close = self._close_soundcard
         self.stop = self._stop_soundcard
@@ -866,15 +875,17 @@ class PlayAudio(object):
         Parameters
         ----------
         blocking: boolean
-            If False do not block. 
+            If False do not block.
+            Non-blocking playback not supported by soundcard.
+            Return immediately without playing sound.
 
         Raises
         ------
         ValueError
             Invalid sampling rate (after some attemps of resampling).
-            Non-blocking playback not supported.
         """
-        """
+        if not blocking:
+            return
         rates = [self.rate, 44100, 48000, 22050]
         scales = [1, None, None, None]
         success = False
@@ -883,35 +894,22 @@ class PlayAudio(object):
                 scale = self.rate/float(rate)
             if scale != 1:
                 self._down_sample(self.channels, scale)
-            #oldstderr = os.dup(2)
-            #os.close(2)
-            #tmpfile = 'tmpfile.tmp'  XXXX Use tempfile module!!!!
-            #os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
             try:
-                self.handle = soundcard.play_buffer(self.data, self.channels,
-                                                      2, int(self.rate))
+                self.handle.play(self.data, samplerate=int(self.rate))
                 success = True
                 break
-            except ValueError:
-                if self.verbose > 0:
-                    print('invalid sampling rate of %g Hz' % rate)
-            except soundcard._soundcard.SoundcardError as e:
-                if self.verbose > 0:
-                    print(str(e))
+            except RuntimeError as e:
+                if 'invalid sample spec' in str(e):
+                    if self.verbose > 0:
+                        print(f'invalid sampling rate of {rate}Hz')
+                else:
+                    if self.verbose > 0:
+                        print('soundcard error:', type(e).__name__, str(e))
             except Exception as e:
                 if self.verbose > 0:
-                    print(str(e))
-            #finally:
-                #os.close(2)
-                #os.dup(oldstderr)
-                #os.close(oldstderr)
-                #os.remove(tmpfile)
+                    print('soundcard error:', type(e).__name__, str(e))
         if not success:
             raise ValueError('No valid sampling rate found')
-        elif blocking:
-            self.handle.wait_done()
-        """
-        pass
     
     def _close_soundcard(self):
         """Close audio output using soundcard package."""
@@ -1020,7 +1018,7 @@ class PlayAudio(object):
                 break
             else:
                 if self.verbose > 0:
-                    print('invalid sampling rate of %g Hz' % rate)
+                    print(f'invalid sampling rate of {rate}Hz')
         if not success:
             raise ValueError('No valid sampling rate found')
         if channels != self.channels or scale != 1:
