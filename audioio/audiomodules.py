@@ -337,6 +337,8 @@ try:
     audio_installed.append('soundcard')
 except ImportError:
     audio_modules['soundcard'] = False
+except AssertionError:
+    audio_modules['soundcard'] = False
 audio_pip_packages['soundcard'] = 'soundcard'
 audio_infos['soundcard'] = """SoundCard is a library for playing and recording audio without
 resorting to a CPython extension. Instead, it is implemented using the
