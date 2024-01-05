@@ -427,6 +427,7 @@ def audio_metadata(file, store_empty=False, first_only=False, verbose=0):
         simple types like ints or floats are also allowed.
     cues: list of dict
         Cues contained in the wave file. Each item in the list provides
+
         - 'id': Id of the cue.
         - 'pos': Position of the cue in samples.
         - 'length': Number of samples the cue covers (optional).
@@ -442,7 +443,14 @@ def audio_metadata(file, store_empty=False, first_only=False, verbose=0):
 
 
 def flatten_metadata(md, keep_sections=False):
-    """
+    """Flatten hierachical metadata to a single dictionary.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata as returned by `audio_metadata()`.
+    keep_sections: bool
+        If `True`, then prefix keys with section names, separated by '.'.
     """
     def flatten(cd, section):
         df = {}
@@ -709,14 +717,10 @@ class BufferArray(object):
 
     Methods
     -------
-    len()
-        Number of frames.
-    __getitem__
-        Access data.
-    update_buffer()
-        Update the buffer for a range of frames.
-    load_buffer()
-        Load a range of frames into a buffer.
+    - `len()`: Number of frames.
+    - `__getitem__`: Access data.
+    - `update_buffer()`: Update the buffer for a range of frames.
+    - `load_buffer()`: Load a range of frames into a buffer.
 
     Notes
     -----
@@ -1060,24 +1064,15 @@ class AudioLoader(BufferArray):
 
     Methods
     -------
-    len()
-        Number of frames.
-    open()
-        Open an audio file by trying available audio modules.
-    open_*()
-        Open an audio file with the respective audio module.
-    __getitem__
-        Access data of the audio file.
-    update_buffer()
-        Update the internal buffer for a range of frames.
-    load_buffer()
-        Load a range of frames into a buffer.
-    blocks()
-        Generator for blockwise processing of AudioLoader data.
-    metadata()
-        Meta-data stored along with the audio data.
-    close()
-        Close the file.
+    - `len()`: Number of frames.
+    - `open()`: Open an audio file by trying available audio modules.
+    - `open_*()`: Open an audio file with the respective audio module.
+    - `__getitem__`: Access data of the audio file.
+    - `update_buffer()`: Update the internal buffer for a range of frames.
+    - `load_buffer()`: Load a range of frames into a buffer.
+    - `blocks()`: Generator for blockwise processing of AudioLoader data.
+    - `metadata()`: Meta-data stored along with the audio data.
+    - `close()`: Close the file.
 
     Notes
     -----
@@ -1170,6 +1165,7 @@ class AudioLoader(BufferArray):
             simple types like ints or floats are also allowed.
         cues: list of dict
             Cues contained in the wave file. Each item in the list provides
+
             - 'id': Id of the cue.
             - 'pos': Position of the cue in samples.
             - 'length': Number of samples the cue covers (optional).

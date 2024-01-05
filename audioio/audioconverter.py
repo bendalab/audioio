@@ -1,5 +1,4 @@
-"""
-Command line script for converting audio files.
+"""Command line script for converting audio files.
 
 ```sh
 audioconverter -o test.wav test.mp3
@@ -36,25 +35,24 @@ audioconverter --help
 ```
 prints
 ```text
-usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING]
-                      [-o OUTPATH]
-                      [file [file ...]]
+usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-c CHANNELS] [-o OUTPATH] [file ...]
 
 Convert audio file formats.
 
 positional arguments:
   file         input audio files
 
-optional arguments:
+options:
   -h, --help   show this help message and exit
   --version    show program's version number and exit
   -v           print debug output
   -l           list supported file formats and encodings
   -f FORMAT    audio format of output file
   -e ENCODING  audio encoding of output file
+  -c CHANNELS  Comma and dash separated list of channels to be displayed (first channel is 0).
   -o OUTPATH   path or filename of output file.
 
-version 0.9.4 by Benda-Lab (2020-2020)
+version 0.11.0 by Benda-Lab (2020-2024)
 ```
 """
 

@@ -1,5 +1,4 @@
-"""
-Query and control installation status and availability of audio modules.
+"""Query and control installation status and availability of audio modules.
 
 - `installed_modules()`: installed audio modules of a specific function.
 - `available_modules()`: installed and enabled audio modules.

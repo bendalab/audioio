@@ -1,5 +1,4 @@
-"""
-Read meta data and cue lists from wave files.
+"""Read meta data and cue lists from wave files.
 
 - `metadata_wave()`: read metadata of a wave file.
 
@@ -88,6 +87,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
         (keys 'INFO' or 'BEXT', values are dictionaries).
     cues: list of dict
         Cues contained in the wave file. Each item in the list provides
+
         - 'id': Id of the cue.
         - 'pos': Position of the cue in samples.
         - 'length': Number of samples the cue covers (optional, from PLST or LTXT chunk).

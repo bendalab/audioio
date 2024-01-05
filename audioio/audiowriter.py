@@ -1,15 +1,15 @@
-"""
-Writing numpy arrays of floats to audio files.
+"""Writing numpy arrays of floats to audio files.
 
 - `write_audio()`: write audio data to file.
 - `available_formats()`: audio file formats supported by any of the installed audio modules.
 - `available_encodings()`: encodings of an audio file format supported by any of the installed audio modules.
 - `format_from_extension()`: deduce audio file format from file extension.
 
-The data to be written are 1-D or 2-D numpy arrays of floats ranging between -1 and 1
-with first axis time and second axis channel.
+The data to be written are 1-D or 2-D numpy arrays of floats ranging
+between -1 and 1 with first axis time and second axis channel.
 
-For support of more audio formats, you might need to install additional packages.
+For support of more audio formats, you might need to install
+additional packages.
 See [installation](https://bendalab.github.io/audioio/installation)
 for further instructions.
 
@@ -17,6 +17,7 @@ For a demo, run the script as:
 ```
 python -m audioio.audiowriter
 ```
+
 """
 
 import os

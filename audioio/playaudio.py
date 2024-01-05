@@ -6,11 +6,11 @@
 - `PlayAudio()`: audio playback.
 - `fade_in()`: fade in a signal in place.
 - `fade_out()`: fade out a signal in place.
-- `fade()`: fade in an out a signal in place.
+- `fade()`: fade in and out a signal in place.
 - `note2freq()`: convert textual note to corresponding frequency.
 
-Accepted data for playback are 1-D or 2-D numpy arrays with values
-ranging from -1 to 1.
+Accepted data for playback are 1-D or 2-D (frames, channels) numpy
+arrays with values ranging from -1 to 1.
 If necessary data are downsampled automatically to match supported
 sampling rates.
 
@@ -52,9 +52,11 @@ from .audiomodules import *
 
 
 handle = None
-""" Default audio device handler.
+"""Default audio device handler.
 
-Will get an PlayAudio instance assigned. """
+Defaults to `None`. Will get a PlayAudio instance assigned via
+`play()` or `beep()`.
+"""
 
 
 def note2freq(note, a4freq=440.0):
@@ -69,7 +71,7 @@ def note2freq(note, a4freq=440.0):
         The optional second character is either a 'b'
         or a '#' to decrease or increase by half a note.
         The last character specifies the octave.
-        'a4' is defined by a4freq.
+        'a4' is defined by `a4freq`.
     a4freq: float
         The frequency of a4 in Hertz.
 
@@ -213,19 +215,16 @@ class PlayAudio(object):
     ----------
     verbose: int
         Verbosity level.
+    lib: string
+        The library used for playback.
 
     Methods
     -------
-    play(data, rate, scale=None, blocking=True)
-        Playback audio data.
-    beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0, fadetime=0.05, blocking=True)
-        Playback a pure tone.
-    open()
-        Initialize the PlayAudio class with the best module available.
-    close()
-        Terminate module for playing audio.
-    stop()
-        Stop any playback in progress.
+    - `play(data, rate, scale=None, blocking=True)`: Playback audio data.
+    - `beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0, fadetime=0.05, blocking=True)`: Playback a pure tone.
+    - `open()`: Initialize the PlayAudio class with the best module available.
+    - `close()`: Terminate module for playing audio.
+    - `stop()`:  Stop any playback in progress.
 
     Examples
     --------
@@ -322,7 +321,7 @@ class PlayAudio(object):
         frequency: float or string
             If float, the frequency of the tone in Hertz.
             If string, a musical note like 'f#5'.
-            See note2freq() for details.
+            See `note2freq()` for details.
         amplitude: float
             The ampliude (volume) of the tone in the range from 0.0 to 1.0.
         rate: float
@@ -397,7 +396,7 @@ class PlayAudio(object):
 
             
     def open_pyaudio(self):
-        """Initialize audio output via pyaudio module.
+        """Initialize audio output via PyAudio module.
 
         Raises
         ------
@@ -588,7 +587,7 @@ class PlayAudio(object):
         Raises
         ------
         ImportError
-           sounddevice module is not available.            
+            sounddevice module is not available.            
         FileNotFoundError
             Failed to open audio device.
 
@@ -1171,7 +1170,7 @@ class PlayAudio(object):
 def play(data, rate, scale=None, blocking=True, verbose=0):
     """Playback audio data.
 
-    Create an PlayAudio instance on the global variable handle.
+    Create a `PlayAudio` instance on the global variable `handle`.
 
     Parameters
     ----------
@@ -1200,7 +1199,7 @@ def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
          fadetime=0.05, blocking=True, verbose=0):
     """Playback a tone.
 
-    Create an PlayAudio instance on the globale variable handle.
+    Create a `PlayAudio` instance on the global variable `handle`.
 
     Parameters
     ----------
@@ -1209,7 +1208,7 @@ def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
     frequency: float or string
         If float the frequency of the tone in Hertz.
         If string, a musical note like 'f#5'.
-        See note2freq() for details
+        See `note2freq()` for details
     amplitude: float
         The ampliude (volume) of the tone from 0.0 to 1.0.
     rate: float
