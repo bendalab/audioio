@@ -793,19 +793,95 @@ class PlayAudio(object):
                 scale = self.rate/float(rate)
             if scale != 1:
                 self._down_sample(self.channels, scale)
+            try:
+                self.handle = simpleaudio.play_buffer(self.data, self.channels,
+                                                      2, int(self.rate))
+                success = True
+                break
+            except ValueError as e:
+                print('simpleaudio ValueError', str(e))
+                if self.verbose > 0:
+                    print('invalid sampling rate of %g Hz' % rate)
+            except simpleaudio._simpleaudio.SimpleaudioError as e:
+                print('simpleaudio SimpleaudioError', str(e))
+                if self.verbose > 0:
+                    print(str(e))
+            except Exception as e:
+                print('simpleaudio Exception', str(e))
+                if self.verbose > 0:
+                    print(str(e))
+        if not success:
+            raise ValueError('No valid sampling rate found')
+        elif blocking:
+            self.handle.wait_done()
+        
+    def _close_simpleaudio(self):
+        """Close audio output using simpleaudio package."""
+        self._stop_simpleaudio()
+        simpleaudio.stop_all()
+        self.handle = None
+        self._do_play = self._play
+        self.stop = self._stop
+
+        
+    def open_soundcard(self):
+        """Initialize audio output via soundcard package.
+
+        Raises
+        ------
+        ImportError
+            soundcard module is not available.
+
+        Documentation
+        -------------
+        https://github.com/bastibe/SoundCard
+        """
+        if not audio_modules['soundcard']:
+            raise ImportError
+        self._do_play = self._play_soundcard
+        self.close = self._close_soundcard
+        self.stop = self._stop_soundcard
+        return self
+
+    def _stop_soundcard(self):
+        """Stop any ongoing activity of the soundcard package."""
+        pass
+    
+    def _play_soundcard(self, blocking=True):
+        """Play audio data using the soundcard package.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        """
+        """
+        rates = [self.rate, 44100, 22050]
+        scales = [1, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            if scale is None:
+                scale = self.rate/float(rate)
+            if scale != 1:
+                self._down_sample(self.channels, scale)
             #oldstderr = os.dup(2)
             #os.close(2)
             #tmpfile = 'tmpfile.tmp'  XXXX Use tempfile module!!!!
             #os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
             try:
-                self.handle = simpleaudio.play_buffer(self.data, self.channels,
+                self.handle = soundcard.play_buffer(self.data, self.channels,
                                                       2, int(self.rate))
                 success = True
                 break
             except ValueError:
                 if self.verbose > 0:
                     print('invalid sampling rate of %g Hz' % rate)
-            except simpleaudio._simpleaudio.SimpleaudioError as e:
+            except soundcard._soundcard.SoundcardError as e:
                 if self.verbose > 0:
                     print(str(e))
             except Exception as e:
@@ -820,12 +896,12 @@ class PlayAudio(object):
             raise ValueError('No valid sampling rate found')
         elif blocking:
             self.handle.wait_done()
-        
-    def _close_simpleaudio(self):
-        """Close audio output using simpleaudio package."""
-        self._stop_simpleaudio()
-        simpleaudio.stop_all()
-        self.handle = None
+        """
+        pass
+    
+    def _close_soundcard(self):
+        """Close audio output using soundcard package."""
+        self._stop_soundcard()
         self._do_play = self._play
         self.stop = self._stop
 
@@ -1046,12 +1122,13 @@ class PlayAudio(object):
 
 
     def open(self):
-        """Initialize the PyAudio class with the best module available."""
+        """Initialize the PlayAudio class with the best module available."""
         # list of implemented play functions:
         audio_open = [
             ['sounddevice', self.open_sounddevice],
             ['pyaudio', self.open_pyaudio],
             ['simpleaudio', self.open_simpleaudio],
+            ['soundcard', self.open_soundcard],
             ['ossaudiodev', self.open_ossaudiodev],
             ['winsound', self.open_winsound]
             ]
@@ -1103,6 +1180,7 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
     global handle
     if handle is None:
         handle = PlayAudio(verbose)
+    handle.verbose = verbose
     handle.play(data, rate, scale, blocking)
 
     
@@ -1164,7 +1242,7 @@ def demo():
     data[:,0] = np.sin(2.0*np.pi*note2freq('a4')*t)
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     fade(data, rate, 0.1)
-    play(data, rate)
+    play(data, rate, verbose=2)
 
 
 def main(args):

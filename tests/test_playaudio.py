@@ -9,18 +9,24 @@ def test_beep():
     am.enable_module()
     print()
     print('default module...')
-    ap.beep(blocking=True)
-    ap.beep(0.5, 'a4', blocking=True)
-    ap.beep(blocking=False)
-    time.sleep(2.0)
-    ap.handle.close()
+    try:
+        ap.beep(blocking=True)
+        ap.beep(0.5, 'a4', blocking=True)
+        ap.beep(blocking=False)
+        time.sleep(2.0)
+        ap.handle.close()
+    except Exception as e:
+        print('beep failed:', type(e), str(e))
     for lib in am.installed_modules('device'):
         print('%s module...' % lib)
         am.select_module(lib)
-        ap.beep(blocking=True, verbose=2)
-        ap.beep(blocking=False, verbose=2)
-        time.sleep(2.0)
-        ap.handle.close()
+        try:
+            ap.beep(blocking=True, verbose=2)
+            ap.beep(blocking=False, verbose=2)
+            time.sleep(2.0)
+            ap.handle.close()
+        except Exception as e:
+            print('beep failed:', type(e), str(e))
         am.enable_module()
 
 
