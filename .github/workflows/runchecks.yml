@@ -37,7 +37,7 @@ jobs:
         shell: bash
 
       - name: Run tests
-        run: nosetests -vv -s --with-coverage --cover-package=audioio tests/test_playaudio.py
+        run: nosetests -vv -s --with-coverage --cover-package=audioio
         shell: bash
 
       - name: Build documentation
