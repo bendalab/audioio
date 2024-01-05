@@ -14,8 +14,7 @@ def test_beep():
         ap.beep(0.5, 'a4', blocking=True, verbose=2)
         ap.beep(blocking=False, verbose=2)
         time.sleep(2.0)
-        ap.handle.close()
-        ap.handle = None
+        ap.close()
     except Exception as e:
         print('beep failed:', type(e), str(e))
     for lib in am.installed_modules('device'):
@@ -26,8 +25,7 @@ def test_beep():
             ap.beep(blocking=True, verbose=2)
             ap.beep(blocking=False, verbose=2)
             time.sleep(2.0)
-            ap.handle.close()
-            ap.handle = None
+            ap.close()
         except Exception as e:
             print('beep failed:', type(e), str(e))
         am.enable_module()
@@ -52,8 +50,7 @@ def test_play():
     ap.play(stereo_data, rate, blocking=True)
     ap.play(stereo_data, rate, blocking=False)
     time.sleep(2.0)
-    ap.handle.close()
-    ap.handle = None
+    ap.close()
     for lib in am.installed_modules('device'):
         print(f'play with {lib} module mono...')
         am.select_module(lib)
@@ -64,8 +61,7 @@ def test_play():
         ap.play(stereo_data, rate, blocking=True)
         ap.play(stereo_data, rate, blocking=False)
         time.sleep(2.0)
-        ap.handle.close()
-        ap.handle = None
+        ap.close()
         am.enable_module()
 
 
@@ -89,8 +85,7 @@ def test_downsample():
             mono_data, stereo_data = sinewave(rate)
             ap.play(mono_data, rate, verbose=2)
             ap.play(stereo_data, rate, verbose=2)
-        ap.handle.close()
-        ap.handle = None
+        ap.close()
         am.enable_module()
 
 

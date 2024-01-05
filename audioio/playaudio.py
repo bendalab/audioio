@@ -1,20 +1,22 @@
-"""
-Play numpy arrays as audio.
+"""Play numpy arrays as audio.
 
 - `play()`: playback audio data.
 - `beep()`: playback a tone.
+- `close()`: close the global PlayAudio instance.
 - `PlayAudio()`: audio playback.
 - `fade_in()`: fade in a signal in place.
 - `fade_out()`: fade out a signal in place.
 - `fade()`: fade in an out a signal in place.
 - `note2freq()`: convert textual note to corresponding frequency.
 
-Accepted data for playback are 1-D or 2-D numpy arrays with values ranging from -1 to 1.
-If necessary data are downsampled automatically to match supported sampling rates.
+Accepted data for playback are 1-D or 2-D numpy arrays with values
+ranging from -1 to 1.
+If necessary data are downsampled automatically to match supported
+sampling rates.
 
-The globally defined functions `play()` and `beep()`
-use the global instance `handle` of the `PlayAudio` class to play a sound
-on the default audio output device.
+The globally defined functions `play()` and `beep()` use the global
+instance `handle` of the `PlayAudio` class to play a sound on the
+default audio output device.
 
 Alternatively you may use the `PlayAudio` class directly, like this:
 ```
@@ -36,6 +38,7 @@ For a demo, run the script as:
 ```
 python -m audioio.playaudio
 ```
+
 """
 
 from sys import platform
@@ -250,7 +253,10 @@ class PlayAudio(object):
 
     def _close(self):
         """Terminate PlayAudio class for playing audio."""
-        pass
+        self.handle = None
+        self._do_play = self._play
+        self.close = self._close
+        self.stop = self._stop
 
     def _stop(self):
         """Stop any playback in progress."""
@@ -430,8 +436,6 @@ class PlayAudio(object):
         os.dup(oldstderr)
         os.close(oldstderr)
         os.remove(tmpfile)
-        self.close = self._close_pyaudio
-        self.stop = self._stop_pyaudio
         try:
             info = self.handle.get_default_output_device_info()
             self.max_channels = info['maxOutputChannels']
@@ -443,9 +447,12 @@ class PlayAudio(object):
             if self.verbose > 0:
                 print(str(e))
             self.handle.terminate()
+            self._close()
             raise FileNotFoundError('failed to initialize audio device')
         self.index = 0
         self.data = None
+        self.close = self._close_pyaudio
+        self.stop = self._stop_pyaudio
         self._do_play = self._play_pyaudio
         return self
 
@@ -570,9 +577,7 @@ class PlayAudio(object):
         self._stop_pyaudio()
         if self.handle is not None:
             self.handle.terminate()
-        self.handle = None
-        self._do_play = self._play
-        self.stop = self._stop
+        self._close()
 
 
     def open_sounddevice(self):
@@ -602,8 +607,6 @@ class PlayAudio(object):
         self.index = 0
         self.data = None
         self.stream = None
-        self.close = self._close_sounddevice
-        self.stop = self._stop_sounddevice
         try:
             self.device_index = sounddevice.default.device[1]
             info = sounddevice.query_devices(self.device_index)
@@ -615,7 +618,10 @@ class PlayAudio(object):
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
+            self._close()
             raise FileNotFoundError('failed to initialize audio device')
+        self.close = self._close_sounddevice
+        self.stop = self._stop_sounddevice
         self._do_play = self._play_sounddevice
         return self
 
@@ -746,9 +752,7 @@ class PlayAudio(object):
     def _close_sounddevice(self):
         """Terminate sounddevice module."""
         self._stop_sounddevice()
-        self.handle = None
-        self._do_play = self._play
-        self.stop = self._stop
+        self._close()
 
         
     def open_simpleaudio(self):
@@ -824,9 +828,7 @@ class PlayAudio(object):
         """Close audio output using simpleaudio package."""
         self._stop_simpleaudio()
         simpleaudio.stop_all()
-        self.handle = None
-        self._do_play = self._play
-        self.stop = self._stop
+        self._close()
 
         
     def open_soundcard(self):
@@ -907,8 +909,7 @@ class PlayAudio(object):
     def _close_soundcard(self):
         """Close audio output using soundcard package."""
         self._stop_soundcard()
-        self._do_play = self._play
-        self.stop = self._stop
+        self._close()
 
                 
     def open_ossaudiodev(self):
@@ -938,8 +939,6 @@ class PlayAudio(object):
         if not audio_modules['ossaudiodev']:
             raise ImportError
         self.handle = True
-        self.close = self._close_ossaudiodev
-        self.stop = self._stop_ossaudiodev
         self.osshandle = None
         self.run = False
         self.play_thread = None
@@ -949,7 +948,10 @@ class PlayAudio(object):
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
+            self._close()
             raise FileNotFoundError('failed to initialize audio device')
+        self.close = self._close_ossaudiodev
+        self.stop = self._stop_ossaudiodev
         self._do_play = self._play_ossaudiodev
         return self
 
@@ -1030,9 +1032,7 @@ class PlayAudio(object):
     def _close_ossaudiodev(self):
         """Close audio output using ossaudiodev module."""
         self._stop_ossaudiodev()
-        self.handle = None
-        self._do_play = self._play
-        self.stop = self._stop
+        self._close()
 
         
     def open_winsound(self):
@@ -1122,8 +1122,7 @@ class PlayAudio(object):
         self.handle = None
         if len(self.audio_file) > 0 and os.path.isfile(self.audio_file):
             os.remove(self.audio_file)
-        self._do_play = self._play
-        self.stop = self._stop
+        self._close()
 
 
     def open(self):
@@ -1221,6 +1220,15 @@ def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
         handle = PlayAudio(verbose)
     handle.verbose = verbose
     handle.beep(duration, frequency, amplitude, rate, fadetime, blocking)
+
+
+def close():
+    """Close the global PlayAudio instance.
+    """
+    global handle
+    if handle is not None:
+        handle.close()
+        handle = None
 
 
 def demo():
