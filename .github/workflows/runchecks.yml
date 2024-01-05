@@ -24,6 +24,7 @@ jobs:
           pip install pydub
           pip install pyaudio
           pip install sounddevice
+          pip install soundcard
           pip install nose nose-cov
           pip install codecov
           pip install pdoc3
