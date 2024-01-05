@@ -9,14 +9,15 @@ def test_beep():
     am.enable_module()
     print()
     print('beep with default module...')
+    am.list_modules('device', True)
     try:
         ap.beep(blocking=True, verbose=2)
         ap.beep(0.5, 'a4', blocking=True, verbose=2)
         ap.beep(blocking=False, verbose=2)
         time.sleep(2.0)
         ap.close()
-    except Exception as e:
-        print('beep failed:', type(e), str(e))
+    except FileNotFoundError:
+        print(f'test_beep() with default {ap.handle.lib} module found no device.')
     for lib in am.installed_modules('device'):
         print(f'beep with {lib} module...')
         am.select_module(lib)
@@ -26,8 +27,8 @@ def test_beep():
             ap.beep(blocking=False, verbose=2)
             time.sleep(2.0)
             ap.close()
-        except Exception as e:
-            print('beep failed:', type(e), str(e))
+        except FileNotFoundError:
+            print(f'test_beep() with {lib} ({ap.handle.lib}) module found no device.')
         am.enable_module()
 
 
@@ -40,27 +41,33 @@ def test_play():
     mono_data = np.sin(2.0*np.pi*800.0*t)
     stereo_data = np.tile(mono_data, (2, 1)).T
     # fade in and out:
-    ap.fade(mono_data, rate, 0.1)
-    ap.fade(stereo_data, rate, 0.1)
-    print('play with default module mono...')
-    ap.play(mono_data, rate, blocking=True)
-    ap.play(mono_data, rate, blocking=False)
-    time.sleep(2.0)
-    print('play with default module stereo...')
-    ap.play(stereo_data, rate, blocking=True)
-    ap.play(stereo_data, rate, blocking=False)
-    time.sleep(2.0)
+    try:
+        ap.fade(mono_data, rate, 0.1)
+        ap.fade(stereo_data, rate, 0.1)
+        print('play with default module mono...')
+        ap.play(mono_data, rate, blocking=True)
+        ap.play(mono_data, rate, blocking=False)
+        time.sleep(2.0)
+        print('play with default module stereo...')
+        ap.play(stereo_data, rate, blocking=True)
+        ap.play(stereo_data, rate, blocking=False)
+        time.sleep(2.0)
+    except FileNotFoundError:
+        print(f'test_play() with default {ap.handle.lib} module found no device.')
     ap.close()
     for lib in am.installed_modules('device'):
         print(f'play with {lib} module mono...')
         am.select_module(lib)
-        ap.play(mono_data, rate, blocking=True, verbose=2)
-        ap.play(mono_data, rate, blocking=False, verbose=2)
-        time.sleep(2.0)
-        print(f'play with {lib} module stereo...')
-        ap.play(stereo_data, rate, blocking=True)
-        ap.play(stereo_data, rate, blocking=False)
-        time.sleep(2.0)
+        try:
+            ap.play(mono_data, rate, blocking=True, verbose=2)
+            ap.play(mono_data, rate, blocking=False, verbose=2)
+            time.sleep(2.0)
+            print(f'play with {lib} module stereo...')
+            ap.play(stereo_data, rate, blocking=True)
+            ap.play(stereo_data, rate, blocking=False)
+            time.sleep(2.0)
+        except FileNotFoundError:
+            print(f'test_play() with {lib} ({ap.handle.lib}) module found no device.')
         ap.close()
         am.enable_module()
 
@@ -80,11 +87,14 @@ def test_downsample():
     for lib in am.installed_modules('device'):
         am.select_module(lib)
         print(f'downsample wiht {lib} module ...')
-        for rate in [45555.0, 100000.0, 600000.0]:
-            print(' test rate %.0f Hz ...' % rate)
-            mono_data, stereo_data = sinewave(rate)
-            ap.play(mono_data, rate, verbose=2)
-            ap.play(stereo_data, rate, verbose=2)
+        try:
+            for rate in [45555.0, 100000.0, 600000.0]:
+                print(' test rate %.0f Hz ...' % rate)
+                mono_data, stereo_data = sinewave(rate)
+                ap.play(mono_data, rate, verbose=2)
+                ap.play(stereo_data, rate, verbose=2)
+        except FileNotFoundError:
+            print(f'test_downsample() with {lib} ({ap.handle.lib}) module found no device.')
         ap.close()
         am.enable_module()
 
@@ -118,12 +128,18 @@ def test_note2freq():
 
 def test_demo():
     am.enable_module()
-    ap.demo()
+    try:
+        ap.demo()
+    except FileNotFoundError:
+        print('test_demo() found no device.')
 
 
 def test_main():
     am.enable_module()
-    ap.main(['prog', '-h'])
-    ap.main(['prog'])
-    ap.main(['prog', '-m', 'sounddevice'])
-    ap.main(['prog', 'x'])
+    try:
+        ap.main(['prog', '-h'])
+        ap.main(['prog'])
+        ap.main(['prog', '-m', 'sounddevice'])
+        ap.main(['prog', 'x'])
+    except FileNotFoundError:
+        print('test_main() found no device.')

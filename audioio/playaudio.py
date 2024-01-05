@@ -249,6 +249,7 @@ class PlayAudio(object):
         self._do_play = self._play
         self.close = self._close
         self.stop = self._stop
+        self.lib = None
         self.open()
 
     def _close(self):
@@ -257,6 +258,7 @@ class PlayAudio(object):
         self._do_play = self._play
         self.close = self._close
         self.stop = self._stop
+        self.lib = None
 
     def _stop(self):
         """Stop any playback in progress."""
@@ -454,6 +456,7 @@ class PlayAudio(object):
         self.close = self._close_pyaudio
         self.stop = self._stop_pyaudio
         self._do_play = self._play_pyaudio
+        self.lib = 'pyaudio'
         return self
 
     def _callback_pyaudio(self, in_data, frames, time_info, status):
@@ -623,6 +626,7 @@ class PlayAudio(object):
         self.close = self._close_sounddevice
         self.stop = self._stop_sounddevice
         self._do_play = self._play_sounddevice
+        self.lib = 'sounddevice'
         return self
 
     def _callback_sounddevice(self, out_data, frames, time_info, status):
@@ -773,6 +777,7 @@ class PlayAudio(object):
         self._do_play = self._play_simpleaudio
         self.close = self._close_simpleaudio
         self.stop = self._stop_simpleaudio
+        self.lib = 'simpleaudio'
         return self
 
     def _stop_simpleaudio(self):
@@ -848,6 +853,7 @@ class PlayAudio(object):
         self._do_play = self._play_soundcard
         self.close = self._close_soundcard
         self.stop = self._stop_soundcard
+        self.lib = 'soundcard'
         return self
 
     def _stop_soundcard(self):
@@ -953,6 +959,7 @@ class PlayAudio(object):
         self.close = self._close_ossaudiodev
         self.stop = self._stop_ossaudiodev
         self._do_play = self._play_ossaudiodev
+        self.lib = 'ossaudiodev'
         return self
 
     def _stop_ossaudiodev(self):
@@ -1057,6 +1064,7 @@ class PlayAudio(object):
         self.close = self._close_winsound
         self.stop = self._stop_winsound
         self.audio_file = ''
+        self.lib = 'winsound'
         return self
 
     def _stop_winsound(self):
@@ -1140,7 +1148,6 @@ class PlayAudio(object):
             sa = audio_open.pop(2)
             audio_open.insert(0, sa)
         # open audio device by trying various modules:
-        print('open(), verbose', self.verbose)
         success = False
         for lib, open_device in audio_open:
             if not audio_modules[lib]:
@@ -1156,7 +1163,7 @@ class PlayAudio(object):
             except Exception as e:
                 if self.verbose > 0:
                     print(f'failed to open {lib} module for playing:',
-                          type(e), str(e))
+                          type(e).__name__, str(e))
         if not success:
             warnings.warn('cannot open any device for audio output')
         return self
