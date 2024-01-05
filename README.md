@@ -192,9 +192,9 @@ Playing sounds:
 - [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com).
 - [PyAudio](https://people.csail.mit.edu/hubert/pyaudio): wrapper for [portaudio](http://www.portaudio.com).
 - [simpleaudio](https://simpleaudio.readthedocs.io): uses ALSA on Linux, runs well on windows.
+- [SoundCard](https://github.com/bastibe/SoundCard): playback via CFFI and the native audio libraries of Linux, Windows and macOS.
 - [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): playback via the outdated OSS interface of the python standard library.
 - [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio playback of the python standard library, asynchronous playback only with wave files.
-- [SoundCard](https://github.com/bastibe/SoundCard): Uses native audio libraries.
 
 Related audio software:
 

@@ -61,6 +61,7 @@ audioread         is  installed (F)
 pyaudio           is  installed (D)
 sounddevice       not installed (D)
 simpleaudio       is  installed (D)
+soundcard         is  installed (D)
 ossaudiodev       is  installed (D)
 winsound          not installed (D)
 
@@ -328,6 +329,20 @@ audio_required_rpm_packages['simpleaudio'] = ['python3-devel', 'alsa-lib', 'alsa
 audio_infos['simpleaudio'] = """The simpleaudio package is a lightweight package
 for cross-platform audio playback.
 For documentation see https://simpleaudio.readthedocs.io"""
+        
+audio_device.append('soundcard')
+try:
+    import soundcard
+    audio_modules['soundcard'] = True
+    audio_installed.append('soundcard')
+except ImportError:
+    audio_modules['soundcard'] = False
+audio_pip_packages['soundcard'] = 'soundcard'
+audio_infos['soundcard'] = """SoundCard is a library for playing and recording audio without
+resorting to a CPython extension. Instead, it is implemented using the
+wonderful CFFI and the native audio libraries of Linux, Windows and
+macOS.
+For documentation see https://github.com/bastibe/SoundCard"""
         
 audio_device.append('ossaudiodev')
 try:
