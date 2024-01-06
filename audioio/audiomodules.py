@@ -1,9 +1,9 @@
 """Query and control installation status and availability of audio modules.
 
-- `installed_modules()`: installed audio modules of a specific function.
+- `installed_modules()`: installed audio modules.
 - `available_modules()`: installed and enabled audio modules.
 - `unavailable_modules()`: audio modules that are not installed and not enabled.
-- `disable_module()`: disable audio modules so that they are not used by the audioio functions and classes.
+- `disable_module()`: disable audio module.
 - `enable_module()`: enable audio modules provided they are installed.
 - `select_module()`: select (enable) a single audio module and disable all others.
 - `list_modules()`: print list of all supported modules and their installation status.
@@ -373,7 +373,7 @@ https://mail.python.org/pipermail/tutor/2012-September/091529.html"""
 
 
 def installed_modules(func='all'):
-    """Installed audio modules of a specific function.
+    """Installed audio modules.
 
     By default all installed modules are available. With
     `disable_module()`, `enable_module()` and `select_module()`
@@ -384,7 +384,7 @@ def installed_modules(func='all'):
     func: string
         'all': all installed audio modules.
         'fileio': installed audio modules used for file I/O.
-        'device': all installed audio modules used for playing and recording sounds.
+        'device': installed audio modules used for playing and recording sounds.
     
     Returns
     -------
@@ -415,12 +415,13 @@ def available_modules(func='all'):
     func: string
         'all': all installed audio modules.
         'fileio': installed audio modules used for file I/O.
-        'device': all installed audio modules used for playing and recording sounds.
+        'device': installed audio modules used for playing and recording sounds.
     
     Returns
     -------
     mods: list of strings
-        List of available, i.e. installed and enabled, audio modules of the requested function.
+        List of available, i.e. installed and enabled, audio modules
+        of the requested function.
     """
     if func == 'fileio':
         return [module for module in audio_fileio if audio_modules[module]]
@@ -438,13 +439,13 @@ def unavailable_modules(func='all'):
     func: string
         'all': all installed audio modules.
         'fileio': installed audio modules used for file I/O.
-        'device': all installed audio modules used for playing and recording sounds.
+        'device': installed audio modules used for playing and recording sounds.
     
     Returns
     -------
     mods: list of strings
         List of not available, i.e. not installed and not enabled, audio modules
-        of the requested function..
+        of the requested function.
     """
     if func == 'fileio':
         return [module for module in audio_fileio if not audio_modules[module]]
@@ -455,8 +456,9 @@ def unavailable_modules(func='all'):
 
 
 def disable_module(module=None):
-    """Disable audio modules so that they are not used by the audioio functions and classes.
+    """Disable an audio module.
 
+    A disabled module is not used by the audioio functions and classes.
     To disable all modules except one, call `select_module()`.
     
     Parameters
