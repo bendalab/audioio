@@ -574,7 +574,7 @@ class PlayAudio(object):
             while self.stream.is_active():
                 try:
                     sleep(0.01)
-                except ValueError, SystemError:
+                except (ValueError, SystemError):
                     pass
             self.run = False
             self.stream.stop_stream()
