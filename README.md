@@ -2,9 +2,9 @@
 [![tests](https://github.com/janscience/audioio/workflows/tests/badge.svg)](https://github.com/janscience/audioio/actions)
 [![codecov](https://codecov.io/gh/bendalab/audioio/branch/master/graph/badge.svg)](https://codecov.io/gh/bendalab/audioio)
 [![PyPI version](https://img.shields.io/pypi/v/audioio.svg)](https://pypi.python.org/pypi/audioio/)
-![downloads](https://img.shields.io/pypi/downloads/audioio.svg)
-![python](https://img.shields.io/pypi/pyversions/audioio.svg)
+![downloads](https://img.shields.io/pypi/dm/audioio.svg)
 <!--
+![python](https://img.shields.io/pypi/pyversions/audioio.svg)
 ![issues open](https://img.shields.io/github/issues/janscience/audioio.svg)
 ![issues closed](https://img.shields.io/github/issues-closed/janscience/audioio.svg)
 ![pullrequests open](https://img.shields.io/github/issues-pr/janscience/audioio.svg)
