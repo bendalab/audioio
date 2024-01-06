@@ -19,6 +19,7 @@ def test_beep():
     except FileNotFoundError:
         print(f'test_beep() with default {ap.handle.lib} module found no device.')
     for lib in am.installed_modules('device'):
+        print()
         print(f'beep with {lib} module...')
         am.select_module(lib)
         am.list_modules('device', True)
@@ -26,6 +27,7 @@ def test_beep():
             ap.beep(blocking=True, verbose=2)
             ap.beep(blocking=False, verbose=2)
             time.sleep(2.0)
+            print(f'successfully beeped with {lib} module')
             ap.close()
         except FileNotFoundError:
             print(f'test_beep() with {lib} ({ap.handle.lib}) module found no device.')

@@ -499,11 +499,19 @@ class PlayAudio(object):
                     for k in range(nr) :
                         self.data[index+(nr-k-1)] = np.array(self.data[index+(nr-k-1)] *
                                 np.sin(0.5*np.pi*float(k)/float(nr))**2.0, np.int16, order='C')
-                sleep(2*fadetime)
+                try:
+                    sleep(2*fadetime)
+                except SystemError:
+                    # python 3.10 implementation error of sleep?
+                    pass
             if self.stream.is_active():
                 self.run = False
                 while self.stream.is_active():
-                    sleep(0.01)
+                    try:
+                        sleep(0.01)
+                    except SystemError:
+                        # python 3.10 implementation error of sleep?
+                        pass
                 self.stream.stop_stream()
             self.stream.close()
             self.stream = None
@@ -566,7 +574,7 @@ class PlayAudio(object):
             while self.stream.is_active():
                 try:
                     sleep(0.01)
-                except ValueError:
+                except ValueError, SystemError:
                     pass
             self.run = False
             self.stream.stop_stream()
@@ -884,6 +892,7 @@ class PlayAudio(object):
             Invalid sampling rate (after some attemps of resampling).
         """
         if not blocking:
+            warnings.warn('soundcard module does not support non-blocking playback')
             return
         rates = [self.rate, 44100, 48000, 22050]
         scales = [1, None, None, None]
