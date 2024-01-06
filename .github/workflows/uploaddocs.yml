@@ -1,4 +1,4 @@
-name: Build Documentation and Deploy
+name: tests
 on: [push]
 
 jobs:
@@ -30,10 +30,11 @@ jobs:
           pip install pdoc3
           pip install markdown-include
           pip install mkdocs
+          pip install genbadge[coverage]
           pip install -r requirements.txt
 
       - name: Run tests
-        run: nosetests -vv --with-coverage --cover-package=audioio
+        run: nosetests -vv --with-coverage --cover-html --cover-xml --cover-package=audioio
         shell: bash
 
       - name: Build documentation
@@ -48,6 +49,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
+          git add -f coverage.svg
+          git add -f cover/*.*
           git commit -m 'deploy'
           
       - name: Push to github pages

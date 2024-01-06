@@ -1,8 +1,9 @@
 [![license](https://img.shields.io/pypi/l/audioio.svg)](https://github.com/janscience/audioio/blob/master/LICENSE)
-[![tests](https://github.com/janscience/audioio/workflows/tests/badge.svg)](https://github.com/janscience/audioio/actions)
-[![codecov](https://codecov.io/gh/bendalab/audioio/branch/master/graph/badge.svg)](https://codecov.io/gh/bendalab/audioio)
+[![tests](https://github.com/janscience/audioio/workflows/tests/badge.svg?dummy=42)](https://github.com/janscience/audioio/actions)
+[![codecov](https://bendalab.github.io/audioio/coverage.svg?dummy=42)](https://bendalab.github.io/audioio/cover)
 [![PyPI version](https://img.shields.io/pypi/v/audioio.svg)](https://pypi.python.org/pypi/audioio/)
 ![downloads](https://img.shields.io/pypi/dm/audioio.svg)
+[![commits](https://img.shields.io/github/commit-activity/m/bendalab/audioio)](https://github.com/bendalab/audioio/pulse)
 <!--
 ![python](https://img.shields.io/pypi/pyversions/audioio.svg)
 ![issues open](https://img.shields.io/github/issues/janscience/audioio.svg)
