@@ -502,7 +502,7 @@ class PlayAudio(object):
                 try:
                     sleep(2*fadetime)
                 except SystemError:
-                    # python 3.10 implementation error of sleep?
+                    # pyaudio interferes with sleep in python 3.10
                     pass
             if self.stream.is_active():
                 self.run = False
@@ -510,7 +510,7 @@ class PlayAudio(object):
                     try:
                         sleep(0.01)
                     except SystemError:
-                        # python 3.10 implementation error of sleep?
+                        # pyaudio interferes with sleep in python 3.10
                         pass
                 self.stream.stop_stream()
             self.stream.close()
@@ -575,6 +575,7 @@ class PlayAudio(object):
                 try:
                     sleep(0.01)
                 except (ValueError, SystemError):
+                    # pyaudio interferes with sleep in python 3.10
                     pass
             self.run = False
             self.stream.stop_stream()
@@ -1288,6 +1289,7 @@ def main(args):
     for arg in args[1:]:
         if mod:
             if not select_module(arg):
+                print(f'module {arg} not installed. Exit!')
                 return
             mod = False
         elif arg == '-h':

@@ -283,13 +283,13 @@ except ImportError:
     audio_modules['pyaudio'] = False
 audio_pip_packages['pyaudio'] = 'PyAudio'
 audio_conda_packages['pyaudio'] = 'pyaudio'
-audio_deb_packages['pyaudio'] = 'python3-pyaudio'
+audio_deb_packages['pyaudio'] = 'python3-pyaudio  # WARNING: broken on Ubuntu with python 3.10, use pip instead'
 audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
 audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
 audio_required_rpm_packages['pyaudio'] = ['libportaudio', 'portaudio-devel']
 audio_required_brew_packages['pyaudio'] = ['portaudio']
 audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library (http://www.portaudio.com).
-For documentation see https://people.csail.mit.edu/hubert/pyaudio"""
+For documentation see https://people.csail.mit.edu/hubert/pyaudio."""
 audio_instructions_windows['pyaudio'] = """Download an appropriate (latest version, 32 or 64 bit) wheel from
 <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
 that is go to the folder where the wheel file is downloaded and run
