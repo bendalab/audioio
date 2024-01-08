@@ -32,6 +32,7 @@ own code for decoding files and accessing audio hardware.
 - `load_audio()` function for loading a whole audio file.
 - *Blockwise random-access* loading of large audio files (`class AudioLoader`).
 - `blocks()` generator for iterating over blocks of data with optional overlap.
+- Read metadata and cue lists from wave file.
 - `write_audio()` function for writing data to an audio file. 
 - Platform independent playback of numpy arrays (`play()`).
 - *Synchronous* (blocking) and *asynchronous* (non blocking) playback.
