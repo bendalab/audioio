@@ -41,7 +41,7 @@ own code for decoding files and accessing audio hardware.
 
 ## Installation
 
-Simply run (as superuser):
+AudioIO is available at [PyPi](https://pypi.org/project/audioio/). Simply run:
 ```
 pip install audioio
 ```
