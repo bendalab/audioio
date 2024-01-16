@@ -451,6 +451,11 @@ def flatten_metadata(md, keep_sections=False):
         Metadata as returned by `audio_metadata()`.
     keep_sections: bool
         If `True`, then prefix keys with section names, separated by '.'.
+
+    Returns
+    -------
+    d: dict
+        Noon-nested dict containing all key-value pairs of `md`.
     """
     def flatten(cd, section):
         df = {}
