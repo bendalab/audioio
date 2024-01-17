@@ -2,6 +2,8 @@
 
 - `load_audio()`: load a whole audio file at once.
 - `audio_metadata()`: read meta-data of an audio file.
+- `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
+- `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
 - `AudioLoader`: read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 - `despike()`: remove spikes.
@@ -455,7 +457,7 @@ def flatten_metadata(md, keep_sections=False):
     Returns
     -------
     d: dict
-        Noon-nested dict containing all key-value pairs of `md`.
+        Non-nested dict containing all key-value pairs of `md`.
     """
     def flatten(cd, section):
         df = {}
@@ -472,6 +474,39 @@ def flatten_metadata(md, keep_sections=False):
     return flatten(md, '')
 
 
+def unflatten_metadata(md):
+    """Unflatten a previously flattened metadata dictionary.
+
+    Parameters
+    ----------
+    md: dict
+        Flat dictionary with key-value pairs as obtained from
+        `flatten_metadata()` with `keep_sections=True`.
+
+    Returns
+    -------
+    d: nested dict
+        Hierarchical dictionary with sub-dictionaries and key-value pairs.
+    """
+    umd = {}
+    cmd = [umd]
+    for k in md:
+        ks = k.split('.')
+        if len(ks) > len(cmd):
+            # TODO: that can be several levels of subsections!
+            cmd[-1][ks[-2]] = {}
+            cmd.append(cmd[-1][ks[-2]])
+        elif len(ks) < len(cmd):
+            # TODO: that can be several levels of subsections!
+            cmd.pop()
+        elif len(ks) > 1 and not ks[-2] in cmd[-2]:
+            # TODO: that can be several levels of subsections!
+            cmd[-2][ks[-2]] = {}
+            cmd[-1] = cmd[-2][ks[-2]]
+        cmd[-1][ks[-1]] = md[k]
+    return umd
+
+            
 def blocks(data, block_size, noverlap=0, start=0, stop=None):
     """Generator for blockwise processing of array data.
 
