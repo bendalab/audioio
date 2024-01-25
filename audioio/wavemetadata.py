@@ -5,6 +5,8 @@
 
 ## Documentation of wave file format
 
+- https://de.wikipedia.org/wiki/RIFF_WAVE
+
 For wave chunks see:
 
 - https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#cue
@@ -17,6 +19,7 @@ For tag names see:
 """
 
 import struct
+import numpy as np
 import xml.etree.ElementTree as ET
 
 
@@ -331,6 +334,91 @@ def metadata_wave(file, store_empty=False, verbose=0):
     return meta_data, cues
 
 
+def write_riff_chunk(df, filesize=0):
+    """ Write the RIFF file header. """
+    if filesize < 8:
+        filesize = 8
+    df.write(b'RIFF')
+    df.write(struct.pack('<I', filesize - 8))
+    df.write(b'WAVE')
+    return 12
+
+
+def write_filesize(df, filesize):
+    """ Write the file size into the RIFF file header. """
+    pos = df.tell()
+    df.seek(4, 0)
+    df.write(struct.pack('<I', filesize - 8))
+    df.seek(pos, 0)
+
+
+def write_fmt_chunk(df, channels, frames, samplerate, bits=16):
+    """ Write the FMT chunk. """
+    blockalign = channels * (bits//8)
+    byterate = int(samplerate) * blockalign
+    df.write(b'fmt ')
+    df.write(struct.pack('<IHHIIHH', 16, 1, channels, int(samplerate),
+                         byterate, blockalign, bits))
+    return 8 + 16
+
+
+def write_data_chunk(df, data, bits=16):
+    df.write(b'data')
+    df.write(struct.pack('<I', data.size * (bits//8)))
+    buffer = data * 2**(bits-1)
+    n = df.write(buffer.astype(f'<i{bits//8}').tobytes('C'))
+    return 8 + n
+
+
+def write_info_chunk(df, metadata):
+    if metadata is None or len(metadata) == 0:
+        return 0
+    tags = {v: k for k, v in info_tags.items()}
+    n = 0
+    for k in metadata:
+        n += 8 + len(metadata[k]) + len(metadata[k]) % 2
+    df.write(b'LIST')
+    df.write(struct.pack('<I', n + 4))
+    df.write(b'INFO')
+    for k in metadata:
+        kn = tags[k] if k in tags else k
+        df.write(f'{kn:<4s}'.encode('latin-1'))
+        ns = len(metadata[k]) + len(metadata[k]) % 2
+        df.write(struct.pack('<I', ns))
+        df.write(f'{metadata[k]:<{ns}s}'.encode('latin-1'))
+    return 12 + n
+
+    
+def write_wave(filepath, data, samplerate, metadata=None):
+    """ Write time series and metadata to a wave file.
+
+    Only 16 or 32bit PCM encoding is supported.
+
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    samplerate: float
+        Sampling rate of the data in Hertz.
+    metadata: nested dict
+        Meta data as key-value pairs.
+    """
+    bits = 16
+    n = 0
+    with open(filepath, 'wb') as df:
+        n += write_riff_chunk(df)
+        if data.ndim == 1:
+            n += write_fmt_chunk(df, 1, len(data), samplerate, bits)
+        else:
+            n += write_fmt_chunk(df, data.shape[1], data.shape[0],
+                                 samplerate, bits)
+        n += write_info_chunk(df, metadata)
+        n += write_data_chunk(df, data, bits)
+        write_filesize(df, n)
+
 
 def main(args):
     """Call demo with command line arguments.
@@ -371,4 +459,9 @@ def main(args):
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv)
+    #main(sys.argv)
+    rate = 44100
+    t = np.arange(0, 2, 1/rate)
+    x = np.sin(2*np.pi*440*t)
+    m = dict(IENG='JB', ICRD='2024-01-24', Comment='this is test1')
+    write_wave('test.wav', x, rate, m)
