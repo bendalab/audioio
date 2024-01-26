@@ -18,6 +18,7 @@ For tag names see:
 - see https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
 """
 
+import warnings
 import struct
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -386,7 +387,20 @@ def metadata_wave(file, store_empty=False, verbose=0):
 
 
 def write_riff_chunk(df, filesize=0):
-    """ Write the RIFF file header. """
+    """ Write RIFF file header.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing RIFF file header.
+    filesize: int
+        Size of the file in bytes.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
     if filesize < 8:
         filesize = 8
     df.write(b'RIFF')
@@ -396,7 +410,15 @@ def write_riff_chunk(df, filesize=0):
 
 
 def write_filesize(df, filesize):
-    """ Write the file size into the RIFF file header. """
+    """Write the file size into the RIFF file header.
+
+    Parameters
+    ----------
+    df: stream
+        File stream into which to write `filesize`.
+    filesize: int
+        Size of the file in bytes.
+    """
     pos = df.tell()
     df.seek(4, 0)
     df.write(struct.pack('<I', filesize - 8))
@@ -404,7 +426,26 @@ def write_filesize(df, filesize):
 
 
 def write_fmt_chunk(df, channels, frames, samplerate, bits=16):
-    """ Write the FMT chunk. """
+    """ Write FMT chunk.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing FMT chunk.
+    channels: int
+        Number of channels contained in the data.
+    frames: int
+        Number of frames contained in the data.
+    samplerate: int or float
+        Sampling rate (frames per time) in Hertz.
+    bits: 16 or 32
+        Bit resolution of the data to be written.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
     blockalign = channels * (bits//8)
     byterate = int(samplerate) * blockalign
     df.write(b'fmt ')
@@ -414,6 +455,23 @@ def write_fmt_chunk(df, channels, frames, samplerate, bits=16):
 
 
 def write_data_chunk(df, data, bits=16):
+    """ Write data chunk.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing data chunk.
+    data: 1d or 2d array of floats
+        Data with first column time (frames) and optional second column
+        channels with values between -1 and 1.
+    bits: 16 or 32
+        Bit resolution of the data to be written.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
     df.write(b'data')
     df.write(struct.pack('<I', data.size * (bits//8)))
     buffer = data * 2**(bits-1)
@@ -422,24 +480,112 @@ def write_data_chunk(df, data, bits=16):
 
 
 def write_info_chunk(df, metadata):
+    """Write metadata to LIST INFO chunk.
+
+    If `metadata` contains an 'INFO' key, then write the flat
+    dictionary of this key as an INFO chunk. Otherwise, attempt to
+    write all m̀etadata` items as an INFO chunk. The keys are
+    translated via `info_tags` back to INFO tags. If after translation
+    any key is left that is longer than 4 characters or any key has a
+    dictionary as a value (non-flat metadata), the INFO chunk is not
+    written.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing INFO chunk.
+    metadata: nested dict
+        Meta-data as key-value pairs. Values can be strings or dictionaries.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the INFO chunk.
+    """
     if metadata is None or len(metadata) == 0:
-        return 0
+        return 0, []
+    is_info = False
+    if 'INFO' in metadata:
+        metadata = metadata['INFO']
+        is_info = True
     tags = {v: k for k, v in info_tags.items()}
     n = 0
     for k in metadata:
+        kn = tags.get(k, k)
+        if len(kn) > 4:
+            if is_info:
+                warnings.warn(f'no 4-character info tag for key "{k}" found.')
+            return 0, []
+        if isinstance(metadata[k], dict):
+            if is_info:
+                warnings.warn(f'value of info tag for key "{k}" must be a string.')
+            return 0, []
         n += 8 + len(metadata[k]) + len(metadata[k]) % 2
     df.write(b'LIST')
     df.write(struct.pack('<I', n + 4))
     df.write(b'INFO')
+    keys_written = []
     for k in metadata:
-        kn = tags[k] if k in tags else k
+        kn = tags.get(k, k)
         df.write(f'{kn:<4s}'.encode('latin-1'))
         ns = len(metadata[k]) + len(metadata[k]) % 2
         df.write(struct.pack('<I', ns))
         df.write(f'{metadata[k]:<{ns}s}'.encode('latin-1'))
-    return 12 + n
+        keys_written.append(k)
+    return 12 + n, ['INFO'] if is_info else keys_written
 
-    
+
+def write_bext_chunk(df, metadata):
+    """Write metadata to BEXT chunk.
+
+    If `metadata` contains a BEXT key, then write the dictionary of
+    that key a a BEXT chunk.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing BEXT chunk.
+    metadata: nested dict
+        Meta-data as key-value pairs. Values can be strings or dictionaries.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the INFO chunk.
+
+    """
+    if metadata is None or len(metadata) == 0 or not 'BEXT' in metadata:
+        return 0, []
+    metadata = metadata['BEXT']
+    return 0, []
+
+
+def write_ixml_chunk(df, metadata, keys_written=None):
+    """ Write metadata to IXML chunk.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing IXML chunk.
+    metadata: nested dict
+        Meta-data as key-value pairs. Values can be strings or dictionaries.
+    keys_written: list of str
+        Keys that have already written to INFO or BEXT chunk.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
+    if metadata is None or len(metadata) == 0:
+        return 0
+    return 0
+
+
 def write_wave(filepath, data, samplerate, metadata=None):
     """ Write time series and metadata to a wave file.
 
@@ -455,7 +601,7 @@ def write_wave(filepath, data, samplerate, metadata=None):
     samplerate: float
         Sampling rate of the data in Hertz.
     metadata: nested dict
-        Meta data as key-value pairs.
+        Meta-data as key-value pairs. Values can be strings or dictionaries.
     """
     bits = 16
     n = 0
@@ -466,27 +612,26 @@ def write_wave(filepath, data, samplerate, metadata=None):
         else:
             n += write_fmt_chunk(df, data.shape[1], data.shape[0],
                                  samplerate, bits)
-        n += write_info_chunk(df, metadata)
+        mn, kw = write_info_chunk(df, metadata)
+        n += mn
         n += write_data_chunk(df, data, bits)
+        mn, bkw = write_bext_chunk(df, metadata)
+        kw.extend(bkw)
+        n += mn
+        n += write_ixml_chunk(df, metadata, kw)
         write_filesize(df, n)
 
 
-def main(args):
-    """Call demo with command line arguments.
+def demo(filepath):
+    """Print metadata of wave file.
 
     Parameters
     ----------
-    args: list of strings
-        Command line arguments as provided by sys.argv
+    filepath: string
+        Path of a wave file.
     """
-    if len(args) <= 1 or args[1] == '-h' or args[1] == '--help':
-        print('')
-        print('Usage:')
-        print('  python -m audioio.wavemetadata [--help] <audio/file.wav>')
-        return
-
     # read meta data:
-    meta_data, cues = metadata_wave(args[1], store_empty=False, verbose=1)
+    meta_data, cues = metadata_wave(filepath, store_empty=False, verbose=1)
     
     # print meta data:
     print()
@@ -508,11 +653,33 @@ def main(args):
             print(f'{c["id"]:4} {c["pos"]:10} {c.get("length", 0):8} {c.get("label", ""):10} {c.get("note", ""):10} {c.get("text", ""):10}')
 
 
+def main(*args):
+    """Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of strings
+        COmmand line arguments as returned by sys.argv
+    """
+    if len(args) > 1 and (args[1] == '-h' or args[1] == '--help'):
+        print()
+        print('Usage:')
+        print('  python -m audioio.wavemetadata [--help] <audio/file.wav>')
+        print()
+        return
+
+    if len(args) > 1:
+        demo(args[1])
+    else:
+        rate = 44100
+        t = np.arange(0, 2, 1/rate)
+        x = np.sin(2*np.pi*440*t)
+        md = dict(IENG='JB', ICRD='2024-01-24', Comment='this is test1')
+        md = dict(INFO=md)
+        write_wave('test.wav', x, rate, md)
+        demo('test.wav')
+
+    
 if __name__ == "__main__":
     import sys
-    #main(sys.argv)
-    rate = 44100
-    t = np.arange(0, 2, 1/rate)
-    x = np.sin(2*np.pi*440*t)
-    m = dict(IENG='JB', ICRD='2024-01-24', Comment='this is test1')
-    write_wave('test.wav', x, rate, m)
+    main(*sys.argv)
