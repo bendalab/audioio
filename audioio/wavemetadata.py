@@ -139,6 +139,108 @@ bext_tags = dict(
 See https://tech.ebu.ch/docs/tech/tech3285.pdf
 """
 
+ixml_tags = [
+    'BWFXML',
+    'IXML_VERSION',
+    'PROJECT',
+    'SCENE',
+    'TAPE',
+    'TAKE',
+    'TAKE_TYPE',
+    'NO_GOOD',
+    'FALSE_START',
+    'WILD_TRACK',
+    'CIRCLED',
+    'FILE_UID',
+    'UBITS',
+    'NOTE',
+    'SYNC_POINT_LIST',
+    'SYNC_POINT_COUNT',
+    'SYNC_POINT',
+    'SYNC_POINT_TYPE',
+    'SYNC_POINT_FUNCTION',
+    'SYNC_POINT_COMMENT',
+    'SYNC_POINT_LOW',
+    'SYNC_POINT_HIGH',
+    'SYNC_POINT_EVENT_DURATION',
+    'SPEED',
+    'MASTER_SPEED',
+    'CURRENT_SPEED',
+    'TIMECODE_RATE',
+    'TIMECODE_FLAGS',
+    'FILE_SAMPLE_RATE',
+    'AUDIO_BIT_DEPTH',
+    'DIGITIZER_SAMPLE_RATE',
+    'TIMESTAMP_SAMPLES_SINCE_MIDNIGHT_HI',
+    'TIMESTAMP_SAMPLES_SINCE_MIDNIGHT_LO',
+    'TIMESTAMP_SAMPLE_RATE',
+    'LOUDNESS',
+    'LOUDNESS_VALUE',
+    'LOUDNESS_RANGE',
+    'MAX_TRUE_PEAK_LEVEL',
+    'MAX_MOMENTARY_LOUDNESS',
+    'MAX_SHORT_TERM_LOUDNESS',
+    'HISTORY',
+    'ORIGINAL_FILENAME',
+    'PARENT_FILENAME',
+    'PARENT_UID',
+    'FILE_SET',
+    'TOTAL_FILES',
+    'FAMILY_UID',
+    'FAMILY_NAME',
+    'FILE_SET_INDEX',
+    'TRACK_LIST',
+    'TRACK_COUNT',
+    'TRACK',
+    'CHANNEL_INDEX',
+    'INTERLEAVE_INDEX',
+    'NAME',
+    'FUNCTION',
+    'PRE_RECORD_SAMPLECOUNT',
+    'BEXT',
+    'BWF_DESCRIPTION',
+    'BWF_ORIGINATOR',
+    'BWF_ORIGINATOR_REFERENCE',
+    'BWF_ORIGINATION_DATE',
+    'BWF_ORIGINATION_TIME',
+    'BWF_TIME_REFERENCE_LOW',
+    'BWF_TIME_REFERENCE_HIGH',
+    'BWF_VERSION',
+    'BWF_UMID',
+    'BWF_RESERVED',
+    'BWF_CODING_HISTORY',
+    'BWF_LOUDNESS_VALUE',
+    'BWF_LOUDNESS_RANGE',
+    'BWF_MAX_TRUE_PEAK_LEVEL',
+    'BWF_MAX_MOMENTARY_LOUDNESS',
+    'BWF_MAX_SHORT_TERM_LOUDNESS',
+    'USER',
+    'FULL_TITLE',
+    'DIRECTOR_NAME',
+    'PRODUCTION_NAME',
+    'PRODUCTION_ADDRESS',
+    'PRODUCTION_EMAIL',
+    'PRODUCTION_PHONE',
+    'PRODUCTION_NOTE',
+    'SOUND_MIXER_NAME',
+    'SOUND_MIXER_ADDRESS',
+    'SOUND_MIXER_EMAIL',
+    'SOUND_MIXER_PHONE',
+    'SOUND_MIXER_NOTE',
+    'AUDIO_RECORDER_MODEL',
+    'AUDIO_RECORDER_SERIAL_NUMBER',
+    'AUDIO_RECORDER_FIRMWARE',
+    'LOCATION',
+    'LOCATION_NAME',
+    'LOCATION_GPS',
+    'LOCATION_ALTITUDE',
+    'LOCATION_TYPE',
+    'LOCATION_TIME',
+    ]
+"""Valid tags of the iXML chunk.
+
+See http://www.gallery.co.uk/ixml/
+"""
 
 def metadata_wave(file, store_empty=False, verbose=0):
     """ Read metadata of a wave file.
@@ -371,6 +473,8 @@ def metadata_wave(file, store_empty=False, verbose=0):
         md = {root.tag: parse_xml(root)}
         if len(md) == 1 and 'BWFXML' in md:
             md = md['BWFXML']
+        if len(md) == 1 and 'odML' in md:
+            md = md['odML']
         return md
             
     meta_data = {}
@@ -399,6 +503,9 @@ def metadata_wave(file, store_empty=False, verbose=0):
         elif chunk == 'IXML':
             md = ixml_chunk(sf)
             meta_data['IXML'] = md
+        elif chunk == 'ODML':
+            md = ixml_chunk(sf)
+            meta_data.update(md)
         else:
             if verbose > 0:
                 print('skip', chunk)
@@ -435,7 +542,7 @@ def write_riff_chunk(df, filesize=0):
     return 12
 
 
-def write_filesize(df, filesize):
+def write_filesize(df, filesize=None):
     """Write the file size into the RIFF file header.
 
     Parameters
@@ -443,9 +550,13 @@ def write_filesize(df, filesize):
     df: stream
         File stream into which to write `filesize`.
     filesize: int
-        Size of the file in bytes.
+        Size of the file in bytes. If not specified or 0,
+        then use current size of the file.
     """
     pos = df.tell()
+    if not filesize:
+        df.seek(0, 2)
+        filesize = df.tell()
     df.seek(4, 0)
     df.write(struct.pack('<I', filesize - 8))
     df.seek(pos, 0)
@@ -641,13 +752,25 @@ def write_ixml_chunk(df, metadata, keys_written=None):
     n: int
         Number of bytes written to the stream.
     """
+    def check_ixml(metadata):
+        for k in metadata:
+            if not k.upper() in ixml_tags:
+                return False
+            if isinstance(metadata[k], dict):
+                if not check_ixml(metadata[k]):
+                    return False
+        return True
+        
     def build_xml(node, metadata):
+        kw = []
         for k in metadata:
             e = ET.SubElement(node, k)
             if isinstance(metadata[k], dict):
                 build_xml(e, metadata[k])
             else:
                 e.text = str(metadata[k]).replace('\n', '.')
+            kw.append(k)
+        return kw
 
     if metadata is None or len(metadata) == 0:
         return 0, []
@@ -657,19 +780,23 @@ def write_ixml_chunk(df, metadata, keys_written=None):
     if len(md) == 0:
         return 0, []
     is_ixml = False
-    if 'IXML' in md:
+    has_ixml = False
+    if 'IXML' in md and check_ixml(md['IXML']):
         md = md['IXML']
         is_ixml = True
-    root = ET.Element('BWFXML')
-    build_xml(root, md)
+        has_ixml = True
+    else:
+        is_ixml = check_ixml(md)
+    root = ET.Element('BWFXML' if is_ixml else 'odML')
+    kw = build_xml(root, md)
     bs = bytes(ET.tostring(root, xml_declaration=True,
                            short_empty_elements=False))
     if len(bs) % 2 == 1:
         bs += bytes(1)
-    df.write(b'IXML')
+    df.write(b'IXML' if is_ixml else b'ODML')
     df.write(struct.pack('<I', len(bs)))
     df.write(bs)
-    return 8 + len(bs), ['IXML'] if is_ixml else []
+    return 8 + len(bs), ['IXML'] if has_ixml else kw
 
 
 def write_wave(filepath, data, samplerate, metadata=None,
@@ -711,24 +838,25 @@ def write_wave(filepath, data, samplerate, metadata=None,
         bits = 32
     else:
         raise ValueError(f'file encoding {encoding} not supported')
-    n = 0
     with open(filepath, 'wb') as df:
-        n += write_riff_chunk(df)
+        write_riff_chunk(df)
         if data.ndim == 1:
-            n += write_fmt_chunk(df, 1, len(data), samplerate, bits)
+            write_fmt_chunk(df, 1, len(data), samplerate, bits)
         else:
-            n += write_fmt_chunk(df, data.shape[1], data.shape[0],
-                                 samplerate, bits)
-        mn, kw = write_info_chunk(df, metadata)
-        n += mn
-        n += write_data_chunk(df, data, bits)
-        mn, bkw = write_bext_chunk(df, metadata)
+            write_fmt_chunk(df, data.shape[1], data.shape[0],
+                            samplerate, bits)
+        write_data_chunk(df, data, bits)
+        # metadata INFO chunk:
+        _, kw = write_info_chunk(df, metadata)
+        # metadata BEXT chunk:
+        _, bkw = write_bext_chunk(df, metadata)
         kw.extend(bkw)
-        n += mn
-        mn, xkw = write_ixml_chunk(df, metadata, kw)
+        # metadata IXML chunk:
+        _, xkw = write_ixml_chunk(df, metadata, kw)
         kw.extend(xkw)
-        n += mn
-        write_filesize(df, n)
+        # write remaining metadata to ODML chunk:
+        write_ixml_chunk(df, metadata, kw)
+        write_filesize(df)
 
 
 def demo(filepath):
@@ -791,7 +919,8 @@ def main(*args):
                    OriginationDate='2024:01:24', TimeReference=123456,
                    Version=42, CodingHistory='Test1\nTest2')
         xmd = dict(Project='Record all', Note='still testing')
-        md = dict(INFO=imd, BEXT=bmd, IXML=xmd)
+        md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
+                  Recording=imd, Production=bmd, Notes=xmd)
         write_wave('test.wav', x, rate, md)
         demo('test.wav')
 
