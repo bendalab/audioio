@@ -355,7 +355,7 @@ def read_cue_chunk(sf):
     return np.array(ids, dtype=int), np.array(pos, dtype=int)
 
         
-def read_playlist_chunk(sf, ids, ranges):
+def read_playlist_chunk(sf, ids, spans):
     """ Read in cue length from playlist chunk.
     
     See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
@@ -366,27 +366,27 @@ def read_playlist_chunk(sf, ids, ranges):
         File stream of wave file.
     ids: array of ints
         Unique identifiers of each cue.
-    ranges: array of int
+    spans: array of int
         Range of samples each cue point spans
         (from a previous playlist or LTXT).
 
     Returns
     -------
-    ranges: array of int
+    spans: array of int
         Range of samples each cue point spans.
     """
-    if len(ranges) == 0:
-        ranges = np.zeros(len(ids), dtype=int)
+    if len(spans) == 0:
+        spans = np.zeros(len(ids), dtype=int)
     size, n = struct.unpack('<II', sf.read(8))
     for p in range(n):
         cpid, length, repeats = struct.unpack('<III', sf.read(12))
         i = np.where(ids == cpid)[0]
         if len(i) > 0:
-            ranges[i[0]] = length
-    return ranges
+            spans[i[0]] = length
+    return spans
 
 
-def read_ADTL_chunks(sf, ids, ranges, labels, texts):
+def read_ADTL_chunks(sf, ids, spans, labels, texts):
     """ Read in associated data list chunks.
 
     See https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file
@@ -397,7 +397,7 @@ def read_ADTL_chunks(sf, ids, ranges, labels, texts):
         File stream of wave file.
     ids: array of ints
         Unique identifiers of each cue.
-    ranges: array of int
+    spans: array of int
         Range of samples each cue point spans
         (from a previous playlist or LTXT).
     labels: list of strings
@@ -407,15 +407,15 @@ def read_ADTL_chunks(sf, ids, ranges, labels, texts):
 
     Returns
     -------
-    ranges: array of int
+    spans: array of int
         Range of samples each cue point spans.
     labels: list of strings
         A label for each cue from LABL or NOTE chunk.
     texts: list of strings
         A text for each cue from LTXT chunk.
     """
-    if len(ranges) == 0:
-        ranges = np.zeros(len(ids), dtype=int)
+    if len(spans) == 0:
+        spans = np.zeros(len(ids), dtype=int)
     if len(labels) == 0:
         labels = [''] * len(ids)
     if len(texts) == 0:
@@ -446,13 +446,13 @@ def read_ADTL_chunks(sf, ids, ranges, labels, texts):
                     if len(texts[i]) > 0:
                         texts[i] += '|'
                         texts[i] += text
-                        ranges[i] = length
+                        spans[i] = length
             else:
                 sf.read(size)
             list_size -= 12 + size
     if list_size > 0:  # finish or skip
         sf.seek(list_size, 1)
-    return ranges, labels, texts
+    return spans, labels, texts
 
 
 def read_bext_chunk(sf, store_empty=True):
@@ -695,7 +695,7 @@ def events_wave(filepath):
         Unique identifiers of each cue.
     pos: array of ints
         For each cue the position in the data.
-    ranges: array of int
+    spans: array of int
         Range of samples each cue point spans.
     labels: list of strings
         A label for each cue.
@@ -717,7 +717,7 @@ def events_wave(filepath):
         sf = open(filepath, 'rb')
     ids = np.zeros(0, dtype=int)
     pos = np.zeros(0, dtype=int)
-    ranges = np.zeros(0, dtype=int)
+    spans = np.zeros(0, dtype=int)
     labels = []
     texts = []
     fsize = read_riff_chunk(sf)
@@ -726,17 +726,17 @@ def events_wave(filepath):
         if chunk == 'CUE ':
             ids, pos = read_cue_chunk(sf)
         elif chunk == 'PLST':
-            ranges = read_playlist_chunk(sf, ids, ranges)
+            spans = read_playlist_chunk(sf, ids, spans)
         elif chunk == 'LIST':
-            ranges, labels, texts = read_ADTL_chunks(sf, ids, ranges,
-                                                     labels, texts)
+            spans, labels, texts = read_ADTL_chunks(sf, ids, spans,
+                                                    labels, texts)
         else:
             skip_chunk(sf)
     if file_pos is None:
         sf.close()
     else:
         sf.seek(file_pos, 0)
-    return ids, pos, ranges, labels, texts
+    return ids, pos, spans, labels, texts
 
 
 # Write wave file:
@@ -1174,14 +1174,14 @@ def demo(filepath):
             print(f'{sk}:\n  {v}')
             
     # read cues:
-    ids, pos, ranges, labels, texts = events_wave(filepath)
+    ids, pos, spans, labels, texts = events_wave(filepath)
     
     # print cue table:
     if len(ids) > 0:
         print()
-        print(f'{"cue":4} {"position":10} {"range":8} {"label":10} {"text":10}')
+        print(f'{"cue":4} {"position":10} {"span":8} {"label":10} {"text":10}')
         for i in range(len(ids)):
-            print(f'{ids[i]:4} {pos[i]:10} {ranges[i]:8} {labels[i]:10} {texts[i]:10}')
+            print(f'{ids[i]:4} {pos[i]:10} {spans[i]:8} {labels[i]:10} {texts[i]:10}')
 
 
 def main(*args):
