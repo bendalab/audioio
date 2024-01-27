@@ -473,6 +473,28 @@ def metadata_wave(file, store_empty=False, verbose=0):
         md = {root.tag: parse_xml(root)}
         if len(md) == 1 and 'BWFXML' in md:
             md = md['BWFXML']
+        return md
+
+    def parse_odml(element):
+        print()
+        md = {}
+        for e in element:
+            if e.tag == 'Section':
+                md[e.attrib['name']] = parse_odml(e)
+            elif e.tag == 'Property':
+                v = ''
+                if len(e) > 0 and e[0].tag == 'Value' and 'value' in e[0].attrib:
+                    v = e[0].attrib['value']
+                if len(v) > 0 or store_empty:
+                    md[e.attrib['name']] = v
+        return md
+
+    def odml_chunk(sf):
+        size = struct.unpack('<I', sf.read(4))[0]
+        size += size % 2
+        xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
+        root = ET.fromstring(xmls)
+        md = {root.tag: parse_odml(root)}
         if len(md) == 1 and 'odML' in md:
             md = md['odML']
         return md
@@ -504,7 +526,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
             md = ixml_chunk(sf)
             meta_data['IXML'] = md
         elif chunk == 'ODML':
-            md = ixml_chunk(sf)
+            md = odml_chunk(sf)
             meta_data.update(md)
         else:
             if verbose > 0:
@@ -697,7 +719,7 @@ def write_bext_chunk(df, metadata):
     n: int
         Number of bytes written to the stream.
     keys_written: list of str
-        Keys written to the INFO chunk.
+        Keys written to the BEXT chunk.
 
     """
     if metadata is None or len(metadata) == 0 or not 'BEXT' in metadata:
@@ -733,7 +755,7 @@ def write_bext_chunk(df, metadata):
 
 
 def write_ixml_chunk(df, metadata, keys_written=None):
-    """ Write metadata to IXML chunk.
+    """ Write metadata to iXML chunk.
 
     See http://www.gallery.co.uk/ixml/ for the specification of iXML.
 
@@ -751,6 +773,8 @@ def write_ixml_chunk(df, metadata, keys_written=None):
     -------
     n: int
         Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the IXML chunk.
     """
     def check_ixml(metadata):
         for k in metadata:
@@ -779,24 +803,80 @@ def write_ixml_chunk(df, metadata, keys_written=None):
         md = {k: metadata[k] for k in metadata if not k in keys_written}
     if len(md) == 0:
         return 0, []
-    is_ixml = False
     has_ixml = False
     if 'IXML' in md and check_ixml(md['IXML']):
         md = md['IXML']
-        is_ixml = True
         has_ixml = True
     else:
-        is_ixml = check_ixml(md)
-    root = ET.Element('BWFXML' if is_ixml else 'odML')
+        if not check_ixml(md):
+            return 0, []
+    root = ET.Element('BWFXML')
     kw = build_xml(root, md)
     bs = bytes(ET.tostring(root, xml_declaration=True,
                            short_empty_elements=False))
     if len(bs) % 2 == 1:
         bs += bytes(1)
-    df.write(b'IXML' if is_ixml else b'ODML')
+    df.write(b'IXML')
     df.write(struct.pack('<I', len(bs)))
     df.write(bs)
     return 8 + len(bs), ['IXML'] if has_ixml else kw
+
+
+def write_odml_chunk(df, metadata, keys_written=None):
+    """ Write metadata to ODML chunk.
+
+    For odML see https://doi.org/10.3389/fninf.2011.00016 and
+    https://github.com/G-Node/python-odml
+
+    This will write *all* metadata that are not in `keys_written`.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing IXML or odML chunk.
+    metadata: nested dict
+        Meta-data as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    keys_written: list of str
+        Keys that have already written to INFO, BEXT, IXML chunk.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
+    def build_odml(node, metadata):
+        kw = []
+        for k in metadata:
+            if isinstance(metadata[k], dict):
+                sec = ET.SubElement(node, 'Section')
+                sec.attrib = dict(name=k)
+                build_odml(sec, metadata[k])
+            else:
+                prop = ET.SubElement(node, 'Property')
+                prop.attrib = dict(name=k)
+                value = ET.SubElement(prop, 'Value')
+                value.attrib = dict(value=str(metadata[k]).replace('\n', '.'))
+            kw.append(k)
+        return kw
+
+    if metadata is None or len(metadata) == 0:
+        return 0, []
+    md = metadata
+    if keys_written:
+        md = {k: metadata[k] for k in metadata if not k in keys_written}
+    if len(md) == 0:
+        return 0, []
+    root = ET.Element('odML')
+    kw = build_odml(root, md)
+    bs = bytes(ET.tostring(root, xml_declaration=True,
+                           short_empty_elements=False))
+    if len(bs) % 2 == 1:
+        bs += bytes(1)
+    df.write(b'ODML')
+    df.write(struct.pack('<I', len(bs)))
+    df.write(bs)
+    return 8 + len(bs), kw
 
 
 def write_wave(filepath, data, samplerate, metadata=None,
@@ -855,7 +935,7 @@ def write_wave(filepath, data, samplerate, metadata=None,
         _, xkw = write_ixml_chunk(df, metadata, kw)
         kw.extend(xkw)
         # write remaining metadata to ODML chunk:
-        write_ixml_chunk(df, metadata, kw)
+        write_odml_chunk(df, metadata, kw)
         write_filesize(df)
 
 
