@@ -24,7 +24,6 @@ import numpy as np
 import xml.etree.ElementTree as ET
 
 
-# see https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
 info_tags = dict(AGES='Rated',
                  CMNT='Comment',
                  CODE='EncodedBy',
@@ -114,6 +113,31 @@ info_tags = dict(AGES='Rated',
                  YEAR='Year',
                  IBRD='uCBoard',
                  IMAC='MACAdress')
+"""Tags of the INFO chunk and their description.
+
+See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+"""
+
+bext_tags = dict(
+    Description=256,
+    Originator=32,
+    OriginatorReference=32,
+    OriginationDate=10,
+    OriginationTime=8,
+    TimeReference=8,
+    Version=2,
+    UMID=64,
+    LoudnessValue=2,
+    LoudnessRange=2,
+    MaxTruePeakLevel=2,
+    MaxMomentaryLoudness=2,
+    MaxShortTermLoudness=2,
+    Reserved=180,
+    CodingHistory=0)
+"""Tags of the BEXT chunk and their size in bytes.
+
+See https://tech.ebu.ch/docs/tech/tech3285.pdf
+"""
 
 
 def metadata_wave(file, store_empty=False, verbose=0):
@@ -495,7 +519,8 @@ def write_info_chunk(df, metadata):
     df: stream
         File stream for writing INFO chunk.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings or dictionaries.
+        Meta-data as key-value pairs. Values can be strings, integers,
+        or dictionaries.
 
     Returns
     -------
@@ -522,7 +547,8 @@ def write_info_chunk(df, metadata):
             if is_info:
                 warnings.warn(f'value of info tag for key "{k}" must be a string.')
             return 0, []
-        n += 8 + len(metadata[k]) + len(metadata[k]) % 2
+        v = str(metadata[k])
+        n += 8 + len(v) + len(v) % 2
     df.write(b'LIST')
     df.write(struct.pack('<I', n + 4))
     df.write(b'INFO')
@@ -530,9 +556,10 @@ def write_info_chunk(df, metadata):
     for k in metadata:
         kn = tags.get(k, k)
         df.write(f'{kn:<4s}'.encode('latin-1'))
-        ns = len(metadata[k]) + len(metadata[k]) % 2
+        v = str(metadata[k])
+        ns = len(v) + len(v) % 2
         df.write(struct.pack('<I', ns))
-        df.write(f'{metadata[k]:<{ns}s}'.encode('latin-1'))
+        df.write(f'{v:<{ns}s}'.encode('latin-1'))
         keys_written.append(k)
     return 12 + n, ['INFO'] if is_info else keys_written
 
@@ -541,14 +568,16 @@ def write_bext_chunk(df, metadata):
     """Write metadata to BEXT chunk.
 
     If `metadata` contains a BEXT key, then write the dictionary of
-    that key a a BEXT chunk.
+    that key as a broadcast-audio extension chunk.
+    See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
 
     Parameters
     ----------
     df: stream
         File stream for writing BEXT chunk.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings or dictionaries.
+        Meta-data as key-value pairs. Values can be strings, integers,
+        or dictionaries.
 
     Returns
     -------
@@ -561,7 +590,33 @@ def write_bext_chunk(df, metadata):
     if metadata is None or len(metadata) == 0 or not 'BEXT' in metadata:
         return 0, []
     metadata = metadata['BEXT']
-    return 0, []
+    for k in metadata:
+        if not k in bext_tags:
+            warnings.warn(f'no bext tag for key "{k}" found.')
+            return 0, []
+    n = 0
+    for k in bext_tags:
+        n += bext_tags[k]
+    ch = metadata.get('CodingHistory', '').encode('latin-1')
+    nch = len(ch) + len(ch) % 2 + 2
+    n += nch
+    df.write(b'BEXT')
+    df.write(struct.pack('<I', n))
+    for k in bext_tags:
+        bn = bext_tags[k]
+        if bn == 2:
+            v = metadata.get(k, '0')
+            df.write(struct.pack('<H', int(v)))
+        elif bn == 8 and k == 'TimeReference':
+            v = metadata.get(k, '0')
+            df.write(struct.pack('<Q', int(v)))
+        elif bn == 0:
+            df.write(ch)
+            df.write(b'\n\r' + bytes(nch - len(ch) - 2))
+        else:
+            v = metadata.get(k, '').encode('latin-1')
+            df.write(v + bytes(bn - len(v)))
+    return n, ['BEXT']
 
 
 def write_ixml_chunk(df, metadata, keys_written=None):
@@ -572,7 +627,8 @@ def write_ixml_chunk(df, metadata, keys_written=None):
     df: stream
         File stream for writing IXML chunk.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings or dictionaries.
+        Meta-data as key-value pairs. Values can be strings, integers,
+        or dictionaries.
     keys_written: list of str
         Keys that have already written to INFO or BEXT chunk.
 
@@ -602,7 +658,8 @@ def write_wave(filepath, data, samplerate, metadata=None,
     samplerate: float
         Sampling rate of the data in Hertz.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings or dictionaries.
+        Meta-data as key-value pairs. Values can be strings, integers,
+        or dictionaries.
     encoding: string or None
         Encoding of the data: 'PCM_32' or 'PCM_16'.
         If None or empty string use 'PCM_16'.
@@ -661,9 +718,11 @@ def demo(filepath):
         if isinstance(md, dict):
             print(f'{sk}:')
             for k in md:
-                print(f'  {k:22}: {md[k]}')
+                v = str(md[k]).replace('\n', '.')
+                print(f'  {k:22}: {v}')
         else:
-            print(f'{sk}:\n  {md}')
+            v = str(md).replace('\n', '.')
+            print(f'{sk}:\n  {v}')
             
     # print cue table:
     if len(cues) > 0:
@@ -694,8 +753,12 @@ def main(*args):
         rate = 44100
         t = np.arange(0, 2, 1/rate)
         x = np.sin(2*np.pi*440*t)
-        md = dict(IENG='JB', ICRD='2024-01-24', Comment='this is test1')
-        md = dict(INFO=md)
+        imd = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
+                   Comment='this is test1')
+        bmd = dict(Description='a recording',
+                   OriginationDate='2024:01:24', TimeReference=123456,
+                   Version=42, CodingHistory='Test1\nTest2')
+        md = dict(INFO=imd, BEXT=bmd)
         write_wave('test.wav', x, rate, md)
         demo('test.wav')
 
