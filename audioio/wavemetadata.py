@@ -586,7 +586,8 @@ def write_ixml_chunk(df, metadata, keys_written=None):
     return 0
 
 
-def write_wave(filepath, data, samplerate, metadata=None):
+def write_wave(filepath, data, samplerate, metadata=None,
+               encoding=None):
     """ Write time series and metadata to a wave file.
 
     Only 16 or 32bit PCM encoding is supported.
@@ -602,8 +603,27 @@ def write_wave(filepath, data, samplerate, metadata=None):
         Sampling rate of the data in Hertz.
     metadata: nested dict
         Meta-data as key-value pairs. Values can be strings or dictionaries.
+    encoding: string or None
+        Encoding of the data: 'PCM_32' or 'PCM_16'.
+        If None or empty string use 'PCM_16'.
+ 
+    Raises
+    ------
+    ValueError
+        Encoding not supported.
     """
-    bits = 16
+    if not filepath:
+        raise ValueError('no file specified!')
+    if not encoding:
+        encoding = 'PCM_16'
+    encoding = encoding.upper()
+    bits = 0
+    if encoding == 'PCM_16':
+        bits = 16
+    elif encoding == 'PCM_32':
+        bits = 32
+    else:
+        raise ValueError(f'file encoding {encoding} not supported')
     n = 0
     with open(filepath, 'wb') as df:
         n += write_riff_chunk(df)

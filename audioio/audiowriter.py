@@ -109,7 +109,7 @@ def write_wave(filepath, data, samplerate, format=None, encoding=None):
     format: string or None
         File format, only 'WAV' is supported.
     encoding: string or None
-        Encoding of the data: 'PCM_32', 'PCM_16', or 'PCM_U8'
+        Encoding of the data: 'PCM_32', 'PCM_16', or 'PCM_U8'.
         If None or empty string use 'PCM_16'.
 
     Raises
