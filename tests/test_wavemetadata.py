@@ -43,39 +43,34 @@ def test_metadata():
     # INFO:
     md = dict(INFO=imd)
     wm.write_wave(filename, data, rate, md)
-    mdd, cues = wm.metadata_wave(filename, False)
-    assert_equal(len(cues), 0, 'no cues')
+    mdd = wm.metadata_wave(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
 
     # BEXT:
     md = dict(BEXT=bmd)
     wm.write_wave(filename, data, rate, md)
-    mdd, cues = wm.metadata_wave(filename, False)
-    assert_equal(len(cues), 0, 'no cues')
+    mdd = wm.metadata_wave(filename, False)
     assert_true('BEXT' in mdd, 'BEXT section exists')
     assert_equal(bmd, mdd['BEXT'], 'BEXT section matches')
 
     # IXML:
     md = dict(IXML=xmd)
     wm.write_wave(filename, data, rate, md)
-    mdd, cues = wm.metadata_wave(filename, False)
-    assert_equal(len(cues), 0, 'no cues')
+    mdd = wm.metadata_wave(filename, False)
     assert_true('IXML' in mdd, 'IXML section exists')
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
 
     # ODML:
     md = dict(Recording=iimd, Production=bbmd, Notes=xmd)
     wm.write_wave(filename, data, rate, md)
-    mdd, cues = wm.metadata_wave(filename, False)
-    assert_equal(len(cues), 0, 'no cues')
+    mdd = wm.metadata_wave(filename, False)
     assert_equal(md, mdd, 'ODML sections match')
     
     md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
               Recording=imd, Production=bmd, Notes=xmd)
     wm.write_wave(filename, data, rate, md)
-    mdd, cues = wm.metadata_wave(filename, False)
-    assert_equal(len(cues), 0, 'no cues')
+    mdd = wm.metadata_wave(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
     assert_true('BEXT' in mdd, 'BEXT section exists')

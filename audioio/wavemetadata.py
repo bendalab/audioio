@@ -286,6 +286,43 @@ def skip_chunk(sf):
     size += size % 2 
     sf.seek(size, 1)
 
+            
+def read_info_chunks(sf, store_empty):
+    """ Read in meta data from info list chunk.
+
+    See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: dict
+        Dictinary with key-value pairs of info tags.
+    """
+    md = {}
+    list_size = struct.unpack('<I', sf.read(4))[0]
+    list_type = sf.read(4).decode('latin-1').upper()
+    list_size -= 4
+    if list_type == 'INFO':
+        while list_size >= 8:
+            key = sf.read(4).decode('latin-1').rstrip(' \x00')
+            size = struct.unpack('<I', sf.read(4))[0]
+            size += size % 2
+            value = sf.read(size).decode('latin-1').rstrip(' \x00')
+            list_size -= 8 + size
+            if key in info_tags:
+                key = info_tags[key]
+            if value or store_empty:
+                md[key] = value
+    if list_size > 0:  # finish or skip
+        sf.seek(list_size, 1)
+    return md
+
     
 def read_cue_chunk(sf, cues):
     """ Read in cue ids and positions from cue chunk.
@@ -325,44 +362,9 @@ def read_playlist_chunk(sf, cues):
                 c['repeats'] = repeats
                 break
 
-            
-def read_info_chunks(sf, list_size, store_empty):
-    """ Read in meta data from info list chunk.
 
-    See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
-    
-    Parameters
-    ----------
-    sf: stream
-        File stream of wave file.
-    list_size: int
-        Size of the list chunk.
-    store_empty: bool
-        If `False` do not add meta data with empty values.
-
-    Returns
-    -------
-    metadata: dict
-        Dictinary with key-value pairs of info tags.
-    """
-    md = {}
-    while list_size >= 8:
-        key = sf.read(4).decode('latin-1').rstrip(' \x00')
-        size = struct.unpack('<I', sf.read(4))[0]
-        size += size % 2
-        value = sf.read(size).decode('latin-1').rstrip(' \x00')
-        list_size -= 8 + size
-        if key in info_tags:
-            key = info_tags[key]
-        if value or store_empty:
-            md[key] = value
-    if list_size > 0:
-        sf.seek(list_size, 1)
-    return md
-
-
-def read_list_chunk(sf, cues, store_empty=True):
-    """ Read in list chunk.
+def read_list_cue_chunks(sf, cues):
+    """ Read in cues from list chunks.
     
     Parameters
     ----------
@@ -371,21 +373,12 @@ def read_list_chunk(sf, cues, store_empty=True):
     cues: list of dict
         The read in cues, each with an `id`, `pos`, `length`, `repeats`,
         `text`, `note`, `label`.
-    store_empty: bool
-        If `False` do not add meta data with empty values.
-
-    Returns
-    -------
-    metadata: nested dict
-        Dictinary with key-value pairs.
     """
     md = {}
     list_size = struct.unpack('<I', sf.read(4))[0]
     list_type = sf.read(4).decode('latin-1').upper()
     list_size -= 4
-    if list_type == 'INFO':
-        md = read_info_chunks(sf, list_size, store_empty)
-    elif list_type == 'ADTL':
+    if list_type == 'ADTL':
         while list_size >= 8:
             key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
             size, id = struct.unpack('<II', sf.read(8))
@@ -414,11 +407,8 @@ def read_list_chunk(sf, cues, store_empty=True):
             else:
                 sf.read(size)
             list_size -= 12 + size
-        if list_size > 0:
-            sf.seek(list_size, 1)
-    else:
-        print('ERROR: unknown list type', list_type)
-    return md
+    if list_size > 0:  # finish or skip
+        sf.seek(list_size, 1)
 
 
 def read_bext_chunk(sf, store_empty=True):
@@ -583,12 +573,12 @@ def read_odml_chunk(sf, store_empty=True):
     return md
 
 
-def metadata_wave(file, store_empty=False):
+def metadata_wave(filepath, store_empty=False):
     """ Read metadata of a wave file.
 
     Parameters
     ----------
-    file: string or file handle
+    filepath: string or file handle
         The wave file.
     store_empty: bool
         If `False` do not add meta data with empty values.
@@ -605,6 +595,58 @@ def metadata_wave(file, store_empty=False):
         simple types like ints or floats are also allowed.
         First level contains sections of meta data
         (keys 'INFO' or 'BEXT', values are dictionaries).
+
+    Raises
+    ------
+    ValueError
+        Not a wave file.
+    """            
+    meta_data = {}
+    sf = filepath
+    file_pos = None
+    if hasattr(filepath, 'read'):
+        file_pos = sf.tell()
+        sf.seek(0, 0)
+    else:
+        sf = open(filepath, 'rb')
+    fsize = read_riff_chunk(sf)
+    while (sf.tell() < fsize - 8):
+        chunk = sf.read(4).decode('latin-1').upper()
+        if chunk == 'LIST':
+            md = read_info_chunks(sf, store_empty)
+            if len(md) > 0:
+                meta_data['INFO'] = md
+        elif chunk == 'BEXT':
+            md = read_bext_chunk(sf, store_empty)
+            if len(md) > 0:
+                meta_data['BEXT'] = md
+        elif chunk == 'IXML':
+            md = read_ixml_chunk(sf, store_empty)
+            if len(md) > 0:
+                meta_data['IXML'] = md
+        elif chunk == 'ODML':
+            md = read_odml_chunk(sf, store_empty)
+            if len(md) > 0:
+                meta_data.update(md)
+        else:
+            skip_chunk(sf)
+    if file_pos is None:
+        sf.close()
+    else:
+        sf.seek(file_pos, 0)
+    return meta_data
+
+
+def events_wave(filepath):
+    """ Read events/cues from a wave file.
+
+    Parameters
+    ----------
+    filepath: string or file handle
+        The wave file.
+
+    Returns
+    -------
     cues: list of dict
         Cues contained in the wave file. Each item in the list provides
 
@@ -621,42 +663,30 @@ def metadata_wave(file, store_empty=False):
     ValueError
         Not a wave file.
     """            
-    meta_data = {}
     cues = []
-    sf = file
+    sf = filepath
     file_pos = None
-    if hasattr(file, 'read'):
+    if hasattr(filepath, 'read'):
         file_pos = sf.tell()
         sf.seek(0, 0)
     else:
-        sf = open(file, 'rb')
+        sf = open(filepath, 'rb')
     fsize = read_riff_chunk(sf)
     while (sf.tell() < fsize - 8):
         chunk = sf.read(4).decode('latin-1').upper()
-        if chunk == 'LIST':
-            md = read_list_chunk(sf, cues, store_empty)
-            if len(md) > 0:
-                meta_data['INFO'] = md
-        elif chunk == 'CUE ':
+        if chunk == 'CUE ':
             read_cue_chunk(sf, cues)
         elif chunk == 'PLST':
             read_playlist_chunk(sf, cues)
-        elif chunk == 'BEXT':
-            md = read_bext_chunk(sf, store_empty)
-            meta_data['BEXT'] = md
-        elif chunk == 'IXML':
-            md = read_ixml_chunk(sf, store_empty)
-            meta_data['IXML'] = md
-        elif chunk == 'ODML':
-            md = read_odml_chunk(sf, store_empty)
-            meta_data.update(md)
+        elif chunk == 'LIST':
+            read_list_cue_chunks(sf, cues)
         else:
             skip_chunk(sf)
     if file_pos is None:
         sf.close()
     else:
         sf.seek(file_pos, 0)
-    return meta_data, cues
+    return cues
 
 
 # Write wave file:
@@ -1077,7 +1107,7 @@ def demo(filepath):
         Path of a wave file.
     """
     # read meta data:
-    meta_data, cues = metadata_wave(filepath, store_empty=False)
+    meta_data = metadata_wave(filepath, store_empty=False)
     
     # print meta data:
     print()
@@ -1093,6 +1123,9 @@ def demo(filepath):
             v = str(md).replace('\n', '.')
             print(f'{sk}:\n  {v}')
             
+    # read cues:
+    cues = events_wave(filepath)
+    
     # print cue table:
     if len(cues) > 0:
         print()
