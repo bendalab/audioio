@@ -493,7 +493,7 @@ def read_bext_chunk(sf, store_empty=True):
     if s or store_empty:
         md['Reserved'] = s
     size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
-    s = sf.read(size).decode('latin-1').rstrip(' \x00')
+    s = sf.read(size).decode('latin-1').rstrip(' \x00\n\r')
     if s or store_empty:
         md['CodingHistory'] = s
     return md
