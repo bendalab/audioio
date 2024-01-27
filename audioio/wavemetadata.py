@@ -242,7 +242,348 @@ ixml_tags = [
 See http://www.gallery.co.uk/ixml/
 """
 
-def metadata_wave(file, store_empty=False, verbose=0):
+
+# Read wave file:
+
+def read_riff_chunk(sf):
+    """ Read and check the RIFF file header.
+
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+
+    Returns
+    -------
+    filesize: int
+        Size of the wave file in bytes.
+
+    Raises
+    ------
+    ValueError
+        Not a RIFF or WAVE file.
+    """
+    str1 = sf.read(4).decode('latin-1')
+    if str1 != 'RIFF':
+        raise ValueError("Not a RIFF file.")
+    fsize = struct.unpack('<I', sf.read(4))[0] + 8
+    str2 = sf.read(4).decode('latin-1')
+    if str2 != 'WAVE':
+        raise ValueError("Not a WAVE file.")
+    return fsize
+
+
+def skip_chunk(sf):
+    """Skip over unknown chunk.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    """
+    data = sf.read(4)
+    size = struct.unpack('<I', data)[0]
+    size += size % 2 
+    sf.seek(size, 1)
+
+    
+def read_cue_chunk(sf, cues):
+    """ Read in cue ids and positions from cue chunk.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    cues: list of dict
+        The read in cues, each with an `id` and a `pos`.
+    """
+    size, n = struct.unpack('<II', sf.read(8))
+    for c in range(n):
+        id, pos = struct.unpack('<II', sf.read(8))
+        datachunkid = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
+        chunkstart, blockstart, offset = struct.unpack('<III', sf.read(12))
+        c = dict(id=id, pos=pos)
+        cues.append(c)
+
+        
+def read_playlist_chunk(sf, cues):
+    """ Read in cue length and repeats from playlist chunk.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    cues: list of dict
+        List of cues. Add `length` and `repeats`.
+    """
+    size, n = struct.unpack('<II', sf.read(8))
+    for p in range(n):
+        id, length, repeats = struct.unpack('<III', sf.read(12))
+        for c in cues:
+            if c['id'] == id:
+                c['length'] = length
+                c['repeats'] = repeats
+                break
+
+            
+def read_info_chunks(sf, list_size, store_empty):
+    """ Read in meta data from info list chunk.
+
+    See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    list_size: int
+        Size of the list chunk.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: dict
+        Dictinary with key-value pairs of info tags.
+    """
+    md = {}
+    while list_size >= 8:
+        key = sf.read(4).decode('latin-1').rstrip(' \x00')
+        size = struct.unpack('<I', sf.read(4))[0]
+        size += size % 2
+        value = sf.read(size).decode('latin-1').rstrip(' \x00')
+        list_size -= 8 + size
+        if key in info_tags:
+            key = info_tags[key]
+        if value or store_empty:
+            md[key] = value
+    if list_size > 0:
+        sf.seek(list_size, 1)
+    return md
+
+
+def read_list_chunk(sf, cues, store_empty=True):
+    """ Read in list chunk.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    cues: list of dict
+        The read in cues, each with an `id`, `pos`, `length`, `repeats`,
+        `text`, `note`, `label`.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: nested dict
+        Dictinary with key-value pairs.
+    """
+    md = {}
+    list_size = struct.unpack('<I', sf.read(4))[0]
+    list_type = sf.read(4).decode('latin-1').upper()
+    list_size -= 4
+    if list_type == 'INFO':
+        md = read_info_chunks(sf, list_size, store_empty)
+    elif list_type == 'ADTL':
+        while list_size >= 8:
+            key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
+            size, id = struct.unpack('<II', sf.read(8))
+            size += size % 2 - 4
+            if key == 'LABL':
+                label = sf.read(size).decode('latin-1').rstrip(' \x00')
+                for c in cues:
+                    if c['id'] == id:
+                        c['label'] = label
+                        break
+            elif key == 'NOTE':
+                note = sf.read(size).decode('latin-1').rstrip(' \x00')
+                for c in cues:
+                    if c['id'] == id:
+                        c['note'] = note
+                        break
+            elif key == 'LTXT':
+                length = struct.unpack('<I', sf.read(4))[0]
+                sf.read(12)
+                text = sf.read(size - 4 - 12).decode('latin-1').rstrip(' \x00')
+                for c in cues:
+                    if c['id'] == id:
+                        c['length'] = length
+                        c['text'] = text
+                        break
+            else:
+                sf.read(size)
+            list_size -= 12 + size
+        if list_size > 0:
+            sf.seek(list_size, 1)
+    else:
+        print('ERROR: unknown list type', list_type)
+    return md
+
+
+def read_bext_chunk(sf, store_empty=True):
+    """ Read in meta-data from the broadcast-audio extension chunk.
+
+    See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    meta_data: dict
+        - 'Description': a free description of the sequence.
+        - 'Originator': name of the originator/ producer of the audio file.
+        - 'OriginatorReference': unambiguous reference allocated by the originating organisation.
+        - 'OriginationDate': date of creation of audio sequence in yyyy:mm:dd.
+        - 'OriginationTime': time of creation of audio sequence in hh:mm:ss.
+        - 'TimeReference': first sample since midnight.
+        - 'Version': version of the BWF.
+        - 'UMID': unique material identifier.
+        - 'LoudnessValue': integrated loudness value.
+        - 'LoudnessRange':  loudness range.
+        - 'MaxTruePeakLevel': maximum true peak value in dBTP.
+        - 'MaxMomentaryLoudness': highest value of the momentary loudness level.
+        - 'MaxShortTermLoudness': highest value of the short-term loudness level.
+        - 'Reserved': 180 bytes reserved for extension.
+        - 'CodingHistory': description of coding processed applied to the audio data.
+    """
+    md = {}
+    size = struct.unpack('<I', sf.read(4))[0]
+    size += size % 2
+    s = sf.read(256).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['Description'] = s
+    s = sf.read(32).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['Originator'] = s
+    s = sf.read(32).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['OriginatorReference'] = s
+    s = sf.read(10).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['OriginationDate'] = s
+    s = sf.read(8).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['OriginationTime'] = s
+    reference, version = struct.unpack('<QH', sf.read(10))
+    if reference > 0 or store_empty:
+        md['TimeReference'] = reference
+    if version > 0 or store_empty:
+        md['Version'] = version
+    s = sf.read(64).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['UMID'] = s
+    lvalue, lrange, peak, momentary, shortterm = struct.unpack('<hhhhh', sf.read(10))
+    if lvalue > 0 or store_empty:
+        md['LoudnessValue'] = lvalue
+    if lrange > 0 or store_empty:
+        md['LoudnessRange'] = lrange
+    if peak > 0 or store_empty:
+        md['MaxTruePeakLevel'] = peak
+    if momentary > 0 or store_empty:
+        md['MaxMomentaryLoudness'] = momentary
+    if shortterm > 0 or store_empty:
+        md['MaxShortTermLoudness'] = shortterm
+    s = sf.read(180).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['Reserved'] = s
+    size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
+    s = sf.read(size).decode('latin-1').rstrip(' \x00')
+    if s or store_empty:
+        md['CodingHistory'] = s
+    return md
+
+
+def read_ixml_chunk(sf, store_empty=True):
+    """ Read in meta-data from an IXML chunk.
+
+    See http://www.gallery.co.uk/ixml/ for the specification of iXML.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: nested dict
+        Dictinary with key-value pairs.
+    """
+    
+    def parse_ixml(element, store_empty=True):
+        md = {}
+        for e in element:
+            if not e.text is None:
+                md[e.tag] = e.text
+            elif len(e) > 0:
+                md[e.tag] = parse_ixml(e, store_empty)
+            elif store_empty:
+                md[e.tag] = ''
+        return md
+
+    size = struct.unpack('<I', sf.read(4))[0]
+    size += size % 2
+    xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
+    root = ET.fromstring(xmls)
+    md = {root.tag: parse_ixml(root, store_empty)}
+    if len(md) == 1 and 'BWFXML' in md:
+        md = md['BWFXML']
+    return md
+
+
+def read_odml_chunk(sf, store_empty=True):
+    """ Read in meta-data from an ODML chunk.
+
+    For storing any type of nested key-value pairs we define a new 
+    ODML chunk holding the metadata as XML according to the odML data model.
+    For a description of odML see https://doi.org/10.3389/fninf.2011.00016 and
+    https://github.com/G-Node/python-odml
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: nested dict
+        Dictinary with key-value pairs.
+    """
+
+    def parse_odml(element, store_empty=True):
+        print()
+        md = {}
+        for e in element:
+            if e.tag == 'Section':
+                md[e.attrib['name']] = parse_odml(e, store_empty)
+            elif e.tag == 'Property':
+                v = ''
+                if len(e) > 0 and e[0].tag == 'Value' and 'value' in e[0].attrib:
+                    v = e[0].attrib['value']
+                if len(v) > 0 or store_empty:
+                    md[e.attrib['name']] = v
+        return md
+
+    size = struct.unpack('<I', sf.read(4))[0]
+    size += size % 2
+    xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
+    root = ET.fromstring(xmls)
+    md = {root.tag: parse_odml(root, store_empty)}
+    if len(md) == 1 and 'odML' in md:
+        md = md['odML']
+    return md
+
+
+def metadata_wave(file, store_empty=False):
     """ Read metadata of a wave file.
 
     Parameters
@@ -251,8 +592,6 @@ def metadata_wave(file, store_empty=False, verbose=0):
         The wave file.
     store_empty: bool
         If `False` do not add meta data with empty values.
-    verbose: int
-        Verbosity level.
 
     Returns
     -------
@@ -281,224 +620,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
     ------
     ValueError
         Not a wave file.
-    """
-
-    def riff_chunk(sf):
-        """ Read and check the RIFF file header. """
-        str1 = sf.read(4).decode('latin-1')
-        if str1 != 'RIFF':
-            raise ValueError("Not a wave file.")
-        fsize = struct.unpack('<I', sf.read(4))[0] + 8
-        str2 = sf.read(4).decode('latin-1')
-        if str2 != 'WAVE':
-            raise ValueError("Not a wave file.")
-        return fsize
-
-    def skip_chunk(sf):
-        """ Skip over unknown chunk. """
-        data = sf.read(4)
-        size = struct.unpack('<I', data)[0]
-        size += size % 2 
-        sf.seek(size, 1)
-
-    def cue_chunk(sf, cues):
-        """ Read in cue ids and positions from cue chunk. """
-        size, n = struct.unpack('<II', sf.read(8))
-        for c in range(n):
-            id, pos = struct.unpack('<II', sf.read(8))
-            datachunkid = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
-            chunkstart, blockstart, offset = struct.unpack('<III', sf.read(12))
-            c = dict(id=id, pos=pos)
-            cues.append(c)
-
-    def playlist_chunk(sf, cues):
-        """ Read in cue length and repeats from playlist chunk. """
-        size, n = struct.unpack('<II', sf.read(8))
-        for p in range(n):
-            id, length, repeats = struct.unpack('<III', sf.read(12))
-            for c in cues:
-                if c['id'] == id:
-                    c['length'] = length
-                    c['repeats'] = repeats
-                    break
-
-    def info_chunks(sf, list_size, store_empty):
-        """ Read in meta data from info list chunk. """
-        md = {}
-        while list_size >= 8:
-            key = sf.read(4).decode('latin-1').rstrip(' \x00')
-            size = struct.unpack('<I', sf.read(4))[0]
-            size += size % 2
-            value = sf.read(size).decode('latin-1').rstrip(' \x00')
-            list_size -= 8 + size
-            if key in info_tags:
-                key = info_tags[key]
-            if value or store_empty:
-                md[key] = value
-        if list_size > 0:
-            sf.seek(list_size, 1)
-        return md
-
-    def list_chunk(sf, cues, verbose=0):
-        """ Read in list chunk. """
-        md = {}
-        list_size = struct.unpack('<I', sf.read(4))[0]
-        list_type = sf.read(4).decode('latin-1').upper()
-        list_size -= 4
-        if list_type == 'INFO':
-            md = info_chunks(sf, list_size, store_empty)
-        elif list_type == 'ADTL':
-            while list_size >= 8:
-                key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
-                size, id = struct.unpack('<II', sf.read(8))
-                size += size % 2 - 4
-                if key == 'LABL':
-                    label = sf.read(size).decode('latin-1').rstrip(' \x00')
-                    for c in cues:
-                        if c['id'] == id:
-                            c['label'] = label
-                            break
-                elif key == 'NOTE':
-                    note = sf.read(size).decode('latin-1').rstrip(' \x00')
-                    for c in cues:
-                        if c['id'] == id:
-                            c['note'] = note
-                            break
-                elif key == 'LTXT':
-                    length = struct.unpack('<I', sf.read(4))[0]
-                    sf.read(12)
-                    text = sf.read(size - 4 - 12).decode('latin-1').rstrip(' \x00')
-                    for c in cues:
-                        if c['id'] == id:
-                            c['length'] = length
-                            c['text'] = text
-                            break
-                else:
-                    if verbose > 0:
-                        print('  skip', key, size, list_size)
-                    sf.read(size)
-                list_size -= 12 + size
-            if list_size > 0:
-                sf.seek(list_size, 1)
-        else:
-            print('ERROR: unknown list type', list_type)
-        return md
-
-    def bext_chunk(sf, store_empty=True):
-        """ Read in meta-data from the broadcast-audio extension chunk.
-
-        See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
-
-        Returns
-        -------
-        meta_data: dict
-            - 'Description': a free description of the sequence.
-            - 'Originator': name of the originator/ producer of the audio file.
-            - 'OriginatorReference': unambiguous reference allocated by the originating organisation.
-            - 'OriginationDate': date of creation of audio sequence in yyyy:mm:dd.
-            - 'OriginationTime': time of creation of audio sequence in hh:mm:ss.
-            - 'TimeReference': first sample since midnight.
-            - 'Version': version of the BWF.
-            - 'UMID': unique material identifier.
-            - 'LoudnessValue': integrated loudness value.
-            - 'LoudnessRange':  loudness range.
-            - 'MaxTruePeakLevel': maximum true peak value in dBTP.
-            - 'MaxMomentaryLoudness': highest value of the momentary loudness level.
-            - 'MaxShortTermLoudness': highest value of the short-term loudness level.
-            - 'Reserved': 180 bytes reserved for extension.
-            - 'CodingHistory': description of coding processed applied to the audio data.
-        """
-        md = {}
-        size = struct.unpack('<I', sf.read(4))[0]
-        size += size % 2
-        s = sf.read(256).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['Description'] = s
-        s = sf.read(32).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['Originator'] = s
-        s = sf.read(32).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['OriginatorReference'] = s
-        s = sf.read(10).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['OriginationDate'] = s
-        s = sf.read(8).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['OriginationTime'] = s
-        reference, version = struct.unpack('<QH', sf.read(10))
-        if reference > 0 or store_empty:
-            md['TimeReference'] = reference
-        if version > 0 or store_empty:
-            md['Version'] = version
-        s = sf.read(64).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['UMID'] = s
-        lvalue, lrange, peak, momentary, shortterm = struct.unpack('<hhhhh', sf.read(10))
-        if lvalue > 0 or store_empty:
-            md['LoudnessValue'] = lvalue
-        if lrange > 0 or store_empty:
-            md['LoudnessRange'] = lrange
-        if peak > 0 or store_empty:
-            md['MaxTruePeakLevel'] = peak
-        if momentary > 0 or store_empty:
-            md['MaxMomentaryLoudness'] = momentary
-        if shortterm > 0 or store_empty:
-            md['MaxShortTermLoudness'] = shortterm
-        s = sf.read(180).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['Reserved'] = s
-        size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
-        s = sf.read(size).decode('latin-1').rstrip(' \x00')
-        if s or store_empty:
-            md['CodingHistory'] = s
-        return md
-
-    def parse_xml(element):
-        md = {}
-        for e in element:
-            if not e.text is None:
-                md[e.tag] = e.text
-            elif len(e) > 0:
-                md[e.tag] = parse_xml(e)
-            elif store_empty:
-                md[e.tag] = ''
-        return md
-
-    def ixml_chunk(sf):
-        size = struct.unpack('<I', sf.read(4))[0]
-        size += size % 2
-        xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
-        root = ET.fromstring(xmls)
-        md = {root.tag: parse_xml(root)}
-        if len(md) == 1 and 'BWFXML' in md:
-            md = md['BWFXML']
-        return md
-
-    def parse_odml(element):
-        print()
-        md = {}
-        for e in element:
-            if e.tag == 'Section':
-                md[e.attrib['name']] = parse_odml(e)
-            elif e.tag == 'Property':
-                v = ''
-                if len(e) > 0 and e[0].tag == 'Value' and 'value' in e[0].attrib:
-                    v = e[0].attrib['value']
-                if len(v) > 0 or store_empty:
-                    md[e.attrib['name']] = v
-        return md
-
-    def odml_chunk(sf):
-        size = struct.unpack('<I', sf.read(4))[0]
-        size += size % 2
-        xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
-        root = ET.fromstring(xmls)
-        md = {root.tag: parse_odml(root)}
-        if len(md) == 1 and 'odML' in md:
-            md = md['odML']
-        return md
-            
+    """            
     meta_data = {}
     cues = []
     sf = file
@@ -508,38 +630,36 @@ def metadata_wave(file, store_empty=False, verbose=0):
         sf.seek(0, 0)
     else:
         sf = open(file, 'rb')
-    fsize = riff_chunk(sf)
+    fsize = read_riff_chunk(sf)
     while (sf.tell() < fsize - 8):
         chunk = sf.read(4).decode('latin-1').upper()
         if chunk == 'LIST':
-            md = list_chunk(sf, cues, verbose)
+            md = read_list_chunk(sf, cues, store_empty)
             if len(md) > 0:
                 meta_data['INFO'] = md
         elif chunk == 'CUE ':
-            cue_chunk(sf, cues)
+            read_cue_chunk(sf, cues)
         elif chunk == 'PLST':
-            playlist_chunk(sf, cues)
+            read_playlist_chunk(sf, cues)
         elif chunk == 'BEXT':
-            md = bext_chunk(sf, store_empty)
+            md = read_bext_chunk(sf, store_empty)
             meta_data['BEXT'] = md
         elif chunk == 'IXML':
-            md = ixml_chunk(sf)
+            md = read_ixml_chunk(sf, store_empty)
             meta_data['IXML'] = md
         elif chunk == 'ODML':
-            md = odml_chunk(sf)
+            md = read_odml_chunk(sf, store_empty)
             meta_data.update(md)
         else:
-            if verbose > 0:
-                print('skip', chunk)
             skip_chunk(sf)
-            if verbose > 1:
-                print(f' file size={fsize}, file position={sf.tell()}')
     if file_pos is None:
         sf.close()
     else:
         sf.seek(file_pos, 0)
     return meta_data, cues
 
+
+# Write wave file:
 
 def write_riff_chunk(df, filesize=0):
     """ Write RIFF file header.
@@ -649,6 +769,8 @@ def write_info_chunk(df, metadata):
     dictionary as a value (non-flat metadata), the INFO chunk is not
     written.
 
+    See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+
     Parameters
     ----------
     df: stream
@@ -702,9 +824,10 @@ def write_info_chunk(df, metadata):
 def write_bext_chunk(df, metadata):
     """Write metadata to BEXT chunk.
 
-    If `metadata` contains a BEXT key, then write the dictionary of
-    that key as a broadcast-audio extension chunk.
-    See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
+    If `metadata` contains a BEXT key, and this contains valid BEXT
+    tags, then write the dictionary of that key as a broadcast-audio
+    extension chunk.  See https://tech.ebu.ch/docs/tech/tech3285.pdf
+    for specifications.
 
     Parameters
     ----------
@@ -756,6 +879,10 @@ def write_bext_chunk(df, metadata):
 
 def write_ixml_chunk(df, metadata, keys_written=None):
     """ Write metadata to iXML chunk.
+
+    If `metadata` contains an IXML key with valid IXML tags,
+    or the remaining tags in `metadata` are valid IXML tags,
+    then write an IXML chunk.
 
     See http://www.gallery.co.uk/ixml/ for the specification of iXML.
 
@@ -825,6 +952,8 @@ def write_ixml_chunk(df, metadata, keys_written=None):
 def write_odml_chunk(df, metadata, keys_written=None):
     """ Write metadata to ODML chunk.
 
+    For storing any type of nested key-value pairs we define a new 
+    ODML chunk holding the metadata as XML according to the odML data model.
     For odML see https://doi.org/10.3389/fninf.2011.00016 and
     https://github.com/G-Node/python-odml
 
@@ -833,7 +962,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
     Parameters
     ----------
     df: stream
-        File stream for writing IXML or odML chunk.
+        File stream for writing ODML chunk.
     metadata: nested dict
         Meta-data as key-value pairs. Values can be strings, integers,
         or dictionaries.
@@ -948,7 +1077,7 @@ def demo(filepath):
         Path of a wave file.
     """
     # read meta data:
-    meta_data, cues = metadata_wave(filepath, store_empty=False, verbose=1)
+    meta_data, cues = metadata_wave(filepath, store_empty=False)
     
     # print meta data:
     print()
