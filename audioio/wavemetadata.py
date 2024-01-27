@@ -357,7 +357,7 @@ def metadata_wave(file, store_empty=False, verbose=0):
         for e in element:
             if not e.text is None:
                 md[e.tag] = e.text
-            elif len(e.getchildren()) > 0:
+            elif len(e) > 0:
                 md[e.tag] = parse_xml(e)
             elif store_empty:
                 md[e.tag] = ''
@@ -369,6 +369,8 @@ def metadata_wave(file, store_empty=False, verbose=0):
         xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
         root = ET.fromstring(xmls)
         md = {root.tag: parse_xml(root)}
+        if len(md) == 1 and 'BWFXML' in md:
+            md = md['BWFXML']
         return md
             
     meta_data = {}
@@ -616,11 +618,13 @@ def write_bext_chunk(df, metadata):
         else:
             v = metadata.get(k, '').encode('latin-1')
             df.write(v + bytes(bn - len(v)))
-    return n, ['BEXT']
+    return 8 + n, ['BEXT']
 
 
 def write_ixml_chunk(df, metadata, keys_written=None):
     """ Write metadata to IXML chunk.
+
+    See http://www.gallery.co.uk/ixml/ for the specification of iXML.
 
     Parameters
     ----------
@@ -637,9 +641,35 @@ def write_ixml_chunk(df, metadata, keys_written=None):
     n: int
         Number of bytes written to the stream.
     """
+    def build_xml(node, metadata):
+        for k in metadata:
+            e = ET.SubElement(node, k)
+            if isinstance(metadata[k], dict):
+                build_xml(e, metadata[k])
+            else:
+                e.text = str(metadata[k]).replace('\n', '.')
+
     if metadata is None or len(metadata) == 0:
-        return 0
-    return 0
+        return 0, []
+    md = metadata
+    if keys_written:
+        md = {k: metadata[k] for k in metadata if not k in keys_written}
+    if len(md) == 0:
+        return 0, []
+    is_ixml = False
+    if 'IXML' in md:
+        md = md['IXML']
+        is_ixml = True
+    root = ET.Element('BWFXML')
+    build_xml(root, md)
+    bs = bytes(ET.tostring(root, xml_declaration=True,
+                           short_empty_elements=False))
+    if len(bs) % 2 == 1:
+        bs += bytes(1)
+    df.write(b'IXML')
+    df.write(struct.pack('<I', len(bs)))
+    df.write(bs)
+    return 8 + len(bs), ['IXML'] if is_ixml else []
 
 
 def write_wave(filepath, data, samplerate, metadata=None,
@@ -695,7 +725,9 @@ def write_wave(filepath, data, samplerate, metadata=None,
         mn, bkw = write_bext_chunk(df, metadata)
         kw.extend(bkw)
         n += mn
-        n += write_ixml_chunk(df, metadata, kw)
+        mn, xkw = write_ixml_chunk(df, metadata, kw)
+        kw.extend(xkw)
+        n += mn
         write_filesize(df, n)
 
 
@@ -758,7 +790,8 @@ def main(*args):
         bmd = dict(Description='a recording',
                    OriginationDate='2024:01:24', TimeReference=123456,
                    Version=42, CodingHistory='Test1\nTest2')
-        md = dict(INFO=imd, BEXT=bmd)
+        xmd = dict(Project='Record all', Note='still testing')
+        md = dict(INFO=imd, BEXT=bmd, IXML=xmd)
         write_wave('test.wav', x, rate, md)
         demo('test.wav')
 
