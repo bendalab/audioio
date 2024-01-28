@@ -9,6 +9,32 @@ For a demo run the module as:
 ```
 python -m audioio.metadata audiofile.wav
 ```
+
+## Metadata
+
+To interface the various ways to store and read metadata of audio
+files, the `metadata` module simply uses nested dictionaries.  The
+keys are always strings. Values are strings, integers or other simple
+types for key-value pairs. Value strings can also be numbers followed
+by a unit. For defining subsections of key-value pairs, values can be
+dictionaries . The dictionaries can be nested to arbitrary depth.
+
+Often, audio files have very specific ways to store metadata. You can
+enforce using these by providing a key of with the name of the
+metadata type ypu want, that has as a value a dictionary with the
+actual metadata. For example the "INFO", "BEXT", and "iXML" chunks of
+wave files.
+
+## Markers
+
+Markers are used to mark specific positions or regions in the audio
+data.  Each marker has an unique identifier, a position, a span, a
+label, and a text. Identifier, position, and span are handled with 2-D
+arrays of ints, where each row is a marker and the columns are
+identifier, position and span. For writing, the identifier column is
+not needed. Labels and texts come in another 2D array of objects
+pointing to strings. Again, rows are the markers, first column are the
+labels, and second column the texts.
 """
  
 import warnings
