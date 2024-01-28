@@ -261,9 +261,9 @@ def test_demo():
 def test_main():
     am.enable_module()
     filename = 'test.wav'
-    aw.main(['prog', '-h'])
-    aw.main(['prog', filename])
-    aw.main(['prog', '-m', 'wave', filename])
-    aw.main(['prog', '-m', 'wave', '-n', '1', filename])
-    aw.main(['prog', '-m', 'wave', filename, 'PCM_16'])
+    aw.main('-h')
+    aw.main(filename)
+    aw.main('-m', 'wave', filename)
+    aw.main('-m', 'wave', '-n', '1', filename)
+    aw.main('-m', 'wave', filename, 'PCM_16')
     os.remove(filename)

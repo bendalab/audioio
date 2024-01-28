@@ -25,7 +25,7 @@ import warnings
 import os.path
 import numpy as np
 from .audiomodules import *
-from .wavemetadata import metadata_wave
+from .metadata import metadata, markers
 
 has_numba = False
 try:
@@ -1004,7 +1004,8 @@ class AudioLoader(BufferArray):
     - `update_buffer()`: Update the internal buffer for a range of frames.
     - `load_buffer()`: Load a range of frames into a buffer.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
-    - `metadata()`: Meta-data stored along with the audio data.
+    - `metadata()`: Metadata stored along with the audio data.
+    - `markers()`: Markers stored along with the audio data.
     - `close()`: Close the file.
 
     Notes
@@ -1073,18 +1074,13 @@ class AudioLoader(BufferArray):
         """
         return blocks(self, block_size, noverlap, start, stop)
 
-    def metadata(self, store_empty=False, first_only=False):
-        """Read meta-data of the audio file.
-
-        This default implementation tries to get wave file
-        metadata. If this fails it does nothing.
+    def metadata(self, store_empty=False):
+        """Read metadata of the audio file.
 
         Parameters
         ----------
         store_empty: bool
             If `False` do not add meta data with empty values.
-        first_only: bool
-            If `False` only store the first element of a list.
 
         Returns
         -------
@@ -1094,24 +1090,25 @@ class AudioLoader(BufferArray):
             values are dictionaries, then the key is the section name
             of the metadata contained in the dictionary. All other
             types of values are values for the respective key. In
-            particular they are strings, or list of strings. But other
+            particular they are strings. But other
             simple types like ints or floats are also allowed.
-        cues: list of dict
-            Cues contained in the wave file. Each item in the list provides
-
-            - 'id': Id of the cue.
-            - 'pos': Position of the cue in samples.
-            - 'length': Number of samples the cue covers (optional).
-            - 'repeats': How often the cue segment should be repeated (optional).
-            - 'label': Label of the cue (optional).
-            - 'note': Note on the cue (optional).
-            - 'text': Description of cue segment (optional).
-
         """
-        try:
-            return metadata_wave(self.filepath, store_empty, self.verbose)
-        except ValueError:
-            return {}, []
+        return metadata(self.filepath, store_empty)
+
+
+    def markers(self):
+        """Read markers of the audio file.
+
+        Returns
+        -------
+        locs: 2-D array of ints
+            Positions (first column) and spans (second column)
+            for each marker (rows).
+        labels: 2-D array of string objects
+            Marker IDs (first column), labels (second column) and
+            texts (third column) for each marker (rows).
+        """
+        return markers(self.filepath)
 
     
     # wave interface:        
@@ -1165,7 +1162,6 @@ class AudioLoader(BufferArray):
         self._init_buffer()
         self.close = self._close_wave
         self.load_buffer = self._load_buffer_wave
-        self.metadata = self._metadata_wave
         # read 1 frame to determine the unit of the position values:
         self.p0 = self.sf.tell()
         self.sf.readframes(1)
@@ -1198,15 +1194,6 @@ class AudioLoader(BufferArray):
             buffer[:, :] = fbuffer * self.factor - 1.0
         else:
             buffer[:, :] = fbuffer * self.factor
-
-    def _metadata_wave(self, store_empty=False, first_only=False):
-        """ Read meta-data of a wave file.
-
-        See also
-        --------
-        metadata()
-        """
-        return metadata_wave(self.filepath, store_empty, self.verbose)
 
 
     # ewave interface:        
@@ -1252,7 +1239,6 @@ class AudioLoader(BufferArray):
         self._init_buffer()
         self.close = self._close_ewave
         self.load_buffer = self._load_buffer_ewave
-        self.metadata = self._metadata_wave
         return self
 
     def _close_ewave(self):
