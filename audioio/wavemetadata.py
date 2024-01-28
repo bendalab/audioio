@@ -1,7 +1,44 @@
-"""Read meta data and marker lists from wave files.
+"""Read and write meta data and marker lists from and to wave files.
 
-- `metadata_wave()`: read metadata of a wave file.
+## Read metadata and markers
 
+- `metadata_wave()`: read metadata from a wave file.
+- `markers_wave()`: read markers from a wave file.
+
+## Write data metadata and markers
+
+- `write_wave()`: write time series, metadata and markers to a wave file.
+
+## Demo
+
+- `demo()`: print metadata of wave file.
+- `main()`: call demo with command line arguments.
+
+## Helper functions for reading RIFF and WAVE files
+
+- `read_riff_chunk()`: read and check the RIFF file header.
+- `skip_chunk()`: skip over unknown RIFF chunk.
+- `read_info_chunks()`: read in meta data from info list chunk.
+- `read_bext_chunk()`: read in meta-data from the broadcast-audio extension chunk.
+- `read_ixml_chunk()`: read in meta-data from an IXML chunk.
+- `read_odml_chunk()`: read in meta-data from an odml chunk.
+- `read_cue_chunk()`: read in marker ids and positions from cue chunk.
+- `read_playlist_chunk()`: read in marker spans from playlist chunk.
+- `read_adtl_chunks()`: read in associated data list chunks.
+
+## Helper functions for writing RIFF and WAVE files
+
+- `write_riff_chunk()`: write RIFF file header.
+- `write_filesize()`: write the file size into the RIFF file header.
+- `write_fmt_chunk()`: write format chunk.
+- `write_data_chunk()`: write data chunk.
+- `write_info_chunk()`: write metadata to LIST INFO chunk.
+- `write_bext_chunk()`: write metadata to BEXT chunk.
+- `write_ixml_chunk()`: write metadata to iXML chunk.
+- `write_odml_chunk()`: write metadata to ODML chunk.
+- `write_cue_chunk()`: write marker positions to cue chunk.
+- `write_playlist_chunk()`: write marker spans to playlist chunk.
+- `write_adtl_chunks()`: write associated data list chunks.
 
 ## Documentation of wave file format
 
@@ -248,7 +285,7 @@ See http://www.gallery.co.uk/ixml/
 # Read wave file:
 
 def read_riff_chunk(sf):
-    """ Read and check the RIFF file header.
+    """Read and check the RIFF file header.
 
     Parameters
     ----------
@@ -276,7 +313,7 @@ def read_riff_chunk(sf):
 
 
 def skip_chunk(sf):
-    """Skip over unknown chunk.
+    """Skip over unknown RIFF chunk.
     
     Parameters
     ----------
@@ -290,7 +327,7 @@ def skip_chunk(sf):
 
             
 def read_info_chunks(sf, store_empty):
-    """ Read in meta data from info list chunk.
+    """Read in meta data from info list chunk.
 
     See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
     
@@ -325,128 +362,9 @@ def read_info_chunks(sf, store_empty):
         sf.seek(list_size, 1)
     return md
 
-    
-def read_cue_chunk(sf):
-    """ Read in marker ids and positions from cue chunk.
-    
-    See https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
-
-    Parameters
-    ----------
-    sf: stream
-        File stream of wave file.
-
-    Returns
-    -------
-    locs: 2-D array of ints
-        Each row is a marker with unique identifier in the first column,
-        position in the second column, and span in the third column.
-        The cue chunk does not encde spans, so the third column is
-        initilazied with zeros.
-    """
-    locs = []
-    size, n = struct.unpack('<II', sf.read(8))
-    for c in range(n):
-        cpid, cppos = struct.unpack('<II', sf.read(8))
-        datachunkid = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
-        chunkstart, blockstart, offset = struct.unpack('<III', sf.read(12))
-        if datachunkid == 'DATA':
-            locs.append((cpid, cppos, 0))
-    return np.array(locs, dtype=int)
-
-        
-def read_playlist_chunk(sf, locs):
-    """ Read in marker spans from playlist chunk.
-    
-    See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
-
-    Parameters
-    ----------
-    sf: stream
-        File stream of wave file.
-    locs: 2-D array of ints
-        Markers as returned by the `read_cue_chunk()` function.
-        Each row is a marker with unique identifier in the first column,
-        position in the second column, and span in the third column.
-        The span is read in from the playlist chunk.
-    """
-    if len(locs) == 0:
-        warnings.warn('read_playlist_chunks() requires markers from a previous cue chunk')
-    size, n = struct.unpack('<II', sf.read(8))
-    for p in range(n):
-        cpid, length, repeats = struct.unpack('<III', sf.read(12))
-        i = np.where(locs[:,0] == cpid)[0]
-        if len(i) > 0:
-            locs[i[0], 2] = length
-
-
-def read_adtl_chunks(sf, locs, labels):
-    """ Read in associated data list chunks.
-
-    See https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file
-    
-    Parameters
-    ----------
-    sf: stream
-        File stream of wave file.
-    locs: 2-D array of ints
-        Markers as returned by the `read_cue_chunk()` function.
-        Each row is a marker with unique identifier in the first column,
-        position in the second column, and span in the third column.
-        The span is read in from the LTXT chunk.
-    labels: 2-D array of string objects
-        Labels (first column) and texts (second column) for each marker (rows)
-        from previous LABL, NOTE, and LTXT chunks.
-
-    Returns
-    -------
-    labels: 2-D array of string objects
-        Labels (first column) and texts (second column) for each marker (rows)
-        from LABL, NOTE, and LTXT chunks.
-    """
-    list_size = struct.unpack('<I', sf.read(4))[0]
-    list_type = sf.read(4).decode('latin-1').upper()
-    list_size -= 4
-    if list_type == 'ADTL':
-        if len(locs) == 0:
-            warnings.warn('read_adtl_chunks() requires markers from a previous cue chunk')
-        if len(labels) == 0:
-            labels = np.zeros((len(locs), 2), dtype=np.object_)
-        while list_size >= 8:
-            key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
-            size, cpid = struct.unpack('<II', sf.read(8))
-            size += size % 2 - 4
-            if key == 'LABL' or key == 'NOTE':
-                label = sf.read(size).decode('latin-1').rstrip(' \x00')
-                i = np.where(locs[:,0] == cpid)[0]
-                if len(i) > 0:
-                    i = i[0]
-                    if hasattr(labels[i,0], '__len__') and len(labels[i,0]) > 0:
-                        labels[i,0] += '|' + label
-                    else:
-                        labels[i,0] = label
-            elif key == 'LTXT':
-                length = struct.unpack('<I', sf.read(4))[0]
-                sf.read(12)  # skip fields
-                text = sf.read(size - 4 - 12).decode('latin-1').rstrip(' \x00')
-                i = np.where(locs[:,0] == cpid)[0]
-                if len(i) > 0:
-                    i = i[0]
-                    if hasattr(labels[i,1], '__len__') and len(labels[i,1]) > 0:
-                        labels[i,1] += '|' + text
-                    else:
-                        labels[i,1] = text
-                    locs[i,2] = length
-            else:
-                sf.read(size)
-            list_size -= 12 + size
-    if list_size > 0:  # finish or skip
-        sf.seek(list_size, 1)
-    return labels
-
 
 def read_bext_chunk(sf, store_empty=True):
-    """ Read in meta-data from the broadcast-audio extension chunk.
+    """Read in meta-data from the broadcast-audio extension chunk.
 
     See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
     
@@ -524,7 +442,7 @@ def read_bext_chunk(sf, store_empty=True):
 
 
 def read_ixml_chunk(sf, store_empty=True):
-    """ Read in meta-data from an IXML chunk.
+    """Read in meta-data from an IXML chunk.
 
     See http://www.gallery.co.uk/ixml/ for the specification of iXML.
     
@@ -563,7 +481,7 @@ def read_ixml_chunk(sf, store_empty=True):
 
 
 def read_odml_chunk(sf, store_empty=True):
-    """ Read in meta-data from an odml chunk.
+    """Read in meta-data from an odml chunk.
 
     For storing any type of nested key-value pairs we define a new 
     odml chunk holding the metadata as XML according to the odML data model.
@@ -606,9 +524,128 @@ def read_odml_chunk(sf, store_empty=True):
         md = md['odML']
     return md
 
+    
+def read_cue_chunk(sf):
+    """Read in marker ids and positions from cue chunk.
+    
+    See https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+
+    Returns
+    -------
+    locs: 2-D array of ints
+        Each row is a marker with unique identifier in the first column,
+        position in the second column, and span in the third column.
+        The cue chunk does not encde spans, so the third column is
+        initilazied with zeros.
+    """
+    locs = []
+    size, n = struct.unpack('<II', sf.read(8))
+    for c in range(n):
+        cpid, cppos = struct.unpack('<II', sf.read(8))
+        datachunkid = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
+        chunkstart, blockstart, offset = struct.unpack('<III', sf.read(12))
+        if datachunkid == 'DATA':
+            locs.append((cpid, cppos, 0))
+    return np.array(locs, dtype=int)
+
+        
+def read_playlist_chunk(sf, locs):
+    """Read in marker spans from playlist chunk.
+    
+    See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    locs: 2-D array of ints
+        Markers as returned by the `read_cue_chunk()` function.
+        Each row is a marker with unique identifier in the first column,
+        position in the second column, and span in the third column.
+        The span is read in from the playlist chunk.
+    """
+    if len(locs) == 0:
+        warnings.warn('read_playlist_chunks() requires markers from a previous cue chunk')
+    size, n = struct.unpack('<II', sf.read(8))
+    for p in range(n):
+        cpid, length, repeats = struct.unpack('<III', sf.read(12))
+        i = np.where(locs[:,0] == cpid)[0]
+        if len(i) > 0:
+            locs[i[0], 2] = length
+
+
+def read_adtl_chunks(sf, locs, labels):
+    """Read in associated data list chunks.
+
+    See https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of wave file.
+    locs: 2-D array of ints
+        Markers as returned by the `read_cue_chunk()` function.
+        Each row is a marker with unique identifier in the first column,
+        position in the second column, and span in the third column.
+        The span is read in from the LTXT chunk.
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows)
+        from previous LABL, NOTE, and LTXT chunks.
+
+    Returns
+    -------
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows)
+        from LABL, NOTE, and LTXT chunks.
+    """
+    list_size = struct.unpack('<I', sf.read(4))[0]
+    list_type = sf.read(4).decode('latin-1').upper()
+    list_size -= 4
+    if list_type == 'ADTL':
+        if len(locs) == 0:
+            warnings.warn('read_adtl_chunks() requires markers from a previous cue chunk')
+        if len(labels) == 0:
+            labels = np.zeros((len(locs), 2), dtype=np.object_)
+        while list_size >= 8:
+            key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
+            size, cpid = struct.unpack('<II', sf.read(8))
+            size += size % 2 - 4
+            if key == 'LABL' or key == 'NOTE':
+                label = sf.read(size).decode('latin-1').rstrip(' \x00')
+                i = np.where(locs[:,0] == cpid)[0]
+                if len(i) > 0:
+                    i = i[0]
+                    if hasattr(labels[i,0], '__len__') and len(labels[i,0]) > 0:
+                        labels[i,0] += '|' + label
+                    else:
+                        labels[i,0] = label
+            elif key == 'LTXT':
+                length = struct.unpack('<I', sf.read(4))[0]
+                sf.read(12)  # skip fields
+                text = sf.read(size - 4 - 12).decode('latin-1').rstrip(' \x00')
+                i = np.where(locs[:,0] == cpid)[0]
+                if len(i) > 0:
+                    i = i[0]
+                    if hasattr(labels[i,1], '__len__') and len(labels[i,1]) > 0:
+                        labels[i,1] += '|' + text
+                    else:
+                        labels[i,1] = text
+                    locs[i,2] = length
+            else:
+                sf.read(size)
+            list_size -= 12 + size
+    if list_size > 0:  # finish or skip
+        sf.seek(list_size, 1)
+    return labels
+
 
 def metadata_wave(filepath, store_empty=False):
-    """ Read metadata of a wave file.
+    """Read metadata from a wave file.
 
     Parameters
     ----------
@@ -634,7 +671,7 @@ def metadata_wave(filepath, store_empty=False):
     ------
     ValueError
         Not a wave file.
-    """            
+    """           
     meta_data = {}
     sf = filepath
     file_pos = None
@@ -672,7 +709,7 @@ def metadata_wave(filepath, store_empty=False):
 
 
 def markers_wave(filepath):
-    """ Read markers from a wave file.
+    """Read markers from a wave file.
 
     Parameters
     ----------
@@ -692,7 +729,7 @@ def markers_wave(filepath):
     ------
     ValueError
         Not a wave file.
-    """            
+    """           
     sf = filepath
     file_pos = None
     if hasattr(filepath, 'read'):
@@ -729,7 +766,7 @@ def markers_wave(filepath):
 # Write wave file:
 
 def write_riff_chunk(df, filesize=0):
-    """ Write RIFF file header.
+    """Write RIFF file header.
 
     Parameters
     ----------
@@ -771,8 +808,8 @@ def write_filesize(df, filesize=None):
     df.seek(pos, 0)
 
 
-def write_fmt_chunk(df, channels, frames, samplerate, bits=16):
-    """ Write FMT chunk.
+def write_format_chunk(df, channels, frames, samplerate, bits=16):
+    """Write format chunk.
 
     Parameters
     ----------
@@ -801,7 +838,7 @@ def write_fmt_chunk(df, channels, frames, samplerate, bits=16):
 
 
 def write_data_chunk(df, data, bits=16):
-    """ Write data chunk.
+    """Write data chunk.
 
     Parameters
     ----------
@@ -945,7 +982,7 @@ def write_bext_chunk(df, metadata):
 
 
 def write_ixml_chunk(df, metadata, keys_written=None):
-    """ Write metadata to iXML chunk.
+    """Write metadata to iXML chunk.
 
     If `metadata` contains an IXML key with valid IXML tags,
     or the remaining tags in `metadata` are valid IXML tags,
@@ -1017,7 +1054,7 @@ def write_ixml_chunk(df, metadata, keys_written=None):
 
 
 def write_odml_chunk(df, metadata, keys_written=None):
-    """ Write metadata to ODML chunk.
+    """Write metadata to ODML chunk.
 
     For storing any type of nested key-value pairs we define a new 
     odml chunk holding the metadata as XML according to the odML data model.
@@ -1076,7 +1113,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
 
 
 def write_cue_chunk(df, locs):
-    """ Write marker positions to cue chunk.
+    """Write marker positions to cue chunk.
 
     See https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
 
@@ -1103,7 +1140,7 @@ def write_cue_chunk(df, locs):
 
 
 def write_playlist_chunk(df, locs):
-    """ Write marker spans to playlist chunk.
+    """Write marker spans to playlist chunk.
 
     See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
 
@@ -1198,7 +1235,7 @@ def write_adtl_chunks(df, locs, labels):
 
 def write_wave(filepath, data, samplerate, metadata=None, locs=None,
                labels=None, encoding=None):
-    """ Write time series, metadata and markers to a wave file.
+    """Write time series, metadata and markers to a wave file.
 
     Only 16 or 32bit PCM encoding is supported.
 
@@ -1254,10 +1291,10 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     with open(filepath, 'wb') as df:
         write_riff_chunk(df)
         if data.ndim == 1:
-            write_fmt_chunk(df, 1, len(data), samplerate, bits)
+            write_format_chunk(df, 1, len(data), samplerate, bits)
         else:
-            write_fmt_chunk(df, data.shape[1], data.shape[0],
-                            samplerate, bits)
+            write_format_chunk(df, data.shape[1], data.shape[0],
+                               samplerate, bits)
         write_data_chunk(df, data, bits)
         # metadata INFO chunk:
         _, kw = write_info_chunk(df, metadata)
