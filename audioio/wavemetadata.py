@@ -404,14 +404,14 @@ def read_adtl_chunks(sf, locs, labels):
         Labels (first column) and texts (second column) for each marker (rows)
         from LABL, NOTE, and LTXT chunks.
     """
-    if len(locs) == 0:
-        warnings.warn('read_adtl_chunks() requires markers from a previous cue chunk')
-    if len(labels) == 0:
-        labels = np.zeros((len(locs), 2), dtype=np.object_)
     list_size = struct.unpack('<I', sf.read(4))[0]
     list_type = sf.read(4).decode('latin-1').upper()
     list_size -= 4
     if list_type == 'ADTL':
+        if len(locs) == 0:
+            warnings.warn('read_adtl_chunks() requires markers from a previous cue chunk')
+        if len(labels) == 0:
+            labels = np.zeros((len(locs), 2), dtype=np.object_)
         while list_size >= 8:
             key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
             size, cpid = struct.unpack('<II', sf.read(8))
@@ -421,20 +421,22 @@ def read_adtl_chunks(sf, locs, labels):
                 i = np.where(locs[:,0] == cpid)[0]
                 if len(i) > 0:
                     i = i[0]
-                    if len(labels[i,0]) > 0:
-                        labels[i,0] += '|'
-                        labels[i,0] += label
+                    if hasattr(labels[i,0], '__len__') and len(labels[i,0]) > 0:
+                        labels[i,0] += '|' + label
+                    else:
+                        labels[i,0] = label
             elif key == 'LTXT':
                 length = struct.unpack('<I', sf.read(4))[0]
                 sf.read(12)  # skip fields
                 text = sf.read(size - 4 - 12).decode('latin-1').rstrip(' \x00')
-                i = np.where(locs[:,0] == cpid)[0][0]
+                i = np.where(locs[:,0] == cpid)[0]
                 if len(i) > 0:
                     i = i[0]
-                    if len(labels[i,1]) > 0:
-                        labels[i,1] += '|'
-                        label[i,1] += text
-                        locs[i,2] = length
+                    if hasattr(labels[i,1], '__len__') and len(labels[i,1]) > 0:
+                        labels[i,1] += '|' + text
+                    else:
+                        labels[i,1] = text
+                    locs[i,2] = length
             else:
                 sf.read(size)
             list_size -= 12 + size
@@ -1096,7 +1098,7 @@ def write_cue_chunk(df, locs):
     df.write(b'CUE ')
     df.write(struct.pack('<II', 4 + len(locs)*24, len(locs)))
     for i in range(len(locs)):
-        df.write(struct.pack('<IIIIII', i, locs[i,-2], 0, 0, 0, 0))
+        df.write(struct.pack('<II4sIII', i, locs[i,-2], b'data', 0, 0, 0))
     return 12 + len(locs)*24
 
 
@@ -1154,15 +1156,17 @@ def write_adtl_chunks(df, locs, labels):
     if labels is None or len(labels) == 0:
         return 0
     labels_size = 0
-    for t in labels[:,0]:
-        n = len(t)
-        if n > 0:
-            labels_size += 12 + n + n % 2
+    for l in labels[:,0]:
+        if hasattr(l, '__len__'):
+            n = len(l)
+            if n > 0:
+                labels_size += 12 + n + n % 2
     text_size = 0
     for t in labels[:,1]:
-        n = len(t)
-        if n > 0:
-            text_size += 28 + n + n % 2 
+        if hasattr(t, '__len__'):
+            n = len(t)
+            if n > 0:
+                text_size += 28 + n + n % 2 
     if labels_size == 0 and text_size == 0:
         return 0
     size = 4 + labels_size + text_size
@@ -1172,21 +1176,23 @@ def write_adtl_chunks(df, locs, labels):
     for i in range(len(labels)):
         # labl sub-chunk:
         l = labels[i,0]
-        n = len(l)
-        if n > 0:
-            n += n % 2
-            df.write(b'labl')
-            df.write(struct.pack('<II', 4 + n, i))
-            df.write(f'{l:<{n}s}'.encode('latin-1'))
+        if hasattr(l, '__len__'):
+            n = len(l)
+            if n > 0:
+                n += n % 2
+                df.write(b'labl')
+                df.write(struct.pack('<II', 4 + n, i))
+                df.write(f'{l:<{n}s}'.encode('latin-1'))
         # ltxt sub-chunk:
-        t = text[i,1]
-        n = len(t)
-        if n > 0:
-            n += n % 2
-            df.write(b'ltxt')
-            df.write(struct.pack('<III', 20 + n, i, locs[i,-2]))
-            df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
-            df.write(f'{t:<{n}s}'.encode('latin-1'))
+        t = labels[i,1]
+        if hasattr(t, '__len__'):
+            n = len(t)
+            if n > 0:
+                n += n % 2
+                df.write(b'ltxt')
+                df.write(struct.pack('<III', 20 + n, i, locs[i,-2]))
+                df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
+                df.write(f'{t:<{n}s}'.encode('latin-1'))
     return 8 + size
 
 
@@ -1236,7 +1242,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         bits = 32
     else:
         raise ValueError(f'file encoding {encoding} not supported')
-    if not locs is None and not labels is None and len(labels) == len(locs):
+    if not locs is None and not labels is None and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
     # sort markers according to their position:
     if not locs is None and len(locs) > 0:
@@ -1304,9 +1310,12 @@ def demo(filepath):
     # print marker table:
     if len(locs) > 0:
         print()
-        print(f'{"position":10} {"span":8} {"label":10} {"text":10}')
+        print(f'{"id":5} {"position":10} {"span":8} {"label":10} {"text":10}')
         for i in range(len(locs)):
-            print(f'{locs[i,0]:10} {locs[i,1]:8} {labels[i,0]:10} {labels[i,1]:10}')
+            if i < len(labels):
+                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {labels[i,0]:10} {labels[i,1]:10}')
+            else:
+                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {"-":10} {"-":10}')
 
 
 def main(*args):
@@ -1338,7 +1347,14 @@ def main(*args):
         xmd = dict(Project='Record all', Note='still testing')
         md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
                   Recording=imd, Production=bmd, Notes=xmd)
-        write_wave('test.wav', x, rate, md)
+        locs = np.random.randint(10, len(x)-10, (5, 2))
+        locs = locs[np.argsort(locs[:,0]),:]
+        locs[:,1] = np.random.randint(0, 20, len(locs))
+        labels = np.zeros((len(locs), 2), dtype=np.object_)
+        for i in range(len(labels)):
+            labels[i,0] = chr(ord('a') + i % 26)
+            labels[i,1] = chr(ord('A') + i % 26)*5
+        write_wave('test.wav', x, rate, md, locs, labels)
         demo('test.wav')
 
     
