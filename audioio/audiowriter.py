@@ -832,7 +832,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     # write audio with metadata and markers:
     if not format:
         format = format_from_extension(filepath)
-    if format == 'WAV':
+    if format == 'WAV' and (metadata is not None or locs is not None):
         try:
             audioio_write_wave(filepath, data, samplerate, metadata,
                                locs, labels, encoding)

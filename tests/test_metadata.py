@@ -156,14 +156,31 @@ def test_markers():
 
     os.remove(filename)
 
+    filename = 'test.xyz'
+    with open(filename, 'wb') as df:
+        df.write(b'XYZ!')
+    mmd = metadata(filename)
+    llocs, llabels = markers(filename)
+
+    os.remove(filename)
+
     
 def test_main():
     data, rate = generate_data()
     filename = 'test.wav'
     md = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
               Comment='this is test1')
-    aw.write_audio(filename, data, rate, md)
+    locs = np.random.randint(10, len(data)-10, (5, 2))
+    locs = locs[np.argsort(locs[:,0]),:]
+    locs[:,1] = np.random.randint(0, 20, len(locs))
+    labels = np.zeros((len(locs), 2), dtype=np.object_)
+    for i in range(len(labels)):
+        labels[i,0] = chr(ord('a') + i % 26)
+        labels[i,1] = chr(ord('A') + i % 26)*5
+    aw.write_audio(filename, data, rate, md, locs, labels)
     main('-h')
+    main('test.wav')
+    aw.write_audio(filename, data, rate, md, locs)
     main('test.wav')
     os.remove('test.wav')
 

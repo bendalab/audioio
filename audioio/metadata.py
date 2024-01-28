@@ -37,8 +37,7 @@ pointing to strings. Again, rows are the markers, first column are the
 labels, and second column the texts.
 """
  
-import warnings
-import os.path
+import numpy as np
 from .audiomodules import *
 from .wavemetadata import metadata_wave, markers_wave
 
