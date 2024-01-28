@@ -2,7 +2,9 @@ from nose.tools import assert_true, assert_false, assert_equal, assert_raises
 import os
 import numpy as np
 import audioio.audiowriter as aw
-import audioio.metadata as md
+import audioio.wavemetadata as wm
+from audioio.metadata import metadata, flatten_metadata, unflatten_metadata
+from audioio.metadata import markers, main
 
 
 def generate_data():
@@ -22,7 +24,7 @@ def test_metadata():
     filename = 'test.wav'
     imd = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
                Comment='this is test1')
-    iimd = {md.info_tags.get(k, k): str(v) for k, v in imd.items()}
+    iimd = {wm.info_tags.get(k, k): str(v) for k, v in imd.items()}
     bmd = dict(Description='a recording',
                OriginationDate='2024:01:24', TimeReference=123456,
                Version=42, CodingHistory='Test1\nTest2')
@@ -34,40 +36,40 @@ def test_metadata():
 
     # INFO:
     md = dict(INFO=imd)
-    aw.audio_write(filename, data, rate, md)
-    mdd = md.metadata_wave(filename, False)
+    aw.write_audio(filename, data, rate, md)
+    mdd = metadata(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
 
     with open(filename, 'rb') as sf:
-        mdd = md.metadata_wave(sf, False)
+        mdd = metadata(sf, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
 
     # BEXT:
     md = dict(BEXT=bmd)
-    aw.audio_write(filename, data, rate, md)
-    mdd = md.metadata_wave(filename, False)
+    aw.write_audio(filename, data, rate, md)
+    mdd = metadata(filename, False)
     assert_true('BEXT' in mdd, 'BEXT section exists')
     assert_equal(bmd, mdd['BEXT'], 'BEXT section matches')
 
     # IXML:
     md = dict(IXML=xmd)
-    aw.audio_write(filename, data, rate, md)
-    mdd = md.metadata_wave(filename, False)
+    aw.write_audio(filename, data, rate, md)
+    mdd = metadata(filename, False)
     assert_true('IXML' in mdd, 'IXML section exists')
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
 
     # ODML:
     md = dict(Recording=omd, Production=bbmd, Notes=xmd)
-    aw.audio_write(filename, data, rate, md)
-    mdd = md.metadata_wave(filename, False)
+    aw.write_audio(filename, data, rate, md)
+    mdd = metadata(filename, False)
     assert_equal(md, mdd, 'ODML sections match')
     
     md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
               Recording=omd, Production=bmd, Notes=xmd)
-    aw.audio_write(filename, data, rate, md)
-    mdd = md.metadata_wave(filename, False)
+    aw.write_audio(filename, data, rate, md)
+    mdd = metadata(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
     assert_true('BEXT' in mdd, 'BEXT section exists')
@@ -82,15 +84,33 @@ def test_metadata():
     # INFO with nested dict:
     imd['SUBI'] = bmd
     md = dict(INFO=imd)
-    aw.audio_write(filename, data, rate, md)
+    aw.write_audio(filename, data, rate, md)
 
     # BEXT with invalid tag:
     bmd['xxx'] = 'no bext'
     md = dict(BEXT=bmd)
-    aw.audio_write(filename, data, rate, md)
+    aw.write_audio(filename, data, rate, md)
     
-    md.metadata_wave(filename, True)
+    metadata(filename, True)
     os.remove(filename)
+
+
+def test_flatten():
+    imd = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
+               Comment='this is test1')
+    iimd = {wm.info_tags.get(k, k): str(v) for k, v in imd.items()}
+    bmd = dict(Description='a recording',
+               OriginationDate='2024:01:24', TimeReference=123456,
+               Version=42, CodingHistory='Test1\nTest2')
+    bbmd = {k: str(v).replace('\n', '.') for k, v in bmd.items()}
+    xmd = dict(Project='Record all', Note='still testing',
+               Sync_Point_List=dict(Sync_Point='1', Sync_Point_Comment='great'))
+    md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
+              Production=bmd, Notes=xmd)
+
+    fmd = flatten_metadata(md, False)
+    fmd = flatten_metadata(md, True)
+    unflatten_metadata(fmd)
 
     
 def test_markers():
@@ -104,33 +124,33 @@ def test_markers():
         labels[i,1] = chr(ord('A') + i % 26)*5
     filename = 'test.wav'
     
-    aw.audio_write(filename, data, rate, None, locs)
-    llocs, llabels = md.markers_wave(filename)
+    aw.write_audio(filename, data, rate, None, locs)
+    llocs, llabels = markers(filename)
     assert_equal(len(llabels), 0, 'no labels')
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     
-    aw.audio_write(filename, data, rate, None, locs, labels)
-    llocs, llabels = md.markers_wave(filename)
+    aw.write_audio(filename, data, rate, None, locs, labels)
+    llocs, llabels = markers(filename)
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
 
     with open(filename, 'rb') as sf:
-        llocs, llabels = md.markers_wave(sf)
+        llocs, llabels = markers(sf)
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
     
-    assert_raises(IndexError, aw.audio_write, filename, data, rate,
+    assert_raises(IndexError, aw.write_audio, filename, data, rate,
                   None, locs, labels[:-2,:])
 
     labels = np.zeros((len(locs), 2), dtype=np.object_)
-    aw.audio_write(filename, data, rate, None, locs, labels)
-    llocs, llabels = md.markers_wave(filename)
+    aw.write_audio(filename, data, rate, None, locs, labels)
+    llocs, llabels = markers(filename)
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     assert_equal(len(llabels), 0, 'no labels')
 
     locs[:,-1] = 0
-    aw.audio_write(filename, data, rate, None, locs)
-    llocs, llabels = md.markers_wave(filename)
+    aw.write_audio(filename, data, rate, None, locs)
+    llocs, llabels = markers(filename)
     assert_equal(len(llabels), 0, 'no labels')
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
 
@@ -138,8 +158,13 @@ def test_markers():
 
     
 def test_main():
-    md.main('-h')
-    md.main('test.wav')
+    data, rate = generate_data()
+    filename = 'test.wav'
+    md = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
+              Comment='this is test1')
+    aw.write_audio(filename, data, rate, md)
+    main('-h')
+    main('test.wav')
     os.remove('test.wav')
 
 
