@@ -683,7 +683,8 @@ def markers_wave(filepath):
         Positions (first column) and spans (second column)
         for each marker (rows).
     labels: 2-D array of string objects
-        Labels (first column) and texts (second column) for each marker (rows).
+        Marker IDs (first column), labels (second column) and
+        texts (third column) for each marker (rows).
 
     Raises
     ------
@@ -714,7 +715,13 @@ def markers_wave(filepath):
         sf.close()
     else:
         sf.seek(file_pos, 0)
-    return locs[:,1:], labels
+    # sort markers according to their position:
+    if len(locs) > 0:
+        idxs = np.argsort(locs[:,-2])
+        locs = locs[idxs,:]
+        if len(labels) > 0:
+            labels = labels[idxs,:]
+    return locs, labels
 
 
 # Write wave file:
@@ -1074,10 +1081,10 @@ def write_cue_chunk(df, locs):
     Parameters
     ----------
     df: stream
-        File stream for writing ODML chunk.
+        File stream for writing cue chunk.
     locs: None or 2-D array of ints
-        Positions (first column) and spans (second column)
-        for each marker (rows).
+        Marker IDs (optional first column), positions (second-last column)
+        and spans (last column) for each marker (rows).
 
     Returns
     -------
@@ -1087,10 +1094,41 @@ def write_cue_chunk(df, locs):
     if locs is None or len(locs) == 0:
         return 0
     df.write(b'CUE ')
-    df.write(struct.pack('<II', len(locs)*24, len(locs)))
+    df.write(struct.pack('<II', 4 + len(locs)*24, len(locs)))
     for i in range(len(locs)):
-        df.write(struct.pack('<IIIIII', i, locs[i,0], 0, 0, 0, 0))
+        df.write(struct.pack('<IIIIII', i, locs[i,-2], 0, 0, 0, 0))
     return 12 + len(locs)*24
+
+
+def write_playlist_chunk(df, locs):
+    """ Write marker spans to playlist chunk.
+
+    See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing playlist chunk.
+    locs: None or 2-D array of ints
+        Marker IDs (optional first column), positions (second-last column)
+        and spans (last column) for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
+    if locs is None or len(locs) == 0:
+        return 0
+    n_spans = np.sum(locs[:,-1] > 0)
+    if n_spans == 0:
+        return 0
+    df.write(b'plst')
+    df.write(struct.pack('<II', 4 + n_spans*12, n_spans))
+    for i in range(len(locs)):
+        if locs[i,-1] > 0:
+            df.write(struct.pack('<III', i, locs[i,-1], 1))
+    return 12 + n_spans*12
 
 
 def write_adtl_chunks(df, locs, labels):
@@ -1101,10 +1139,10 @@ def write_adtl_chunks(df, locs, labels):
     Parameters
     ----------
     df: stream
-        File stream for writing ODML chunk.
+        File stream for writing adtl chunk.
     locs: None or 2-D array of ints
-        Positions (first column) and spans (second column)
-        for each marker (rows).
+        Marker IDs (optional first column), positions (second-last column)
+        and spans (last column) for each marker (rows).
     labels: None or 2-D array of string objects
         Labels (first column) and texts (second column) for each marker (rows).
 
@@ -1131,7 +1169,7 @@ def write_adtl_chunks(df, locs, labels):
     df.write(b'LIST')
     df.write(struct.pack('<I', size))
     df.write(b'adtl')
-    for i in range(len(locs)):
+    for i in range(len(labels)):
         # labl sub-chunk:
         l = labels[i,0]
         n = len(l)
@@ -1146,7 +1184,7 @@ def write_adtl_chunks(df, locs, labels):
         if n > 0:
             n += n % 2
             df.write(b'ltxt')
-            df.write(struct.pack('<III', 20 + n, i, locs[i,1]))
+            df.write(struct.pack('<III', 20 + n, i, locs[i,-2]))
             df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
             df.write(f'{t:<{n}s}'.encode('latin-1'))
     return 8 + size
@@ -1171,8 +1209,8 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         Meta-data as key-value pairs. Values can be strings, integers,
         or dictionaries.
     locs: None or 2-D array of ints
-        Positions (first column) and spans (second column)
-        for each marker (rows).
+        Marker IDs (optional first column), positions (second-last column)
+        and spans (last column) for each marker (rows).
     labels: None or 2-D array of string objects
         Labels (first column) and texts (second column) for each marker (rows).
     encoding: string or None
@@ -1183,6 +1221,8 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     ------
     ValueError
         Encoding not supported.
+    IndexError
+        `locs` and `labels` differ in len.
     """
     if not filepath:
         raise ValueError('no file specified!')
@@ -1196,6 +1236,15 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         bits = 32
     else:
         raise ValueError(f'file encoding {encoding} not supported')
+    if not locs is None and not labels is None and len(labels) == len(locs):
+        raise IndexError(f'locs and labels must have same number of elements.')
+    # sort markers according to their position:
+    if not locs is None and len(locs) > 0:
+        idxs = np.argsort(locs[:,-2])
+        locs = locs[idxs,:]
+        if not labels is None:
+            labels = labels[idxs,:]
+    # write wave file:
     with open(filepath, 'wb') as df:
         write_riff_chunk(df)
         if data.ndim == 1:
@@ -1212,14 +1261,15 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         # metadata IXML chunk:
         _, xkw = write_ixml_chunk(df, metadata, kw)
         kw.extend(xkw)
-        # write remaining metadata to ODML chunk:
+        # write remaining metadata to odML chunk:
         write_odml_chunk(df, metadata, kw)
         # write marker positions:
         write_cue_chunk(df, locs)
         # write marker spans:
-        #write_playlist_chunk(df, locs)
+        write_playlist_chunk(df, locs)
         # write marker labels:
         write_adtl_chunks(df, locs, labels)
+        # update filesize field in riff header:
         write_filesize(df)
 
 
