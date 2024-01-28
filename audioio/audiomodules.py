@@ -739,7 +739,7 @@ def installation_instruction(module):
     return msg
 
 
-def main(args=None):
+def main(*args):
     """ Command line program for listing installation status of audio modules.
 
     Run this module as a script
@@ -761,15 +761,13 @@ def main(args=None):
     Parameters
     ----------
     args: list of strings
-        Command line arguments as provided by sys.argv
+        Command line arguments as provided by sys.argv[1:]
     """
-    if args is None:
-        args = sys.argv
-    if len(args) > 1 :
-        if args[1] == '--version':
+    if len(args) > 0:
+        if args[0] == '--version':
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
             sys.exit(0)
-        if args[1] == '--help' or args[1] == '-h':
+        if args[0] == '--help' or args[0] == '-h':
             print('usage: audiomodules [--version] [--help] [PACKAGE]')
             print('')
             print('Installation status and instructions of python audio packages.')
@@ -780,7 +778,7 @@ def main(args=None):
             print('  PACKAGE     show installation instructions for PACKAGE')
             print('')
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
-            sys.exit(0)
+            return
     print('')
     print('Status of audio packages on this machine:')
     print('-'*41)
@@ -792,8 +790,8 @@ def main(args=None):
     missing_modules_instructions()
     print('')
 
-    if len(args) > 1 :
-        mod = args[1]
+    if len(args) > 0 :
+        mod = args[0]
         if mod in audio_modules:
             print('Installation instructions for the %s module:' % mod )
             print('-'*(42+len(mod)))
@@ -802,4 +800,4 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

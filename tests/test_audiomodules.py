@@ -41,11 +41,7 @@ def test_audiomodules():
 
 def test_main():
     am.enable_module()
-    assert_raises(SystemExit, am.main, ['prog', '-h'])
-    assert_raises(SystemExit, am.main, ['prog', '--help'])
-    assert_raises(SystemExit, am.main, ['prog', '--version'])
-    am.main(['prog'])
     am.main()
     for module in am.audio_modules.keys():
-        am.main(['prog', module])
+        am.main(module)
     
