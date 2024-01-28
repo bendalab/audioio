@@ -305,7 +305,7 @@ def test_main():
     am.enable_module()
     filename = 'test.wav'
     write_audio_file(filename, duration=5.0)
-    al.main(['prog', '-h'])
-    al.main(['prog', filename])
-    al.main(['prog', '-m', 'wave', filename])
+    al.main('-h')
+    al.main(filename)
+    al.main('-m', 'wave', filename)
     os.remove(filename)

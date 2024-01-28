@@ -1709,13 +1709,13 @@ def demo(file_path, plot):
                 plt.show()
 
 
-def main(args):
+def main(*args):
     """Call demo with command line arguments.
 
     Parameters
     ----------
     args: list of strings
-        Command line arguments as provided by sys.argv
+        Command line arguments as provided by sys.argv[1:]
     """
     print("Checking audioloader module ...")
 
@@ -1723,7 +1723,7 @@ def main(args):
     plot = False
     file_path = None
     mod = False
-    for arg in args[1:]:
+    for arg in args:
         if mod:
             if not select_module(arg):
                 print('can not select module %s that is not installed' % arg)
@@ -1756,4 +1756,4 @@ def main(args):
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv)
+    main(*sys.argv[1:])
