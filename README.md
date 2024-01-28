@@ -21,8 +21,8 @@ files and devices.
 [API Reference](https://bendalab.github.io/audioio/api)
 
 The AudioIO modules try to use whatever audio packages are installed
-on your system to achieve their tasks. AudioIO itself does not provide
-own code for decoding files and accessing audio hardware.
+on your system to achieve their tasks. AudioIO, however, adds own code
+for handling metadata and marker lists.
 
 
 ## Features
@@ -32,8 +32,8 @@ own code for decoding files and accessing audio hardware.
 - `load_audio()` function for loading a whole audio file.
 - *Blockwise random-access* loading of large audio files (`class AudioLoader`).
 - `blocks()` generator for iterating over blocks of data with optional overlap.
-- Read metadata and cue lists from wave file.
 - `write_audio()` function for writing data to an audio file. 
+- Read and write metadata and marker lists.
 - Platform independent playback of numpy arrays (`play()`).
 - *Synchronous* (blocking) and *asynchronous* (non blocking) playback.
 - *Automatic resampling* of data for playback to match supported sampling rates.
@@ -88,6 +88,15 @@ plt.plot(time, data[:,0])
 plt.show()
 ```
 
+Get a nested dictionary with key-value pairs of the file's metadata via
+```
+md = aio.metadata('audio/file.wav')
+```
+and marker identifier, positions, spans, labels and texts via
+```
+locs, labels = aio.markers('audio/file.wav')
+```
+
 You can also randomly access chunks of data of an audio file, without
 loading the entire file into memory. This is really handy for
 analysing very long sound recordings:
@@ -110,10 +119,18 @@ with aio.AudioLoader('some/audio.wav') as data:
         f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
 ```
 
+Metadata and markers can be accessed by the respective member
+functions of the AudioLoader object:
+```
+with aio.AudioLoader('audio/file.wav', 60.0) as data:
+     md = data.metadata()
+     locs, labels = data.markers()
+```
+
 See API documentation of the
 [audioloader](https://bendalab.github.io/audioio/api/audioloader.html)
-module for details.
-
+and [metadata](https://bendalab.github.io/audioio/api/metadata.html)
+modules for details.
 
 
 ### Writing audio data
@@ -123,6 +140,13 @@ Write a 1-D or 2-D numpy array into an audio file (data values between -1 and 1)
 aio.write_audio('audio/file.wav', data, samplerate)
 ```
 Again, in 2-D arrays the first axis (rows) is time and the second axis the channel (columns).
+
+Metadata in form of a nested dictionary with key-value pairs, marker
+positions and spans (`locs`) as well as associated labels and texts
+(`labels`) can also be passed on to the `write_audio()` function:
+```
+aio.write_audio('audio/file.wav', data, samplerate, md, locs, labels)
+```
 
 See API documentation of the
 [audiowriter](https://bendalab.github.io/audioio/api/audiowriter.html)
@@ -135,6 +159,7 @@ AudioIO provides a simple command line script to convert audio files:
 ```sh
 > audioconverter -e float -o test.wav test.mp3
 ```
+If possible, it tries to keep metadata and marker lists.
 
 See API documentation of the
 [audioconverter](https://bendalab.github.io/audioio/api/audioconverter.html)

@@ -1,17 +1,84 @@
-"""Read and write meta data and marker lists from and to wave files.
+"""Read and write meta data and marker lists of wave files.
+
+Wave files are containers of the Resource Interchange File Format
+(RIFF) and - in addition to the timeseries (audio) data and the
+necessary specifications of sampling rate, bit depth, etc. - may
+contain additional sections (called chunks) with metadata and
+markers.
+
+## Metadata
+
+There are various types of chunks for storing metadata, like the [INFO
+list](https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file),
+[broadcast-audio extension
+(BEXT)](https://tech.ebu.ch/docs/tech/tech3285.pdf) chunk, or
+[iXML](http://www.gallery.co.uk/ixml/) chunks. These chunks contain
+metadata as key-value pairs.  Since wave files are primarily designed
+for music, valid keys in these chunks are restricted to topics from
+music and music production. Some keys are usefull also for science,
+but there is need for more keys. It is possible to extend the INFO
+list keys, but these keys are restricted to four characters and the
+INFO list chunk does also not allow for hierarchical metadata. The
+other metadata chunks, in particular the BEXT chunk, cannot be
+extended. With standard chunks, not all types of metadata can be
+stored.
+
+Here, we therefore add support for a novel odML chunk, that allows to
+store nested dictionaries of key-value pairs without any restrictions
+on the keys. The primary goal of the [odML data
+model](https://doi.org/10.3389/fninf.2011.00016) was to facilitate the
+immediate storage of all available metadata without the need to update
+an XML schema or terminology first.
+
+To interface the various ways to store and read metadata of wave
+files, the `wavemetadata` module simply uses nested dictionaries.  The
+keys are always strings. Values are strings or integers for key-value
+pairs. Value strings can also be numbers followed by a unit. Values
+can also be dictionaries for defining subsections of key-value
+pairs. The dictionaries can be nested to arbitrary depth.
+
+The `write_wave()` function first tries to write an INFO list
+chunk. It checks for a key "INFO" with a flat dictionary of key value
+pairs. It then translates all keys of this dictionary using the
+`info_tags` mapping. If all the resulting keys have no more than four
+characters and there are no subsections, then an INFO list chunk is
+written. If no "INFO" key exists, then with the same procedure all
+elements of the provided metadata are checked for being valid INFO
+tags, and on success an INFO list chunk is written. Then, in similar
+ways, `write_wave()` tries to assemble a valid BEXT chunk and an iXML
+chunk, based on the tags in `bext_tags` abd `ixml_tags`. All remaining
+metadata are then stored in an ODML chunk.
+
+When reading metadata from a wave file, INFO, BEXT and iXML chunks are
+returned as subsections with the respective keys. Metadata from an
+odML chunk are stored directly in the metadata dictionary without
+marking them as odML.
+
+## Markers
+
+A number of different chunk types exist for handling markers or cues
+that mark specific events or regions in the audio data. In the end,
+each marker has an unique identifier, a position, a span, a label, and
+a text. Identifier, position, and span are handled with 2-D arrays of
+ints, where each row is a marker and the columns are identifier,
+position and span. For writing, the identifier column is not
+needed. Labels and texts come in another 2D array of objects pointing
+to strings. Again, rows are the markers, first column are the labels,
+and second column the texts. Try to keep the labels short, and use
+text for longer descriptions, if necessary.
 
 ## Read metadata and markers
 
 - `metadata_wave()`: read metadata from a wave file.
 - `markers_wave()`: read markers from a wave file.
 
-## Write data metadata and markers
+## Write data, metadata and markers
 
 - `write_wave()`: write time series, metadata and markers to a wave file.
 
 ## Demo
 
-- `demo()`: print metadata of wave file.
+- `demo()`: print metadata and marker list of wave file.
 - `main()`: call demo with command line arguments.
 
 ## Helper functions for reading RIFF and WAVE files
@@ -40,21 +107,19 @@
 - `write_playlist_chunk()`: write marker spans to playlist chunk.
 - `write_adtl_chunks()`: write associated data list chunks.
 
-## Documentation of wave file format
+## Descriptions of the wave file format
 
 - https://de.wikipedia.org/wiki/RIFF_WAVE
 - http://www.piclist.com/techref/io/serial/midi/wave.html
 - https://moddingwiki.shikadi.net/wiki/Resource_Interchange_File_Format_(RIFF) 
-
-For wave chunks see:
-
-- https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
+- https://www.recordingblogs.com/wiki/wave-file-format
 - http://fhein.users.ak.tu-berlin.de/Alias/Studio/ProTools/audio-formate/wav/overview.html
 - http://www.gallery.co.uk/ixml/
 
-For tag names see:
+For INFO tag names see:
 
 - see https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+
 """
 
 import warnings
@@ -150,6 +215,15 @@ info_tags = dict(AGES='Rated',
                  VMAJ='VegasVersionMajor',
                  VMIN='VegasVersionMinor',
                  YEAR='Year',
+                 # extensions from
+                 # [TeeGrid](https://github.com/janscience/TeeGrid/):
+                 BITS='Bits',
+                 PINS='Pins',
+                 AVRG='Averaging',
+                 CNVS='ConversionSpeed',
+                 SMPS='SamplingSpeed',
+                 VREF='ReferenceVoltage',
+                 GAIN='Gain',
                  IBRD='uCBoard',
                  IMAC='MACAdress')
 """Tags of the INFO chunk and their description.
@@ -867,7 +941,7 @@ def write_info_chunk(df, metadata):
 
     If `metadata` contains an 'INFO' key, then write the flat
     dictionary of this key as an INFO chunk. Otherwise, attempt to
-    write all m̀etadata` items as an INFO chunk. The keys are
+    write all m̀etadata items as an INFO chunk. The keys are
     translated via `info_tags` back to INFO tags. If after translation
     any key is left that is longer than 4 characters or any key has a
     dictionary as a value (non-flat metadata), the INFO chunk is not
