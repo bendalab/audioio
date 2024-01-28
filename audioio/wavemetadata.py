@@ -7,6 +7,7 @@
 
 - https://de.wikipedia.org/wiki/RIFF_WAVE
 - http://www.piclist.com/techref/io/serial/midi/wave.html
+- https://moddingwiki.shikadi.net/wiki/Resource_Interchange_File_Format_(RIFF) 
 
 For wave chunks see:
 
@@ -560,10 +561,10 @@ def read_ixml_chunk(sf, store_empty=True):
 
 
 def read_odml_chunk(sf, store_empty=True):
-    """ Read in meta-data from an ODML chunk.
+    """ Read in meta-data from an odml chunk.
 
     For storing any type of nested key-value pairs we define a new 
-    ODML chunk holding the metadata as XML according to the odML data model.
+    odml chunk holding the metadata as XML according to the odML data model.
     For a description of odML see https://doi.org/10.3389/fninf.2011.00016 and
     https://github.com/G-Node/python-odml
     
@@ -1010,7 +1011,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
     """ Write metadata to ODML chunk.
 
     For storing any type of nested key-value pairs we define a new 
-    ODML chunk holding the metadata as XML according to the odML data model.
+    odml chunk holding the metadata as XML according to the odML data model.
     For odML see https://doi.org/10.3389/fninf.2011.00016 and
     https://github.com/G-Node/python-odml
 
@@ -1019,7 +1020,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
     Parameters
     ----------
     df: stream
-        File stream for writing ODML chunk.
+        File stream for writing odml chunk.
     metadata: nested dict
         Meta-data as key-value pairs. Values can be strings, integers,
         or dictionaries.
@@ -1059,15 +1060,101 @@ def write_odml_chunk(df, metadata, keys_written=None):
                            short_empty_elements=False))
     if len(bs) % 2 == 1:
         bs += bytes(1)
-    df.write(b'ODML')
+    df.write(b'odml')
     df.write(struct.pack('<I', len(bs)))
     df.write(bs)
     return 8 + len(bs), kw
 
 
-def write_wave(filepath, data, samplerate, metadata=None,
-               encoding=None):
-    """ Write time series and metadata to a wave file.
+def write_cue_chunk(df, locs):
+    """ Write marker positions to cue chunk.
+
+    See https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing ODML chunk.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (second column)
+        for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
+    if locs is None or len(locs) == 0:
+        return 0
+    df.write(b'CUE ')
+    df.write(struct.pack('<II', len(locs)*24, len(locs)))
+    for i in range(len(locs)):
+        df.write(struct.pack('<IIIIII', i, locs[i,0], 0, 0, 0, 0))
+    return 12 + len(locs)*24
+
+
+def write_adtl_chunks(df, locs, labels):
+    """Write associated data list chunks.
+
+    See https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file
+    
+    Parameters
+    ----------
+    df: stream
+        File stream for writing ODML chunk.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
+    if labels is None or len(labels) == 0:
+        return 0
+    labels_size = 0
+    for t in labels[:,0]:
+        n = len(t)
+        if n > 0:
+            labels_size += 12 + n + n % 2
+    text_size = 0
+    for t in labels[:,1]:
+        n = len(t)
+        if n > 0:
+            text_size += 28 + n + n % 2 
+    if labels_size == 0 and text_size == 0:
+        return 0
+    size = 4 + labels_size + text_size
+    df.write(b'LIST')
+    df.write(struct.pack('<I', size))
+    df.write(b'adtl')
+    for i in range(len(locs)):
+        # labl sub-chunk:
+        l = labels[i,0]
+        n = len(l)
+        if n > 0:
+            n += n % 2
+            df.write(b'labl')
+            df.write(struct.pack('<II', 4 + n, i))
+            df.write(f'{l:<{n}s}'.encode('latin-1'))
+        # ltxt sub-chunk:
+        t = text[i,1]
+        n = len(t)
+        if n > 0:
+            n += n % 2
+            df.write(b'ltxt')
+            df.write(struct.pack('<III', 20 + n, i, locs[i,1]))
+            df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
+            df.write(f'{t:<{n}s}'.encode('latin-1'))
+    return 8 + size
+
+
+def write_wave(filepath, data, samplerate, metadata=None, locs=None,
+               labels=None, encoding=None):
+    """ Write time series, metadata and markers to a wave file.
 
     Only 16 or 32bit PCM encoding is supported.
 
@@ -1080,9 +1167,14 @@ def write_wave(filepath, data, samplerate, metadata=None,
         values within -1.0 and 1.0).
     samplerate: float
         Sampling rate of the data in Hertz.
-    metadata: nested dict
+    metadata: None or nested dict
         Meta-data as key-value pairs. Values can be strings, integers,
         or dictionaries.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows).
     encoding: string or None
         Encoding of the data: 'PCM_32' or 'PCM_16'.
         If None or empty string use 'PCM_16'.
@@ -1122,6 +1214,12 @@ def write_wave(filepath, data, samplerate, metadata=None,
         kw.extend(xkw)
         # write remaining metadata to ODML chunk:
         write_odml_chunk(df, metadata, kw)
+        # write marker positions:
+        write_cue_chunk(df, locs)
+        # write marker spans:
+        #write_playlist_chunk(df, locs)
+        # write marker labels:
+        write_adtl_chunks(df, locs, labels)
         write_filesize(df)
 
 
