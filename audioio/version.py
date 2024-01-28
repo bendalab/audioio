@@ -1,7 +1,7 @@
 """ Version and year of the audioio package.
 """
 
-__version__ = '0.11.0'
+__version__ = '1.0.0'
 """ Current version of the audioio package. """
 
 __year__ = '2024'
