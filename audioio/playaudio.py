@@ -1276,17 +1276,17 @@ def demo():
     play(data, rate, verbose=2)
 
 
-def main(args):
+def main(*args):
     """Call demo with command line arguments.
 
     Parameters
     ----------
     args: list of strings
-        Command line arguments as provided by sys.argv
+        Command line arguments as provided by sys.argv[1:]
     """
     help = False
     mod = False
-    for arg in args[1:]:
+    for arg in args:
         if mod:
             if not select_module(arg):
                 print(f'module {arg} not installed. Exit!')
@@ -1312,4 +1312,4 @@ def main(args):
             
 if __name__ == "__main__":
     import sys
-    main(sys.argv)
+    main(*sys.argv[1:])
