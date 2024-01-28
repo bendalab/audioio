@@ -91,13 +91,13 @@ def check_format(format):
         return True
 
 
-def main(*args):
+def main(*cargs):
     """
     Command line script for converting audio files.
 
     Parameters
     ----------
-    args: list of strings
+    cargs: list of strings
         Command line arguments as returned by sys.argv.
     """
     # command line arguments:
@@ -121,7 +121,7 @@ def main(*args):
                         help='path or filename of output file.')
     parser.add_argument('file', nargs='*', default='', type=str,
                         help='input audio files')
-    args = parser.parse_args(*args)
+    args = parser.parse_args(cargs)
 
     cs = [s.strip() for s in args.channels.split(',')]
     channels = []

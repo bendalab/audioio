@@ -28,7 +28,7 @@ def test_main():
     ac.main('-l')
     ac.main('-f', 'wav', '-l')
     ac.main('-f', 'wav', '-o', destfile, filename)
-    assert_raises(SystemExit, ac.main, '-f', 'xxx', '-o', destfile, filename)
+    assert_raises(SystemExit, ac.main, 'prog', '-f', 'xxx', '-o', destfile, filename)
     ac.main('-o', destfile, filename)
     ac.main('-f', 'wav', '-o', destfile, filename)
     ac.main('-e', 'PCM_32', '-o', destfile + '.wav', filename)
