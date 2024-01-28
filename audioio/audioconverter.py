@@ -49,7 +49,7 @@ options:
   -l           list supported file formats and encodings
   -f FORMAT    audio format of output file
   -e ENCODING  audio encoding of output file
-  -c CHANNELS  Comma and dash separated list of channels to be displayed (first channel is 0).
+  -c CHANNELS  Comma and dash separated list of channels to be saved (first channel is 0).
   -o OUTPATH   path or filename of output file.
 
 version 0.11.0 by Benda-Lab (2020-2024)
@@ -61,6 +61,7 @@ import sys
 import argparse
 from .version import __version__, __year__
 from .audioloader import load_audio
+from .metadata import metadata, markers
 from .audiowriter import write_audio, available_formats, available_encodings
 
 
@@ -115,12 +116,12 @@ def main(*args):
                         help='audio encoding of output file')
     parser.add_argument('-c', dest='channels', default='',
                         type=str, metavar='CHANNELS',
-                        help='Comma and dash separated list of channels to be displayed (first channel is 0).')
+                        help='Comma and dash separated list of channels to be saved (first channel is 0).')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                         help='path or filename of output file.')
     parser.add_argument('file', nargs='*', default='', type=str,
                         help='input audio files')
-    args = parser.parse_args(args)
+    args = parser.parse_args(*args)
 
     cs = [s.strip() for s in args.channels.split(',')]
     channels = []
@@ -175,12 +176,16 @@ def main(*args):
             break
         # read in audio:
         data, samplingrate = load_audio(infile)
+        md = metadata(infile)
+        locs, labels = markers(infile)
         # write out audio:
         if len(channels) > 0:
             write_audio(outfile, data[:,channels], samplingrate,
+                        md, locs, labels,
                         format=args.audio_format, encoding=args.audio_encoding)
         else:
             write_audio(outfile, data, samplingrate,
+                        md, locs, labels,
                         format=args.audio_format, encoding=args.audio_encoding)
         # message:
         if args.verbose:
