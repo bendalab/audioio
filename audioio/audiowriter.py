@@ -24,6 +24,7 @@ import os
 import subprocess
 import numpy as np
 from .audiomodules import *
+from .wavemetadata import write_wave as audioio_write_wave
 
 
 def format_from_extension(filepath):
@@ -774,8 +775,9 @@ Each element of the list is a tuple with the module's name and the write functio
 """
 
 
-def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=0):
-    """Write audio data to file.
+def write_audio(filepath, data, samplerate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None, verbose=0):
+    """Write audio data, metadata, and marker to file.
 
     Parameters
     ----------
@@ -786,6 +788,14 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
         values within -1.0 and 1.0).
     samplerate: float
         Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 2-D array of ints
+        Marker IDs (optional first column), positions (second-last column)
+        and spans (last column) for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows).
     format: string or None
         File format. If None deduce file format from filepath.
         See `available_formats()` for possible values.
@@ -812,14 +822,24 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
     freq = 800.0
     time = np.arange(0.0, 1.0, 1/samplerate) # one second
     data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
-    write_audio('audio/file.wav', data, samplerate)
+    md = dict(Artist='underscore_')          # metadata
+    write_audio('audio/file.wav', data, samplerate, md)
     ```
     """
     if not filepath:
         raise ValueError('no file specified!')
 
+    # write audio with metadata and markers:
+    if not format:
+        format = format_from_extension(filepath)
+    if format == 'WAV':
+        try:
+            audioio_write_wave(filepath, data, samplerate, metadata,
+                               locs, labels, encoding)
+            return
+        except ValueError:
+            pass
     # write audio file by trying available modules:
-    success = False
     for lib, write_file in audio_writer_funcs:
         if not audio_modules[lib]:
             continue
@@ -833,11 +853,10 @@ def write_audio(filepath, data, samplerate, format=None, encoding=None, verbose=
                     print('  sampling rate: %g Hz' % samplerate)
                     print('  channels     : %d' % (data.shape[1] if len(data.shape) > 1 else 1))
                     print('  frames       : %d' % len(data))
-            break
+            return
         except Exception as e:
             pass
-    if not success:
-        raise IOError('failed to write data to file "%s"' % filepath)
+    raise IOError('failed to write data to file "%s"' % filepath)
 
 
 def demo(file_path, channels=2, encoding=''):
@@ -863,13 +882,13 @@ def demo(file_path, channels=2, encoding=''):
     print('done.')
     
 
-def main(args):
+def main(*args):
     """Call demo with command line arguments.
 
     Parameters
     ----------
     args: list of strings
-        Command line arguments as provided by sys.argv
+        Command line arguments as provided by sys.argv[1:]
     """
     help = False
     file_path = None
@@ -877,7 +896,7 @@ def main(args):
     mod = False
     nchan = False
     channels = 2
-    for arg in args[1:]:
+    for arg in args:
         if mod:
             select_module(arg)
             mod = False
@@ -910,4 +929,4 @@ def main(args):
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv)
+    main(*sys.argv[1:])
