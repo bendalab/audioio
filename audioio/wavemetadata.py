@@ -1190,7 +1190,7 @@ def write_adtl_chunks(df, locs, labels):
             if n > 0:
                 n += n % 2
                 df.write(b'ltxt')
-                df.write(struct.pack('<III', 20 + n, i, locs[i,-2]))
+                df.write(struct.pack('<III', 20 + n, i, locs[i,-1]))
                 df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
                 df.write(f'{t:<{n}s}'.encode('latin-1'))
     return 8 + size
@@ -1287,22 +1287,23 @@ def demo(filepath):
     filepath: string
         Path of a wave file.
     """
+    def print_meta_data(meta_data, level=0):
+        for sk in meta_data:
+            md = meta_data[sk]
+            if isinstance(md, dict):
+                print(f'{"":<{level*4}}{sk}:')
+                print_meta_data(md, level+1)
+            else:
+                v = str(md).replace('\n', '.')
+                print(f'{"":<{level*4}s}{sk:<20s}: {v}')
+        
     # read meta data:
     meta_data = metadata_wave(filepath, store_empty=False)
     
     # print meta data:
     print()
     print('meta data:')
-    for sk in meta_data:
-        md = meta_data[sk]
-        if isinstance(md, dict):
-            print(f'{sk}:')
-            for k in md:
-                v = str(md[k]).replace('\n', '.')
-                print(f'  {k:22}: {v}')
-        else:
-            v = str(md).replace('\n', '.')
-            print(f'{sk}:\n  {v}')
+    print_meta_data(meta_data)
             
     # read cues:
     locs, labels = markers_wave(filepath)
@@ -1324,17 +1325,17 @@ def main(*args):
     Parameters
     ----------
     args: list of strings
-        COmmand line arguments as returned by sys.argv
+        COmmand line arguments as returned by sys.argv[1:]
     """
-    if len(args) > 1 and (args[1] == '-h' or args[1] == '--help'):
+    if len(args) > 0 and (args[0] == '-h' or args[0] == '--help'):
         print()
         print('Usage:')
         print('  python -m audioio.wavemetadata [--help] <audio/file.wav>')
         print()
         return
 
-    if len(args) > 1:
-        demo(args[1])
+    if len(args) > 0:
+        demo(args[0])
     else:
         rate = 44100
         t = np.arange(0, 2, 1/rate)
@@ -1344,9 +1345,13 @@ def main(*args):
         bmd = dict(Description='a recording',
                    OriginationDate='2024:01:24', TimeReference=123456,
                    Version=42, CodingHistory='Test1\nTest2')
-        xmd = dict(Project='Record all', Note='still testing')
+        xmd = dict(Project='Record all', Note='still testing',
+                   Sync_Point_List=dict(Sync_Point=1,
+                                        Sync_Point_Comment='great'))
+        omd = imd.copy()
+        omd['Production'] = bmd
         md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
-                  Recording=imd, Production=bmd, Notes=xmd)
+                  Recording=omd, Notes=xmd)
         locs = np.random.randint(10, len(x)-10, (5, 2))
         locs = locs[np.argsort(locs[:,0]),:]
         locs[:,1] = np.random.randint(0, 20, len(locs))
@@ -1360,4 +1365,4 @@ def main(*args):
     
 if __name__ == "__main__":
     import sys
-    main(*sys.argv)
+    main(*sys.argv[1:])

@@ -38,12 +38,20 @@ def test_metadata():
                OriginationDate='2024:01:24', TimeReference=123456,
                Version=42, CodingHistory='Test1\nTest2')
     bbmd = {k: str(v).replace('\n', '.') for k, v in bmd.items()}
-    xmd = dict(Project='Record all', Note='still testing')
+    xmd = dict(Project='Record all', Note='still testing',
+               Sync_Point_List=dict(Sync_Point='1', Sync_Point_Comment='great'))
+    omd = iimd.copy()
+    omd['Production'] = bbmd
 
     # INFO:
     md = dict(INFO=imd)
     wm.write_wave(filename, data, rate, md)
     mdd = wm.metadata_wave(filename, False)
+    assert_true('INFO' in mdd, 'INFO section exists')
+    assert_equal(iimd, mdd['INFO'], 'INFO section matches')
+
+    with open(filename, 'rb') as sf:
+        mdd = wm.metadata_wave(sf, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
 
@@ -62,13 +70,13 @@ def test_metadata():
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
 
     # ODML:
-    md = dict(Recording=iimd, Production=bbmd, Notes=xmd)
+    md = dict(Recording=omd, Production=bbmd, Notes=xmd)
     wm.write_wave(filename, data, rate, md)
     mdd = wm.metadata_wave(filename, False)
     assert_equal(md, mdd, 'ODML sections match')
     
     md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
-              Recording=imd, Production=bmd, Notes=xmd)
+              Recording=omd, Production=bmd, Notes=xmd)
     wm.write_wave(filename, data, rate, md)
     mdd = wm.metadata_wave(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
@@ -81,9 +89,65 @@ def test_metadata():
     assert_true('Production' in mdd, 'Recording section exists')
     assert_true('Notes' in mdd, 'Recording section exists')
     assert_equal(md['Notes'], mdd['Notes'], 'Notes section matches')
+
+    # INFO:
+    imd['SUBI'] = bmd
+    md = dict(INFO=imd)
+    wm.write_wave(filename, data, rate, md)
+
+    # BEXT:
+    bmd['xxx'] = 'no bext'
+    md = dict(BEXT=bmd)
+    wm.write_wave(filename, data, rate, md)
+    
+    wm.metadata_wave(filename, True)
     os.remove(filename)
 
+    
+def test_markers():
+    data, rate = generate_data()
+    locs = np.random.randint(10, len(data)-10, (5, 2))
+    locs = locs[np.argsort(locs[:,0]),:]
+    locs[:,1] = np.random.randint(0, 20, len(locs))
+    labels = np.zeros((len(locs), 2), dtype=np.object_)
+    for i in range(len(labels)):
+        labels[i,0] = chr(ord('a') + i % 26)
+        labels[i,1] = chr(ord('A') + i % 26)*5
+    filename = 'test.wav'
+    
+    wm.write_wave(filename, data, rate, None, locs)
+    llocs, llabels = wm.markers_wave(filename)
+    assert_equal(len(llabels), 0, 'no labels')
+    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    
+    wm.write_wave(filename, data, rate, None, locs, labels)
+    llocs, llabels = wm.markers_wave(filename)
+    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(labels == llabels), 'same labels')
 
+    with open(filename, 'rb') as sf:
+        llocs, llabels = wm.markers_wave(sf)
+    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(labels == llabels), 'same labels')
+    
+    assert_raises(IndexError, wm.write_wave, filename, data, rate,
+                  None, locs, labels[:-2,:])
+
+    labels = np.zeros((len(locs), 2), dtype=np.object_)
+    wm.write_wave(filename, data, rate, None, locs, labels)
+    llocs, llabels = wm.markers_wave(filename)
+    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_equal(len(llabels), 0, 'no labels')
+
+    locs[:,-1] = 0
+    wm.write_wave(filename, data, rate, None, locs)
+    llocs, llabels = wm.markers_wave(filename)
+    assert_equal(len(llabels), 0, 'no labels')
+    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+
+    os.remove(filename)
+
+    
 def test_main():
     wm.main('-h')
     wm.main()
