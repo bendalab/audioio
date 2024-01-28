@@ -86,9 +86,9 @@ text for longer descriptions, if necessary.
 - `read_riff_chunk()`: read and check the RIFF file header.
 - `skip_chunk()`: skip over unknown RIFF chunk.
 - `read_info_chunks()`: read in meta data from info list chunk.
-- `read_bext_chunk()`: read in meta-data from the broadcast-audio extension chunk.
-- `read_ixml_chunk()`: read in meta-data from an IXML chunk.
-- `read_odml_chunk()`: read in meta-data from an odml chunk.
+- `read_bext_chunk()`: read in metadata from the broadcast-audio extension chunk.
+- `read_ixml_chunk()`: read in metadata from an IXML chunk.
+- `read_odml_chunk()`: read in metadata from an odml chunk.
 - `read_cue_chunk()`: read in marker ids and positions from cue chunk.
 - `read_playlist_chunk()`: read in marker spans from playlist chunk.
 - `read_adtl_chunks()`: read in associated data list chunks.
@@ -438,7 +438,7 @@ def read_info_chunks(sf, store_empty):
 
 
 def read_bext_chunk(sf, store_empty=True):
-    """Read in meta-data from the broadcast-audio extension chunk.
+    """Read in metadata from the broadcast-audio extension chunk.
 
     See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
     
@@ -516,7 +516,7 @@ def read_bext_chunk(sf, store_empty=True):
 
 
 def read_ixml_chunk(sf, store_empty=True):
-    """Read in meta-data from an IXML chunk.
+    """Read in metadata from an IXML chunk.
 
     See http://www.gallery.co.uk/ixml/ for the specification of iXML.
     
@@ -555,7 +555,7 @@ def read_ixml_chunk(sf, store_empty=True):
 
 
 def read_odml_chunk(sf, store_empty=True):
-    """Read in meta-data from an odml chunk.
+    """Read in metadata from an odml chunk.
 
     For storing any type of nested key-value pairs we define a new 
     odml chunk holding the metadata as XML according to the odML data model.
@@ -576,7 +576,6 @@ def read_odml_chunk(sf, store_empty=True):
     """
 
     def parse_odml(element, store_empty=True):
-        print()
         md = {}
         for e in element:
             if e.tag == 'Section':
@@ -684,7 +683,7 @@ def read_adtl_chunks(sf, locs, labels):
         if len(locs) == 0:
             warnings.warn('read_adtl_chunks() requires markers from a previous cue chunk')
         if len(labels) == 0:
-            labels = np.zeros((len(locs), 2), dtype=np.object_)
+            labels = np.zeros((len(locs), 2), dtype=object)
         while list_size >= 8:
             key = sf.read(4).decode('latin-1').rstrip(' \x00').upper()
             size, cpid = struct.unpack('<II', sf.read(8))
@@ -812,7 +811,7 @@ def markers_wave(filepath):
     else:
         sf = open(filepath, 'rb')
     locs = np.zeros((0, 3), dtype=int)
-    labels = np.zeros((0, 2), dtype=np.object_)
+    labels = np.zeros((0, 2), dtype=object)
     fsize = read_riff_chunk(sf)
     while (sf.tell() < fsize - 8):
         chunk = sf.read(4).decode('latin-1').upper()
@@ -954,7 +953,7 @@ def write_info_chunk(df, metadata):
     df: stream
         File stream for writing INFO chunk.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings, integers,
+        Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
 
     Returns
@@ -1012,7 +1011,7 @@ def write_bext_chunk(df, metadata):
     df: stream
         File stream for writing BEXT chunk.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings, integers,
+        Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
 
     Returns
@@ -1142,7 +1141,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
     df: stream
         File stream for writing odml chunk.
     metadata: nested dict
-        Meta-data as key-value pairs. Values can be strings, integers,
+        Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
     keys_written: list of str
         Keys that have already written to INFO, BEXT, IXML chunk.
@@ -1323,7 +1322,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     samplerate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
-        Meta-data as key-value pairs. Values can be strings, integers,
+        Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
     locs: None or 2-D array of ints
         Marker IDs (optional first column), positions (second-last column)
@@ -1391,7 +1390,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
 
 
 def demo(filepath):
-    """Print metadata of wave file.
+    """Print metadata and markers of wave file.
 
     Parameters
     ----------
@@ -1413,7 +1412,7 @@ def demo(filepath):
     
     # print meta data:
     print()
-    print('meta data:')
+    print('metadata:')
     print_meta_data(meta_data)
             
     # read cues:
@@ -1422,10 +1421,11 @@ def demo(filepath):
     # print marker table:
     if len(locs) > 0:
         print()
+        print('markers:')
         print(f'{"id":5} {"position":10} {"span":8} {"label":10} {"text":10}')
         for i in range(len(locs)):
             if i < len(labels):
-                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {labels[i,0]:10} {labels[i,1]:10}')
+                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {labels[i,0]:10} {labels[i,1]:30}')
             else:
                 print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {"-":10} {"-":10}')
 
@@ -1466,7 +1466,7 @@ def main(*args):
         locs = np.random.randint(10, len(x)-10, (5, 2))
         locs = locs[np.argsort(locs[:,0]),:]
         locs[:,1] = np.random.randint(0, 20, len(locs))
-        labels = np.zeros((len(locs), 2), dtype=np.object_)
+        labels = np.zeros((len(locs), 2), dtype=object)
         for i in range(len(labels)):
             labels[i,0] = chr(ord('a') + i % 26)
             labels[i,1] = chr(ord('A') + i % 26)*5

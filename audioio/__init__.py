@@ -25,8 +25,8 @@ if not '-m' in sys.argv:
     from .audiomodules import installation_instruction
     from .audioloader import load_audio, AudioLoader
     from .audioloader import blocks, despike, unwrap
-    from .metadata import load_metadata, flatten_metadata, unflatten_metadata
-    from .wavemetadata import metadata_wave
+    from .metadata import metadata, flatten_metadata, unflatten_metadata
+    from .metadata import markers
     from .audiowriter import write_audio, available_formats, available_encodings
     from .playaudio import play, beep, PlayAudio
     from .playaudio import note2freq, fade_in, fade_out, fade
