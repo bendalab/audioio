@@ -152,7 +152,7 @@ def markers(filepath):
     try:
         return markers_wave(filepath)
     except ValueError: # not a wave file
-        return np.zeros((0, 3), dtype=int), np.zeros((0, 2), dtype=np.object)
+        return np.zeros((0, 3), dtype=int), np.zeros((0, 2), dtype=object)
 
 
 def demo(filepath):
