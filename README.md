@@ -92,7 +92,7 @@ Get a nested dictionary with key-value pairs of the file's metadata via
 ```
 md = aio.metadata('audio/file.wav')
 ```
-and marker identifier, positions, spans, labels and texts via
+and marker positions, spans, labels and texts via
 ```
 locs, labels = aio.markers('audio/file.wav')
 ```

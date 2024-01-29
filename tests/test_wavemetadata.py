@@ -118,32 +118,48 @@ def test_markers():
     wm.write_wave(filename, data, rate, None, locs)
     llocs, llabels = wm.markers_wave(filename)
     assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(locs == llocs), 'same locs')
+    
+    wm.write_wave(filename, data, rate, None, locs[:,0])
+    llocs, llabels = wm.markers_wave(filename)
+    assert_equal(len(llabels), 0, 'no labels')
+    assert_equal(len(llocs), len(locs), 'same number of locs')
+    assert_true(np.all(locs[:,0] == llocs[:,0]), 'same locs')
     
     wm.write_wave(filename, data, rate, None, locs, labels)
     llocs, llabels = wm.markers_wave(filename)
-    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(locs == llocs), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
 
     with open(filename, 'rb') as sf:
         llocs, llabels = wm.markers_wave(sf)
-    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(locs == llocs), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
     
     assert_raises(IndexError, wm.write_wave, filename, data, rate,
                   None, locs, labels[:-2,:])
-
+    
+    wm.write_wave(filename, data, rate, None, locs, labels[:,0])
+    llocs, llabels = wm.markers_wave(filename)
+    assert_true(np.all(locs == llocs), 'same locs')
+    assert_true(np.all(labels[:,0] == llabels[:,0]), 'same labels')
+    
+    wm.write_wave(filename, data, rate, None, locs[:,0], labels[:,0])
+    llocs, llabels = wm.markers_wave(filename)
+    assert_true(np.all(locs[:,0] == llocs[:,0]), 'same locs')
+    assert_true(np.all(labels[:,0] == llabels[:,0]), 'same labels')
+    
     labels = np.zeros((len(locs), 2), dtype=np.object_)
     wm.write_wave(filename, data, rate, None, locs, labels)
     llocs, llabels = wm.markers_wave(filename)
-    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(locs == llocs), 'same locs')
     assert_equal(len(llabels), 0, 'no labels')
 
     locs[:,-1] = 0
     wm.write_wave(filename, data, rate, None, locs)
     llocs, llabels = wm.markers_wave(filename)
     assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs == llocs[:,1:]), 'same locs')
+    assert_true(np.all(locs == llocs), 'same locs')
 
     os.remove(filename)
 

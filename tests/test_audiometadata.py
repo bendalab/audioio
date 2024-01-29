@@ -3,8 +3,7 @@ import os
 import numpy as np
 import audioio.audiowriter as aw
 import audioio.wavemetadata as wm
-from audioio.metadata import metadata, flatten_metadata, unflatten_metadata
-from audioio.metadata import markers, main
+import audioio.audiometadata as amd
 
 
 def generate_data():
@@ -37,39 +36,39 @@ def test_metadata():
     # INFO:
     md = dict(INFO=imd)
     aw.write_audio(filename, data, rate, md)
-    mdd = metadata(filename, False)
+    mdd = amd.metadata(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
 
     with open(filename, 'rb') as sf:
-        mdd = metadata(sf, False)
+        mdd = amd.metadata(sf, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
 
     # BEXT:
     md = dict(BEXT=bmd)
     aw.write_audio(filename, data, rate, md)
-    mdd = metadata(filename, False)
+    mdd = amd.metadata(filename, False)
     assert_true('BEXT' in mdd, 'BEXT section exists')
     assert_equal(bmd, mdd['BEXT'], 'BEXT section matches')
 
     # IXML:
     md = dict(IXML=xmd)
     aw.write_audio(filename, data, rate, md)
-    mdd = metadata(filename, False)
+    mdd = amd.metadata(filename, False)
     assert_true('IXML' in mdd, 'IXML section exists')
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
 
     # ODML:
     md = dict(Recording=omd, Production=bbmd, Notes=xmd)
     aw.write_audio(filename, data, rate, md)
-    mdd = metadata(filename, False)
+    mdd = amd.metadata(filename, False)
     assert_equal(md, mdd, 'ODML sections match')
     
     md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
               Recording=omd, Production=bmd, Notes=xmd)
     aw.write_audio(filename, data, rate, md)
-    mdd = metadata(filename, False)
+    mdd = amd.metadata(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
     assert_true('BEXT' in mdd, 'BEXT section exists')
@@ -91,7 +90,7 @@ def test_metadata():
     md = dict(BEXT=bmd)
     aw.write_audio(filename, data, rate, md)
     
-    metadata(filename, True)
+    amd.metadata(filename, True)
     os.remove(filename)
 
 
@@ -108,9 +107,9 @@ def test_flatten():
     md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
               Production=bmd, Notes=xmd)
 
-    fmd = flatten_metadata(md, False)
-    fmd = flatten_metadata(md, True)
-    unflatten_metadata(fmd)
+    fmd = amd.flatten_metadata(md, False)
+    fmd = amd.flatten_metadata(md, True)
+    amd.unflatten_metadata(fmd)
 
     
 def test_markers():
@@ -125,17 +124,17 @@ def test_markers():
     filename = 'test.wav'
     
     aw.write_audio(filename, data, rate, None, locs)
-    llocs, llabels = markers(filename)
+    llocs, llabels = amd.markers(filename)
     assert_equal(len(llabels), 0, 'no labels')
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     
     aw.write_audio(filename, data, rate, None, locs, labels)
-    llocs, llabels = markers(filename)
+    llocs, llabels = amd.markers(filename)
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
 
     with open(filename, 'rb') as sf:
-        llocs, llabels = markers(sf)
+        llocs, llabels = amd.markers(sf)
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
     
@@ -144,13 +143,13 @@ def test_markers():
 
     labels = np.zeros((len(locs), 2), dtype=np.object_)
     aw.write_audio(filename, data, rate, None, locs, labels)
-    llocs, llabels = markers(filename)
+    llocs, llabels = amd.markers(filename)
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
     assert_equal(len(llabels), 0, 'no labels')
 
     locs[:,-1] = 0
     aw.write_audio(filename, data, rate, None, locs)
-    llocs, llabels = markers(filename)
+    llocs, llabels = amd.markers(filename)
     assert_equal(len(llabels), 0, 'no labels')
     assert_true(np.all(locs == llocs[:,1:]), 'same locs')
 
@@ -159,8 +158,8 @@ def test_markers():
     filename = 'test.xyz'
     with open(filename, 'wb') as df:
         df.write(b'XYZ!')
-    mmd = metadata(filename)
-    llocs, llabels = markers(filename)
+    mmd = amd.metadata(filename)
+    llocs, llabels = amd.markers(filename)
 
     os.remove(filename)
 
@@ -178,10 +177,10 @@ def test_main():
         labels[i,0] = chr(ord('a') + i % 26)
         labels[i,1] = chr(ord('A') + i % 26)*5
     aw.write_audio(filename, data, rate, md, locs, labels)
-    main('-h')
-    main('test.wav')
+    amd.main('-h')
+    amd.main('test.wav')
     aw.write_audio(filename, data, rate, md, locs)
-    main('test.wav')
+    amd.main('test.wav')
     os.remove('test.wav')
 
 

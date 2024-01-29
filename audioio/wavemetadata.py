@@ -58,14 +58,13 @@ marking them as odML.
 
 A number of different chunk types exist for handling markers or cues
 that mark specific events or regions in the audio data. In the end,
-each marker has an unique identifier, a position, a span, a label, and
-a text. Identifier, position, and span are handled with 2-D arrays of
-ints, where each row is a marker and the columns are identifier,
-position and span. For writing, the identifier column is not
-needed. Labels and texts come in another 2D array of objects pointing
-to strings. Again, rows are the markers, first column are the labels,
-and second column the texts. Try to keep the labels short, and use
-text for longer descriptions, if necessary.
+each marker has a position, a span, a label, and a text.  Position,
+and span are handled with 1-D or 2-D arrays of ints, where each row is
+a marker and the columns are position and span. The span column is
+optional. Labels and texts come in another 1-D or 2-D array of objects
+pointing to strings. Again, rows are the markers, first column are the
+labels, and second column the optional texts. Try to keep the labels
+short, and use text for longer descriptions, if necessary.
 
 ## Read metadata and markers
 
@@ -795,8 +794,8 @@ def markers_wave(filepath):
         Positions (first column) and spans (second column)
         for each marker (rows).
     labels: 2-D array of string objects
-        Marker IDs (first column), labels (second column) and
-        texts (third column) for each marker (rows).
+        Labels (first column) and texts (second column)
+        for each marker (rows).
 
     Raises
     ------
@@ -833,7 +832,7 @@ def markers_wave(filepath):
         locs = locs[idxs,:]
         if len(labels) > 0:
             labels = labels[idxs,:]
-    return locs, labels
+    return locs[:,1:], labels
 
 
 # Write wave file:
@@ -1195,8 +1194,8 @@ def write_cue_chunk(df, locs):
     df: stream
         File stream for writing cue chunk.
     locs: None or 2-D array of ints
-        Marker IDs (optional first column), positions (second-last column)
-        and spans (last column) for each marker (rows).
+        Positions (first column) and spans (optinal second column)
+        for each marker (rows).
 
     Returns
     -------
@@ -1208,7 +1207,7 @@ def write_cue_chunk(df, locs):
     df.write(b'CUE ')
     df.write(struct.pack('<II', 4 + len(locs)*24, len(locs)))
     for i in range(len(locs)):
-        df.write(struct.pack('<II4sIII', i, locs[i,-2], b'data', 0, 0, 0))
+        df.write(struct.pack('<II4sIII', i, locs[i,0], b'data', 0, 0, 0))
     return 12 + len(locs)*24
 
 
@@ -1222,24 +1221,24 @@ def write_playlist_chunk(df, locs):
     df: stream
         File stream for writing playlist chunk.
     locs: None or 2-D array of ints
-        Marker IDs (optional first column), positions (second-last column)
-        and spans (last column) for each marker (rows).
+        Positions (first column) and spans (optinal second column)
+        for each marker (rows).
 
     Returns
     -------
     n: int
         Number of bytes written to the stream.
     """
-    if locs is None or len(locs) == 0:
+    if locs is None or len(locs) == 0 or locs.shape[1] < 2:
         return 0
-    n_spans = np.sum(locs[:,-1] > 0)
+    n_spans = np.sum(locs[:,1] > 0)
     if n_spans == 0:
         return 0
     df.write(b'plst')
     df.write(struct.pack('<II', 4 + n_spans*12, n_spans))
     for i in range(len(locs)):
-        if locs[i,-1] > 0:
-            df.write(struct.pack('<III', i, locs[i,-1], 1))
+        if locs[i,1] > 0:
+            df.write(struct.pack('<III', i, locs[i,1], 1))
     return 12 + n_spans*12
 
 
@@ -1253,8 +1252,8 @@ def write_adtl_chunks(df, locs, labels):
     df: stream
         File stream for writing adtl chunk.
     locs: None or 2-D array of ints
-        Marker IDs (optional first column), positions (second-last column)
-        and spans (last column) for each marker (rows).
+        Positions (first column) and spans (optinal second column)
+        for each marker (rows).
     labels: None or 2-D array of string objects
         Labels (first column) and texts (second column) for each marker (rows).
 
@@ -1272,14 +1271,16 @@ def write_adtl_chunks(df, locs, labels):
             if n > 0:
                 labels_size += 12 + n + n % 2
     text_size = 0
-    for t in labels[:,1]:
-        if hasattr(t, '__len__'):
-            n = len(t)
-            if n > 0:
-                text_size += 28 + n + n % 2 
+    if labels.shape[1] > 1:
+        for t in labels[:,1]:
+            if hasattr(t, '__len__'):
+                n = len(t)
+                if n > 0:
+                    text_size += 28 + n + n % 2 
     if labels_size == 0 and text_size == 0:
         return 0
     size = 4 + labels_size + text_size
+    spans = locs[:,1] if locs.shape[1] > 1 else None
     df.write(b'LIST')
     df.write(struct.pack('<I', size))
     df.write(b'adtl')
@@ -1294,15 +1295,17 @@ def write_adtl_chunks(df, locs, labels):
                 df.write(struct.pack('<II', 4 + n, i))
                 df.write(f'{l:<{n}s}'.encode('latin-1'))
         # ltxt sub-chunk:
-        t = labels[i,1]
-        if hasattr(t, '__len__'):
-            n = len(t)
-            if n > 0:
-                n += n % 2
-                df.write(b'ltxt')
-                df.write(struct.pack('<III', 20 + n, i, locs[i,-1]))
-                df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
-                df.write(f'{t:<{n}s}'.encode('latin-1'))
+        if labels.shape[1] > 1:
+            t = labels[i,1]
+            if hasattr(t, '__len__'):
+                n = len(t)
+                if n > 0:
+                    n += n % 2
+                    span = spans[i] if spans is not None else 0
+                    df.write(b'ltxt')
+                    df.write(struct.pack('<III', 20 + n, i, span))
+                    df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
+                    df.write(f'{t:<{n}s}'.encode('latin-1'))
     return 8 + size
 
 
@@ -1324,11 +1327,12 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
-    locs: None or 2-D array of ints
-        Marker IDs (optional first column), positions (second-last column)
-        and spans (last column) for each marker (rows).
-    labels: None or 2-D array of string objects
-        Labels (first column) and texts (second column) for each marker (rows).
+    locs: None or 1-D or 2-D array of ints
+        Positions (first column) and spans (optinal second column)
+        for each marker (rows).
+    labels: None or 1-D or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
     encoding: string or None
         Encoding of the data: 'PCM_32' or 'PCM_16'.
         If None or empty string use 'PCM_16'.
@@ -1352,13 +1356,19 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         bits = 32
     else:
         raise ValueError(f'file encoding {encoding} not supported')
-    if not locs is None and not labels is None and len(labels) != len(locs):
+    if not locs is None and not labels is None and \
+       len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
+    # make locs and labels 2-D:
+    if not locs is None and locs.ndim == 1:
+        locs = locs.reshape(-1, 1)
+    if not labels is None and labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
     # sort markers according to their position:
     if not locs is None and len(locs) > 0:
-        idxs = np.argsort(locs[:,-2])
+        idxs = np.argsort(locs[:,0])
         locs = locs[idxs,:]
-        if not labels is None:
+        if not labels is None and len(labels) > 0:
             labels = labels[idxs,:]
     # write wave file:
     with open(filepath, 'wb') as df:
@@ -1422,12 +1432,12 @@ def demo(filepath):
     if len(locs) > 0:
         print()
         print('markers:')
-        print(f'{"id":5} {"position":10} {"span":8} {"label":10} {"text":10}')
+        print(f'{"position":10} {"span":8} {"label":10} {"text":10}')
         for i in range(len(locs)):
             if i < len(labels):
-                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {labels[i,0]:10} {labels[i,1]:30}')
+                print(f'{locs[i,0]:10} {locs[i,1]:8} {labels[i,0]:10} {labels[i,1]:30}')
             else:
-                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {"-":10} {"-":10}')
+                print(f'{locs[i,0]:10} {locs[i,1]:8} {"-":10} {"-":10}')
 
 
 def main(*args):

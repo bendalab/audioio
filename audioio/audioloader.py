@@ -25,7 +25,7 @@ import warnings
 import os.path
 import numpy as np
 from .audiomodules import *
-from .metadata import metadata, markers
+from .audiometadata import metadata, markers
 
 has_numba = False
 try:

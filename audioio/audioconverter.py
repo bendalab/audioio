@@ -61,7 +61,7 @@ import sys
 import argparse
 from .version import __version__, __year__
 from .audioloader import load_audio
-from .metadata import metadata, markers
+from .audiometadata import metadata, markers
 from .audiowriter import write_audio, available_formats, available_encodings
 
 
