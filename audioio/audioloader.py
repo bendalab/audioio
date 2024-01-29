@@ -1102,11 +1102,11 @@ class AudioLoader(BufferArray):
         Returns
         -------
         locs: 2-D array of ints
-            Positions (first column) and spans (second column)
+            Marker positions (first column) and spans (second column)
             for each marker (rows).
         labels: 2-D array of string objects
-            Marker IDs (first column), labels (second column) and
-            texts (third column) for each marker (rows).
+            Labels (first column) and texts (second column)
+            for each marker (rows).
         """
         return markers(self.filepath)
 

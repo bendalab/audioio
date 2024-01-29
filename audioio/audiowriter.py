@@ -791,11 +791,12 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
-    locs: None or 2-D array of ints
-        Marker IDs (optional first column), positions (second-last column)
-        and spans (last column) for each marker (rows).
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
     labels: None or 2-D array of string objects
-        Labels (first column) and texts (second column) for each marker (rows).
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
     format: string or None
         File format. If None deduce file format from filepath.
         See `available_formats()` for possible values.

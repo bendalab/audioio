@@ -402,6 +402,9 @@ def skip_chunk(sf):
 def read_info_chunks(sf, store_empty):
     """Read in meta data from info list chunk.
 
+    The variable `info_tags` is used to map the 4 character tags to
+    human readable key names.
+
     See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
     
     Parameters
@@ -414,7 +417,8 @@ def read_info_chunks(sf, store_empty):
     Returns
     -------
     metadata: dict
-        Dictinary with key-value pairs of info tags.
+        Dictionary with key-value pairs of info tags.
+
     """
     md = {}
     list_size = struct.unpack('<I', sf.read(4))[0]
@@ -439,6 +443,8 @@ def read_info_chunks(sf, store_empty):
 def read_bext_chunk(sf, store_empty=True):
     """Read in metadata from the broadcast-audio extension chunk.
 
+    The variable `bext_tags` lists all valid BEXT fields and their size.
+
     See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
     
     Parameters
@@ -451,6 +457,9 @@ def read_bext_chunk(sf, store_empty=True):
     Returns
     -------
     meta_data: dict
+        The meta-data of a BEXT chunk are stored in a flat dictionary
+        with the following keys:
+
         - 'Description': a free description of the sequence.
         - 'Originator': name of the originator/ producer of the audio file.
         - 'OriginatorReference': unambiguous reference allocated by the originating organisation.
@@ -517,6 +526,8 @@ def read_bext_chunk(sf, store_empty=True):
 def read_ixml_chunk(sf, store_empty=True):
     """Read in metadata from an IXML chunk.
 
+    See the variable `ixml_tags` for a list of valid tags.
+
     See http://www.gallery.co.uk/ixml/ for the specification of iXML.
     
     Parameters
@@ -529,7 +540,7 @@ def read_ixml_chunk(sf, store_empty=True):
     Returns
     -------
     metadata: nested dict
-        Dictinary with key-value pairs.
+        Dictionary with key-value pairs.
     """
     
     def parse_ixml(element, store_empty=True):
@@ -571,7 +582,7 @@ def read_odml_chunk(sf, store_empty=True):
     Returns
     -------
     metadata: nested dict
-        Dictinary with key-value pairs.
+        Dictionary with key-value pairs.
     """
 
     def parse_odml(element, store_empty=True):
@@ -612,7 +623,7 @@ def read_cue_chunk(sf):
     locs: 2-D array of ints
         Each row is a marker with unique identifier in the first column,
         position in the second column, and span in the third column.
-        The cue chunk does not encde spans, so the third column is
+        The cue chunk does not encode spans, so the third column is
         initilazied with zeros.
     """
     locs = []
@@ -673,7 +684,7 @@ def read_adtl_chunks(sf, locs, labels):
     -------
     labels: 2-D array of string objects
         Labels (first column) and texts (second column) for each marker (rows)
-        from LABL, NOTE, and LTXT chunks.
+        from LABL, NOTE (first clumn), and LTXT chunks (last column).
     """
     list_size = struct.unpack('<I', sf.read(4))[0]
     list_type = sf.read(4).decode('latin-1').upper()
@@ -791,7 +802,7 @@ def markers_wave(filepath):
     Returns
     -------
     locs: 2-D array of ints
-        Positions (first column) and spans (second column)
+        Marker positions (first column) and spans (second column)
         for each marker (rows).
     labels: 2-D array of string objects
         Labels (first column) and texts (second column)
@@ -939,11 +950,11 @@ def write_info_chunk(df, metadata):
 
     If `metadata` contains an 'INFO' key, then write the flat
     dictionary of this key as an INFO chunk. Otherwise, attempt to
-    write all m̀etadata items as an INFO chunk. The keys are
-    translated via `info_tags` back to INFO tags. If after translation
-    any key is left that is longer than 4 characters or any key has a
-    dictionary as a value (non-flat metadata), the INFO chunk is not
-    written.
+    write all metadata items as an INFO chunk. The keys are translated
+    via the `info_tags` variable back to INFO tags. If after
+    translation any key is left that is longer than 4 characters or
+    any key has a dictionary as a value (non-flat metadata), the INFO
+    chunk is not written.
 
     See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
 
@@ -961,6 +972,7 @@ def write_info_chunk(df, metadata):
         Number of bytes written to the stream.
     keys_written: list of str
         Keys written to the INFO chunk.
+
     """
     if metadata is None or len(metadata) == 0:
         return 0, []
@@ -1001,9 +1013,11 @@ def write_bext_chunk(df, metadata):
     """Write metadata to BEXT chunk.
 
     If `metadata` contains a BEXT key, and this contains valid BEXT
-    tags, then write the dictionary of that key as a broadcast-audio
-    extension chunk.  See https://tech.ebu.ch/docs/tech/tech3285.pdf
-    for specifications.
+    tags (one of the keys listed in the variable `bext_tags`), then
+    write the dictionary of that key as a broadcast-audio extension
+    chunk.
+
+    See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
 
     Parameters
     ----------
@@ -1056,9 +1070,9 @@ def write_bext_chunk(df, metadata):
 def write_ixml_chunk(df, metadata, keys_written=None):
     """Write metadata to iXML chunk.
 
-    If `metadata` contains an IXML key with valid IXML tags,
-    or the remaining tags in `metadata` are valid IXML tags,
-    then write an IXML chunk.
+    If `metadata` contains an IXML key with valid IXML tags (one of
+    those listed in the variable `ixml_tags`), or the remaining tags
+    in `metadata` are valid IXML tags, then write an IXML chunk.
 
     See http://www.gallery.co.uk/ixml/ for the specification of iXML.
 
@@ -1078,6 +1092,7 @@ def write_ixml_chunk(df, metadata, keys_written=None):
         Number of bytes written to the stream.
     keys_written: list of str
         Keys written to the IXML chunk.
+
     """
     def check_ixml(metadata):
         for k in metadata:
@@ -1194,7 +1209,7 @@ def write_cue_chunk(df, locs):
     df: stream
         File stream for writing cue chunk.
     locs: None or 2-D array of ints
-        Positions (first column) and spans (optinal second column)
+        Positions (first column) and spans (optional second column)
         for each marker (rows).
 
     Returns
@@ -1221,7 +1236,7 @@ def write_playlist_chunk(df, locs):
     df: stream
         File stream for writing playlist chunk.
     locs: None or 2-D array of ints
-        Positions (first column) and spans (optinal second column)
+        Positions (first column) and spans (optional second column)
         for each marker (rows).
 
     Returns
@@ -1252,7 +1267,7 @@ def write_adtl_chunks(df, locs, labels):
     df: stream
         File stream for writing adtl chunk.
     locs: None or 2-D array of ints
-        Positions (first column) and spans (optinal second column)
+        Positions (first column) and spans (optional second column)
         for each marker (rows).
     labels: None or 2-D array of string objects
         Labels (first column) and texts (second column) for each marker (rows).
@@ -1328,7 +1343,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
     locs: None or 1-D or 2-D array of ints
-        Positions (first column) and spans (optinal second column)
+        Marker positions (first column) and spans (optional second column)
         for each marker (rows).
     labels: None or 1-D or 2-D array of string objects
         Labels (first column) and texts (optional second column)
@@ -1446,7 +1461,7 @@ def main(*args):
     Parameters
     ----------
     args: list of strings
-        COmmand line arguments as returned by sys.argv[1:]
+        Command line arguments as returned by sys.argv[1:]
     """
     if len(args) > 0 and (args[0] == '-h' or args[0] == '--help'):
         print()

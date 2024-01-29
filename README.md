@@ -33,7 +33,8 @@ for handling metadata and marker lists.
 - *Blockwise random-access* loading of large audio files (`class AudioLoader`).
 - `blocks()` generator for iterating over blocks of data with optional overlap.
 - `write_audio()` function for writing data to an audio file. 
-- Read and write metadata and marker lists.
+- Read and write `metadata()` as nested dictionaries of key-value pairs.
+- Read and write `markers()`, i.e. cue points with spans, labels, and descriptions.
 - Platform independent playback of numpy arrays (`play()`).
 - *Synchronous* (blocking) and *asynchronous* (non blocking) playback.
 - *Automatic resampling* of data for playback to match supported sampling rates.
@@ -159,7 +160,7 @@ AudioIO provides a simple command line script to convert audio files:
 ```sh
 > audioconverter -e float -o test.wav test.mp3
 ```
-If possible, it tries to keep metadata and marker lists.
+If possible, `audioconverter` tries to keep metadata and marker lists.
 
 See API documentation of the
 [audioconverter](https://bendalab.github.io/audioio/api/audioconverter.html)

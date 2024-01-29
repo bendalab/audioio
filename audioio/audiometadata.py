@@ -13,15 +13,15 @@ python -m audioio.metadata audiofile.wav
 ## Metadata
 
 To interface the various ways to store and read metadata of audio
-files, the `metadata` module simply uses nested dictionaries.  The
+files, the `audiometadata` module simply uses nested dictionaries.  The
 keys are always strings. Values are strings, integers or other simple
 types for key-value pairs. Value strings can also be numbers followed
 by a unit. For defining subsections of key-value pairs, values can be
 dictionaries . The dictionaries can be nested to arbitrary depth.
 
 Often, audio files have very specific ways to store metadata. You can
-enforce using these by providing a key of with the name of the
-metadata type ypu want, that has as a value a dictionary with the
+enforce using these by providing a key with the name of the
+metadata type you want, that has as a value a dictionary with the
 actual metadata. For example the "INFO", "BEXT", and "iXML" chunks of
 wave files.
 
@@ -34,8 +34,7 @@ each row is a marker and the columns are position and span. The span
 column is optional. Labels and texts come in another 1-D or 2-D array
 of objects pointing to strings. Again, rows are the markers, first
 column are the labels, and second column the optional texts. Try to
-keep the labels short, and use text for longer descriptions, if
-necessary.
+keep the labels short, and use text for longer descriptions.
 
 """
  
@@ -145,10 +144,10 @@ def markers(filepath):
     Returns
     -------
     locs: 2-D array of ints
-        Positions (first column) and spans (second column)
+        Marker positions (first column) and spans (second column)
         for each marker (rows).
     labels: 2-D array of string objects
-        Labels (second column) and texts (third column)
+        Labels (first column) and texts (second column)
         for each marker (rows).
     """
     try:
