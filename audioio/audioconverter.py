@@ -62,7 +62,8 @@ import argparse
 from .version import __version__, __year__
 from .audioloader import load_audio
 from .audiometadata import metadata, markers
-from .audiowriter import write_audio, available_formats, available_encodings
+from .audiowriter import available_formats, available_encodings
+from .audiowriter import format_from_extension, write_audio
 
 
 def check_format(format):
@@ -121,6 +122,8 @@ def main(*cargs):
                         help='path or filename of output file.')
     parser.add_argument('file', nargs='*', default='', type=str,
                         help='input audio files')
+    if len(cargs) == 0:
+        cargs = sys.argv
     args = parser.parse_args(cargs)
 
     cs = [s.strip() for s in args.channels.split(',')]
@@ -160,14 +163,13 @@ def main(*cargs):
             outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
         else:
             outfile = args.outpath
-            ext = os.path.splitext(outfile)[1].lstrip('.')
             if args.audio_format:
                 outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
-            elif len(ext) > 0:
-                args.audio_format = ext
             else:
-                args.audio_format = 'wav'
-                outfile = outfile + os.extsep + args.audio_format
+                args.audio_format = format_from_extension(outfile)
+                if not args.audio_format:
+                    args.audio_format = 'wav'
+                    outfile = outfile + os.extsep + args.audio_format
         check_format(args.audio_format)
         if os.path.realpath(infile) == os.path.realpath(outfile):
             print('! cannot convert "%s" to itself !' % infile)
@@ -180,13 +182,10 @@ def main(*cargs):
         locs, labels = markers(infile)
         # write out audio:
         if len(channels) > 0:
-            write_audio(outfile, data[:,channels], samplingrate,
-                        md, locs, labels,
-                        format=args.audio_format, encoding=args.audio_encoding)
-        else:
-            write_audio(outfile, data, samplingrate,
-                        md, locs, labels,
-                        format=args.audio_format, encoding=args.audio_encoding)
+            data = data[:,channels]
+        write_audio(outfile, data, samplingrate,
+                    md, locs, labels,
+                    format=args.audio_format, encoding=args.audio_encoding)
         # message:
         if args.verbose:
             print('converted audio file "%s" to "%s"' % (infile, outfile))
