@@ -28,13 +28,15 @@ wave files.
 ## Markers
 
 Markers are used to mark specific positions or regions in the audio
-data.  Each marker has an unique identifier, a position, a span, a
-label, and a text. Identifier, position, and span are handled with 2-D
-arrays of ints, where each row is a marker and the columns are
-identifier, position and span. For writing, the identifier column is
-not needed. Labels and texts come in another 2D array of objects
-pointing to strings. Again, rows are the markers, first column are the
-labels, and second column the texts.
+data.  Each marker has a position, a span, a label, and a text.
+Position, and span are handled with 1-D or 2-D arrays of ints, where
+each row is a marker and the columns are position and span. The span
+column is optional. Labels and texts come in another 1-D or 2-D array
+of objects pointing to strings. Again, rows are the markers, first
+column are the labels, and second column the optional texts. Try to
+keep the labels short, and use text for longer descriptions, if
+necessary.
+
 """
  
 import numpy as np
@@ -146,13 +148,13 @@ def markers(filepath):
         Positions (first column) and spans (second column)
         for each marker (rows).
     labels: 2-D array of string objects
-        Marker IDs (first column), labels (second column) and
-        texts (third column) for each marker (rows).
+        Labels (second column) and texts (third column)
+        for each marker (rows).
     """
     try:
         return markers_wave(filepath)
     except ValueError: # not a wave file
-        return np.zeros((0, 3), dtype=int), np.zeros((0, 2), dtype=object)
+        return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
 
 
 def demo(filepath):
@@ -188,12 +190,12 @@ def demo(filepath):
     if len(locs) > 0:
         print()
         print('markers:')
-        print(f'{"id":5} {"position":10} {"span":8} {"label":10} {"text":10}')
+        print(f'{"position":10} {"span":8} {"label":10} {"text":10}')
         for i in range(len(locs)):
             if i < len(labels):
-                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {labels[i,0]:10} {labels[i,1]:30}')
+                print(f'{locs[i,0]:10} {locs[i,1]:8} {labels[i,0]:10} {labels[i,1]:30}')
             else:
-                print(f'{locs[i,0]:5} {locs[i,-2]:10} {locs[i,-1]:8} {"-":10} {"-":10}')
+                print(f'{locs[i,0]:10} {locs[i,1]:8} {"-":10} {"-":10}')
 
 
 def main(*args):
