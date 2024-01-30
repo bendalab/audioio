@@ -522,6 +522,7 @@ class BufferArray(object):
     - `__getitem__`: Access data.
     - `update_buffer()`: Update the buffer for a range of frames.
     - `load_buffer()`: Load a range of frames into a buffer.
+    - `set_unwrap()`: Set parameters for unwrapping clipped data.
 
     Notes
     -----
@@ -547,6 +548,9 @@ class BufferArray(object):
         self.buffersize = 0
         self.backsize = 0
         self.buffer = np.zeros((0,0))
+        self.unwrap = False
+        self.unwrap_thresh = 0.5
+        self.unwrap_clips = False
         self.verbose = verbose
 
     def __enter__(self):
@@ -570,9 +574,6 @@ class BufferArray(object):
         else:
             self.update_buffer(self.iter_counter, self.iter_counter+1)
             return self.buffer[self.iter_counter-self.offset,:]
-
-    def next(self):  # python 2
-        return self.__next__()
 
     def __getitem__(self, key):
         """Access data of the audio file."""
@@ -648,10 +649,14 @@ class BufferArray(object):
                              self.buffer[r_offset-self.offset:
                                          r_offset+r_size-self.offset,:])
             if self.unwrap:
+                data = self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:]
                 # TODO: handle edge effects!
-                unwrap(self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:])
-                self.ampl_min = -2.0
-                self.ampl_max = +2.0
+                unwrap(data, self.unwrap_thresh)
+                if self.unwrap_clips:
+                    data[data > self.ampl_max] = self.ampl_max
+                    data[data < self.ampl_min] = self.ampl_min
+                self.ampl_min *= 2
+                self.ampl_max *= 2
             if self.verbose > 1:
                 print('  loaded %d frames from %d up to %d'
                       % (self.buffer.shape[0], self.offset,
@@ -753,6 +758,12 @@ class BufferArray(object):
             allocate_buffer(size)
         return r_offset, r_size
 
+    def set_unwrap(self, thresh, clips=False):
+        """Set parameters for unwrapping clipped data.
+        """
+        self.unwrap_thresh = thresh
+        self.unwrap_clips = clips
+        self.unwrap = thresh > 1e-3
     
 class AudioLoader(BufferArray):
     """Buffered reading of audio data for random access of the data in the file.
@@ -859,9 +870,11 @@ class AudioLoader(BufferArray):
     buffer: array of floats
         The curently available data from the file.
     ampl_min: float
-        Minimum amplitude the file format supports. Always -1.0.
+        Minimum amplitude the file format supports.
+        Mostly -1.0, but -2.0 when unwrapping the data.
     ampl_max: float
-        Maximum amplitude the file format supports. Always +1.0.
+        Maximum amplitude the file format supports.
+        Mostly +1.0, but +2.0 when unwrapping the data.
 
     Methods
     -------
@@ -874,6 +887,7 @@ class AudioLoader(BufferArray):
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
     - `metadata()`: Metadata stored along with the audio data.
     - `markers()`: Markers stored along with the audio data.
+    - `set_unwrap()`: Set parameters for unwrapping clipped data.
     - `close()`: Close the file.
 
     Notes
@@ -893,7 +907,6 @@ class AudioLoader(BufferArray):
         self.filepath = None
         self.sf = None
         self.close = self._close
-        self.unwrap = False
         if filepath is not None:
             self.open(filepath, buffersize, backsize, verbose)
 
@@ -977,7 +990,6 @@ class AudioLoader(BufferArray):
             for each marker (rows).
         """
         return markers(self.filepath)
-
     
     # wave interface:        
     def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
