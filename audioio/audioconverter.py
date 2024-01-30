@@ -5,19 +5,19 @@ audioconverter -o test.wav test.mp3
 ```
 converts 'test.mp3' to 'test.wav'.
 
-The script basically reads the files with `audioloader.load_audio()`
-and writes them with `audiowriter.write_audio()`. Thus, all formats
+The script basically reads all input files with
+`audioloader.load_audio()`, combines the audio and marker data and
+writes them with `audiowriter.write_audio()`. Thus, all formats
 supported by these functions and the installed python audio modules
 are supported. This implies that MP3 files can be read via the
 [audioread](https://github.com/beetbox/audioread) module, but they
 cannot be written (use the `ffmpeg` or `avconv` tools for that).
-Output file formats are limited to what the
-[sndfile library](http://www.mega-nerd.com/libsndfile/) supports
-(this is actually a lot), provided the
+Output file formats are limited to what the [sndfile
+library](http://www.mega-nerd.com/libsndfile/) supports (this is
+actually a lot), provided the
 [SoundFile](http://pysoundfile.readthedocs.org) or
-[wavefile](https://github.com/vokimon/python-wavefile) python
-packages are
-[installed](https://bendalab.github.io/audioio/installation).
+[wavefile](https://github.com/vokimon/python-wavefile) python packages
+are [installed](https://bendalab.github.io/audioio/installation).
 
 Metadata and markers are preserved if possible.
 
@@ -42,7 +42,7 @@ usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-c C
 Convert audio file formats.
 
 positional arguments:
-  file         input audio files
+  file         one or more input audio files to be combined into a single output file
 
 options:
   -h, --help   show this help message and exit
@@ -51,16 +51,18 @@ options:
   -l           list supported file formats and encodings
   -f FORMAT    audio format of output file
   -e ENCODING  audio encoding of output file
-  -c CHANNELS  Comma and dash separated list of channels to be saved (first channel is 0).
-  -o OUTPATH   path or filename of output file.
+  -c CHANNELS  comma and dash separated list of channels to be saved (first channel is 0)
+  -o OUTPATH   path or filename of output file
 
-version 0.11.0 by Benda-Lab (2020-2024)
+version 1.0.0 by Benda-Lab (2020-2024)
 ```
+
 """
 
 import os
 import sys
 import argparse
+import numpy as np
 from .version import __version__, __year__
 from .audioloader import load_audio
 from .audiometadata import metadata, markers
@@ -119,11 +121,11 @@ def main(*cargs):
                         help='audio encoding of output file')
     parser.add_argument('-c', dest='channels', default='',
                         type=str, metavar='CHANNELS',
-                        help='Comma and dash separated list of channels to be saved (first channel is 0).')
+                        help='comma and dash separated list of channels to be saved (first channel is 0)')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
-                        help='path or filename of output file.')
-    parser.add_argument('file', nargs='?', default='', type=str,
-                        help='input audio files')
+                        help='path or filename of output file')
+    parser.add_argument('file', nargs='*', type=str,
+                        help='one or more input audio files to be combined into a single output file')
     if len(cargs) == 0:
         cargs = sys.argv
     args = parser.parse_args(cargs)
@@ -153,10 +155,10 @@ def main(*cargs):
                 print(f'  {e}')
         return
 
-    infile = args.file
-    if len(infile) == 0:
-        print('! need to specify an input file !')
+    if len(args.file) == 0:
+        print('! need to specify at least one input file !')
         sys.exit(-1)
+    infile = args.file[0]
     # output file:
     if not args.outpath or os.path.isdir(args.outpath):
         outfile = infile
@@ -182,6 +184,22 @@ def main(*cargs):
     data, samplingrate = load_audio(infile)
     md = metadata(infile)
     locs, labels = markers(infile)
+    for infile in args.file[1:]:
+        xdata, xrate = load_audio(infile)
+        if abs(samplingrate - xrate) > 1:
+            print('! cannot merge files with different sampling rates !')
+            print(f'    file "{args.file[0]}" has {samplingrate:.0f}Hz')
+            print(f'    file "{infile}" has {xrate:.0f}Hz')
+            sys.exit(-1)
+        if xdata.shape[1] != data.shape[1]:
+            print('! cannot merge files with different numbers of channels !')
+            print(f'    file "{args.file[0]}" has {data.shape[1]} channels')
+            print(f'    file "{infile}" has {xdata.shape[1]} channels')
+            sys.exit(-1)
+        data = np.vstack((data, xdata))
+        xlocs, xlabels = markers(infile)
+        locs = np.vstack((locs, xlocs))
+        labels = np.vstack((labels, xlabels))
     # write out audio:
     if len(channels) > 0:
         data = data[:,channels]

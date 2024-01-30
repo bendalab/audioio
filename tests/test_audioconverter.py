@@ -1,14 +1,13 @@
 from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises
 import os
 import numpy as np
+import audioio.audioloader as al
 import audioio.audiowriter as aw
 import audioio.audioconverter as ac
 
 
-def write_audio_file(filename):
-    samplerate = 44100.0
+def write_audio_file(filename, channels=2, samplerate = 44100):
     duration = 10.0
-    channels = 2
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
@@ -20,6 +19,7 @@ def write_audio_file(filename):
 
 def test_main():
     filename = 'test.wav'
+    filename1 = 'test1.wav'
     destfile = 'test2'
     write_audio_file(filename)
     assert_raises(SystemExit, ac.main, '-h')
@@ -40,9 +40,22 @@ def test_main():
         ac.main('-f', 'ogg', '-l')
         ac.main('-f', 'ogg', '-e', 'vorbis', '-o', destfile, filename)
         ac.main('-f', 'ogg', '-e', 'vorbis', filename)
+        os.remove(filename.replace('.wav', '.ogg'))
         os.remove(destfile+'.ogg')
-    assert_raises(SystemExit, ac.main, filename, filename)
     assert_raises(SystemExit, ac.main, filename)
     assert_raises(SystemExit, ac.main)
+    write_audio_file(filename1, 4)
+    assert_raises(SystemExit, ac.main, '-o', destfile, filename, filename1)
+    write_audio_file(filename1, 2, 20000)
+    assert_raises(SystemExit, ac.main, '-o', destfile, filename, filename1)
+    write_audio_file(filename1)
+    ac.main('-o', destfile, filename, filename1)
+    xdata, xrate = al.load_audio(filename)
+    n = len(xdata)
+    xdata, xrate = al.load_audio(filename1)
+    n += len(xdata)
+    xdata, xrate = al.load_audio(destfile + '.wav')
+    assert_equal(len(xdata), n, 'len of merged files')
     os.remove(filename)
+    os.remove(filename1)
     os.remove(destfile+'.wav')
