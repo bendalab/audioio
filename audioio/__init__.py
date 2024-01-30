@@ -12,6 +12,7 @@ if not '-m' in sys.argv:
     
     __all__ = ['audiomodules',
                'audioloader',
+               'audiotools',
                'wavemetadata',
                'audiometadata',
                'audiowriter',
@@ -23,8 +24,8 @@ if not '-m' in sys.argv:
     from .audiomodules import disable_module, enable_module, select_module
     from .audiomodules import missing_modules, missing_modules_instructions
     from .audiomodules import installation_instruction
-    from .audioloader import load_audio, AudioLoader
-    from .audioloader import blocks, despike, unwrap
+    from .audioloader import load_audio, AudioLoader, blocks
+    from .audiotools import despike, unwrap
     from .audiometadata import metadata, flatten_metadata, unflatten_metadata
     from .audiometadata import markers
     from .audiowriter import write_audio, available_formats, available_encodings
