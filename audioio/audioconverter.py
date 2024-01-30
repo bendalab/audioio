@@ -211,13 +211,13 @@ def main(*cargs):
     if len(channels) > 0:
         data = data[:,channels]
     # fix data:
-    if args.unwrap > 1e-3:
-        unwrap(data, args.unwrap)
-        data *= 0.5
     if args.unwrap_clip > 1e-3:
         unwrap(data, args.unwrap_clip)
         data[data > 1] = 1
         data[data < -1] = -1
+    elif args.unwrap > 1e-3:
+        unwrap(data, args.unwrap)
+        data *= 0.5
     # write out audio:
     write_audio(outfile, data, samplingrate,
                 md, locs, labels,
