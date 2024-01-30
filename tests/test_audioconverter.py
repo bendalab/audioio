@@ -31,6 +31,9 @@ def test_main():
     assert_raises(SystemExit, ac.main, 'prog', '-f', 'xxx', '-o', destfile, filename)
     ac.main('-o', destfile, filename)
     ac.main('-f', 'wav', '-o', destfile, filename)
+    ac.main('-u', '-f', 'wav', '-o', destfile, filename)
+    ac.main('-u', '0.8', '-f', 'wav', '-o', destfile, filename)
+    ac.main('-U', '0.8', '-f', 'wav', '-o', destfile, filename)
     ac.main('-e', 'PCM_32', '-o', destfile + '.wav', filename)
     ac.main('-f', 'wav', '-e', 'PCM_32', '-o', destfile, '-v', filename)
     if 'FLOAT' in aw.available_encodings('WAV'):

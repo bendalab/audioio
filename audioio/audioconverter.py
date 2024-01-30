@@ -66,6 +66,7 @@ import numpy as np
 from .version import __version__, __year__
 from .audioloader import load_audio
 from .audiometadata import metadata, markers
+from .audiotools import unwrap
 from .audiowriter import available_formats, available_encodings
 from .audiowriter import format_from_extension, write_audio
 
@@ -103,7 +104,7 @@ def main(*cargs):
     Parameters
     ----------
     cargs: list of strings
-        Command line arguments as returned by sys.argv.
+        Command line arguments as returned by sys.argv[1:].
     """
     # command line arguments:
     parser = argparse.ArgumentParser(add_help=True,
@@ -119,6 +120,12 @@ def main(*cargs):
     parser.add_argument('-e', dest='audio_encoding', default=None, type=str,
                         metavar='ENCODING',
                         help='audio encoding of output file')
+    parser.add_argument('-u', dest='unwrap', default=0, type=float,
+                        metavar='UNWRAP', const=0.5, nargs='?',
+                        help='unwrap clipped data with threshold and divide by two')
+    parser.add_argument('-U', dest='unwrap_clip', default=0, type=float,
+                        metavar='UNWRAP', const=0.5, nargs='?',
+                        help='unwrap clipped data with threshold and clip')
     parser.add_argument('-c', dest='channels', default='',
                         type=str, metavar='CHANNELS',
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
@@ -127,7 +134,7 @@ def main(*cargs):
     parser.add_argument('file', nargs='*', type=str,
                         help='one or more input audio files to be combined into a single output file')
     if len(cargs) == 0:
-        cargs = sys.argv
+        cargs = None
     args = parser.parse_args(cargs)
 
     cs = [s.strip() for s in args.channels.split(',')]
@@ -200,9 +207,18 @@ def main(*cargs):
         xlocs, xlabels = markers(infile)
         locs = np.vstack((locs, xlocs))
         labels = np.vstack((labels, xlabels))
-    # write out audio:
+    # select channels:
     if len(channels) > 0:
         data = data[:,channels]
+    # fix data:
+    if args.unwrap > 1e-3:
+        unwrap(data, args.unwrap)
+        data *= 0.5
+    if args.unwrap_clip > 1e-3:
+        unwrap(data, args.unwrap_clip)
+        data[data > 1] = 1
+        data[data < -1] = -1
+    # write out audio:
     write_audio(outfile, data, samplingrate,
                 md, locs, labels,
                 format=args.audio_format, encoding=args.audio_encoding)
@@ -212,4 +228,4 @@ def main(*cargs):
 
 
 if __name__ == '__main__':
-    main(*sys.argv)
+    main(*sys.argv[1:])

@@ -763,6 +763,8 @@ def main(*args):
     args: list of strings
         Command line arguments as provided by sys.argv[1:]
     """
+    if len(args) == 0:
+        args = sys.argv[1:]
     if len(args) > 0:
         if args[0] == '--version':
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
