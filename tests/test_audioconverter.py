@@ -41,6 +41,8 @@ def test_main():
         ac.main('-f', 'ogg', '-e', 'vorbis', '-o', destfile, filename)
         ac.main('-f', 'ogg', '-e', 'vorbis', filename)
         os.remove(destfile+'.ogg')
+    assert_raises(SystemExit, ac.main, filename, filename)
     assert_raises(SystemExit, ac.main, filename)
+    assert_raises(SystemExit, ac.main)
     os.remove(filename)
     os.remove(destfile+'.wav')

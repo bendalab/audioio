@@ -19,6 +19,8 @@ Output file formats are limited to what the
 packages are
 [installed](https://bendalab.github.io/audioio/installation).
 
+Metadata and markers are preserved if possible.
+
 Run
 ```sh
 audioconverter -l
@@ -83,9 +85,9 @@ def check_format(format):
         True if the requested audio format is valid.
     """
     if format and format.upper() not in available_formats():
-        print('! invalid audio format "%s"!' % format)
+        print(f'! invalid audio format "{format}"!')
         print('run')
-        print('> %s -l' % __file__ )
+        print(f'> {__file__} -l')
         print('for a list of available formats')
         return False
     else:
@@ -104,7 +106,7 @@ def main(*cargs):
     # command line arguments:
     parser = argparse.ArgumentParser(add_help=True,
         description='Convert audio file formats.',
-        epilog='version %s by Benda-Lab (2020-%s)' % (__version__, __year__))
+        epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('-v', action='store_true', dest='verbose',
                         help='print debug output')
@@ -120,7 +122,7 @@ def main(*cargs):
                         help='Comma and dash separated list of channels to be saved (first channel is 0).')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                         help='path or filename of output file.')
-    parser.add_argument('file', nargs='*', default='', type=str,
+    parser.add_argument('file', nargs='?', default='', type=str,
                         help='input audio files')
     if len(cargs) == 0:
         cargs = sys.argv
@@ -144,51 +146,51 @@ def main(*cargs):
         if not args.audio_format:
             print('available audio formats:')
             for f in available_formats():
-                print('  %s' % f)
+                print(f'  {f}')
         else:
-            print('available encodings for audio format %s:' % args.audio_format)
+            print(f'available encodings for audio format {args.audio_format}:')
             for e in available_encodings(args.audio_format):
-                print('  %s' % e)
+                print(f'  {e}')
         return
 
-    # convert files:
-    for infile in args.file:
-        # output file:
-        if not args.outpath or os.path.isdir(args.outpath):
-            outfile = infile
-            if args.outpath:
-                outfile = os.path.join(args.outpath, outfile)
-            if not args.audio_format:
-                args.audio_format = 'wav'
+    infile = args.file
+    if len(infile) == 0:
+        print('! need to specify an input file !')
+        sys.exit(-1)
+    # output file:
+    if not args.outpath or os.path.isdir(args.outpath):
+        outfile = infile
+        if args.outpath:
+            outfile = os.path.join(args.outpath, outfile)
+        if not args.audio_format:
+            args.audio_format = 'wav'
+        outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
+    else:
+        outfile = args.outpath
+        if args.audio_format:
             outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
         else:
-            outfile = args.outpath
-            if args.audio_format:
-                outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
-            else:
-                args.audio_format = format_from_extension(outfile)
-                if not args.audio_format:
-                    args.audio_format = 'wav'
-                    outfile = outfile + os.extsep + args.audio_format
-        check_format(args.audio_format)
-        if os.path.realpath(infile) == os.path.realpath(outfile):
-            print('! cannot convert "%s" to itself !' % infile)
-            if len(args.file) == 1:
-                sys.exit(-1)
-            break
-        # read in audio:
-        data, samplingrate = load_audio(infile)
-        md = metadata(infile)
-        locs, labels = markers(infile)
-        # write out audio:
-        if len(channels) > 0:
-            data = data[:,channels]
-        write_audio(outfile, data, samplingrate,
-                    md, locs, labels,
-                    format=args.audio_format, encoding=args.audio_encoding)
-        # message:
-        if args.verbose:
-            print('converted audio file "%s" to "%s"' % (infile, outfile))
+            args.audio_format = format_from_extension(outfile)
+            if not args.audio_format:
+                args.audio_format = 'wav'
+                outfile = outfile + os.extsep + args.audio_format
+    check_format(args.audio_format)
+    if os.path.realpath(infile) == os.path.realpath(outfile):
+        print(f'! cannot convert "{infile}" to itself !')
+        sys.exit(-1)
+    # read in audio:
+    data, samplingrate = load_audio(infile)
+    md = metadata(infile)
+    locs, labels = markers(infile)
+    # write out audio:
+    if len(channels) > 0:
+        data = data[:,channels]
+    write_audio(outfile, data, samplingrate,
+                md, locs, labels,
+                format=args.audio_format, encoding=args.audio_encoding)
+    # message:
+    if args.verbose:
+        print(f'converted audio file "{infile}" to "{outfile}"')
 
 
 if __name__ == '__main__':
