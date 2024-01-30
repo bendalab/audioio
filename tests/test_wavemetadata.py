@@ -5,7 +5,7 @@ import audioio.wavemetadata as wm
 
 
 def generate_data():
-    duration=2.0
+    duration = 2.0
     samplerate = 44100.0
     channels = 2
     t = np.arange(0.0, duration, 1.0/samplerate)

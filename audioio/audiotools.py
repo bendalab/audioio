@@ -4,6 +4,7 @@
 - `unwrap()`: unwrap clipped data that are folded into the available data range.
 """
  
+import warnings
 import numpy as np
 
 has_numba = False
@@ -50,7 +51,7 @@ def despike(data, thresh=1.0, n=1):
         for c in prange(data.shape[1]):
             despike_trace(data[:,c], thresh, n)
 
-    if len(data.shape) > 1:
+    if data.ndim > 1:
         if has_numba and data.shape[1] > 1:
             despike_traces(data, thresh, n)
         else:
@@ -112,28 +113,9 @@ def unwrap(data, thresh=1.5):
         for c in prange(data.shape[1]):
             unwrap_trace(data[:,c], thresh)
 
-    if len(data.shape) > 1:
-        if has_numba:
-            unwrap_traces(data, thresh)
-        else:
-            for c in range(data.shape[1]):
-                unwrap(data[:,c], thresh)
+    if not has_numba:
+        warnings.warn('unwrap() requires numba to work')
+    if data.ndim > 1:
+        unwrap_traces(data, thresh)
     else:
-        if has_numba:
-            unwrap_trace(data, thresh)
-        else:
-            delta = thresh
-            thresh = delta - 1.0
-            udata = np.asarray(data) + np.array([-2, 0, 2]).reshape(3, 1)
-            udata[0, udata[0] < -2] = -np.inf
-            udata[2, udata[2] > 2] = np.inf
-            j = 1
-            for i in range(1, udata.shape[1]):
-                jn = np.argmin(np.abs(udata[:,i] - udata[1,i-1]))
-                if j != jn and (jn == 1 or \
-                                (abs(udata[1, i-1]) > thresh and \
-                                 abs(udata[1, i] - udata[1, i-1]) > delta)):
-                    j = jn
-                udata[1, i] = udata[j, i]
-            data[:] = udata[1]
-
+        unwrap_trace(data, thresh)
