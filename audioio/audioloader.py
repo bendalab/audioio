@@ -655,8 +655,6 @@ class BufferArray(object):
                 if self.unwrap_clips:
                     data[data > self.ampl_max] = self.ampl_max
                     data[data < self.ampl_min] = self.ampl_min
-                self.ampl_min *= 2
-                self.ampl_max *= 2
             if self.verbose > 1:
                 print('  loaded %d frames from %d up to %d'
                       % (self.buffer.shape[0], self.offset,
@@ -760,11 +758,28 @@ class BufferArray(object):
 
     def set_unwrap(self, thresh, clips=False):
         """Set parameters for unwrapping clipped data.
+
+        See unwrap() function from the audioio package.
+
+        Parameters:
+        -----------
+        thresh: float
+            Threshold for detecting wrapped data.
+            If zero, do not unwrap.
+        clips: bool
+            If True, then clip the unwrapped data properly.
+            Otherwise, unwrap the data and double the
+            minimum and maximum data range
+            (self.ampl_min and self.ampl_max).
         """
         self.unwrap_thresh = thresh
         self.unwrap_clips = clips
         self.unwrap = thresh > 1e-3
-    
+        if self.unwrap and not self.unwrap_clips:
+            self.ampl_min *= 2
+            self.ampl_max *= 2
+
+            
 class AudioLoader(BufferArray):
     """Buffered reading of audio data for random access of the data in the file.
     
