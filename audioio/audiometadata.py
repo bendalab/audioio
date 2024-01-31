@@ -270,5 +270,20 @@ def main(*args):
 
 
 if __name__ == "__main__":
-    import sys
-    main(*sys.argv[1:])
+    #import sys
+    #main(*sys.argv[1:])
+
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4), eeee=dict(fff=5, ggg=dict(hh=6)), iiii=dict(jjj=7))
+    print_metadata(md)
+
+    print()
+    fmd = flatten_metadata(md)
+    print_metadata(fmd)
+
+    print()
+    fmd = flatten_metadata(md, keep_sections=True)
+    print_metadata(fmd)
+
+    print()
+    umd = unflatten_metadata(fmd)
+    print_metadata(umd)
