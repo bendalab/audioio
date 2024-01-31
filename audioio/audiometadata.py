@@ -1,12 +1,5 @@
 """Loading metadata and marker lists from audio files.
 
-- `metadata()`: read metadata of an audio file.
-- `write_metadata_text()`: write meta data into a text/yaml file.
-- `print_metadata()`: write meta data to standarad output.
-- `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
-- `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
-- `markers()`: read markers of an audio file.
-
 For a demo run the module as:
 ```
 python -m audioio.metadata audiofile.wav
@@ -27,6 +20,13 @@ metadata type you want, that has as a value a dictionary with the
 actual metadata. For example the "INFO", "BEXT", and "iXML" chunks of
 wave files.
 
+- `metadata()`: read metadata of an audio file.
+- `write_metadata_text()`: write meta data into a text/yaml file.
+- `print_metadata()`: write meta data to standard output.
+- `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
+- `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
+
+
 ## Markers
 
 Markers are used to mark specific positions or regions in the audio
@@ -37,6 +37,10 @@ column is optional. Labels and texts come in another 1-D or 2-D array
 of objects pointing to strings. Again, rows are the markers, first
 column are the labels, and second column the optional texts. Try to
 keep the labels short, and use text for longer descriptions.
+
+- `markers()`: read markers of an audio file.
+- `write_markers()`: write markers to a text file or stream.
+- `print_markers()`: write markers to standard output.
 
 """
  
@@ -65,6 +69,14 @@ def metadata(filepath, store_empty=False):
         types of values are values for the respective key. In
         particular they are strings. But other
         simple types like ints or floats are also allowed.
+
+    Example
+    -------
+
+    ```
+    md = aio.metadata('data.wav')
+    aio.print_metadata(md)
+    ```
     """
     try:
         return metadata_wave(filepath, store_empty)
@@ -73,7 +85,7 @@ def metadata(filepath, store_empty=False):
 
 
 def write_metadata_text(fh, meta, prefix='', indent=4):
-    """Write meta data into a text/yaml file.
+    """Write meta data into a text/yaml file or stream.
 
     With the default parameters, the output is a valid yaml file.
 
@@ -113,15 +125,19 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
         fh.close()
         
 
-def print_metadata(meta):
-    """Write meta data to standarad output.
+def print_metadata(meta, prefix='', indent=4):
+    """Write meta data to standard output.
 
     Parameters
     ----------
     meta: nested dict
         Key-value pairs of metadata to be written into the file.
+    prefix: str
+        This string is written at the beginning of each line.
+    indent: int
+        Number of characters used for indentation of sections.
     """
-    write_metadata_text(sys.stdout, meta, prefix='', indent=4)
+    write_metadata_text(sys.stdout, meta, prefix, indent)
 
 
 def flatten_metadata(md, keep_sections=False):
@@ -168,21 +184,23 @@ def unflatten_metadata(md):
     d: nested dict
         Hierarchical dictionary with sub-dictionaries and key-value pairs.
     """
-    umd = {}
-    cmd = [umd]
+    umd = {}       # unflattened metadata
+    cmd = [umd]    # current metadata dicts for each level of the hierarchy
+    csk = []       # current section keys
     for k in md:
         ks = k.split('.')
-        if len(ks) > len(cmd):
-            # TODO: that can be several levels of subsections!
-            cmd[-1][ks[-2]] = {}
-            cmd.append(cmd[-1][ks[-2]])
-        elif len(ks) < len(cmd):
-            # TODO: that can be several levels of subsections!
+        # go up the hierarchy:
+        for kss in reversed(ks[:len(csk)]):
+            if kss == csk[-1]:
+                break
+            csk.pop()
             cmd.pop()
-        elif len(ks) > 1 and not ks[-2] in cmd[-2]:
-            # TODO: that can be several levels of subsections!
-            cmd[-2][ks[-2]] = {}
-            cmd[-1] = cmd[-2][ks[-2]]
+        # add new sections:
+        for kss in ks[len(csk):-1]:
+            csk.append(kss)
+            cmd[-1][kss] = {}
+            cmd.append(cmd[-1][kss])
+        # add key-value pair:
         cmd[-1][ks[-1]] = md[k]
     return umd
 
@@ -210,6 +228,81 @@ def markers(filepath):
         return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
 
 
+def write_markers(fh, locs, labels=None, sep=' '):
+    """Write markers to a text file or stream.
+
+    Parameters
+    ----------
+    fh: filename or stream
+        If not a stream, the file with name `fh` is opened.
+        Otherwise `fh` is used as a stream for writing.
+    locs: 1-D or 2-D array of ints
+        Marker positions (first column) and optional spans (second column)
+        for each marker (rows).
+    labels: 1-D or 2-D array of string objects
+        Labels (first column) and optional texts (second column)
+        for each marker (rows).
+    sep: str
+        Column separator.
+    """
+    if len(locs) == 0:
+        return
+    if hasattr(fh, 'write'):
+        own_file = False
+    else:
+        own_file = True
+        fh = open(fh, 'w')
+    # what do we have:
+    if locs.ndim == 1:
+        locs = locs.reshape(-1, 1)
+    has_span = locs.shape[1] > 1
+    has_labels = False
+    has_text = False
+    if labels is not None and len(labels) > 0:
+        has_labels = True
+        if labels.ndim == 1:
+            labels = labels.reshape(-1, 1)
+        has_text = labels.shape[1] > 1
+    # table header:
+    fh.write(f'{"position":8}')
+    if has_span:
+        fh.write(f'{sep}{"span":6}')
+    if has_labels:
+        fh.write(f'{sep}{"label":10}')
+    if has_text:
+        fh.write(f'{sep}{"text"}')
+    fh.write('\n')
+    # table data:
+    for i in range(len(locs)):
+        fh.write(f'{locs[i,0]:8}')
+        if has_span:
+            fh.write(f'{sep}{locs[i,1]:6}')
+        if has_labels:
+            fh.write(f'{sep}{labels[i,0]:10}')
+        if has_text:
+            fh.write(f'{sep}{labels[i,1]}')
+    fh.write('\n')
+    if own_file:
+        fh.close()
+
+        
+def print_markers(locs, labels=None, sep=' '):
+    """Write markers to standard output.
+
+    Parameters
+    ----------
+    locs: 1-D or 2-D array of ints
+        Marker positions (first column) and optional spans (second column)
+        for each marker (rows).
+    labels: 1-D or 2-D array of string objects
+        Labels (first column) and optional texts (second column)
+        for each marker (rows).
+    sep: str
+        Column separator.
+    """
+    write_markers(sys.stdout, locs, labels, sep)
+        
+
 def demo(filepath):
     """Print metadata and markers of file.
 
@@ -218,37 +311,24 @@ def demo(filepath):
     filepath: string
         Path of anaudio file.
     """
-    def print_meta_data(meta_data, level=0):
-        for sk in meta_data:
-            md = meta_data[sk]
-            if isinstance(md, dict):
-                print(f'{"":<{level*4}}{sk}:')
-                print_meta_data(md, level+1)
-            else:
-                v = str(md).replace('\n', '.')
-                print(f'{"":<{level*4}s}{sk:<20s}: {v}')
-        
-    # read meta data:
+    print()
+    print(f'file "{filepath}":')
+    
+    # read metadata:
     meta_data = metadata(filepath, store_empty=False)
     
-    # print meta data:
+    # print metadata:
     print()
     print('metadata:')
-    print_meta_data(meta_data)
+    print_metadata(meta_data)
             
-    # read cues:
+    # read markers:
     locs, labels = markers(filepath)
     
     # print marker table:
-    if len(locs) > 0:
-        print()
-        print('markers:')
-        print(f'{"position":10} {"span":8} {"label":10} {"text":10}')
-        for i in range(len(locs)):
-            if i < len(labels):
-                print(f'{locs[i,0]:10} {locs[i,1]:8} {labels[i,0]:10} {labels[i,1]:30}')
-            else:
-                print(f'{locs[i,0]:10} {locs[i,1]:8} {"-":10} {"-":10}')
+    print()
+    print('markers:')
+    print_markers(locs, labels)
 
 
 def main(*args):
