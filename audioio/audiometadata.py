@@ -44,7 +44,9 @@ keep the labels short, and use text for longer descriptions.
 
 """
  
+import argparse
 import numpy as np
+from .version import __version__, __year__
 from .audiomodules import *
 from .wavemetadata import metadata_wave, markers_wave
 
@@ -228,7 +230,7 @@ def markers(filepath):
         return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
 
 
-def write_markers(fh, locs, labels=None, sep=' '):
+def write_markers(fh, locs, labels=None, sep=' ', prefix=''):
     """Write markers to a text file or stream.
 
     Parameters
@@ -244,6 +246,8 @@ def write_markers(fh, locs, labels=None, sep=' '):
         for each marker (rows).
     sep: str
         Column separator.
+    prefix: str
+        This string is written at the beginning of each line.
     """
     if len(locs) == 0:
         return
@@ -264,7 +268,7 @@ def write_markers(fh, locs, labels=None, sep=' '):
             labels = labels.reshape(-1, 1)
         has_text = labels.shape[1] > 1
     # table header:
-    fh.write(f'{"position":8}')
+    fh.write(f'{prefix}{"position":8}')
     if has_span:
         fh.write(f'{sep}{"span":6}')
     if has_labels:
@@ -274,7 +278,7 @@ def write_markers(fh, locs, labels=None, sep=' '):
     fh.write('\n')
     # table data:
     for i in range(len(locs)):
-        fh.write(f'{locs[i,0]:8}')
+        fh.write(f'{prefix}{locs[i,0]:8}')
         if has_span:
             fh.write(f'{sep}{locs[i,1]:6}')
         if has_labels:
@@ -286,7 +290,7 @@ def write_markers(fh, locs, labels=None, sep=' '):
         fh.close()
 
         
-def print_markers(locs, labels=None, sep=' '):
+def print_markers(locs, labels=None, sep=' ', prefix=''):
     """Write markers to standard output.
 
     Parameters
@@ -299,70 +303,71 @@ def print_markers(locs, labels=None, sep=' '):
         for each marker (rows).
     sep: str
         Column separator.
+    prefix: str
+        This string is written at the beginning of each line.
     """
-    write_markers(sys.stdout, locs, labels, sep)
+    write_markers(sys.stdout, locs, labels, sep, prefix)
         
 
-def demo(filepath):
+def demo(filepath, list_metadata, list_cues):
     """Print metadata and markers of file.
 
     Parameters
     ----------
     filepath: string
         Path of anaudio file.
+    list_metadata: bool
+        If True, list metadata only.
+    list_cues: bool
+        If True, list markers/cues only.
     """
-    print()
-    print(f'file "{filepath}":')
-    
-    # read metadata:
-    meta_data = metadata(filepath, store_empty=False)
-    
-    # print metadata:
-    print()
-    print('metadata:')
-    print_metadata(meta_data)
-            
-    # read markers:
-    locs, labels = markers(filepath)
-    
-    # print marker table:
-    print()
-    print('markers:')
-    print_markers(locs, labels)
+    if list_cues:
+        locs, labels = markers(filepath)
+        print_markers(locs, labels)
+    elif list_metadata:
+        meta_data = metadata(filepath, store_empty=False)
+        print_metadata(meta_data)
+    else:
+        meta_data = metadata(filepath, store_empty=False)
+        locs, labels = markers(filepath)
+        print('file:')
+        print(f'  {filepath}')
+        if len(meta_data) > 0:
+            print()
+            print('metadata:')
+            print_metadata(meta_data, '  ')
+        if len(locs) > 0:
+            print()
+            print('markers:')
+            print_markers(locs, labels)
 
 
-def main(*args):
+def main(*cargs):
     """Call demo with command line arguments.
 
     Parameters
     ----------
-    args: list of strings
+    cargs: list of strings
         Command line arguments as provided by sys.argv[1:]
     """
-    if len(args) == 0 or (args[0] == '-h' or args[0] == '--help'):
-        print()
-        print('Usage:')
-        print('  python -m audioio.metadata [--help] <audio/file.wav>')
-        print()
-        return
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description='Convert audio file formats.',
+        epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('-m', dest='metadata', action='store_true',
+                        help='list metadata only')
+    parser.add_argument('-c', dest='cues', action='store_true',
+                        help='list cues/markers only')
+    parser.add_argument('file', type=str,
+                        help='audio file')
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
 
-    demo(args[0])
+    demo(args.file, args.metadata, args.cues)
 
 
 if __name__ == "__main__":
-    #import sys
-    #main(*sys.argv[1:])
-
-    print_metadata(md)
-
-    print()
-    fmd = flatten_metadata(md)
-    print_metadata(fmd)
-
-    print()
-    fmd = flatten_metadata(md, keep_sections=True)
-    print_metadata(fmd)
-
-    print()
-    umd = unflatten_metadata(fmd)
-    print_metadata(umd)
+    import sys
+    main(*sys.argv[1:])

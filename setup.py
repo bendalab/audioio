@@ -63,6 +63,7 @@ setup(
     entry_points = {
         'console_scripts': [
             'audioconverter = audioio.audioconverter:main',
+            'audiometadata = audioio.audiometadata:main',
             'audiomodules = audioio.audiomodules:main',
         ]},
     install_requires = ['numpy']
