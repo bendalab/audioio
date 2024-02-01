@@ -75,6 +75,7 @@ short, and use text for longer descriptions, if necessary.
 - `write_wave()`: write time series, metadata and markers to a WAVE file.
 - `append_metadata_riff()`: append metadata chunks to RIFF file.
 - `append_markers_riff()`: append marker chunks to RIFF file.
+- `append_riff()`: append metadata and markers to an existing RIFF file.
 
 ## Helper functions for reading RIFF and WAVE files
 
@@ -1445,23 +1446,36 @@ def append_metadata_riff(df, metadata):
     -------
     n: int
         Number of bytes written to the stream.
+    tags: list of str
+        Tag names of chunks written to audio file.
     """
+    if metadata is None or len(metadata) == 0:
+        return 0, []
     n = 0
+    tags = []
     # metadata INFO chunk:
     nc, kw = write_info_chunk(df, metadata)
+    if nc > 0:
+        tags.append('LIST-INFO')
     n += nc
     # metadata BEXT chunk:
     nc, bkw = write_bext_chunk(df, metadata)
+    if nc > 0:
+        tags.append('BEXT')
     n += nc
     kw.extend(bkw)
     # metadata IXML chunk:
     nc, xkw = write_ixml_chunk(df, metadata, kw)
+    if nc > 0:
+        tags.append('IXML')
     n += nc
     kw.extend(xkw)
     # write remaining metadata to odML chunk:
     nc, _ = write_odml_chunk(df, metadata, kw)
+    if nc > 0:
+        tags.append('ODML')
     n += nc
-    return n
+    return n, tags
 
 
 def append_markers_riff(df, locs, labels=None):
@@ -1485,6 +1499,8 @@ def append_markers_riff(df, locs, labels=None):
     -------
     n: int
         Number of bytes written to the stream.
+    tags: list of str
+        Tag names of chunks written to audio file.
  
     Raises
     ------
@@ -1493,6 +1509,8 @@ def append_markers_riff(df, locs, labels=None):
     IndexError
         `locs` and `labels` differ in len.
     """
+    if locs is None or len(locs) == 0:
+        return 0, []
     if not locs is None and not labels is None and \
        len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
@@ -1508,16 +1526,23 @@ def append_markers_riff(df, locs, labels=None):
         if not labels is None and len(labels) > 0:
             labels = labels[idxs,:]
     n = 0
+    tags = []
     # write marker positions:
     nc = write_cue_chunk(df, locs)
+    if nc > 0:
+        tags.append('CUE ')
     n += nc
     # write marker spans:
     nc = write_playlist_chunk(df, locs)
+    if nc > 0:
+        tags.append('PLST')
     n += nc
     # write marker labels:
     nc = write_adtl_chunks(df, locs, labels)
+    if nc > 0:
+        tags.append('LIST-ADTL')
     n += nc
-    return n
+    return n, tags
 
 
 def write_wave(filepath, data, samplerate, metadata=None, locs=None,
@@ -1583,6 +1608,63 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         write_data_chunk(df, data, bits)
         write_filesize(df)
 
+
+def append_riff(filepath, metadata=None, locs=None, labels=None):
+    """Append metadata and markers to an existing RIFF file.
+
+    Parameters
+    ----------
+    filepath: string
+        Full path and name of the file to write.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 1-D or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+ 
+    Raises
+    ------
+    IndexError
+        `locs` and `labels` differ in len.
+    """
+    if not filepath:
+        raise ValueError('no file specified!')
+    if not locs is None and not labels is None and \
+       len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
+        raise IndexError(f'locs and labels must have same number of elements.')
+    # check RIFF file:
+    chunks = read_chunk_tags(filepath)
+    # append to RIFF file:
+    n = 0
+    with open(filepath, 'r+b') as df:
+        tags = []
+        df.seek(2, 0)
+        nc, tgs = append_metadata_riff(df, metadata)
+        n += nc
+        tags.extend(tgs)
+        nc, tgs = append_markers_riff(df, locs, labels)
+        n += nc
+        tags.extend(tgs)
+        write_filesize(df)
+        # blank out already existing chunks:
+        for tag in chunks:
+            if tag in tags:
+                if '-' in tag:
+                    xtag = tag[5:7] + 'xx'
+                else:
+                    xtag = tag[:2] + 'xx'
+                write_chunk_name(df, chunks[tag][0], xtag)
+    return 0
+                
 
 def demo(filepath):
     """Print metadata and markers of a RIFF/WAVE file.
