@@ -1,10 +1,9 @@
-"""Read and write meta data and marker lists of wave files.
+"""Read and write meta data and marker lists of riff based files.
 
-Wave files are containers of the Resource Interchange File Format
-(RIFF) and - in addition to the timeseries (audio) data and the
-necessary specifications of sampling rate, bit depth, etc. - may
-contain additional sections (called chunks) with metadata and
-markers.
+Container files of the Resource Interchange File Format (RIFF) like
+WAVE files may contain sections (called chunks) with metadata and
+markers in addition to the timeseries (audio) data and the necessary
+specifications of sampling rate, bit depth, etc.
 
 ## Metadata
 
@@ -26,12 +25,12 @@ stored.
 Here, we therefore add support for a novel odML chunk, that allows to
 store nested dictionaries of key-value pairs without any restrictions
 on the keys. The primary goal of the [odML data
-model](https://doi.org/10.3389/fninf.2011.00016) was to facilitate the
+model](https://doi.org/10.3389/fninf.2011.00016) is to facilitate the
 immediate storage of all available metadata without the need to update
 an XML schema or terminology first.
 
-To interface the various ways to store and read metadata of wave
-files, the `wavemetadata` module simply uses nested dictionaries.  The
+To interface the various ways to store and read metadata of RIFF
+files, the `riffmetadata` module simply uses nested dictionaries.  The
 keys are always strings. Values are strings or integers for key-value
 pairs. Value strings can also be numbers followed by a unit. Values
 can also be dictionaries for defining subsections of key-value
@@ -49,7 +48,7 @@ ways, `write_wave()` tries to assemble a valid BEXT chunk and an iXML
 chunk, based on the tags in `bext_tags` abd `ixml_tags`. All remaining
 metadata are then stored in an ODML chunk.
 
-When reading metadata from a wave file, INFO, BEXT and iXML chunks are
+When reading metadata from a RIFF file, INFO, BEXT and iXML chunks are
 returned as subsections with the respective keys. Metadata from an
 odML chunk are stored directly in the metadata dictionary without
 marking them as odML.
@@ -68,16 +67,16 @@ short, and use text for longer descriptions, if necessary.
 
 ## Read metadata and markers
 
-- `metadata_wave()`: read metadata from a wave file.
-- `markers_wave()`: read markers from a wave file.
+- `metadata_riff()`: read metadata from a RIFF/WAVE file.
+- `markers_riff()`: read markers from a RIFF/WAVE file.
 
 ## Write data, metadata and markers
 
-- `write_wave()`: write time series, metadata and markers to a wave file.
+- `write_wave()`: write time series, metadata and markers to a WAVE file.
 
 ## Helper functions for reading RIFF and WAVE files
 
-- `read_chunk_tags()`: read tags of all chunks contained in a wave file.
+- `read_chunk_tags()`: read tags of all chunks contained in a RIFF file.
 - `read_riff_header()`: read and check the RIFF file header.
 - `skip_chunk()`: skip over unknown RIFF chunk.
 - `read_info_chunks()`: read in meta data from info list chunk.
@@ -104,10 +103,10 @@ short, and use text for longer descriptions, if necessary.
 
 ## Demo
 
-- `demo()`: print metadata and marker list of wave file.
+- `demo()`: print metadata and marker list of RIFF/WAVE file.
 - `main()`: call demo with command line arguments.
 
-## Descriptions of the wave file format
+## Descriptions of the RIFF/WAVE file format
 
 - https://de.wikipedia.org/wiki/RIFF_WAVE
 - http://www.piclist.com/techref/io/serial/midi/wave.html
@@ -356,7 +355,7 @@ See http://www.gallery.co.uk/ixml/
 """
 
 
-# Read wave file:
+# Read RIFF/WAVE files:
 
 def read_riff_header(sf, tag=None):
     """Read and check the RIFF file header.
@@ -364,7 +363,7 @@ def read_riff_header(sf, tag=None):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF/WAVE file.
     tag: None or str
         If supplied, check whether it matches the subchunk tag.
         If it does not match, raise a ValueError.
@@ -372,7 +371,7 @@ def read_riff_header(sf, tag=None):
     Returns
     -------
     filesize: int
-        Size of the wave file in bytes.
+        Size of the RIFF file in bytes.
 
     Raises
     ------
@@ -395,7 +394,7 @@ def skip_chunk(sf):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
 
     Returns
     -------
@@ -409,12 +408,12 @@ def skip_chunk(sf):
 
 
 def read_chunk_tags(filepath):
-    """Read tags of all chunks contained in a wave file.
+    """Read tags of all chunks contained in a RIFF file.
 
     Parameters
     ----------
     filepath: string or file handle
-        The wave file.
+        The RIFF file.
 
     Returns
     -------
@@ -472,7 +471,7 @@ def read_info_chunks(sf, store_empty):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -512,7 +511,7 @@ def read_bext_chunk(sf, store_empty=True):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -595,7 +594,7 @@ def read_ixml_chunk(sf, store_empty=True):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -637,7 +636,7 @@ def read_odml_chunk(sf, store_empty=True):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -678,7 +677,7 @@ def read_cue_chunk(sf):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
 
     Returns
     -------
@@ -707,7 +706,7 @@ def read_playlist_chunk(sf, locs):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
     locs: 2-D array of ints
         Markers as returned by the `read_cue_chunk()` function.
         Each row is a marker with unique identifier in the first column,
@@ -732,7 +731,7 @@ def read_adtl_chunks(sf, locs, labels):
     Parameters
     ----------
     sf: stream
-        File stream of wave file.
+        File stream of RIFF file.
     locs: 2-D array of ints
         Markers as returned by the `read_cue_chunk()` function.
         Each row is a marker with unique identifier in the first column,
@@ -789,20 +788,20 @@ def read_adtl_chunks(sf, locs, labels):
     return labels
 
 
-def metadata_wave(filepath, store_empty=False):
-    """Read metadata from a wave file.
+def metadata_riff(filepath, store_empty=False):
+    """Read metadata from a RIFF/WAVE file.
 
     Parameters
     ----------
     filepath: string or file handle
-        The wave file.
+        The RIFF file.
     store_empty: bool
         If `False` do not add meta data with empty values.
 
     Returns
     -------
     meta_data: nested dict
-        Meta data contained in the wave file.  Keys of the nested
+        Meta data contained in the RIFF file.  Keys of the nested
         dictionaries are always strings.  If the corresponding
         values are dictionaries, then the key is the section name
         of the metadata contained in the dictionary. All other
@@ -853,13 +852,13 @@ def metadata_wave(filepath, store_empty=False):
     return meta_data
 
 
-def markers_wave(filepath):
-    """Read markers from a wave file.
+def markers_riff(filepath):
+    """Read markers from a RIFF/WAVE file.
 
     Parameters
     ----------
     filepath: string or file handle
-        The wave file.
+        The RIFF file.
 
     Returns
     -------
@@ -908,9 +907,9 @@ def markers_wave(filepath):
     return locs[:,1:], labels
 
 
-# Write wave file:
+# Write RIFF/WAVE file:
 
-def write_riff_chunk(df, filesize=0):
+def write_riff_chunk(df, filesize=0, tag='WAVE'):
     """Write RIFF file header.
 
     Parameters
@@ -919,17 +918,27 @@ def write_riff_chunk(df, filesize=0):
         File stream for writing RIFF file header.
     filesize: int
         Size of the file in bytes.
+    tag: str
+        The type of RIFF file. Default is a wave file.
+        Exactly 4 characeters long.
 
     Returns
     -------
     n: int
         Number of bytes written to the stream.
+
+    Raises
+    ------
+    ValueError
+        `tag` is not 4 characters long.
     """
+    if len(tag) != 4:
+        raise ValueError(f'file tag "{tag}" must be exactly 4 characters long')
     if filesize < 8:
         filesize = 8
     df.write(b'RIFF')
     df.write(struct.pack('<I', filesize - 8))
-    df.write(b'WAVE')
+    df.write(tag.encode('ascii'))
     return 12
 
 
@@ -1388,7 +1397,7 @@ def write_adtl_chunks(df, locs, labels):
 
 def write_wave(filepath, data, samplerate, metadata=None, locs=None,
                labels=None, encoding=None):
-    """Write time series, metadata and markers to a wave file.
+    """Write time series, metadata and markers to a WAVE file.
 
     Only 16 or 32bit PCM encoding is supported.
 
@@ -1447,7 +1456,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         locs = locs[idxs,:]
         if not labels is None and len(labels) > 0:
             labels = labels[idxs,:]
-    # write wave file:
+    # write WAVE file:
     with open(filepath, 'wb') as df:
         write_riff_chunk(df)
         if data.ndim == 1:
@@ -1477,12 +1486,12 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
 
 
 def demo(filepath):
-    """Print metadata and markers of wave file.
+    """Print metadata and markers of a RIFF/WAVE file.
 
     Parameters
     ----------
     filepath: string
-        Path of a wave file.
+        Path of a RIFF/WAVE file.
     """
     def print_meta_data(meta_data, level=0):
         for sk in meta_data:
@@ -1495,7 +1504,7 @@ def demo(filepath):
                 print(f'{"":<{level*4}s}{sk:<20s}: {v}')
         
     # read meta data:
-    meta_data = metadata_wave(filepath, store_empty=False)
+    meta_data = metadata_riff(filepath, store_empty=False)
     
     # print meta data:
     print()
@@ -1503,7 +1512,7 @@ def demo(filepath):
     print_meta_data(meta_data)
             
     # read cues:
-    locs, labels = markers_wave(filepath)
+    locs, labels = markers_riff(filepath)
     
     # print marker table:
     if len(locs) > 0:
@@ -1528,7 +1537,7 @@ def main(*args):
     if len(args) > 0 and (args[0] == '-h' or args[0] == '--help'):
         print()
         print('Usage:')
-        print('  python -m audioio.wavemetadata [--help] <audio/file.wav>')
+        print('  python -m audioio.riffmetadata [--help] <audio/file.wav>')
         print()
         return
 

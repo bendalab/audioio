@@ -2,7 +2,7 @@ from nose.tools import assert_true, assert_false, assert_equal, assert_raises
 import os
 import numpy as np
 import audioio.audiowriter as aw
-import audioio.wavemetadata as wm
+import audioio.riffmetadata as rm
 import audioio.audiometadata as amd
 
 
@@ -23,7 +23,7 @@ def test_metadata():
     filename = 'test.wav'
     imd = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
                Comment='this is test1')
-    iimd = {wm.info_tags.get(k, k): str(v) for k, v in imd.items()}
+    iimd = {rm.info_tags.get(k, k): str(v) for k, v in imd.items()}
     bmd = dict(Description='a recording',
                OriginationDate='2024:01:24', TimeReference=123456,
                Version=42, CodingHistory='Test1\nTest2')

@@ -18,7 +18,7 @@ Often, audio files have very specific ways to store metadata. You can
 enforce using these by providing a key with the name of the
 metadata type you want, that has as a value a dictionary with the
 actual metadata. For example the "INFO", "BEXT", and "iXML" chunks of
-wave files.
+RIFF/WAVE files.
 
 - `metadata()`: read metadata of an audio file.
 - `write_metadata_text()`: write meta data into a text/yaml file.
@@ -48,7 +48,7 @@ import argparse
 import numpy as np
 from .version import __version__, __year__
 from .audiomodules import *
-from .wavemetadata import metadata_wave, markers_wave
+from .riffmetadata import metadata_riff, markers_riff
 
 
 def metadata(filepath, store_empty=False):
@@ -57,7 +57,7 @@ def metadata(filepath, store_empty=False):
     Parameters
     ----------
     filepath: string or file handle
-        The wave file.
+        The RIFF/WAVE file.
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -81,8 +81,8 @@ def metadata(filepath, store_empty=False):
     ```
     """
     try:
-        return metadata_wave(filepath, store_empty)
-    except ValueError: # not a wave file
+        return metadata_riff(filepath, store_empty)
+    except ValueError: # not a RIFF file
         return {}
 
 
@@ -225,8 +225,8 @@ def markers(filepath):
         for each marker (rows).
     """
     try:
-        return markers_wave(filepath)
-    except ValueError: # not a wave file
+        return markers_riff(filepath)
+    except ValueError: # not a RIFF file
         return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
 
 

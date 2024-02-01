@@ -13,7 +13,7 @@ if not '-m' in sys.argv:
     __all__ = ['audiomodules',
                'audioloader',
                'audiotools',
-               'wavemetadata',
+               'riffmetadata',
                'audiometadata',
                'audiowriter',
                'playaudio']

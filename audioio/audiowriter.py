@@ -24,7 +24,7 @@ import os
 import subprocess
 import numpy as np
 from .audiomodules import *
-from .wavemetadata import write_wave as audioio_write_wave
+from .riffmetadata import write_wave as audioio_write_wave
 
 
 def format_from_extension(filepath):
