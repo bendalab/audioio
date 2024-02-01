@@ -357,13 +357,16 @@ See http://www.gallery.co.uk/ixml/
 
 # Read wave file:
 
-def read_riff_chunk(sf):
+def read_riff_chunk(sf, tag=None):
     """Read and check the RIFF file header.
 
     Parameters
     ----------
     sf: stream
         File stream of wave file.
+    tag: None or str
+        If supplied, check whether it matches the subchunk tag.
+        If it does not match, raise a ValueError.
 
     Returns
     -------
@@ -373,15 +376,15 @@ def read_riff_chunk(sf):
     Raises
     ------
     ValueError
-        Not a RIFF or WAVE file.
+        Not a RIFF file or subchunk tag does not match `tag`.
     """
-    str1 = sf.read(4).decode('latin-1')
-    if str1 != 'RIFF':
-        raise ValueError("Not a RIFF file.")
+    riffs = sf.read(4).decode('latin-1')
+    if riffs != 'RIFF':
+        raise ValueError('Not a RIFF file.')
     fsize = struct.unpack('<I', sf.read(4))[0] + 8
-    str2 = sf.read(4).decode('latin-1')
-    if str2 != 'WAVE':
-        raise ValueError("Not a WAVE file.")
+    subtag = sf.read(4).decode('latin-1')
+    if tag is not None and subtag != tag:
+        raise ValueError(f'Not a {tag} file.')
     return fsize
 
 
