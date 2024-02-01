@@ -75,14 +75,10 @@ short, and use text for longer descriptions, if necessary.
 
 - `write_wave()`: write time series, metadata and markers to a wave file.
 
-## Demo
-
-- `demo()`: print metadata and marker list of wave file.
-- `main()`: call demo with command line arguments.
-
 ## Helper functions for reading RIFF and WAVE files
 
-- `read_riff_chunk()`: read and check the RIFF file header.
+- `read_chunk_tags()`: read tags of all chunks contained in a wave file.
+- `read_riff_header()`: read and check the RIFF file header.
 - `skip_chunk()`: skip over unknown RIFF chunk.
 - `read_info_chunks()`: read in meta data from info list chunk.
 - `read_bext_chunk()`: read in metadata from the broadcast-audio extension chunk.
@@ -105,6 +101,11 @@ short, and use text for longer descriptions, if necessary.
 - `write_cue_chunk()`: write marker positions to cue chunk.
 - `write_playlist_chunk()`: write marker spans to playlist chunk.
 - `write_adtl_chunks()`: write associated data list chunks.
+
+## Demo
+
+- `demo()`: print metadata and marker list of wave file.
+- `main()`: call demo with command line arguments.
 
 ## Descriptions of the wave file format
 
@@ -357,7 +358,7 @@ See http://www.gallery.co.uk/ixml/
 
 # Read wave file:
 
-def read_riff_chunk(sf, tag=None):
+def read_riff_header(sf, tag=None):
     """Read and check the RIFF file header.
 
     Parameters
@@ -395,12 +396,70 @@ def skip_chunk(sf):
     ----------
     sf: stream
         File stream of wave file.
+
+    Returns
+    -------
+    size: int
+        The size of the skipped chunk in bytes.
     """
-    data = sf.read(4)
-    size = struct.unpack('<I', data)[0]
+    size = struct.unpack('<I', sf.read(4))[0]
     size += size % 2 
     sf.seek(size, 1)
+    return size
 
+
+def read_chunk_tags(filepath):
+    """Read tags of all chunks contained in a wave file.
+
+    Parameters
+    ----------
+    filepath: string or file handle
+        The wave file.
+
+    Returns
+    -------
+    tags: dict
+        Keys are the tag names of the chunks found in the file. If the
+        chunk is a list chunk, then the list type is added with a dash
+        to the key, i.e. "LIST-INFO". Values are tuples with the
+        corresponding file positions of the data of the chunk (after
+        the tag and the chunk size field) and the size of the chunk
+        data. The file position of the next chunk is thus the position
+        of the chunk plus the size of its data.
+
+    Raises
+    ------
+    ValueError
+        Not a RIFF file.
+
+    """           
+    tags = {}
+    sf = filepath
+    file_pos = None
+    if hasattr(filepath, 'read'):
+        file_pos = sf.tell()
+        sf.seek(0, 0)
+    else:
+        sf = open(filepath, 'rb')
+    fsize = read_riff_header(sf)
+    while (sf.tell() < fsize - 8):
+        chunk = sf.read(4).decode('latin-1').upper()
+        size = struct.unpack('<I', sf.read(4))[0]
+        size += size % 2 
+        fp = sf.tell()
+        if chunk == 'LIST':
+            subchunk = sf.read(4).decode('latin-1').upper()
+            tags[chunk + '-' + subchunk] = (fp, size)
+            size -= 4
+        else:
+            tags[chunk] = (fp, size)
+        sf.seek(size, 1)
+    if file_pos is None:
+        sf.close()
+    else:
+        sf.seek(file_pos, 0)
+    return tags
+    
             
 def read_info_chunks(sf, store_empty):
     """Read in meta data from info list chunk.
@@ -756,7 +815,7 @@ def metadata_wave(filepath, store_empty=False):
     Raises
     ------
     ValueError
-        Not a wave file.
+        Not a RIFF file.
     """           
     meta_data = {}
     sf = filepath
@@ -766,7 +825,7 @@ def metadata_wave(filepath, store_empty=False):
         sf.seek(0, 0)
     else:
         sf = open(filepath, 'rb')
-    fsize = read_riff_chunk(sf)
+    fsize = read_riff_header(sf)
     while (sf.tell() < fsize - 8):
         chunk = sf.read(4).decode('latin-1').upper()
         if chunk == 'LIST':
@@ -814,7 +873,7 @@ def markers_wave(filepath):
     Raises
     ------
     ValueError
-        Not a wave file.
+        Not a RIFF file.
     """           
     sf = filepath
     file_pos = None
@@ -825,7 +884,7 @@ def markers_wave(filepath):
         sf = open(filepath, 'rb')
     locs = np.zeros((0, 3), dtype=int)
     labels = np.zeros((0, 2), dtype=object)
-    fsize = read_riff_chunk(sf)
+    fsize = read_riff_header(sf)
     while (sf.tell() < fsize - 8):
         chunk = sf.read(4).decode('latin-1').upper()
         if chunk == 'CUE ':
@@ -1504,4 +1563,6 @@ def main(*args):
     
 if __name__ == "__main__":
     import sys
-    main(*sys.argv[1:])
+    #main(*sys.argv[1:])
+    x = read_chunk_tags(sys.argv[1])
+    print(x)
