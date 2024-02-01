@@ -73,6 +73,8 @@ short, and use text for longer descriptions, if necessary.
 ## Write data, metadata and markers
 
 - `write_wave()`: write time series, metadata and markers to a WAVE file.
+- `append_metadata_riff()`: append metadata chunks to RIFF file.
+- `append_markers_riff()`: append marker chunks to RIFF file.
 
 ## Helper functions for reading RIFF and WAVE files
 
@@ -91,6 +93,7 @@ short, and use text for longer descriptions, if necessary.
 
 - `write_riff_chunk()`: write RIFF file header.
 - `write_filesize()`: write the file size into the RIFF file header.
+- `write_chunk_name()`: change the name of a chunk.
 - `write_fmt_chunk()`: write format chunk.
 - `write_data_chunk()`: write data chunk.
 - `write_info_chunk()`: write metadata to LIST INFO chunk.
@@ -962,6 +965,33 @@ def write_filesize(df, filesize=None):
     df.seek(pos, 0)
 
 
+def write_chunk_name(df, pos, tag):
+    """Change the name of a chunk.
+
+    Use this to make the content of an existing chunk to be ignored by
+    overwriting its name with an unknown one.
+
+    Parameters
+    ----------
+    df: stream
+        File stream.
+    pos: int
+        Position of the chunk in the file stream.
+    tag: str
+        The type of RIFF file. Default is a wave file.
+        Exactly 4 characeters long.
+
+    Raises
+    ------
+    ValueError
+        `tag` is not 4 characters long.
+    """
+    if len(tag) != 4:
+        raise ValueError(f'file tag "{tag}" must be exactly 4 characters long')
+    df.seek(pos)
+    df.write(tag.encode('ascii'))
+
+
 def write_format_chunk(df, channels, frames, samplerate, bits=16):
     """Write format chunk.
 
@@ -1235,6 +1265,8 @@ def write_odml_chunk(df, metadata, keys_written=None):
     -------
     n: int
         Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the IXML chunk.
     """
     def build_odml(node, metadata):
         kw = []
@@ -1395,6 +1427,99 @@ def write_adtl_chunks(df, locs, labels):
     return 8 + size
 
 
+def append_metadata_riff(df, metadata):
+    """Append metadata chunks to RIFF file.
+
+    You still need to update the filesize by calling
+    `write_filesize()`.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing metadata chunks.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    """
+    n = 0
+    # metadata INFO chunk:
+    nc, kw = write_info_chunk(df, metadata)
+    n += nc
+    # metadata BEXT chunk:
+    nc, bkw = write_bext_chunk(df, metadata)
+    n += nc
+    kw.extend(bkw)
+    # metadata IXML chunk:
+    nc, xkw = write_ixml_chunk(df, metadata, kw)
+    n += nc
+    kw.extend(xkw)
+    # write remaining metadata to odML chunk:
+    nc, _ = write_odml_chunk(df, metadata, kw)
+    n += nc
+    return n
+
+
+def append_markers_riff(df, locs, labels=None):
+    """Append marker chunks to RIFF file.
+
+    You still need to update the filesize by calling
+    `write_filesize()`.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing metadata chunks.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 1-D or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+ 
+    Raises
+    ------
+    ValueError
+        Encoding not supported.
+    IndexError
+        `locs` and `labels` differ in len.
+    """
+    if not locs is None and not labels is None and \
+       len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
+        raise IndexError(f'locs and labels must have same number of elements.')
+    # make locs and labels 2-D:
+    if not locs is None and locs.ndim == 1:
+        locs = locs.reshape(-1, 1)
+    if not labels is None and labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
+    # sort markers according to their position:
+    if not locs is None and len(locs) > 0:
+        idxs = np.argsort(locs[:,0])
+        locs = locs[idxs,:]
+        if not labels is None and len(labels) > 0:
+            labels = labels[idxs,:]
+    n = 0
+    # write marker positions:
+    nc = write_cue_chunk(df, locs)
+    n += nc
+    # write marker spans:
+    nc = write_playlist_chunk(df, locs)
+    n += nc
+    # write marker labels:
+    nc = write_adtl_chunks(df, locs, labels)
+    n += nc
+    return n
+
+
 def write_wave(filepath, data, samplerate, metadata=None, locs=None,
                labels=None, encoding=None):
     """Write time series, metadata and markers to a WAVE file.
@@ -1445,17 +1570,6 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     if not locs is None and not labels is None and \
        len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
-    # make locs and labels 2-D:
-    if not locs is None and locs.ndim == 1:
-        locs = locs.reshape(-1, 1)
-    if not labels is None and labels.ndim == 1:
-        labels = labels.reshape(-1, 1)
-    # sort markers according to their position:
-    if not locs is None and len(locs) > 0:
-        idxs = np.argsort(locs[:,0])
-        locs = locs[idxs,:]
-        if not labels is None and len(labels) > 0:
-            labels = labels[idxs,:]
     # write WAVE file:
     with open(filepath, 'wb') as df:
         write_riff_chunk(df)
@@ -1464,24 +1578,9 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         else:
             write_format_chunk(df, data.shape[1], data.shape[0],
                                samplerate, bits)
+        append_metadata_riff(df, metadata)
+        append_markers_riff(df, locs, labels)
         write_data_chunk(df, data, bits)
-        # metadata INFO chunk:
-        _, kw = write_info_chunk(df, metadata)
-        # metadata BEXT chunk:
-        _, bkw = write_bext_chunk(df, metadata)
-        kw.extend(bkw)
-        # metadata IXML chunk:
-        _, xkw = write_ixml_chunk(df, metadata, kw)
-        kw.extend(xkw)
-        # write remaining metadata to odML chunk:
-        write_odml_chunk(df, metadata, kw)
-        # write marker positions:
-        write_cue_chunk(df, locs)
-        # write marker spans:
-        write_playlist_chunk(df, locs)
-        # write marker labels:
-        write_adtl_chunks(df, locs, labels)
-        # update filesize field in riff header:
         write_filesize(df)
 
 
@@ -1572,6 +1671,4 @@ def main(*args):
     
 if __name__ == "__main__":
     import sys
-    #main(*sys.argv[1:])
-    x = read_chunk_tags(sys.argv[1])
-    print(x)
+    main(*sys.argv[1:])
