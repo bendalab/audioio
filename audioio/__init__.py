@@ -27,7 +27,7 @@ if not '-m' in sys.argv:
     from .audioloader import load_audio, AudioLoader, blocks
     from .audiotools import despike, unwrap
     from .audiometadata import metadata, flatten_metadata, unflatten_metadata
-    from .audiometadata import write_metadata, print_metadata
+    from .audiometadata import write_metadata_text, print_metadata
     from .audiometadata import markers, write_markers, print_markers
     from .audiowriter import write_audio, available_formats, available_encodings
     from .playaudio import play, beep, PlayAudio

@@ -95,21 +95,20 @@ def test_metadata():
 
 
 def test_flatten():
-    imd = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
-               Comment='this is test1')
-    iimd = {wm.info_tags.get(k, k): str(v) for k, v in imd.items()}
-    bmd = dict(Description='a recording',
-               OriginationDate='2024:01:24', TimeReference=123456,
-               Version=42, CodingHistory='Test1\nTest2')
-    bbmd = {k: str(v).replace('\n', '.') for k, v in bmd.items()}
-    xmd = dict(Project='Record all', Note='still testing',
-               Sync_Point_List=dict(Sync_Point='1', Sync_Point_Comment='great'))
-    md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
-              Production=bmd, Notes=xmd)
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4),
+              eeee=dict(fff=5, ggg=dict(hh=6)),
+              iiii=dict(jjj=7))
 
     fmd = amd.flatten_metadata(md, False)
     fmd = amd.flatten_metadata(md, True)
     amd.unflatten_metadata(fmd)
+
+    amd.print_metadata(md)
+    amd.print_metadata(md, '# ')
+    amd.print_metadata(md, '# ', 2)
+    filename = 'test.txt'
+    amd.write_metadata_text(filename, md)
+    os.remove(filename)
 
     
 def test_markers():
@@ -176,6 +175,14 @@ def test_markers():
     mmd = amd.metadata(filename)
     llocs, llabels = amd.markers(filename)
 
+    os.remove(filename)
+
+    amd.print_markers(locs[:,0])
+    amd.print_markers(locs)
+    amd.print_markers(locs, labels[:,0])
+    amd.print_markers(locs, labels)
+    filename = 'test.txt'
+    amd.write_markers(filename, locs, labels)
     os.remove(filename)
 
     
