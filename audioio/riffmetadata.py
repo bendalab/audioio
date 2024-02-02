@@ -749,7 +749,7 @@ def read_adtl_chunks(sf, locs, labels):
     -------
     labels: 2-D array of string objects
         Labels (first column) and texts (second column) for each marker (rows)
-        from LABL, NOTE (first clumn), and LTXT chunks (last column).
+        from LABL, NOTE (first column), and LTXT chunks (last column).
     """
     list_size = struct.unpack('<I', sf.read(4))[0]
     list_type = sf.read(4).decode('latin-1').upper()
@@ -819,6 +819,16 @@ def metadata_riff(filepath, store_empty=False):
     ------
     ValueError
         Not a RIFF file.
+
+    Examples
+    --------
+    ```
+    from audioio.riffmetadata import riff_metadata
+    from audioio import print_metadata
+
+    md = riff_metadata('audio/file.wav')
+    print_metadata(md)
+    ```
     """           
     meta_data = {}
     sf = filepath
@@ -877,6 +887,16 @@ def markers_riff(filepath):
     ------
     ValueError
         Not a RIFF file.
+
+    Examples
+    --------
+    ```
+    from audioio.riffmetadata import riff_markers
+    from audioio import print_markers
+
+    locs, labels = riff_markers('audio/file.wav')
+    print_markers(locs, labels)
+    ```
     """           
     sf = filepath
     file_pos = None
@@ -1579,6 +1599,25 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         Encoding not supported.
     IndexError
         `locs` and `labels` differ in len.
+
+    See Also
+    --------
+    audioio.audiowriter.write_audio()
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio.riffmetadata import write_wave
+    
+    samplerate = 28000.0
+    freq = 800.0
+    time = np.arange(0.0, 1.0, 1/samplerate) # one second
+    data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+    md = dict(Artist='underscore_')          # metadata
+
+    write_wave('audio/file.wav', data, samplerate, md)
+    ```
     """
     if not filepath:
         raise ValueError('no file specified!')
@@ -1635,6 +1674,16 @@ def append_riff(filepath, metadata=None, locs=None, labels=None):
     ------
     IndexError
         `locs` and `labels` differ in len.
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio.riffmetadata import append_riff
+    
+    md = dict(Artist='underscore_')    # metadata
+    append_riff('audio/file.wav', md)  # append them to existing audio file
+    ```
     """
     if not filepath:
         raise ValueError('no file specified!')

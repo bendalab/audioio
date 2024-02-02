@@ -72,12 +72,12 @@ def metadata(filepath, store_empty=False):
         particular they are strings. But other
         simple types like ints or floats are also allowed.
 
-    Example
-    -------
-
+    Examples
+    --------
     ```
-    md = aio.metadata('data.wav')
-    aio.print_metadata(md)
+    from audioio import metadata, print_metadata
+    md = metadata('data.wav')
+    print_metadata(md)
     ```
     """
     try:
@@ -102,6 +102,14 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
         This string is written at the beginning of each line.
     indent: int
         Number of characters used for indentation of sections.
+
+    Examples
+    --------
+    ```
+    from audioio import write_metadata
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)))
+    write_metadata('info.txt', md)
+    ```
     """
     
     def write_dict(df, meta, level):
@@ -138,6 +146,22 @@ def print_metadata(meta, prefix='', indent=4):
         This string is written at the beginning of each line.
     indent: int
         Number of characters used for indentation of sections.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)), iiii=dict(jjj=6))
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            hh: 5
+    iiii:
+        jjj: 6
+    ```
     """
     write_metadata_text(sys.stdout, meta, prefix, indent)
 
@@ -156,6 +180,30 @@ def flatten_metadata(md, keep_sections=False):
     -------
     d: dict
         Non-nested dict containing all key-value pairs of `md`.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, flatten_metadata
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)), iiii=dict(jjj=6))
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            hh: 5
+    iiii:
+        jjj: 6
+    
+    >>> fmd = flatten_metadata(md, keep_sections=True)
+    >>> print_metadata(fmd)
+    aaaa       : 2
+    bbbb.ccc   : 3
+    bbbb.ddd   : 4
+    bbbb.eee.hh: 5
+    iiii.jjj   : 6
+    ```
     """
     def flatten(cd, section):
         df = {}
@@ -185,6 +233,30 @@ def unflatten_metadata(md):
     -------
     d: nested dict
         Hierarchical dictionary with sub-dictionaries and key-value pairs.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, unflatten_metadata
+    >>> fmd = {'aaaa': 2, 'bbbb.ccc': 3, 'bbbb.ddd': 4, 'bbbb.eee.hh': 5, 'iiii.jjj': 6}
+    >>> print_metadata(fmd)
+    aaaa       : 2
+    bbbb.ccc   : 3
+    bbbb.ddd   : 4
+    bbbb.eee.hh: 5
+    iiii.jjj   : 6
+    
+    >>> md = unflatten_metadata(fmd)
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            hh: 5
+    iiii:
+        jjj: 6
+    ```
     """
     umd = {}       # unflattened metadata
     cmd = [umd]    # current metadata dicts for each level of the hierarchy
@@ -223,6 +295,14 @@ def markers(filepath):
     labels: 2-D array of string objects
         Labels (first column) and texts (second column)
         for each marker (rows).
+
+    Examples
+    --------
+    ```
+    from audioio import markers, print_markers
+    locs, labels = markers('data.wav')
+    print_markers(md)
+    ```
     """
     try:
         return markers_riff(filepath)

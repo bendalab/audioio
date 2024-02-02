@@ -6,7 +6,7 @@
 - `format_from_extension()`: deduce audio file format from file extension.
 
 The data to be written are 1-D or 2-D numpy arrays of floats ranging
-between -1 and 1 with first axis time and second axis channel.
+between -1 and 1 with first axis time and (optional) second axis channel.
 
 For support of more audio formats, you might need to install
 additional packages.
@@ -802,6 +802,15 @@ def available_formats():
     -------
     formats: list of strings
         List of supported file formats as strings.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import available_formats
+    >>> f = available_formats()
+    >>> printf(f)
+    ['3G2', '3GP', 'A64', 'AC3', 'ADTS', 'ADX', 'AIFF', ...,  'WAV', 'WAVEX', 'WEBM', 'WEBM_CHUNK', 'WEBM_DASH_MANIFEST', 'WEBP', 'WEBVTT', 'WTV', 'WV', 'WVE', 'XI', 'XV', 'YUV4MPEGPIPE']
+    ```
     """
     formats = set()
     for module, formats_func in audio_formats_funcs:
@@ -835,6 +844,15 @@ def available_encodings(format):
     -------
     encodings: list of strings
         List of supported encodings as strings.
+
+    Example
+    -------
+    ```
+    >>> from audioio import available_encodings
+    >>> e = available_encodings()
+    >>> printf(e)
+    ['AAC', 'AC3', ..., 'PCM_16', 'PCM_24', 'PCM_32', ..., 'WAVPACK', 'WMAV1', 'WMAV2']
+    ```
     """
     got_sndfile = False
     encodings = set()
@@ -911,6 +929,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     time = np.arange(0.0, 1.0, 1/samplerate) # one second
     data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
     md = dict(Artist='underscore_')          # metadata
+
     write_audio('audio/file.wav', data, samplerate, md)
     ```
     """

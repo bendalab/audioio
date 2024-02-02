@@ -1,17 +1,5 @@
 """Query and control installation status and availability of audio modules.
 
-- `installed_modules()`: installed audio modules.
-- `available_modules()`: installed and enabled audio modules.
-- `unavailable_modules()`: audio modules that are not installed and not enabled.
-- `disable_module()`: disable audio module.
-- `enable_module()`: enable audio modules provided they are installed.
-- `select_module()`: select (enable) a single audio module and disable all others.
-- `list_modules()`: print list of all supported modules and their installation status.
-- `missing_modules()`: missing audio modules that are recommended to be installed.
-- `missing_modules_instructions()`: print installation instructions for missing but useful audio modules.
-- `installation_instruction()`: instructions on how to install a specific audio module.
-- `main()`: command line program for listing installation status of audio modules.
-
 `list_modules()` and `installed_modules()` let you query which audio
 modules are currently installed on your system.
 
@@ -30,11 +18,23 @@ should be used by the audioio functions.
 you query which audio modules are installed and available and which
 modules are not available on your system.
 
-For an overview on python modules regarding file I/O see, for example,
-http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
 
-For an overview on packages for playing and recording audio, see
-https://realpython.com/playing-and-recording-sound-python/
+## Functions
+
+- `installed_modules()`: installed audio modules.
+- `available_modules()`: installed and enabled audio modules.
+- `unavailable_modules()`: audio modules that are not installed and not enabled.
+- `disable_module()`: disable audio module.
+- `enable_module()`: enable audio modules provided they are installed.
+- `select_module()`: select (enable) a single audio module and disable all others.
+- `list_modules()`: print list of all supported modules and their installation status.
+- `missing_modules()`: missing audio modules that are recommended to be installed.
+- `missing_modules_instructions()`: print installation instructions for missing but useful audio modules.
+- `installation_instruction()`: instructions on how to install a specific audio module.
+- `main()`: command line program for listing installation status of audio modules.
+
+
+## Script
 
 Run this module as a script
 ```sh
@@ -97,6 +97,15 @@ or alternatively from your distribution's package:
 
 sudo apt install python3-soundfile
 ```
+
+## Links
+
+For an overview on python modules regarding file I/O see, for example,
+http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb
+
+For an overview on packages for playing and recording audio, see
+https://realpython.com/playing-and-recording-sound-python/
+
 """
 
 import sys

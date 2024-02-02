@@ -32,13 +32,12 @@ for handling metadata and marker lists.
 - `load_audio()` function for loading a whole audio file.
 - *Blockwise random-access* loading of large audio files (`class AudioLoader`).
 - `blocks()` generator for iterating over blocks of data with optional overlap.
-- `write_audio()` function for writing data to an audio file. 
-- Read and write `metadata()` as nested dictionaries of key-value pairs.
-- Read and write `markers()`, i.e. cue points with spans, labels, and descriptions.
-- Platform independent playback of numpy arrays (`play()`).
-- *Synchronous* (blocking) and *asynchronous* (non blocking) playback.
-- *Automatic resampling* of data for playback to match supported sampling rates.
-- Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages.
+- `write_audio()` function for writing data, metadata, and markers to an audio file. 
+- Read `metadata()` as nested dictionaries of key-value pairs.
+- Read `markers()`, i.e. cue points with spans, labels, and descriptions.
+- Platform independent, synchronous (blocking) and asynchronous (non blocking)playback of numpy arrays (`play()`).
+- Automatic resampling of data for playback to match supported sampling rates.
+- Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages ([audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).
 
 
 ## Installation
@@ -89,13 +88,16 @@ plt.plot(time, data[:,0])
 plt.show()
 ```
 
-Get a nested dictionary with key-value pairs of the file's metadata via
+Get a nested dictionary with key-value pairs of the file's metadata
+and print it via
 ```
 md = aio.metadata('audio/file.wav')
+aio.print_metadata(md)
 ```
-and marker positions, spans, labels and texts via
+Get and print marker positions, spans, labels and texts via
 ```
 locs, labels = aio.markers('audio/file.wav')
+aio.print_markers(locs, labels)
 ```
 
 You can also randomly access chunks of data of an audio file, without

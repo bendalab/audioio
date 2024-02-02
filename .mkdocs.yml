@@ -7,9 +7,6 @@ edit_uri: ""
 site_author: Benda-Lab
 
 theme: readthedocs
-
-markdown_extensions:
-    - markdown_include.include
     
 nav:
     - Home: 'index.md'
