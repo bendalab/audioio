@@ -9,7 +9,7 @@ def test_despike():
     channels = 4
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = 0.9*np.sin(2.0*np.pi*880.0*t)
-    idx = np.random.randint(1, len(t)//10-1, 20)*10
+    idx = np.random.randint(1, len(t)//10-20, 20)*10
     data[idx] += 1
     data[idx+25] -= 1
     
@@ -46,7 +46,7 @@ def test_despike2():
     channels = 4
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = 0.9*np.sin(2.0*np.pi*880.0*t)
-    idx = np.random.randint(1, len(t)//10-1, 20)*10
+    idx = np.random.randint(1, len(t)//10-20, 20)*10
     data[idx] += 1
     data[idx+1] += 1
     data[idx+25] -= 1
