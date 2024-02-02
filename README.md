@@ -130,7 +130,8 @@ with aio.AudioLoader('audio/file.wav', 60.0) as data:
 
 See API documentation of the
 [audioloader](https://bendalab.github.io/audioio/api/audioloader.html)
-and [metadata](https://bendalab.github.io/audioio/api/metadata.html)
+and
+[audiometadata](https://bendalab.github.io/audioio/api/audiometadata.html)
 modules for details.
 
 
@@ -198,7 +199,44 @@ Simply run in your terminal
 ```sh
 > audiomodules
 ```
-to see which audio modules you have already installed on your system,
+and you get something like
+```
+Status of audio packages on this machine:
+-----------------------------------------
+
+wave              is  installed (F)
+ewave             not installed (F)
+scipy.io.wavfile  is  installed (F)
+soundfile         is  installed (F)
+wavefile          not installed (F)
+audioread         is  installed (F)
+pydub             is  installed (F)
+pyaudio           not installed (D)
+sounddevice       not installed (D)
+simpleaudio       NOT installed (D)
+soundcard         not installed (D)
+ossaudiodev       is  installed (D)
+winsound          not installed (D)
+
+F: file I/O, D: audio device
+
+For better performance you should install the following modules:
+
+simpleaudio:
+------------
+The simpleaudio package is a lightweight package
+for cross-platform audio playback.
+For documentation see https://simpleaudio.readthedocs.io
+
+First, install the following packages:
+
+sudo apt install python3-dev libasound2-dev
+
+Install the simpleaudio module with pip:
+
+sudo pip install simpleaudio
+```
+Use this to see which audio modules you have already installed on your system,
 which ones are recommended to install, and how to install them.
 
 See API documentation of the
