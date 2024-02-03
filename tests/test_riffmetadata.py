@@ -25,13 +25,64 @@ def test_write():
                   None, encoding=encoding)
     assert_raises(ValueError, rm.write_wave, filename, data, rate,
                   None, encoding='XYZ')
+    with open(filename, 'wb') as df:
+        rm.write_riff_chunk(df, 1000)
+        rm.write_riff_chunk(df)
+        rm.write_riff_chunk(df, 1000, '1234')
+        assert_raises(ValueError, rm.write_riff_chunk, df, 2000, tag='12345')
+        rm.write_chunk_name(df, 12, '1234')
+        assert_raises(ValueError, rm.write_chunk_name, df, 12, '123456')
+        n, t = rm.write_info_chunk(df, None)
+        assert_equal(n, 0, 'no info chunk')
+        assert_equal(len(t), 0, 'no info chunk')
+        n, t = rm.write_info_chunk(df, dict(INFO=dict(IART='John Doe', TITLX='TLDR')))
+        assert_equal(n, 0, 'no info chunk')
+        assert_equal(len(t), 0, 'no info chunk')
+        n, t = rm.write_bext_chunk(df, None)
+        assert_equal(n, 0, 'no bext chunk')
+        assert_equal(len(t), 0, 'no bext chunk')
+        n, t = rm.write_ixml_chunk(df, None)
+        assert_equal(n, 0, 'no ixml chunk')
+        assert_equal(len(t), 0, 'no ixml chunk')
+        n, t = rm.write_odml_chunk(df, None)
+        assert_equal(n, 0, 'no odml chunk')
+        assert_equal(len(t), 0, 'no odml chunk')
+        n = rm.write_cue_chunk(df, None)
+        assert_equal(n, 0, 'no cue chunk')
+        assert_raises(IndexError, rm.append_markers_riff, df, np.ones((4, 2)), np.zeros(3))
+    assert_raises(ValueError, rm.append_riff, '')
+    assert_raises(IndexError, rm.append_riff, filename, None, np.ones((4, 2)), np.zeros(3))
+    md = dict(Artist='John Doe')
+    rm.append_riff(filename, md, np.ones((4, 2), dtype=int), np.zeros(4))
+    rm.append_riff(filename, md, np.ones((4, 2), dtype=int), np.zeros(4))
+    os.remove(filename)
+
+
+def test_read():
+    data, rate = generate_data()
+    md = dict(Artist='John Doe')
+    filename = 'test.wav'
+    rm.write_wave(filename, data, rate, md)
+    with open(filename, 'rb') as sf:
+        n = rm.read_riff_header(sf)
+        assert_true(n > 0, 'riff header')
+    with open(filename, 'rb') as sf:
+        n = rm.read_riff_header(sf, 'WAVE')
+        assert_true(n > 0, 'riff header')
+    with open(filename, 'rb') as sf:
+        assert_raises(ValueError, rm.read_riff_header, sf, 'XYZ ')
+    chunks = rm.read_chunk_tags(filename)
+    assert_equal(len(chunks), 3, 'chunk tags')
+    with open(filename, 'rb') as sf:
+        chunks = rm.read_chunk_tags(sf)
+        assert_equal(len(chunks), 3, 'chunk tags')
     os.remove(filename)
 
     
 def test_metadata():
     data, rate = generate_data()
     filename = 'test.wav'
-    imd = dict(IENG='JB', ICRD='2024-01-24', RATE=9,
+    imd = dict(IENG='John Doe', ICRD='2024-01-24', RATE=9,
                Comment='this is test1')
     iimd = {rm.info_tags.get(k, k): str(v) for k, v in imd.items()}
     bmd = dict(Description='a recording',
@@ -49,11 +100,15 @@ def test_metadata():
     mdd = rm.metadata_riff(filename, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
-
     with open(filename, 'rb') as sf:
         mdd = rm.metadata_riff(sf, False)
     assert_true('INFO' in mdd, 'INFO section exists')
     assert_equal(iimd, mdd['INFO'], 'INFO section matches')
+    md['INFO']['IENG'] = ''
+    rm.write_wave(filename, data, rate, md)
+    mdd = rm.metadata_riff(filename, True)
+    assert_true('INFO' in mdd, 'INFO section exists')
+    md['INFO']['IENG'] = 'John Doe'
 
     # BEXT:
     md = dict(BEXT=bmd)
@@ -61,6 +116,8 @@ def test_metadata():
     mdd = rm.metadata_riff(filename, False)
     assert_true('BEXT' in mdd, 'BEXT section exists')
     assert_equal(bmd, mdd['BEXT'], 'BEXT section matches')
+    mdd = rm.metadata_riff(filename, True)
+    assert_true('BEXT' in mdd, 'BEXT section exists')
 
     # IXML:
     md = dict(IXML=xmd)
@@ -68,6 +125,11 @@ def test_metadata():
     mdd = rm.metadata_riff(filename, False)
     assert_true('IXML' in mdd, 'IXML section exists')
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
+    md['IXML']['Note'] = ''
+    rm.write_wave(filename, data, rate, md)
+    mdd = rm.metadata_riff(filename, True)
+    assert_true('IXML' in mdd, 'IXML section exists')
+    md['IXML']['Note'] = 'still testing'
 
     # ODML:
     md = dict(Recording=omd, Production=bbmd, Notes=xmd)
@@ -89,6 +151,10 @@ def test_metadata():
     assert_true('Production' in mdd, 'Recording section exists')
     assert_true('Notes' in mdd, 'Recording section exists')
     assert_equal(md['Notes'], mdd['Notes'], 'Notes section matches')
+    md = dict(Recording=omd, Production='', Notes=xmd)
+    rm.write_wave(filename, data, rate, md)
+    mdd = rm.metadata_riff(filename, True)
+    assert_equal(len(mdd['Production']), 0, 'Empty Production value')
 
     # INFO:
     imd['SUBI'] = bmd

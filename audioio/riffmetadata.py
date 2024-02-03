@@ -126,6 +126,7 @@ For INFO tag names see:
 """
 
 import os
+import sys
 import warnings
 import struct
 import numpy as np
@@ -1802,5 +1803,4 @@ def main(*args):
 
     
 if __name__ == "__main__":
-    import sys
     main(*sys.argv[1:])
