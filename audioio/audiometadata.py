@@ -44,6 +44,7 @@ keep the labels short, and use text for longer descriptions.
 
 """
  
+import sys
 import argparse
 import numpy as np
 from .version import __version__, __year__
@@ -447,5 +448,4 @@ def main(*cargs):
 
 
 if __name__ == "__main__":
-    import sys
     main(*sys.argv[1:])
