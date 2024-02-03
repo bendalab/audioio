@@ -29,13 +29,13 @@ for handling metadata and marker lists.
 
 - Audio data are always *numpy arrays of floats* (`np.float64`) with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
-- `load_audio()` function for loading a whole audio file.
-- *Blockwise random-access* loading of large audio files (`class AudioLoader`).
-- `blocks()` generator for iterating over blocks of data with optional overlap.
-- `write_audio()` function for writing data, metadata, and markers to an audio file. 
-- Read `metadata()` as nested dictionaries of key-value pairs.
-- Read `markers()`, i.e. cue points with spans, labels, and descriptions.
-- Platform independent, synchronous (blocking) and asynchronous (non blocking)playback of numpy arrays (`play()`).
+- [`load_audio()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.load_audio) function for loading a whole audio file.
+- *Blockwise random-access* loading of large audio files ([`class AudioLoader`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader)).
+- [`blocks()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.blocks) generator for iterating over blocks of data with optional overlap.
+- [`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio) function for writing data, metadata, and markers to an audio file. 
+- Read [`metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.metadata) as nested dictionaries of key-value pairs.
+- Read [`markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.markers), i.e. cue points with spans, labels, and descriptions.
+- Platform independent, synchronous (blocking) and asynchronous (non blocking) playback of numpy arrays  via [`play()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play).
 - Automatic resampling of data for playback to match supported sampling rates.
 - Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages ([audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).
 
@@ -70,7 +70,8 @@ import audioio as aio
 
 ### Loading audio data
 
-Load an audio file into a numpy array:
+Load an audio file into a numpy array using
+[`load_audio()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.load_audio):
 ```
 data, samplingrate = aio.load_audio('audio/file.wav')
 ```
@@ -89,20 +90,28 @@ plt.show()
 ```
 
 Get a nested dictionary with key-value pairs of the file's metadata
-and print it via
+and print it using
+[`metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.metadata)
+and
+[`print_metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.print_metadata):
 ```
 md = aio.metadata('audio/file.wav')
 aio.print_metadata(md)
 ```
-Get and print marker positions, spans, labels and texts via
+
+Get and print marker positions, spans, labels and texts using
+[`markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.markers)
+and
+[`print_markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.print_markers):
 ```
 locs, labels = aio.markers('audio/file.wav')
 aio.print_markers(locs, labels)
 ```
 
 You can also randomly access chunks of data of an audio file, without
-loading the entire file into memory. This is really handy for
-analysing very long sound recordings:
+loading the entire file into memory, by means of the [`AudioLoader`
+class](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader). This
+is really handy for analysing very long sound recordings:
 ```
 # open audio file with a buffer holding 60 seconds of data:
 with aio.AudioLoader('audio/file.wav', 60.0) as data:
@@ -113,7 +122,9 @@ with aio.AudioLoader('audio/file.wav', 60.0) as data:
      	 # ... do something with x and rate
 ```
 
-Even simpler, iterate in blocks over the file with overlap:
+Even simpler, iterate in blocks over the file with overlap using the
+[`blocks()`
+generator](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.blocks):
 ```
 from scipy.signal import spectrogram
 nfft = 2048
@@ -122,8 +133,13 @@ with aio.AudioLoader('some/audio.wav') as data:
         f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
 ```
 
-Metadata and markers can be accessed by the respective member
-functions of the AudioLoader object:
+Metadata and markers can be accessed by the
+[`metadata()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader.metadata)
+and
+[`markers()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader.markers)
+member functions of the
+[`AudioLoader`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader)
+object:
 ```
 with aio.AudioLoader('audio/file.wav', 60.0) as data:
      md = data.metadata()
@@ -131,15 +147,18 @@ with aio.AudioLoader('audio/file.wav', 60.0) as data:
 ```
 
 See API documentation of the
-[audioloader](https://bendalab.github.io/audioio/api/audioloader.html)
+[`audioloader`](https://bendalab.github.io/audioio/api/audioloader.html)
 and
-[audiometadata](https://bendalab.github.io/audioio/api/audiometadata.html)
+[`audiometadata`](https://bendalab.github.io/audioio/api/audiometadata.html)
 modules for details.
 
 
 ### Writing audio data
 
-Write a 1-D or 2-D numpy array into an audio file (data values between -1 and 1):
+Write a 1-D or 2-D numpy array into an audio file (data values between
+-1 and 1) using the
+[`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio)
+function:
 ```
 aio.write_audio('audio/file.wav', data, samplerate)
 ```
@@ -147,13 +166,15 @@ Again, in 2-D arrays the first axis (rows) is time and the second axis the chann
 
 Metadata in form of a nested dictionary with key-value pairs, marker
 positions and spans (`locs`) as well as associated labels and texts
-(`labels`) can also be passed on to the `write_audio()` function:
+(`labels`) can also be passed on to the
+[`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio)
+function:
 ```
 aio.write_audio('audio/file.wav', data, samplerate, md, locs, labels)
 ```
 
 See API documentation of the
-[audiowriter](https://bendalab.github.io/audioio/api/audiowriter.html)
+[`audiowriter`](https://bendalab.github.io/audioio/api/audiowriter.html)
 module for details.
 
 
@@ -166,20 +187,24 @@ AudioIO provides a simple command line script to convert audio files:
 If possible, `audioconverter` tries to keep metadata and marker lists.
 
 See API documentation of the
-[audioconverter](https://bendalab.github.io/audioio/api/audioconverter.html)
+[`audioconverter`](https://bendalab.github.io/audioio/api/audioconverter.html)
 module for details.
 
 
 ### Playing sounds
 
-Fade in and out and play a 1-D or 2-D numpy array as a sound
-(first axis is time and second axis the channel):
+Fade in and out
+([`fade()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.fade))
+and play
+([`play()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play))
+a 1-D or 2-D numpy array as a sound (first axis is time and second
+axis the channel):
 ```
 aio.fade(data, samplingrate, 0.2)
 aio.play(data, samplingrate)
 ```
 
-Just beep
+Just [`beep()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.beep)
 ```
 aio.beep()
 ```
@@ -188,10 +213,12 @@ Beep for half a second and 440 Hz:
 aio.beep(0.5, 440.0)
 aio.beep(0.5, 'a4')
 ```
-Musical notes are translated into frequency with the `note2freq()` function.
+Musical notes are translated into frequency with the
+[`note2freq()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.note2freq)
+function.
 
 See API documentation of the
-[playaudio](https://bendalab.github.io/audioio/api/playaudio.html)
+[`playaudio`](https://bendalab.github.io/audioio/api/playaudio.html)
 module for details.
 
 
@@ -242,7 +269,7 @@ Use this to see which audio modules you have already installed on your system,
 which ones are recommended to install, and how to install them.
 
 See API documentation of the
-[audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)
+[`audiomodules`](https://bendalab.github.io/audioio/api/audiomodules.html)
 module for details.
 
 
