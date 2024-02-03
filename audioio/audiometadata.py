@@ -329,8 +329,6 @@ def write_markers(fh, locs, labels=None, sep=' ', prefix=''):
     prefix: str
         This string is written at the beginning of each line.
     """
-    if len(locs) == 0:
-        return
     if hasattr(fh, 'write'):
         own_file = False
     else:

@@ -21,6 +21,7 @@ python -m audioio.audiowriter
 """
 
 import os
+import sys
 import subprocess
 import numpy as np
 from .audiomodules import *
@@ -169,15 +170,9 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     else:
         buffer = np.floor(data * factor).astype(dtype)
         buffer[data >= 1.0] = factor - 1
-    try:
-        wf.writeframes(buffer.tobytes())
-    except AttributeError: 
-        wf.writeframes(buffer.tostring())
+    wf.writeframes(buffer.tobytes())
     wf.close()
-    try:
-        append_riff(filepath, metadata, locs, labels)
-    except ValueError:
-        pass
+    append_riff(filepath, metadata, locs, labels)
 
 
 def formats_ewave():
@@ -284,10 +279,7 @@ def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
     with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
                     dtype=ewave_encodings[encoding], nchannels=channels) as wf:
         wf.write(data, scale=True)
-    try:
-        append_riff(filepath, metadata, locs, labels)
-    except ValueError:
-        pass
+    append_riff(filepath, metadata, locs, labels)
 
 
 def formats_wavfile():
@@ -400,10 +392,7 @@ def write_wavfile(filepath, data, samplerate, metadata=None,
     else:
         buffer = data.astype(dtype, copy=False)
     wavfile.write(filepath, int(samplerate), buffer)
-    try:
-        append_riff(filepath, metadata, locs, labels)
-    except ValueError:
-        pass
+    append_riff(filepath, metadata, locs, labels)
 
 
 def formats_soundfile():
@@ -485,8 +474,6 @@ def write_soundfile(filepath, data, samplerate, metadata=None,
 
     if not format:
         format = format_from_extension(filepath)
-    if not format:
-        format = 'WAV'
     if format:
         format = format.upper()
 
@@ -597,8 +584,6 @@ def write_wavefile(filepath, data, samplerate, metadata=None,
 
     if not format:
         format = format_from_extension(filepath)
-    if not format:
-        format = 'WAV'
     format = format.upper()
     try:
         format_value = getattr(wavefile.Format, format)
@@ -1036,5 +1021,4 @@ def main(*args):
 
 
 if __name__ == "__main__":
-    import sys
     main(*sys.argv[1:])

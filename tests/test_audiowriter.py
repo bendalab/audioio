@@ -3,6 +3,7 @@ import os
 import numpy as np
 import audioio.audiowriter as aw
 import audioio.audioloader as al
+import audioio.audiometadata as amd
 import audioio.audiomodules as am
 
 
@@ -232,6 +233,52 @@ def test_write_read_modules():
         am.enable_module(lib)
 
 
+def test_write_metadata():
+    am.enable_module()
+    # generate data:
+    samplerate = 44100.0
+    duration = 10.0
+    t = np.arange(int(duration*samplerate))/samplerate
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    md = dict(Amplifier='Teensy_Amp')
+    # test storage of metadata in wave files:
+    filename = 'test.wav'
+    for lib, write_func in aw.audio_writer_funcs:
+        if not am.select_module(lib):
+            continue
+        write_func(filename, data, samplerate, md)
+        mmd = amd.metadata(filename)
+        os.remove(filename)
+        assert_equal(md, mmd, 'metadata for wavefiles')
+        am.enable_module()
+    # test storage of metadata in ogg files:
+    filename = 'test.ogg'
+    for lib, write_func in aw.audio_writer_funcs:
+        if lib == 'pydub':
+            continue
+        if not am.select_module(lib):
+            continue
+        if not 'OGG' in aw.available_formats():
+            continue
+        write_func(filename, data, samplerate, md, encoding='VORBIS')
+        mmd = amd.metadata(filename)
+        os.remove(filename)
+        assert_equal(len(mmd), 0, 'metadata for ogg files')
+        am.enable_module()
+    # test storage of metadata in mp3 files:
+    filename = 'test.mp3'
+    for lib, write_func in aw.audio_writer_funcs:
+        if not am.select_module(lib):
+            continue
+        if not 'MP3' in aw.available_formats():
+            continue
+        write_func(filename, data, samplerate, md)
+        mmd = amd.metadata(filename)
+        os.remove(filename)
+        assert_equal(len(mmd), 0, 'metadata for mp3 files')
+        am.enable_module()
+
+        
 def test_extensions():
     f = aw.format_from_extension(None)
     assert_true(f is None, 'None filepath')
