@@ -162,7 +162,7 @@ def main(*cargs):
                 print(f'  {e}')
         return
 
-    if len(args.file) == 0:
+    if len(args.file) == 0 or len(args.file[0]) == 0:
         print('! need to specify at least one input file !')
         sys.exit(-1)
     infile = args.file[0]
@@ -180,9 +180,6 @@ def main(*cargs):
             outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
         else:
             args.audio_format = format_from_extension(outfile)
-            if not args.audio_format:
-                args.audio_format = 'wav'
-                outfile = outfile + os.extsep + args.audio_format
     if not check_format(args.audio_format):
         sys.exit(-1)
     if os.path.realpath(infile) == os.path.realpath(outfile):

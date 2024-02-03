@@ -125,6 +125,7 @@ For INFO tag names see:
 
 """
 
+import os
 import warnings
 import struct
 import numpy as np
@@ -407,7 +408,7 @@ def skip_chunk(sf):
     """
     size = struct.unpack('<I', sf.read(4))[0]
     size += size % 2 
-    sf.seek(size, 1)
+    sf.seek(size, os.SEEK_CUR)
     return size
 
 
@@ -441,7 +442,7 @@ def read_chunk_tags(filepath):
     file_pos = None
     if hasattr(filepath, 'read'):
         file_pos = sf.tell()
-        sf.seek(0, 0)
+        sf.seek(0, os.SEEK_SET)
     else:
         sf = open(filepath, 'rb')
     fsize = read_riff_header(sf)
@@ -456,11 +457,11 @@ def read_chunk_tags(filepath):
             size -= 4
         else:
             tags[chunk] = (fp, size)
-        sf.seek(size, 1)
+        sf.seek(size, os.SEEK_CUR)
     if file_pos is None:
         sf.close()
     else:
-        sf.seek(file_pos, 0)
+        sf.seek(file_pos, os.SEEK_SET)
     return tags
     
             
@@ -501,7 +502,7 @@ def read_info_chunks(sf, store_empty):
             if value or store_empty:
                 md[key] = value
     if list_size > 0:  # finish or skip
-        sf.seek(list_size, 1)
+        sf.seek(list_size, os.SEEK_CUR)
     return md
 
 
@@ -788,7 +789,7 @@ def read_adtl_chunks(sf, locs, labels):
                 sf.read(size)
             list_size -= 12 + size
     if list_size > 0:  # finish or skip
-        sf.seek(list_size, 1)
+        sf.seek(list_size, os.SEEK_CUR)
     return labels
 
 
@@ -835,7 +836,7 @@ def metadata_riff(filepath, store_empty=False):
     file_pos = None
     if hasattr(filepath, 'read'):
         file_pos = sf.tell()
-        sf.seek(0, 0)
+        sf.seek(0, os.SEEK_SET)
     else:
         sf = open(filepath, 'rb')
     fsize = read_riff_header(sf)
@@ -862,7 +863,7 @@ def metadata_riff(filepath, store_empty=False):
     if file_pos is None:
         sf.close()
     else:
-        sf.seek(file_pos, 0)
+        sf.seek(file_pos, os.SEEK_SET)
     return meta_data
 
 
@@ -902,7 +903,7 @@ def markers_riff(filepath):
     file_pos = None
     if hasattr(filepath, 'read'):
         file_pos = sf.tell()
-        sf.seek(0, 0)
+        sf.seek(0, os.SEEK_SET)
     else:
         sf = open(filepath, 'rb')
     locs = np.zeros((0, 3), dtype=int)
@@ -921,7 +922,7 @@ def markers_riff(filepath):
     if file_pos is None:
         sf.close()
     else:
-        sf.seek(file_pos, 0)
+        sf.seek(file_pos, os.SEEK_SET)
     # sort markers according to their position:
     if len(locs) > 0:
         idxs = np.argsort(locs[:,-2])
@@ -979,11 +980,11 @@ def write_filesize(df, filesize=None):
     """
     pos = df.tell()
     if not filesize:
-        df.seek(0, 2)
+        df.seek(0, os.SEEK_END)
         filesize = df.tell()
-    df.seek(4, 0)
+    df.seek(4, os.SEEK_SET)
     df.write(struct.pack('<I', filesize - 8))
-    df.seek(pos, 0)
+    df.seek(pos, os.SEEK_SET)
 
 
 def write_chunk_name(df, pos, tag):
@@ -1009,7 +1010,7 @@ def write_chunk_name(df, pos, tag):
     """
     if len(tag) != 4:
         raise ValueError(f'file tag "{tag}" must be exactly 4 characters long')
-    df.seek(pos)
+    df.seek(pos, os.SEEK_SET)
     df.write(tag.encode('ascii'))
 
 
@@ -1696,7 +1697,7 @@ def append_riff(filepath, metadata=None, locs=None, labels=None):
     n = 0
     with open(filepath, 'r+b') as df:
         tags = []
-        df.seek(2, 0)
+        df.seek(0, os.SEEK_END)
         nc, tgs = append_metadata_riff(df, metadata)
         n += nc
         tags.extend(tgs)

@@ -1,5 +1,6 @@
 from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises
 import os
+import shutil
 import numpy as np
 import audioio.audioloader as al
 import audioio.audiowriter as aw
@@ -14,13 +15,16 @@ def write_audio_file(filename, channels=2, samplerate = 44100):
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
     encoding = 'PCM_16'
-    aw.write_wave(filename, data, samplerate, encoding=encoding)
+    md = dict(Amplifier='Teensy_Amp')
+    aw.write_wave(filename, data, samplerate, md, encoding=encoding)
 
 
 def test_main():
     filename = 'test.wav'
     filename1 = 'test1.wav'
     destfile = 'test2'
+    destpath = 'test3'
+    os.mkdir(destpath)
     write_audio_file(filename)
     assert_raises(SystemExit, ac.main, '-h')
     assert_raises(SystemExit, ac.main, '--help')
@@ -28,8 +32,10 @@ def test_main():
     ac.main('-l')
     ac.main('-f', 'wav', '-l')
     ac.main('-f', 'wav', '-o', destfile, filename)
-    assert_raises(SystemExit, ac.main, 'prog', '-f', 'xxx', '-o', destfile, filename)
-    ac.main('-o', destfile, filename)
+    assert_raises(SystemExit, ac.main, '')
+    assert_raises(SystemExit, ac.main, '-f', 'xxx', '-o', destfile, filename)
+    assert_raises(SystemExit, ac.main, '-o', 'test.xxx', filename)
+    ac.main('-o', destfile + '.wav', filename)
     ac.main('-f', 'wav', '-o', destfile, filename)
     ac.main('-u', '-f', 'wav', '-o', destfile, filename)
     ac.main('-u', '0.8', '-f', 'wav', '-o', destfile, filename)
@@ -48,21 +54,26 @@ def test_main():
     assert_raises(SystemExit, ac.main, '-f', 'xyz123', filename)
     assert_raises(SystemExit, ac.main, filename)
     assert_raises(SystemExit, ac.main)
+    write_audio_file(filename)
     write_audio_file(filename1, 4)
-    ac.main('-c', '1', '-o', destfile, filename1)
-    ac.main('-c', '0-2', '-o', destfile, filename1)
-    ac.main('-c', '0-1,3', '-o', destfile, filename1)
-    assert_raises(SystemExit, ac.main, '-o', destfile, filename, filename1)
+    ac.main('-c', '1', '-o', destfile + '.wav', filename1)
+    ac.main('-c', '0-2', '-o', destfile + '.wav', filename1)
+    ac.main('-c', '0-1,3', '-o', destfile + '.wav', filename1)
+    assert_raises(SystemExit, ac.main, '-o', destfile + '.wav', filename, filename1)
     write_audio_file(filename1, 2, 20000)
-    assert_raises(SystemExit, ac.main, '-o', destfile, filename, filename1)
+    assert_raises(SystemExit, ac.main, '-o', destfile + '.wav', filename, filename1)
     write_audio_file(filename1)
-    ac.main('-o', destfile, filename, filename1)
+    ac.main('-o', destfile + '.wav', filename, filename1)
     xdata, xrate = al.load_audio(filename)
     n = len(xdata)
     xdata, xrate = al.load_audio(filename1)
     n += len(xdata)
     xdata, xrate = al.load_audio(destfile + '.wav')
     assert_equal(len(xdata), n, 'len of merged files')
+    md1 = al.metadata(filename)
+    md2 = al.metadata(destfile + '.wav')
+    assert_equal(md1, md2, 'metadata of merged files')
     os.remove(filename)
     os.remove(filename1)
     os.remove(destfile+'.wav')
+    shutil.rmtree(destpath)
