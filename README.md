@@ -299,10 +299,24 @@ Playing sounds:
 
 Scientific audio software:
 
-- [diapason](https://github.com/Soundphy/diapason): musical notes like `playaudio.note2freq`.
-- [librosa](https://librosa.org/): audio and music processing in python.
-- [TimeView](https://github.com/j9ac9k/timeview): GUI application to view and analyze time series signal data.
-- [scikit-maad](https://github.com/scikit-maad/scikit-maad): quantitative analysis of environmental audio recordings
-- [Soundscapy](https://pypi.org/project/soundscapy/): analysing and visualising soundscape assessments.
-- [BatDetect2](https://pypi.org/project/batdetect2/): detecting and classifying bat echolocation calls in high frequency audio recordings.
-- [Batogram](https://github.com/jmears63/batogram): viewing bat call spectrograms with [GUANO metadata](https://www.wildlifeacoustics.com/SCHEMA/GUANO.html), including the ability to click to open the location in Google Maps.
+- [diapason](https://github.com/Soundphy/diapason): musical notes like
+  `playaudio.note2freq`.
+- [librosa](https://librosa.org/): audio and music processing in
+  python.
+- [TimeView](https://github.com/j9ac9k/timeview): GUI application to
+  view and analyze time series signal data.
+- [scikit-maad](https://github.com/scikit-maad/scikit-maad):
+  quantitative analysis of environmental audio recordings
+- [Soundscapy](https://pypi.org/project/soundscapy/): analysing and
+  visualising soundscape assessments.
+- [BatDetect2](https://pypi.org/project/batdetect2/): detecting and
+  classifying bat echolocation calls in high frequency audio
+  recordings.
+- [Batogram](https://github.com/jmears63/batogram): viewing bat call
+  spectrograms with [GUANO
+  metadata](https://www.wildlifeacoustics.com/SCHEMA/GUANO.html),
+  including the ability to click to open the location in Google Maps.
+- GUANO metadata: Grand Unified Acoustic Notation Ontology, an
+  extensible, open format for embedding metadata within bat acoustic
+  recordings.[Specification](https://github.com/riggsd/guano-spec) and
+  [python implementation](https://github.com/riggsd/guano-py).
