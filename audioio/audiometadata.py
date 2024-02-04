@@ -167,7 +167,7 @@ def print_metadata(meta, prefix='', indent=4):
     write_metadata_text(sys.stdout, meta, prefix, indent)
 
 
-def flatten_metadata(md, keep_sections=False):
+def flatten_metadata(md, keep_sections=False, sep='__'):
     """Flatten hierarchical metadata to a single dictionary.
 
     Parameters
@@ -175,7 +175,9 @@ def flatten_metadata(md, keep_sections=False):
     md: nested dict
         Metadata as returned by `metadata()`.
     keep_sections: bool
-        If `True`, then prefix keys with section names, separated by '.'.
+        If `True`, then prefix keys with section names, separated by `sep`.
+    sep: str
+        String for separating section names.
 
     Returns
     -------
@@ -199,18 +201,18 @@ def flatten_metadata(md, keep_sections=False):
     
     >>> fmd = flatten_metadata(md, keep_sections=True)
     >>> print_metadata(fmd)
-    aaaa       : 2
-    bbbb.ccc   : 3
-    bbbb.ddd   : 4
-    bbbb.eee.hh: 5
-    iiii.jjj   : 6
+    aaaa         : 2
+    bbbb__ccc    : 3
+    bbbb__ddd    : 4
+    bbbb__eee__hh: 5
+    iiii__jjj    : 6
     ```
     """
     def flatten(cd, section):
         df = {}
         for k in cd:
             if isinstance(cd[k], dict):
-                df.update(flatten(cd[k], section + k + '.'))
+                df.update(flatten(cd[k], section + k + sep))
             else:
                 if keep_sections:
                     df[section+k] = cd[k]
@@ -221,7 +223,7 @@ def flatten_metadata(md, keep_sections=False):
     return flatten(md, '')
 
 
-def unflatten_metadata(md):
+def unflatten_metadata(md, sep='__'):
     """Unflatten a previously flattened metadata dictionary.
 
     Parameters
@@ -229,6 +231,8 @@ def unflatten_metadata(md):
     md: dict
         Flat dictionary with key-value pairs as obtained from
         `flatten_metadata()` with `keep_sections=True`.
+    sep: str
+        String that separates section names.
 
     Returns
     -------
@@ -247,7 +251,7 @@ def unflatten_metadata(md):
     bbbb.eee.hh: 5
     iiii.jjj   : 6
     
-    >>> md = unflatten_metadata(fmd)
+    >>> md = unflatten_metadata(fmd, '.')
     >>> print_metadata(md)
     aaaa: 2
     bbbb:
@@ -263,7 +267,7 @@ def unflatten_metadata(md):
     cmd = [umd]    # current metadata dicts for each level of the hierarchy
     csk = []       # current section keys
     for k in md:
-        ks = k.split('.')
+        ks = k.split(sep)
         # go up the hierarchy:
         for kss in reversed(ks[:len(csk)]):
             if kss == csk[-1]:
