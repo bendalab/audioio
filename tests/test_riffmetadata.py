@@ -131,6 +131,18 @@ def test_metadata():
     assert_true('IXML' in mdd, 'IXML section exists')
     md['IXML']['Note'] = 'still testing'
 
+    # GUANO:
+    md = dict(GUANO=iimd)
+    rm.write_wave(filename, data, rate, md)
+    mdd = rm.metadata_riff(filename, False)
+    assert_true('GUANO' in mdd, 'GUANO section exists')
+    assert_equal(md, mdd, 'GUANO section matches')
+    md['GUANO']['Engineer'] = ''
+    rm.write_wave(filename, data, rate, md)
+    mdd = rm.metadata_riff(filename, True)
+    assert_true('GUANO' in mdd, 'GUANO section exists')
+    md['GUANO']['Engineer'] = 'John Doe'
+
     # ODML:
     md = dict(Recording=omd, Production=bbmd, Notes=xmd)
     rm.write_wave(filename, data, rate, md)
