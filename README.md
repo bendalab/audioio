@@ -288,6 +288,12 @@ Reading and writing audio files:
 - [Pydub](https://github.com/jiaaro/pydub): mpeg support for reading and writing, playback via simlpeaudio or pyaudio.
 - [scikits.audiolab](http://cournape.github.io/audiolab): seems to be no longer active.
 
+Metadata:
+
+- [GUANO](https://github.com/riggsd/guano-spec): Grand Unified
+  Acoustic Notation Ontology, an extensible, open format for embedding
+  metadata within bat acoustic recordings.
+
 Playing sounds:
 
 - [sounddevice](https://python-sounddevice.readthedocs.io): wrapper for [portaudio](http://www.portaudio.com).
@@ -316,7 +322,3 @@ Scientific audio software:
   spectrograms with [GUANO
   metadata](https://www.wildlifeacoustics.com/SCHEMA/GUANO.html),
   including the ability to click to open the location in Google Maps.
-- GUANO metadata: Grand Unified Acoustic Notation Ontology, an
-  extensible, open format for embedding metadata within bat acoustic
-  recordings.[Specification](https://github.com/riggsd/guano-spec) and
-  [python implementation](https://github.com/riggsd/guano-py).

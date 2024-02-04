@@ -710,7 +710,7 @@ def read_guano_chunk(sf, store_empty=True):
     for line in io.StringIO(sf.read(size).decode('utf-8')):
         ss = line.split(':')
         if len(ss) > 1:
-            md[ss[0].strip()] = ss[1].strip()
+            md[ss[0].strip()] = ss[1].strip().replace(r'\n', '\n')
         elif store_empty:
             md[ss[0].strip()] = ''
     return unflatten_metadata(md, '|')
@@ -1317,6 +1317,9 @@ def write_guano_chunk(df, metadata, keys_written=None):
     extensible, open format for embedding metadata within bat acoustic
     recordings. See https://github.com/riggsd/guano-spec for details.
 
+    If `metadata` contains a GUANO key, then the content of this key
+    is written as a GUANO chunk.
+
     Parameters
     ----------
     df: stream
@@ -1332,7 +1335,7 @@ def write_guano_chunk(df, metadata, keys_written=None):
     n: int
         Number of bytes written to the stream.
     keys_written: list of str
-        Keys written to the IXML chunk.
+        Keys written to the GUANO chunk: `['GUANO']`.
 
     """
     if metadata is None or len(metadata) == 0:
@@ -1341,6 +1344,8 @@ def write_guano_chunk(df, metadata, keys_written=None):
         return 0, []
     from .audiometadata import flatten_metadata
     fmd = flatten_metadata(metadata['GUANO'], True, '|')
+    for k in fmd:
+        fmd[k] = fmd[k].replace('\n', r'\n')
     # TODO make sure we have 'GUANO|Version' at the beginning
     sio = io.StringIO()
     for k in fmd:
