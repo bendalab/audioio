@@ -204,6 +204,7 @@ def test_main():
     assert_raises(SystemExit, amd.main, '--help')
     assert_raises(SystemExit, amd.main, '--version')
     amd.main('test.wav')
+    amd.main('-f', 'test.wav')
     amd.main('-m', 'test.wav')
     amd.main('-c', 'test.wav')
     amd.main('-m', '-c', 'test.wav')

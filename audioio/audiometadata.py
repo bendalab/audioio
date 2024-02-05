@@ -392,29 +392,46 @@ def print_markers(locs, labels=None, sep=' ', prefix=''):
     write_markers(sys.stdout, locs, labels, sep, prefix)
         
 
-def demo(filepath, list_metadata, list_cues):
+def demo(filepath, list_format, list_metadata, list_cues):
     """Print metadata and markers of file.
 
     Parameters
     ----------
     filepath: string
         Path of anaudio file.
+    list_format: bool
+        If True, list file format only.
     list_metadata: bool
         If True, list metadata only.
     list_cues: bool
         If True, list markers/cues only.
     """
+    from .audioloader import AudioLoader
     if list_cues:
         locs, labels = markers(filepath)
         print_markers(locs, labels)
     elif list_metadata:
         meta_data = metadata(filepath, store_empty=False)
         print_metadata(meta_data)
+    elif list_format:
+        with AudioLoader(filepath, 1, 0) as sf:
+            fmt_md = dict(filepath=filepath,
+                          samplingrate=f'{sf.samplerate:.0f}Hz',
+                          channels=sf.shape[1],
+                          frames=sf.shape[0],
+                          duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+            print_metadata(fmt_md)
     else:
         meta_data = metadata(filepath, store_empty=False)
         locs, labels = markers(filepath)
         print('file:')
-        print(f'  {filepath}')
+        with AudioLoader(filepath, 1, 0) as sf:
+            fmt_md = dict(filepath=filepath,
+                          samplingrate=f'{sf.samplerate:.0f}Hz',
+                          channels=sf.shape[1],
+                          frames=sf.shape[0],
+                          duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+            print_metadata(fmt_md, '  ')
         if len(meta_data) > 0:
             print()
             print('metadata:')
@@ -438,6 +455,8 @@ def main(*cargs):
         description='Convert audio file formats.',
         epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
     parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('-f', dest='dataformat', action='store_true',
+                        help='list file format only')
     parser.add_argument('-m', dest='metadata', action='store_true',
                         help='list metadata only')
     parser.add_argument('-c', dest='cues', action='store_true',
@@ -448,7 +467,7 @@ def main(*cargs):
         cargs = None
     args = parser.parse_args(cargs)
 
-    demo(args.file, args.metadata, args.cues)
+    demo(args.file, args.dataformat, args.metadata, args.cues)
 
 
 if __name__ == "__main__":
