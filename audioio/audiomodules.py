@@ -82,7 +82,7 @@ Installation instructions for the soundfile module:
 ---------------------------------------------------
 The soundfile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
-See http://pysoundfile.readthedocs.org for a documentation of the soundfile python wrapper
+See http://python-soundfile.readthedocs.org for a documentation of the soundfile python wrapper
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
 
 First, install the following packages:
@@ -222,13 +222,13 @@ try:
 except ImportError:
     audio_modules['soundfile'] = False
 audio_pip_packages['soundfile'] = 'SoundFile'
-audio_conda_packages['soundfile'] = '-c conda-forge pysoundfile'
+audio_conda_packages['soundfile'] = '-c conda-forge soundfile'
 audio_deb_packages['soundfile'] = 'python3-soundfile'
 audio_required_deb_packages['soundfile'] = ['libsndfile1', 'libsndfile1-dev', 'libffi-dev']
 audio_required_rpm_packages['soundfile'] = ['libsndfile', 'libsndfile-devel', 'libffi-devel']
 audio_infos['soundfile'] = """The soundfile package is a wrapper of the sndfile library,
 that supports many different audio file formats.
-See http://pysoundfile.readthedocs.org for a documentation of the soundfile python wrapper
+See http://python-soundfile.readthedocs.org for a documentation of the soundfile python wrapper
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
 
 audio_fileio.append('wavefile')
