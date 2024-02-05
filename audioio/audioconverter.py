@@ -37,7 +37,9 @@ audioconverter --help
 ```
 prints
 ```text
-usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-c CHANNELS] [-o OUTPATH] [file ...]
+usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-u [UNWRAP]] [-U [UNWRAP]] [-c CHANNELS]
+                      [-n NUM] [-o OUTPATH]
+                      [file ...]
 
 Convert audio file formats.
 
@@ -51,10 +53,13 @@ options:
   -l           list supported file formats and encodings
   -f FORMAT    audio format of output file
   -e ENCODING  audio encoding of output file
+  -u [UNWRAP]  unwrap clipped data with threshold and divide by two
+  -U [UNWRAP]  unwrap clipped data with threshold and clip
   -c CHANNELS  comma and dash separated list of channels to be saved (first channel is 0)
+  -n NUM       merge NUM input files into one output file
   -o OUTPATH   path or filename of output file
 
-version 1.0.0 by Benda-Lab (2020-2024)
+version 1.2.0 by Benda-Lab (2020-2024)
 ```
 
 """
@@ -129,6 +134,8 @@ def main(*cargs):
     parser.add_argument('-c', dest='channels', default='',
                         type=str, metavar='CHANNELS',
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
+    parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
+                        help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                         help='path or filename of output file')
     parser.add_argument('file', nargs='*', type=str,
@@ -165,64 +172,71 @@ def main(*cargs):
     if len(args.file) == 0 or len(args.file[0]) == 0:
         print('! need to specify at least one input file !')
         sys.exit(-1)
-    infile = args.file[0]
-    # output file:
-    if not args.outpath or os.path.isdir(args.outpath):
-        outfile = infile
-        if args.outpath:
-            outfile = os.path.join(args.outpath, outfile)
-        if not args.audio_format:
-            args.audio_format = 'wav'
-        outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
-    else:
-        outfile = args.outpath
-        if args.audio_format:
-            outfile = os.path.splitext(outfile)[0] + os.extsep + args.audio_format
+
+    nmerge = args.nmerge
+    if nmerge == 0:
+        nmerge = len(args.file)
+
+    for i0 in range(0, len(args.file), nmerge):
+        infile = args.file[i0]
+        # output file and format:
+        audio_format = args.audio_format
+        if not args.outpath or os.path.isdir(args.outpath):
+            outfile = infile
+            if args.outpath:
+                outfile = os.path.join(args.outpath, outfile)
+            if not audio_format:
+                audio_format = 'wav'
+            outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format
         else:
-            args.audio_format = format_from_extension(outfile)
-    if not check_format(args.audio_format):
-        sys.exit(-1)
-    if os.path.realpath(infile) == os.path.realpath(outfile):
-        print(f'! cannot convert "{infile}" to itself !')
-        sys.exit(-1)
-    # read in audio:
-    data, samplingrate = load_audio(infile)
-    md = metadata(infile)
-    locs, labels = markers(infile)
-    for infile in args.file[1:]:
-        xdata, xrate = load_audio(infile)
-        if abs(samplingrate - xrate) > 1:
-            print('! cannot merge files with different sampling rates !')
-            print(f'    file "{args.file[0]}" has {samplingrate:.0f}Hz')
-            print(f'    file "{infile}" has {xrate:.0f}Hz')
+            outfile = args.outpath
+            if audio_format:
+                outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format
+            else:
+                audio_format = format_from_extension(outfile).lower()
+        if not check_format(audio_format):
             sys.exit(-1)
-        if xdata.shape[1] != data.shape[1]:
-            print('! cannot merge files with different numbers of channels !')
-            print(f'    file "{args.file[0]}" has {data.shape[1]} channels')
-            print(f'    file "{infile}" has {xdata.shape[1]} channels')
+        if os.path.realpath(infile) == os.path.realpath(outfile):
+            print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
-        data = np.vstack((data, xdata))
-        xlocs, xlabels = markers(infile)
-        locs = np.vstack((locs, xlocs))
-        labels = np.vstack((labels, xlabels))
-    # select channels:
-    if len(channels) > 0:
-        data = data[:,channels]
-    # fix data:
-    if args.unwrap_clip > 1e-3:
-        unwrap(data, args.unwrap_clip)
-        data[data > 1] = 1
-        data[data < -1] = -1
-    elif args.unwrap > 1e-3:
-        unwrap(data, args.unwrap)
-        data *= 0.5
-    # write out audio:
-    write_audio(outfile, data, samplingrate,
-                md, locs, labels,
-                format=args.audio_format, encoding=args.audio_encoding)
-    # message:
-    if args.verbose:
-        print(f'converted audio file "{infile}" to "{outfile}"')
+        # read in audio:
+        data, samplingrate = load_audio(infile)
+        md = metadata(infile)
+        locs, labels = markers(infile)
+        for infile in args.file[i0+1:i0+nmerge]:
+            xdata, xrate = load_audio(infile)
+            if abs(samplingrate - xrate) > 1:
+                print('! cannot merge files with different sampling rates !')
+                print(f'    file "{args.file[i0]}" has {samplingrate:.0f}Hz')
+                print(f'    file "{infile}" has {xrate:.0f}Hz')
+                sys.exit(-1)
+            if xdata.shape[1] != data.shape[1]:
+                print('! cannot merge files with different numbers of channels !')
+                print(f'    file "{args.file[i0]}" has {data.shape[1]} channels')
+                print(f'    file "{infile}" has {xdata.shape[1]} channels')
+                sys.exit(-1)
+            data = np.vstack((data, xdata))
+            xlocs, xlabels = markers(infile)
+            locs = np.vstack((locs, xlocs))
+            labels = np.vstack((labels, xlabels))
+        # select channels:
+        if len(channels) > 0:
+            data = data[:,channels]
+        # fix data:
+        if args.unwrap_clip > 1e-3:
+            unwrap(data, args.unwrap_clip)
+            data[data > 1] = 1
+            data[data < -1] = -1
+        elif args.unwrap > 1e-3:
+            unwrap(data, args.unwrap)
+            data *= 0.5
+        # write out audio:
+        write_audio(outfile, data, samplingrate,
+                    md, locs, labels,
+                    format=audio_format, encoding=args.audio_encoding)
+        # message:
+        if args.verbose:
+            print(f'converted audio file "{infile}" to "{outfile}"')
 
 
 if __name__ == '__main__':
