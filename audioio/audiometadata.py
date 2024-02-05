@@ -42,6 +42,57 @@ keep the labels short, and use text for longer descriptions.
 - `write_markers()`: write markers to a text file or stream.
 - `print_markers()`: write markers to standard output.
 
+## Script
+
+The module can be run as a script from the command line to display the
+metadata and markers contained in an audio file:
+
+```sh
+> audiometadata logger.wav
+```
+prints
+```text
+file:
+  filepath    : logger.wav
+  samplingrate: 96000Hz
+  channels    : 16
+  frames      : 17280000
+  duration    : 180.000s
+
+metadata:
+  INFO:
+      Bits            : 32
+      Pins            : 1-CH2R,1-CH2L,1-CH3R,1-CH3L,2-CH2R,2-CH2L,2-CH3R,2-CH3L,3-CH2R,3-CH2L,3-CH3R,3-CH3L,4-CH2R,4-CH2L,4-CH3R,4-CH3L
+      Gain            : 165.00mV
+      uCBoard         : Teensy 4.1
+      MACAdress       : 04:e9:e5:15:3e:95
+      DateTimeOriginal: 2023-10-01T14:10:02
+      Software        : TeeGrid R4-senors-logger v1.0
+```
+
+Running
+```sh
+audioconverter --help
+```
+prints
+```text
+usage: audiometadata [-h] [--version] [-f] [-m] [-c] file
+
+Convert audio file formats.
+
+positional arguments:
+  file        audio file
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+  -f          list file format only
+  -m          list metadata only
+  -c          list cues/markers only
+
+version 1.2.0 by Benda-Lab (2020-2024)
+```
+
 """
  
 import sys
