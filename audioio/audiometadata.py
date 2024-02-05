@@ -443,13 +443,13 @@ def print_markers(locs, labels=None, sep=' ', prefix=''):
     write_markers(sys.stdout, locs, labels, sep, prefix)
         
 
-def demo(filepath, list_format, list_metadata, list_cues):
-    """Print metadata and markers of file.
+def demo(filepathes, list_format, list_metadata, list_cues):
+    """Print metadata and markers of audio files.
 
     Parameters
     ----------
-    filepath: string
-        Path of anaudio file.
+    filepathes: list of str
+        Pathes of audio files.
     list_format: bool
         If True, list file format only.
     list_metadata: bool
@@ -458,39 +458,44 @@ def demo(filepath, list_format, list_metadata, list_cues):
         If True, list markers/cues only.
     """
     from .audioloader import AudioLoader
-    if list_cues:
-        locs, labels = markers(filepath)
-        print_markers(locs, labels)
-    elif list_metadata:
-        meta_data = metadata(filepath, store_empty=False)
-        print_metadata(meta_data)
-    elif list_format:
-        with AudioLoader(filepath, 1, 0) as sf:
-            fmt_md = dict(filepath=filepath,
-                          samplingrate=f'{sf.samplerate:.0f}Hz',
-                          channels=sf.shape[1],
-                          frames=sf.shape[0],
-                          duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
-            print_metadata(fmt_md)
-    else:
-        meta_data = metadata(filepath, store_empty=False)
-        locs, labels = markers(filepath)
-        print('file:')
-        with AudioLoader(filepath, 1, 0) as sf:
-            fmt_md = dict(filepath=filepath,
-                          samplingrate=f'{sf.samplerate:.0f}Hz',
-                          channels=sf.shape[1],
-                          frames=sf.shape[0],
-                          duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
-            print_metadata(fmt_md, '  ')
-        if len(meta_data) > 0:
-            print()
-            print('metadata:')
-            print_metadata(meta_data, '  ')
-        if len(locs) > 0:
-            print()
-            print('markers:')
+    for filepath in filepathes:
+        if list_cues:
+            locs, labels = markers(filepath)
             print_markers(locs, labels)
+        elif list_metadata:
+            meta_data = metadata(filepath, store_empty=False)
+            print_metadata(meta_data)
+        elif list_format:
+            with AudioLoader(filepath, 1, 0) as sf:
+                fmt_md = dict(filepath=filepath,
+                              samplingrate=f'{sf.samplerate:.0f}Hz',
+                              channels=sf.shape[1],
+                              frames=sf.shape[0],
+                              duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+                print_metadata(fmt_md)
+        else:
+            meta_data = metadata(filepath, store_empty=False)
+            locs, labels = markers(filepath)
+            print('file:')
+            with AudioLoader(filepath, 1, 0) as sf:
+                fmt_md = dict(filepath=filepath,
+                              samplingrate=f'{sf.samplerate:.0f}Hz',
+                              channels=sf.shape[1],
+                              frames=sf.shape[0],
+                              duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+                print_metadata(fmt_md, '  ')
+            if len(meta_data) > 0:
+                print()
+                print('metadata:')
+                print_metadata(meta_data, '  ')
+            if len(locs) > 0:
+                print()
+                print('markers:')
+                print_markers(locs, labels)
+            if len(filepathes) > 0:
+                print()
+        if len(filepathes) > 0:
+            print()
 
 
 def main(*cargs):
@@ -512,13 +517,13 @@ def main(*cargs):
                         help='list metadata only')
     parser.add_argument('-c', dest='cues', action='store_true',
                         help='list cues/markers only')
-    parser.add_argument('file', type=str,
+    parser.add_argument('files', type=str, nargs='+',
                         help='audio file')
     if len(cargs) == 0:
         cargs = None
     args = parser.parse_args(cargs)
 
-    demo(args.file, args.dataformat, args.metadata, args.cues)
+    demo(args.files, args.dataformat, args.metadata, args.cues)
 
 
 if __name__ == "__main__":
