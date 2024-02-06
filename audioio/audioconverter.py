@@ -186,12 +186,13 @@ def main(*cargs):
             if args.outpath:
                 outfile = os.path.join(args.outpath, outfile)
             if not audio_format:
-                audio_format = 'wav'
-            outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format
+                print('! need to specify an audio format via -f or a file extension !')
+                sys.exit(-1)
+            outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format.lower()
         else:
             outfile = args.outpath
             if audio_format:
-                outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format
+                outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format.lower()
             else:
                 audio_format = format_from_extension(outfile).lower()
         if not check_format(audio_format):
