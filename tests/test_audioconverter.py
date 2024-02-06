@@ -15,7 +15,7 @@ def write_audio_file(filename, channels=2, samplerate = 44100):
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
     encoding = 'PCM_16'
-    md = dict(Amplifier='Teensy_Amp')
+    md = dict(Amplifier='Teensy_Amp', Num=42)
     aw.write_wave(filename, data, samplerate, md, encoding=encoding)
 
 
@@ -73,6 +73,13 @@ def test_main():
     md1 = al.metadata(filename)
     md2 = al.metadata(destfile + '.wav')
     assert_equal(md1, md2, 'metadata of merged files')
+    ac.main('-d', '4', '-o', destfile + '.wav', filename)
+    xdata, xrate = al.load_audio(filename)
+    ydata, yrate = al.load_audio(destfile + '.wav')
+    assert_equal(len(ydata), len(xdata)//4, 'decimation data')
+    assert_equal(yrate*4, xrate, 'decimation rate')
+    ac.main('-o', 'test{Num}.wav', filename)
+    os.remove('test42.wav')
     os.remove(filename)
     os.remove(filename1)
     os.remove(destfile+'.wav')

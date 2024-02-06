@@ -68,9 +68,10 @@ import os
 import sys
 import argparse
 import numpy as np
+from scipy.signal import decimate
 from .version import __version__, __year__
 from .audioloader import load_audio
-from .audiometadata import metadata, markers
+from .audiometadata import metadata, markers, flatten_metadata
 from .audiotools import unwrap
 from .audiowriter import available_formats, available_encodings
 from .audiowriter import format_from_extension, write_audio
@@ -104,7 +105,7 @@ def check_format(format):
 
 def main(*cargs):
     """
-    Command line script for converting audio files.
+    Command line script for converting, downsampling, renaming and merging audio files.
 
     Parameters
     ----------
@@ -126,18 +127,21 @@ def main(*cargs):
                         metavar='ENCODING',
                         help='audio encoding of output file')
     parser.add_argument('-u', dest='unwrap', default=0, type=float,
-                        metavar='UNWRAP', const=0.5, nargs='?',
-                        help='unwrap clipped data with threshold and divide by two')
+                        metavar='THRESH', const=0.5, nargs='?',
+                        help='unwrap clipped data with threshold (default is 0.5) and divide by two')
     parser.add_argument('-U', dest='unwrap_clip', default=0, type=float,
-                        metavar='UNWRAP', const=0.5, nargs='?',
-                        help='unwrap clipped data with threshold and clip')
+                        metavar='THRESH', const=0.5, nargs='?',
+                        help='unwrap clipped data with threshold (default is 0.5) and clip')
+    parser.add_argument('-d', dest='decimate', default=1, type=int,
+                        metavar='FAC',
+                        help='downsample by integer factor')
     parser.add_argument('-c', dest='channels', default='',
                         type=str, metavar='CHANNELS',
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
     parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
                         help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
-                        help='path or filename of output file')
+                         help='path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their values from the input file')
     parser.add_argument('file', nargs='*', type=str,
                         help='one or more input audio files to be combined into a single output file')
     if len(cargs) == 0:
@@ -238,6 +242,15 @@ def main(*cargs):
         elif args.unwrap > 1e-3:
             unwrap(data, args.unwrap)
             data *= 0.5
+        # decimate:
+        if args.decimate > 1:
+            data = decimate(data, args.decimate, axis=0)
+            samplingrate /= args.decimate
+        # metadata into file name:
+        if len(md) > 0 and '{' in outfile and '}' in outfile:
+            fmd = flatten_metadata(md)
+            fmd = {k:(fmd[k] if isinstance(fmd[k], (int, float)) else fmd[k].replace(' ', '_')) for k in fmd}
+            outfile = outfile.format(**fmd)
         # write out audio:
         write_audio(outfile, data, samplingrate,
                     md, locs, labels,
