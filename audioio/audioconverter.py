@@ -116,7 +116,7 @@ def main(*cargs):
         description='Convert audio file formats.',
         epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
     parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('-v', action='store_true', dest='verbose',
+    parser.add_argument('-v', action='count', dest='verbose', default=0,
                         help='print debug output')
     parser.add_argument('-l', dest='list_formats', action='store_true',
                         help='list supported file formats and encodings')
@@ -179,6 +179,10 @@ def main(*cargs):
     for i0 in range(0, len(args.file), nmerge):
         infile = args.file[i0]
         # output file and format:
+        if nmerge < len(args.file) and args.outpath and \
+           format_from_extension(args.outpath) is None and \
+           not os.path.exists(args.outpath):
+            os.mkdir(args.outpath)
         audio_format = args.audio_format
         if not args.outpath or os.path.isdir(args.outpath):
             outfile = infile
@@ -203,6 +207,8 @@ def main(*cargs):
         data, samplingrate = load_audio(infile)
         md = metadata(infile)
         locs, labels = markers(infile)
+        if args.verbose > 1:
+            print(f'loaded audio file "{infile}"')
         for infile in args.file[i0+1:i0+nmerge]:
             xdata, xrate = load_audio(infile)
             if abs(samplingrate - xrate) > 1:
@@ -219,6 +225,8 @@ def main(*cargs):
             xlocs, xlabels = markers(infile)
             locs = np.vstack((locs, xlocs))
             labels = np.vstack((labels, xlabels))
+            if args.verbose > 1:
+                print(f'loaded audio file "{infile}"')
         # select channels:
         if len(channels) > 0:
             data = data[:,channels]
@@ -235,7 +243,9 @@ def main(*cargs):
                     md, locs, labels,
                     format=audio_format, encoding=args.audio_encoding)
         # message:
-        if args.verbose:
+        if args.verbose > 1:
+            print(f'wrote "{outfile}"')
+        elif args.verbose:
             print(f'converted audio file "{infile}" to "{outfile}"')
 
 
