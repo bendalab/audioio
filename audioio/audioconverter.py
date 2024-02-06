@@ -193,7 +193,7 @@ def main(*cargs):
             if audio_format:
                 outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format.lower()
             else:
-                audio_format = format_from_extension(outfile).lower()
+                audio_format = format_from_extension(outfile)
         if not check_format(audio_format):
             sys.exit(-1)
         if os.path.realpath(infile) == os.path.realpath(outfile):
