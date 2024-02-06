@@ -92,7 +92,7 @@ def check_format(format):
     valid: bool
         True if the requested audio format is valid.
     """
-    if format and format.upper() not in available_formats():
+    if not format or format.upper() not in available_formats():
         print(f'! invalid audio format "{format}"!')
         print('run')
         print(f'> {__file__} -l')
@@ -155,15 +155,14 @@ def main(*cargs):
         else:
             channels.append(int(c))
 
-    if not check_format(args.audio_format):
-        sys.exit(-1)
-
     if args.list_formats:
         if not args.audio_format:
             print('available audio formats:')
             for f in available_formats():
                 print(f'  {f}')
         else:
+            if not check_format(args.audio_format):
+                sys.exit(-1)
             print(f'available encodings for audio format {args.audio_format}:')
             for e in available_encodings(args.audio_format):
                 print(f'  {e}')
