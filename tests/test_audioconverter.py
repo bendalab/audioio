@@ -40,6 +40,7 @@ def test_main():
     ac.main('-u', '-f', 'wav', '-o', destfile, filename)
     ac.main('-u', '0.8', '-f', 'wav', '-o', destfile, filename)
     ac.main('-U', '0.8', '-f', 'wav', '-o', destfile, filename)
+    ac.main('-s', '0.1', '-f', 'wav', '-o', destfile, filename)
     ac.main('-e', 'PCM_32', '-o', destfile + '.wav', filename)
     ac.main('-f', 'wav', '-e', 'PCM_32', '-o', destfile, '-v', filename)
     if 'FLOAT' in aw.available_encodings('WAV'):

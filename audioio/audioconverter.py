@@ -93,8 +93,9 @@ def add_arguments(parser):
     parser.add_argument('-f', dest='data_format', default=None, type=str,
                         metavar='FORMAT', help='audio format of output file')
     parser.add_argument('-e', dest='encoding', default=None, type=str,
-                        metavar='ENCODING',
                         help='audio encoding of output file')
+    parser.add_argument('-s', dest='scale', default=1, type=float,
+                        help='scale the data by factor SCALE')
     parser.add_argument('-u', dest='unwrap', default=0, type=float,
                         metavar='THRESH', const=0.5, nargs='?',
                         help='unwrap clipped data with threshold (default is 0.5) and divide by two')
@@ -104,8 +105,7 @@ def add_arguments(parser):
     parser.add_argument('-d', dest='decimate', default=1, type=int,
                         metavar='FAC',
                         help='downsample by integer factor')
-    parser.add_argument('-c', dest='channels', default='',
-                        type=str, metavar='CHANNELS',
+    parser.add_argument('-c', dest='channels', default='', type=str,
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
     parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
                         help='merge NUM input files into one output file')
@@ -295,8 +295,8 @@ def add_unwrap(metadata, thresh, clip):
         md['UnwrapClipped'] = f'{clip:.2f}'
     
 
-def modify_data(data, samplingrate, metadata,
-                channels, unwrap_clip, unwrap_thresh, decimate_fac):
+def modify_data(data, samplingrate, metadata, channels, scale,
+                unwrap_clip, unwrap_thresh, decimate_fac):
     """ Put metadata values into name of output file.
 
     Parameters
@@ -309,6 +309,8 @@ def modify_data(data, samplingrate, metadata,
         Metadata.
     channels: list of int
         List of channels to be selected from the data.
+    scale: float
+        Scaling factor to be applied to the data.
     unwrap_clip: float
         If larger than zero, unwrap the data using this as a threshold,
         and clip the data at +-1.
@@ -325,6 +327,10 @@ def modify_data(data, samplingrate, metadata,
     # select channels:
     if len(channels) > 0:
         data = data[:,channels]
+    # scale data:
+    if scale != 1:
+        data *= scale
+        update_gain(metadata, 1/scale)
     # fix data:
     if unwrap_clip > 1e-3:
         unwrap(data, unwrap_clip)
@@ -432,9 +438,10 @@ def main(*cargs):
             labels = np.vstack((labels, xlabels))
             if args.verbose > 1:
                 print(f'loaded audio file "{infile}"')
-        data, samplingrate = modify_data(data, samplingrate, md, channels,
-                                         args.unwrap_clip, args.unwrap,
-                                         args.decimate)
+        data, samplingrate = modify_data(data, samplingrate, md,
+                                         channels, args.scale,
+                                         args.unwrap_clip,
+                                         args.unwrap, args.decimate)
         outfile = format_outfile(outfile, md)
         # write out audio:
         write_audio(outfile, data, samplingrate,
