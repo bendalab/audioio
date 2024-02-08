@@ -55,6 +55,7 @@ def test_main():
     assert_raises(SystemExit, ac.main, '-f', 'xyz123', filename)
     assert_raises(SystemExit, ac.main, filename)
     assert_raises(SystemExit, ac.main)
+    ac.main('-m', 'INFO__Artist=John Doe', '-o', destfile + '.wav', filename)
     write_audio_file(filename)
     write_audio_file(filename1, 4)
     ac.main('-c', '1', '-o', destfile + '.wav', filename1)

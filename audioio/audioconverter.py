@@ -37,27 +37,31 @@ audioconverter --help
 ```
 prints
 ```text
-usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-u [UNWRAP]] [-U [UNWRAP]] [-c CHANNELS]
-                      [-n NUM] [-o OUTPATH]
+usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]] [-U [THRESH]]
+                      [-d FAC] [-c CHANNELS] [-m KEY=VALUE] [-n NUM] [-o OUTPATH]
                       [file ...]
 
 Convert audio file formats.
 
 positional arguments:
-  file         one or more input audio files to be combined into a single output file
+  file          one or more input files to be combined into a single output file
 
 options:
-  -h, --help   show this help message and exit
-  --version    show program's version number and exit
-  -v           print debug output
-  -l           list supported file formats and encodings
-  -f FORMAT    audio format of output file
-  -e ENCODING  audio encoding of output file
-  -u [UNWRAP]  unwrap clipped data with threshold and divide by two
-  -U [UNWRAP]  unwrap clipped data with threshold and clip
-  -c CHANNELS  comma and dash separated list of channels to be saved (first channel is 0)
-  -n NUM       merge NUM input files into one output file
-  -o OUTPATH   path or filename of output file
+  -h, --help    show this help message and exit
+  --version     show program's version number and exit
+  -v            print debug output
+  -l            list supported file formats and encodings
+  -f FORMAT     audio format of output file
+  -e ENCODING   audio encoding of output file
+  -s SCALE      scale the data by factor SCALE
+  -u [THRESH]   unwrap clipped data with threshold (default is 0.5) and divide by two
+  -U [THRESH]   unwrap clipped data with threshold (default is 0.5) and clip
+  -d FAC        downsample by integer factor
+  -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
+  -m KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "__"
+  -n NUM        merge NUM input files into one output file
+  -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their
+                values from the input file
 
 version 1.2.0 by Benda-Lab (2020-2024)
 ```
@@ -71,7 +75,8 @@ import numpy as np
 from scipy.signal import decimate
 from .version import __version__, __year__
 from .audioloader import load_audio
-from .audiometadata import metadata, markers, flatten_metadata
+from .audiometadata import metadata, markers
+from .audiometadata import flatten_metadata, unflatten_metadata
 from .audiotools import unwrap
 from .audiowriter import available_formats, available_encodings
 from .audiowriter import format_from_extension, write_audio
@@ -107,6 +112,9 @@ def add_arguments(parser):
                         help='downsample by integer factor')
     parser.add_argument('-c', dest='channels', default='', type=str,
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
+    parser.add_argument('-m', dest='md_list', action='append', default=[],
+                        type=str, metavar='KEY=VALUE',
+                        help='add key-value pairs to metadata. Keys can have section names separated by "__"')
     parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
                         help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
@@ -349,6 +357,30 @@ def modify_data(data, samplingrate, metadata, channels, scale,
     return data, samplingrate
 
 
+def add_metadata(metadata, md_list):
+    """ Add or modify metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    md_list: list of str
+        List of key-value pairs for updating the metadata.
+
+    Returns
+    -------
+    metadata: nested dict
+        Modified metadata.
+    """
+    if not md_list:
+        return metadata
+    fmd = flatten_metadata(metadata)
+    for md in md_list:
+        k, v = md.split('=')
+        fmd[k.strip()] = v.strip()
+    return unflatten_metadata(fmd)
+
+
 def format_outfile(outfile, metadata):
     """ Put metadata values into name of output file.
 
@@ -442,6 +474,7 @@ def main(*cargs):
                                          channels, args.scale,
                                          args.unwrap_clip,
                                          args.unwrap, args.decimate)
+        md = add_metadata(md, args.md_list)
         outfile = format_outfile(outfile, md)
         # write out audio:
         write_audio(outfile, data, samplingrate,
