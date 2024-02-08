@@ -272,6 +272,28 @@ def update_gain(md, fac):
                 return True
     return False
     
+            
+def add_unwrap(metadata, thresh, clip):
+    """ Add unwrap infos to metadata.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata to be updated.
+    thresh: float
+        Threshold used for unwrapping.
+    clip: float
+        Level at which unwrapped data have been clipped.
+    """
+    md = metadata
+    for k in metadata:
+        if k.strip().upper() == 'INFO':
+            md = metadata['INFO']
+            break
+    md['UnwrapThreshold'] = f'{thresh:.2f}'
+    if clip > 0:
+        md['UnwrapClipped'] = f'{clip:.2f}'
+    
 
 def modify_data(data, samplingrate, metadata,
                 channels, unwrap_clip, unwrap_thresh, decimate_fac):
@@ -308,10 +330,12 @@ def modify_data(data, samplingrate, metadata,
         unwrap(data, unwrap_clip)
         data[data > 1] = 1
         data[data < -1] = -1
+        add_unwrap(metadata, unwrap_clip, 1.0)
     elif unwrap_thresh > 1e-3:
         unwrap(data, unwrap_thresh)
         data *= 0.5
         update_gain(metadata, 0.5)
+        add_unwrap(metadata, unwrap_thresh, 0.0)
     # decimate:
     if decimate_fac > 1:
         data = decimate(data, decimate_fac, axis=0)
