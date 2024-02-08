@@ -38,7 +38,7 @@ audioconverter --help
 prints
 ```text
 usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]] [-U [THRESH]]
-                      [-d FAC] [-c CHANNELS] [-m KEY=VALUE] [-n NUM] [-o OUTPATH]
+                      [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-n NUM] [-o OUTPATH]
                       [file ...]
 
 Convert audio file formats.
@@ -58,7 +58,7 @@ options:
   -U [THRESH]   unwrap clipped data with threshold (default is 0.5) and clip
   -d FAC        downsample by integer factor
   -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
-  -m KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "__"
+  -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "__"
   -n NUM        merge NUM input files into one output file
   -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their
                 values from the input file
@@ -112,7 +112,7 @@ def add_arguments(parser):
                         help='downsample by integer factor')
     parser.add_argument('-c', dest='channels', default='', type=str,
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
-    parser.add_argument('-m', dest='md_list', action='append', default=[],
+    parser.add_argument('-a', dest='md_list', action='append', default=[],
                         type=str, metavar='KEY=VALUE',
                         help='add key-value pairs to metadata. Keys can have section names separated by "__"')
     parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
