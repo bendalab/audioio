@@ -77,53 +77,22 @@ from .audiowriter import available_formats, available_encodings
 from .audiowriter import format_from_extension, write_audio
 
 
-def check_format(format):
-    """
-    Check whether requested audio format is valid and supported.
-
-    If the format is not available print an error message on console.
+def add_arguments(parser):
+    """ Add command line arguments to parser.
 
     Parameters
     ----------
-    format: string
-        Audio format to be checked.
-
-    Returns
-    -------
-    valid: bool
-        True if the requested audio format is valid.
+    parser: argparse.ArgumentParser
+        The parser.
     """
-    if not format or format.upper() not in available_formats():
-        print(f'! invalid audio format "{format}"!')
-        print('run')
-        print(f'> {__file__} -l')
-        print('for a list of available formats')
-        return False
-    else:
-        return True
-
-
-def main(*cargs):
-    """
-    Command line script for converting, downsampling, renaming and merging audio files.
-
-    Parameters
-    ----------
-    cargs: list of strings
-        Command line arguments as returned by sys.argv[1:].
-    """
-    # command line arguments:
-    parser = argparse.ArgumentParser(add_help=True,
-        description='Convert audio file formats.',
-        epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('-v', action='count', dest='verbose', default=0,
                         help='print debug output')
     parser.add_argument('-l', dest='list_formats', action='store_true',
                         help='list supported file formats and encodings')
-    parser.add_argument('-f', dest='audio_format', default=None, type=str,
+    parser.add_argument('-f', dest='data_format', default=None, type=str,
                         metavar='FORMAT', help='audio format of output file')
-    parser.add_argument('-e', dest='audio_encoding', default=None, type=str,
+    parser.add_argument('-e', dest='encoding', default=None, type=str,
                         metavar='ENCODING',
                         help='audio encoding of output file')
     parser.add_argument('-u', dest='unwrap', default=0, type=float,
@@ -143,12 +112,23 @@ def main(*cargs):
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                          help='path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their values from the input file')
     parser.add_argument('file', nargs='*', type=str,
-                        help='one or more input audio files to be combined into a single output file')
-    if len(cargs) == 0:
-        cargs = None
-    args = parser.parse_args(cargs)
+                        help='one or more input files to be combined into a single output file')
 
-    cs = [s.strip() for s in args.channels.split(',')]
+
+def parse_channels(cstr):
+    """ Parse channel selection string.
+
+    Parameters
+    ----------
+    cstr: str
+        String with comma separated channels and dash separated channel ranges.
+
+    Returns
+    -------
+    channels: list of int
+        List of selected channels.
+    """
+    cs = [s.strip() for s in cstr.split(',')]
     channels = []
     for c in cs:
         if len(c) == 0:
@@ -158,18 +138,231 @@ def main(*cargs):
             channels.extend(list(range(int(css[0]), int(css[1])+1)))
         else:
             channels.append(int(c))
+    return channels
 
-    if args.list_formats:
-        if not args.audio_format:
-            print('available audio formats:')
-            for f in available_formats():
-                print(f'  {f}')
+
+def check_format(format):
+    """
+    Check whether requested audio format is valid and supported.
+
+    If the format is not available print an error message on console.
+
+    Parameters
+    ----------
+    format: string
+        Audio format to be checked.
+
+    Returns
+    -------
+    valid: bool
+        True if the requested audio format is valid.
+    """
+    if not format or format.upper() not in available_formats():
+        print(f'! invalid audio file format "{format}"!')
+        print('run')
+        print(f'> {__file__} -l')
+        print('for a list of available formats')
+        return False
+    else:
+        return True
+
+
+def list_formats_encodings(data_format):
+    """ List available formats or encodings.
+
+    Parameters
+    ----------
+    data_format: None or str
+        If provided, list encodings for this data format.
+    """
+    if not data_format:
+        print('available file formats:')
+        for f in available_formats():
+            print(f'  {f}')
+    else:
+        if not check_format(data_format):
+            sys.exit(-1)
+        print(f'available encodings for {data_format} file format:')
+        for e in available_encodings(data_format):
+            print(f'  {e}')
+
+            
+def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
+    """ Make name for output file.
+
+    Parameters
+    ----------
+    outpath: None or str
+        Requested output path.
+    infile: str
+        Name of the input file.
+    data_format: None or str
+        Requested output file format.
+    blocks: bool
+        If True, produce outputfile for group of input files.
+    format_from_ext: function
+        Function that inspects a filename for its extension and
+        deduces a file format from it.
+
+    Returns
+    -------
+    outfile: str
+        Name of output file.
+    data_format: str
+        Format of output file.
+    """
+    if blocks and outpath and \
+       format_from_ext(outpath) is None and \
+       not os.path.exists(outpath):
+        os.mkdir(outpath)
+    if not outpath or os.path.isdir(outpath):
+        outfile = infile
+        if outpath:
+            outfile = os.path.join(outpath, outfile)
+        if not data_format:
+            print('! need to specify an audio format via -f or a file extension !')
+            sys.exit(-1)
+        outfile = os.path.splitext(outfile)[0] + os.extsep + data_format.lower()
+    else:
+        outfile = outpath
+        if data_format:
+            outfile = os.path.splitext(outfile)[0] + os.extsep + data_format.lower()
         else:
-            if not check_format(args.audio_format):
-                sys.exit(-1)
-            print(f'available encodings for audio format {args.audio_format}:')
-            for e in available_encodings(args.audio_format):
-                print(f'  {e}')
+            data_format = format_from_ext(outfile)
+    return outfile, data_format
+
+            
+def update_gain(md, fac):
+    """ Update gain setting in metadata.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata to be updated.
+    fac: float
+        Factor that was used to scale the data.
+
+    Returns
+    -------
+    done: bool
+        True if gain has been found and set.
+    """
+    for k in md:
+        if k.strip().upper() == 'GAIN':
+            vs = md[k]
+            if isinstance(vs, (int, float)):
+                md[k] /= fac
+            else:
+                # extract initial number:
+                n = len(vs)
+                ip = n
+                for i in range(len(vs)):
+                    if vs[i] == '.':
+                        ip = i + 1
+                    if not vs[i] in '0123456789.+-':
+                        n = i
+                        break
+                v = float(vs[:n])
+                u = vs[n:].removesuffix('/V')  # fix some TeeGrid gains
+                nd = n - ip
+                md[k] = f'{v/fac:.{nd}f}{u}'
+            return True
+        elif isinstance(md[k], dict):
+            if update_gain(md[k], fac):
+                return True
+    return False
+    
+
+def modify_data(data, samplingrate, metadata,
+                channels, unwrap_clip, unwrap_thresh, decimate_fac):
+    """ Put metadata values into name of output file.
+
+    Parameters
+    ----------
+    data: 2-D array of float
+        The data to be written into the output file.
+    samplingrate: float
+        Sampling rate of the data in Hertz.
+    metadata: nested dict
+        Metadata.
+    channels: list of int
+        List of channels to be selected from the data.
+    unwrap_clip: float
+        If larger than zero, unwrap the data using this as a threshold,
+        and clip the data at +-1.
+    unwrap_thresh: float
+        If larger than zero, unwrap the data using this as a threshold,
+        and downscale the data by a factor of two. Also update the gain
+        in the metadata.
+    decimate_fac: int
+        Downsample the data by this factor.
+
+    Returns
+    -------
+    """
+    # select channels:
+    if len(channels) > 0:
+        data = data[:,channels]
+    # fix data:
+    if unwrap_clip > 1e-3:
+        unwrap(data, unwrap_clip)
+        data[data > 1] = 1
+        data[data < -1] = -1
+    elif unwrap_thresh > 1e-3:
+        unwrap(data, unwrap_thresh)
+        data *= 0.5
+        update_gain(metadata, 0.5)
+    # decimate:
+    if decimate_fac > 1:
+        data = decimate(data, decimate_fac, axis=0)
+        samplingrate /= decimate_fac
+    return data, samplingrate
+
+
+def format_outfile(outfile, metadata):
+    """ Put metadata values into name of output file.
+
+    Parameters
+    ----------
+    outfile: str
+        Name of output file. May contain metadata keys enclosed in curly braces.
+    metadata: nested dict
+        Metadata.
+
+    Returns
+    -------
+    outfile: str
+        Name of output file.
+    """
+    if len(metadata) > 0 and '{' in outfile and '}' in outfile:
+        fmd = flatten_metadata(metadata)
+        fmd = {k:(fmd[k] if isinstance(fmd[k], (int, float)) else fmd[k].replace(' ', '_')) for k in fmd}
+        outfile = outfile.format(**fmd)
+    return outfile
+
+        
+def main(*cargs):
+    """
+    Command line script for converting, downsampling, renaming and merging audio files.
+
+    Parameters
+    ----------
+    cargs: list of strings
+        Command line arguments as returned by sys.argv[1:].
+    """
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description='Convert audio file formats.',
+        epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
+    add_arguments(parser)
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
+    
+    channels = parse_channels(args.channels)
+    
+    if args.list_formats:
+        list_formats_encodings(args.data_format)
         return
 
     if len(args.file) == 0 or len(args.file[0]) == 0:
@@ -182,27 +375,11 @@ def main(*cargs):
 
     for i0 in range(0, len(args.file), nmerge):
         infile = args.file[i0]
-        # output file and format:
-        if nmerge < len(args.file) and args.outpath and \
-           format_from_extension(args.outpath) is None and \
-           not os.path.exists(args.outpath):
-            os.mkdir(args.outpath)
-        audio_format = args.audio_format
-        if not args.outpath or os.path.isdir(args.outpath):
-            outfile = infile
-            if args.outpath:
-                outfile = os.path.join(args.outpath, outfile)
-            if not audio_format:
-                print('! need to specify an audio format via -f or a file extension !')
-                sys.exit(-1)
-            outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format.lower()
-        else:
-            outfile = args.outpath
-            if audio_format:
-                outfile = os.path.splitext(outfile)[0] + os.extsep + audio_format.lower()
-            else:
-                audio_format = format_from_extension(outfile)
-        if not check_format(audio_format):
+        outfile, data_format = make_outfile(args.outpath, infile,
+                                            args.data_format,
+                                            nmerge < len(args.file),
+                                            format_from_extension)
+        if not check_format(data_format):
             sys.exit(-1)
         if os.path.realpath(infile) == os.path.realpath(outfile):
             print(f'! cannot convert "{infile}" to itself !')
@@ -231,30 +408,14 @@ def main(*cargs):
             labels = np.vstack((labels, xlabels))
             if args.verbose > 1:
                 print(f'loaded audio file "{infile}"')
-        # select channels:
-        if len(channels) > 0:
-            data = data[:,channels]
-        # fix data:
-        if args.unwrap_clip > 1e-3:
-            unwrap(data, args.unwrap_clip)
-            data[data > 1] = 1
-            data[data < -1] = -1
-        elif args.unwrap > 1e-3:
-            unwrap(data, args.unwrap)
-            data *= 0.5
-        # decimate:
-        if args.decimate > 1:
-            data = decimate(data, args.decimate, axis=0)
-            samplingrate /= args.decimate
-        # metadata into file name:
-        if len(md) > 0 and '{' in outfile and '}' in outfile:
-            fmd = flatten_metadata(md)
-            fmd = {k:(fmd[k] if isinstance(fmd[k], (int, float)) else fmd[k].replace(' ', '_')) for k in fmd}
-            outfile = outfile.format(**fmd)
+        data, samplingrate = modify_data(data, samplingrate, md, channels,
+                                         args.unwrap_clip, args.unwrap,
+                                         args.decimate)
+        outfile = format_outfile(outfile, md)
         # write out audio:
         write_audio(outfile, data, samplingrate,
                     md, locs, labels,
-                    format=audio_format, encoding=args.audio_encoding)
+                    format=data_format, encoding=args.encoding)
         # message:
         if args.verbose > 1:
             print(f'wrote "{outfile}"')
