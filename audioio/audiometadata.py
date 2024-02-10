@@ -25,6 +25,7 @@ RIFF/WAVE files.
 - `print_metadata()`: write meta data to standard output.
 - `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
 - `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
+- `find_key()`: find dictionary in metadata hierarchy containing the specified key.
 - `add_metadata()`: add or modify metadata.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
@@ -338,7 +339,133 @@ def unflatten_metadata(md, sep='__'):
     return umd
 
 
-def add_metadata(metadata, md_list):
+def find_key(metadata, key, sep='__'):
+    """Find dictionary in metadata hierarchy containing the specified key.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key: str
+        Key to be searched for. May contain section names separated by
+        `sep`. 
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    md: None or dict
+        If `key` specifies a section, then this section is returned.
+        If `key`specifies a key-value pair, then the dictionary
+        containing the key is returned.
+        If only some first sections of `key` have been found,
+        then the innermost matching dictionary is returned, together 
+        with the part of `key` that has not been found.
+        If `key` is not at all contained in the metadata,
+        the top-level dictionary is returned.
+    key: None or str
+        If `key` was found, the actual key into `md` specifying a
+        key-value pair. None if `key` specifies a section. If `key`
+        was not found, then the part of `key`that was not found.
+
+    Examples
+    --------
+
+    When searching for key-value pairs, then independent of whether
+    found or not found, you can assign to the returned dictionary with
+    the returned key:
+
+    ```
+    >>> from audioio import print_metadata, find_key
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)), gggg=dict(hhh=6))
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            ff: 5
+    gggg:
+        hhh: 6
+    >>> m, k = find_key(md, 'bbbb__ddd')
+    >>> m[k] = 10
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 10
+    ...
+
+    >>> m, k = find_key(md, 'hhh')
+    >>> m[k] = 12
+    >>> print_metadata(md)
+    ...
+    gggg:
+        hhh: 12
+
+    >>> m, k = find_key(md, 'bbbb__eee__xx')
+    >>> m[k] = 42
+    >>> print_metadata(md)
+    ...
+        eee:
+            ff: 5
+            xx: 42
+    ...
+    ```
+
+    When searching for sections, the innermost found is returned:
+    ```
+    >>> m, k = find_key(md, 'eee')
+    >>> m['yy'] = 46
+    >>> print_metadata(md)
+    ...
+        eee:
+            ff: 5
+            xx: 42
+            yy: 46
+    ...
+    >>> m, k = find_key(md, 'gggg__zzz')
+    >>> k
+    'zzz'
+    >>> m[k] = 64
+    >>> print_metadata(md)
+    ...
+    gggg:
+        hhh: 12
+        zzz: 64
+    ```
+
+    """
+    def find_keys(metadata, keys):
+        key = keys[0].strip().upper()
+        for k in metadata:
+            if k.upper() == key:
+                if isinstance(metadata[k], dict):
+                    if len(keys) > 1:
+                        # keep searching within the next section:
+                        return find_keys(metadata[k], keys[1:])
+                    else:
+                        # found section:
+                        return True, metadata[k], None
+                elif len(keys) == 1:
+                    # found key-value pair:
+                    return True, metadata, k
+                break
+        # search in sections:
+        for k in metadata:
+            if isinstance(metadata[k], dict):
+                found, mm, kk = find_keys(metadata[k], keys)
+                if found:
+                    return True, mm, kk
+        # nothing found:
+        return False, metadata, sep.join(keys)
+
+    ks = key.strip().split(sep)
+    found, mm, kk = find_keys(metadata, ks)
+    return mm, kk
+
+
+def add_metadata(metadata, md_list, sep='__'):
     """ Add or modify metadata.
 
     Parameters
@@ -347,19 +474,20 @@ def add_metadata(metadata, md_list):
         Metadata.
     md_list: list of str
         List of key-value pairs for updating the metadata.
-
-    Returns
-    -------
-    metadata: nested dict
-        Modified metadata.
+    sep: str
+        String that separates section names in the keys of `md_list`.
     """
-    if not md_list:
-        return metadata
-    fmd = flatten_metadata(metadata)
     for md in md_list:
         k, v = md.split('=')
-        fmd[k.strip()] = v.strip()
-    return unflatten_metadata(fmd)
+        mm, kk = find_key(metadata, k)
+        # add missing sections:
+        if sep in kk:
+            ks = kk.split(sep)
+            for k in ks[:-1]:
+                mm[k] = dict()
+                mm = mm[k]
+            kk = ks[-1]
+        mm[kk] = v.strip()
 
             
 def update_gain(md, fac):

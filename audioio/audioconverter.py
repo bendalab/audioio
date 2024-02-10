@@ -116,7 +116,7 @@ def add_arguments(parser):
                         help='comma and dash separated list of channels to be saved (first channel is 0)')
     parser.add_argument('-a', dest='md_list', action='append', default=[],
                         type=str, metavar='KEY=VALUE',
-                        help='add key-value pairs to metadata. Keys can have section names separated by "__"')
+                        help='add key-value pairs to metadata. Keys can have section names separated by "."')
     parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
                         help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
@@ -389,7 +389,7 @@ def main(*cargs):
                                          channels, args.scale,
                                          args.unwrap_clip,
                                          args.unwrap, args.decimate)
-        md = add_metadata(md, args.md_list)
+        add_metadata(md, args.md_list, '.')
         outfile = format_outfile(outfile, md)
         # write out audio:
         write_audio(outfile, data, samplingrate,

@@ -106,9 +106,32 @@ def test_flatten():
     amd.print_metadata(md)
     amd.print_metadata(md, '# ')
     amd.print_metadata(md, '# ', 2)
+    
     filename = 'test.txt'
     amd.write_metadata_text(filename, md)
     os.remove(filename)
+
+
+def test_find_key():
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)),
+              gggg=dict(hhh=6))
+    m, k = amd.find_key(md, 'bbbb__ddd')
+    m[k] = 10
+    assert_equal(md['bbbb']['ddd'], 10, 'find key-value pair')
+    m, k = amd.find_key(md, 'hhh')
+    m[k] = 12
+    assert_equal(md['gggg']['hhh'], 12, 'find key-value pair')
+    m, k = amd.find_key(md, 'bbbb__eee__xx')
+    assert_true(k not in md['bbbb']['eee'], 'find non-existing key-value pair')
+    m[k] = 42
+    assert_equal(md['bbbb']['eee']['xx'], 42, 'find key-value pair')
+    m, k = amd.find_key(md, 'eee')
+    m['yy'] = 46
+    assert_equal(md['bbbb']['eee']['yy'], 46, 'find section')
+    m, k = amd.find_key(md, 'gggg__zzz')
+    assert_equal(k, 'zzz', 'find non-existing section')
+    m[k] = 64
+    assert_equal(md['gggg']['zzz'], 64, 'find non-existing section')
 
     
 def test_markers():
