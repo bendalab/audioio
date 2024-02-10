@@ -156,7 +156,19 @@ def test_add_sections():
     assert_equal(len(m), 0, 'added empty key-value pair')
     assert_equal(len(md), 0, 'added empty key-value pair')
     assert_equal(k, '', 'added empty key-value pair')
+
     
+def test_add_metadata():
+     md = dict(Recording=dict(Time='early'))
+     amd.add_metadata(md, ['Artist=John Doe',
+                           'Recording__Time=late',
+                           'Recording__Quality=amazing',
+                           'Location__Country=Lummerland'])
+     assert_equal(md['Recording']['Time'], 'late', 'add_metadata')
+     assert_equal(md['Recording']['Quality'], 'amazing', 'add_metadata')
+     assert_equal(md['Artist'], 'John Doe', 'add_metadata')
+     assert_equal(md['Location']['Country'], 'Lummerland', 'add_metadata')
+
     
 def test_markers():
     data, rate = generate_data()

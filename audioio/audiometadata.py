@@ -494,6 +494,7 @@ def add_sections(metadata, sections, value=False, sep='__'):
 
     Add a section and a sub-section to the metadata:
     ```
+    >>> from audioio import print_metadata, add_sections
     >>> md = dict()
     >>> m = add_sections(md, 'Recording__Location')
     >>> m['Country'] = 'Lummerland'
@@ -543,7 +544,7 @@ def add_sections(metadata, sections, value=False, sep='__'):
 
         
 def add_metadata(metadata, md_list, sep='__'):
-    """ Add or modify metadata.
+    """Add or modify metadata.
 
     Parameters
     ----------
@@ -551,8 +552,32 @@ def add_metadata(metadata, md_list, sep='__'):
         Metadata.
     md_list: list of str
         List of key-value pairs for updating the metadata.
+        Values are separated from keys by '='.
     sep: str
         String that separates section names in the keys of `md_list`.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, add_metadata
+    >>> md = dict(Recording=dict(Time='early'))
+    >>> print_metadata(md)
+    Recording:
+        Time: early
+
+    >>> add_metadata(md, ['Artist=John Doe',                # new key-value pair
+                          'Recording__Time=late',           # change value of existing key 
+                          'Recording__Quality=amazing',     # new key-value pair in existing section
+                          'Location__Country=Lummerland'])  # new key-value pair in new section
+    >>> print_metadata(md)
+    Recording:
+        Time   : late
+        Quality: amazing
+    Artist: John Doe
+    Location:
+        Country: Lummerland
+    ```
+
     """
     for md in md_list:
         k, v = md.split('=')
