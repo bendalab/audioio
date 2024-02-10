@@ -39,7 +39,7 @@ audioconverter --help
 prints
 ```text
 usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]] [-U [THRESH]]
-                      [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-n NUM] [-o OUTPATH]
+                      [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-r KEY] [-n NUM] [-o OUTPATH]
                       [file ...]
 
 Convert audio file formats.
@@ -59,12 +59,13 @@ options:
   -U [THRESH]   unwrap clipped data with threshold (default is 0.5) and clip
   -d FAC        downsample by integer factor
   -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
-  -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "__"
+  -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "."
+  -r KEY        remove keys from metadata. Keys can have section names separated by "."
   -n NUM        merge NUM input files into one output file
   -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their
                 values from the input file
 
-version 1.2.0 by Benda-Lab (2020-2024)
+version 1.3.0 by Benda-Lab (2020-2024)
 ```
 
 """
