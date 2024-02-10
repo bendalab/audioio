@@ -28,6 +28,7 @@ RIFF/WAVE files.
 - `find_key()`: find dictionary in metadata hierarchy containing the specified key.
 - `add_sections()`: add sections to metadata dictionary.
 - `add_metadata()`: add or modify metadata.
+- `parse_number()`: parse string with number and unit.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
 
@@ -348,8 +349,8 @@ def find_key(metadata, key, sep='__'):
     metadata: nested dict
         Metadata.
     key: str
-        Key to be searched for. May contain section names separated by
-        `sep`. 
+        Key to be searched for (case insensitive).
+        May contain section names separated by `sep`. 
     sep: str
         String that separates section names in `key`.
 
@@ -653,7 +654,7 @@ def parse_number(s):
     return v, u, nd
 
             
-def update_gain(md, fac):
+def update_gain(metadata, fac):
     """Update gain setting in metadata.
 
     Searches for the first appearance of the keyword `Gain` (case
@@ -662,7 +663,7 @@ def update_gain(md, fac):
 
     Parameters
     ----------
-    md: nested dict
+    metadata: nested dict
         Metadata to be updated.
     fac: float
         Factor that was used to scale the data.
@@ -673,18 +674,16 @@ def update_gain(md, fac):
         True if gain has been found and set.
 
     """
-    for k in md:
-        if k.strip().upper() == 'GAIN':
-            vs = md[k]
-            if isinstance(vs, (int, float)):
-                md[k] /= fac
-            else:
-                v, u, nd = parse_number(vs)
+    m, k = find_key(metadata, 'Gain')
+    if k in m:
+        vs = m[k]
+        if isinstance(vs, (int, float)):
+            m[k] = vs/fac
+        else:
+            v, u, n = parse_number(vs)
+            if not v is None:
                 u = u.removesuffix('/V')  # fix some TeeGrid gains
-                md[k] = f'{v/fac:.{nd}f}{u}'
-            return True
-        elif isinstance(md[k], dict):
-            if update_gain(md[k], fac):
+                m[k] = f'{v/fac:.{n}f}{u}'
                 return True
     return False
     

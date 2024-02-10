@@ -203,9 +203,31 @@ def test_parse_number():
     assert_equal(v, None, 'parse empty string')
     assert_equal(u, '', 'parse emptystring')
     assert_equal(n, 0, 'parse emptystring')
-    print(v, u, n)
+
     
-    
+def test_update_gain():
+     md = dict(Gain='1.42mV')
+     amd.update_gain(md, 2)
+     assert_equal(md['Gain'], '0.71mV')
+     md = dict(Artist='John Doe', Recording=dict(gain='1.4mV'))
+     amd.update_gain(md, 2)
+     assert_equal(md['Recording']['gain'], '0.7mV')
+     md = dict(Gain=1.4)
+     amd.update_gain(md, 2)
+     assert_equal(md['Gain'], 0.7)
+     md = dict(Gain=3)
+     amd.update_gain(md, 2)
+     assert_equal(md['Gain'], 1.5)
+     md = dict(Gain='ms')
+     r = amd.update_gain(md, 2)
+     assert_equal(md['Gain'], 'ms')
+     assert_equal(r, False)
+     md = dict(Artist='John Doe', Recording=dict(xgain='1.4mV'))
+     r = amd.update_gain(md, 2)
+     assert_equal(md['Recording']['xgain'], '1.4mV')
+     assert_equal(r, False)
+
+     
 def test_markers():
     data, rate = generate_data()
     locs = np.random.randint(10, len(data)-10, (5, 2))
