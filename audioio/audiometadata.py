@@ -611,6 +611,8 @@ def parse_number(s):
     --------
 
     ```
+    >>> from audioio import parse_number
+
     # integer:
     >>> parse_number('42')
     (42, '', 0)
@@ -673,6 +675,20 @@ def update_gain(metadata, fac):
     done: bool
         True if gain has been found and set.
 
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import print_metadata, update_gain
+    >>> md = dict(Artist='John Doe', Recording=dict(gain='1.4mV'))
+    >>> update_gain(md, 2)
+    >>> print_metadata(md)
+    Artist: John Doe
+    Recording:
+        gain: 0.7mV
+    ```
+
     """
     m, k = find_key(metadata, 'Gain')
     if k in m:
@@ -688,7 +704,7 @@ def update_gain(metadata, fac):
     return False
     
             
-def add_unwrap(metadata, thresh, clip):
+def add_unwrap(metadata, thresh, clip=0):
     """Add unwrap infos to metadata.
 
     If `audiotools.unwrap()` was applied to the data, then this
@@ -698,8 +714,9 @@ def add_unwrap(metadata, thresh, clip):
     hierarchy.
 
     The threshold `thresh` used for unwrapping is saved under the key
-    'UnwrapThreshold'. If `clip` is larger than zero, then the clip
-    level is saved under the key 'UnwrapClippedAmplitude'.
+    'UnwrapThreshold' as a string. If `clip` is larger than zero, then
+    the clip level is saved under the key 'UnwrapClippedAmplitude' as
+    a string.
 
     Parameters
     ----------
@@ -709,6 +726,20 @@ def add_unwrap(metadata, thresh, clip):
         Threshold used for unwrapping.
     clip: float
         Level at which unwrapped data have been clipped.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import print_metadata, add_unwrap
+    >>> md = dict(INFO=dict(Time='early'))
+    >>> add_unwrap(md, 0.6, 1.0)
+    >>> print_metadata(md)
+    INFO:
+        Time                  : early
+        UnwrapThreshold       : 0.60
+        UnwrapClippedAmplitude: 1.00
+    ```
 
     """
     md = metadata
