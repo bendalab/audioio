@@ -29,7 +29,7 @@ if not '-m' in sys.argv:
     from .audiometadata import metadata, flatten_metadata, unflatten_metadata
     from .audiometadata import write_metadata_text, print_metadata
     from .audiometadata import find_key, add_sections, add_metadata
-    from .audiometadata import update_gain, add_unwrap
+    from .audiometadata import parse_number, update_gain, add_unwrap
     from .audiometadata import markers, write_markers, print_markers
     from .audiowriter import write_audio, available_formats, available_encodings
     from .playaudio import play, beep, PlayAudio

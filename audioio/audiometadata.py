@@ -585,6 +585,73 @@ def add_metadata(metadata, md_list, sep='__'):
         mm, kk = add_sections(mm, kk, True, sep)
         mm[kk] = v.strip()
 
+
+def parse_number(s):
+    """Parse string with number and unit.
+
+    Parameters
+    ----------
+    s: str
+        String to be parsed. The initial part of the string is
+        expected to be a number, the part following the number is
+        interpreted as the unit.
+
+    Returns
+    -------
+    v: None, int or float
+        Value of the string as float. Without decimal point, an int is returned.
+        If the string does not contain a number, None is returned.
+    u: str
+        Unit that follows the initial number.
+    n: int
+        Number of digits behind the decimal point.
+
+    Examples
+    --------
+
+    ```
+    # integer:
+    >>> parse_number('42')
+    (42, '', 0)
+
+    # integer with unit:
+    >>> parse_number('42ms')
+    (42, 'ms', 0)
+
+    # float with unit:
+    >>> parse_number('42.ms')
+    (42.0, 'ms', 0)
+
+    # float with unit:
+    >>> parse_number('42.3ms')
+    (42.3, 'ms', 1)
+
+    # float with space and unit:
+    >>> parse_number('423.17 Hz')
+    (423.17, 'Hz', 2)
+    ```
+
+    """
+    n = len(s)
+    ip = n
+    have_point = False
+    for i in range(len(s)):
+        if s[i] == '.':
+            if have_point:
+                n = i
+                break
+            have_point = True
+            ip = i + 1
+        if not s[i] in '0123456789.+-':
+            n = i
+            break
+    if n == 0:
+        return None, s, 0
+    v = float(s[:n]) if have_point else int(s[:n])
+    u = s[n:].strip()
+    nd = n - ip if n >= ip else 0
+    return v, u, nd
+
             
 def update_gain(md, fac):
     """Update gain setting in metadata.
@@ -612,18 +679,8 @@ def update_gain(md, fac):
             if isinstance(vs, (int, float)):
                 md[k] /= fac
             else:
-                # extract initial number:
-                n = len(vs)
-                ip = n
-                for i in range(len(vs)):
-                    if vs[i] == '.':
-                        ip = i + 1
-                    if not vs[i] in '0123456789.+-':
-                        n = i
-                        break
-                v = float(vs[:n])
-                u = vs[n:].removesuffix('/V')  # fix some TeeGrid gains
-                nd = n - ip
+                v, u, nd = parse_number(vs)
+                u = u.removesuffix('/V')  # fix some TeeGrid gains
                 md[k] = f'{v/fac:.{nd}f}{u}'
             return True
         elif isinstance(md[k], dict):
