@@ -28,6 +28,7 @@ RIFF/WAVE files.
 - `find_key()`: find dictionary in metadata hierarchy containing the specified key.
 - `add_sections()`: add sections to metadata dictionary.
 - `add_metadata()`: add or modify metadata.
+- `remove_metadata()`: remove key-value pairs from metadata.
 - `parse_number()`: parse string with number and unit.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
@@ -586,6 +587,39 @@ def add_metadata(metadata, md_list, sep='__'):
         mm, kk = add_sections(mm, kk, True, sep)
         mm[kk] = v.strip()
 
+        
+def remove_metadata(metadata, key_list, sep='__'):
+    """Remove key-value pairs from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key_list: list of str
+        List of keys to key-value pairs to be removed from the metadata.
+    sep: str
+        String that separates section names in the keys of `key_list`.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, remove_metadata
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)))
+    >>> remove_metadata(md, ('ccc',))
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ddd: 4
+        eee:
+            ff: 5
+    ```
+
+    """
+    for k in key_list:
+        mm, kk = find_key(metadata, k, sep)
+        if not kk is None and kk in mm:
+            del mm[kk]
+            
 
 def parse_number(s):
     """Parse string with number and unit.

@@ -244,6 +244,15 @@ def test_add_unwrap():
      assert_equal(md['INFO']['UnwrapClippedAmplitude'], '0.80', 'added unwrap threshold and clip')
 
      
+def test_remove_metadata():
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)))
+    amd.remove_metadata(md, ('ccc',))
+    assert_true('ccc' not in md['bbbb'], 'remove metadata')
+    amd.remove_metadata(md, ('xxx',))
+    amd.remove_metadata(md, ('eee',))
+    assert_true('eee' in md['bbbb'], 'do not remove metadata section')
+
+    
 def test_markers():
     data, rate = generate_data()
     locs = np.random.randint(10, len(data)-10, (5, 2))
