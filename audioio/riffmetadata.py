@@ -239,7 +239,7 @@ info_tags = dict(AGES='Rated',
                  VREF='ReferenceVoltage',
                  GAIN='Gain',
                  UWRP='UnwrapThreshold',
-                 UWPC='UnwrapClipped',
+                 UWPC='UnwrapClippedAmplitude',
                  IBRD='uCBoard',
                  IMAC='MACAdress')
 """Tags of the INFO chunk and their description.

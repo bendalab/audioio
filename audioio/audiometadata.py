@@ -25,6 +25,9 @@ RIFF/WAVE files.
 - `print_metadata()`: write meta data to standard output.
 - `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
 - `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
+- `add_metadata()`: add or modify metadata.
+- `update_gain()`: update gain setting in metadata.
+- `add_unwrap()`: add unwrap infos to metadata.
 
 
 ## Markers
@@ -334,6 +337,109 @@ def unflatten_metadata(md, sep='__'):
         cmd[-1][ks[-1]] = md[k]
     return umd
 
+
+def add_metadata(metadata, md_list):
+    """ Add or modify metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    md_list: list of str
+        List of key-value pairs for updating the metadata.
+
+    Returns
+    -------
+    metadata: nested dict
+        Modified metadata.
+    """
+    if not md_list:
+        return metadata
+    fmd = flatten_metadata(metadata)
+    for md in md_list:
+        k, v = md.split('=')
+        fmd[k.strip()] = v.strip()
+    return unflatten_metadata(fmd)
+
+            
+def update_gain(md, fac):
+    """Update gain setting in metadata.
+
+    Searches for the first appearance of the keyword `Gain` (case
+    insensitive) in the metadata hierarchy. If found, divide the gain
+    value by `fac`.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata to be updated.
+    fac: float
+        Factor that was used to scale the data.
+
+    Returns
+    -------
+    done: bool
+        True if gain has been found and set.
+
+    """
+    for k in md:
+        if k.strip().upper() == 'GAIN':
+            vs = md[k]
+            if isinstance(vs, (int, float)):
+                md[k] /= fac
+            else:
+                # extract initial number:
+                n = len(vs)
+                ip = n
+                for i in range(len(vs)):
+                    if vs[i] == '.':
+                        ip = i + 1
+                    if not vs[i] in '0123456789.+-':
+                        n = i
+                        break
+                v = float(vs[:n])
+                u = vs[n:].removesuffix('/V')  # fix some TeeGrid gains
+                nd = n - ip
+                md[k] = f'{v/fac:.{nd}f}{u}'
+            return True
+        elif isinstance(md[k], dict):
+            if update_gain(md[k], fac):
+                return True
+    return False
+    
+            
+def add_unwrap(metadata, thresh, clip):
+    """Add unwrap infos to metadata.
+
+    If `audiotools.unwrap()` was applied to the data, then this
+    function adds relevant infos to the metadata. If there is an INFO
+    section in the metadata, the unwrap infos are added to this
+    section, otherwise they are added to the top level of the metadata
+    hierarchy.
+
+    The threshold `thresh` used for unwrapping is saved under the key
+    'UnwrapThreshold'. If `clip` is larger than zero, then the clip
+    level is saved under the key 'UnwrapClippedAmplitude'.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata to be updated.
+    thresh: float
+        Threshold used for unwrapping.
+    clip: float
+        Level at which unwrapped data have been clipped.
+
+    """
+    md = metadata
+    for k in metadata:
+        if k.strip().upper() == 'INFO':
+            md = metadata['INFO']
+            break
+    md['UnwrapThreshold'] = f'{thresh:.2f}'
+    if clip > 0:
+        md['UnwrapClippedAmplitude'] = f'{clip:.2f}'
+    
 
 def markers(filepath):
     """ Read markers of an audio file.

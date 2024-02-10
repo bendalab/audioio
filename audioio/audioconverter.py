@@ -1,18 +1,19 @@
-"""Command line script for converting audio files.
+"""Command line script for converting, downsampling, renaming and merging audio files.
 
 ```sh
 audioconverter -o test.wav test.mp3
 ```
 converts 'test.mp3' to 'test.wav'.
 
-The script basically reads all input files with
-`audioloader.load_audio()`, combines the audio and marker data and
-writes them with `audiowriter.write_audio()`. Thus, all formats
-supported by these functions and the installed python audio modules
-are supported. This implies that MP3 files can be read via the
-[audioread](https://github.com/beetbox/audioread) module, but they
-cannot be written (use the `ffmpeg` or `avconv` tools for that).
-Output file formats are limited to what the [sndfile
+The script reads all input files with `audioloader.load_audio()`,
+combines the audio and marker data and writes them along with the
+metadata to an output file using `audiowriter.write_audio()`.
+
+Thus, all formats supported by these functions and the installed
+python audio modules are supported. This implies that MP3 files can be
+read via the [audioread](https://github.com/beetbox/audioread) module,
+but they cannot be written (use the `ffmpeg` or `avconv` tools for
+that).  Output file formats are limited to what the [sndfile
 library](http://www.mega-nerd.com/libsndfile/) supports (this is
 actually a lot), provided the
 [SoundFile](http://pysoundfile.readthedocs.org) or
@@ -77,6 +78,7 @@ from .version import __version__, __year__
 from .audioloader import load_audio
 from .audiometadata import metadata, markers
 from .audiometadata import flatten_metadata, unflatten_metadata
+from .audiometadata import add_metadata, update_gain, add_unwrap
 from .audiotools import unwrap
 from .audiowriter import available_formats, available_encodings
 from .audiowriter import format_from_extension, write_audio
@@ -239,69 +241,6 @@ def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
             data_format = format_from_ext(outfile)
     return outfile, data_format
 
-            
-def update_gain(md, fac):
-    """ Update gain setting in metadata.
-
-    Parameters
-    ----------
-    md: nested dict
-        Metadata to be updated.
-    fac: float
-        Factor that was used to scale the data.
-
-    Returns
-    -------
-    done: bool
-        True if gain has been found and set.
-    """
-    for k in md:
-        if k.strip().upper() == 'GAIN':
-            vs = md[k]
-            if isinstance(vs, (int, float)):
-                md[k] /= fac
-            else:
-                # extract initial number:
-                n = len(vs)
-                ip = n
-                for i in range(len(vs)):
-                    if vs[i] == '.':
-                        ip = i + 1
-                    if not vs[i] in '0123456789.+-':
-                        n = i
-                        break
-                v = float(vs[:n])
-                u = vs[n:].removesuffix('/V')  # fix some TeeGrid gains
-                nd = n - ip
-                md[k] = f'{v/fac:.{nd}f}{u}'
-            return True
-        elif isinstance(md[k], dict):
-            if update_gain(md[k], fac):
-                return True
-    return False
-    
-            
-def add_unwrap(metadata, thresh, clip):
-    """ Add unwrap infos to metadata.
-
-    Parameters
-    ----------
-    md: nested dict
-        Metadata to be updated.
-    thresh: float
-        Threshold used for unwrapping.
-    clip: float
-        Level at which unwrapped data have been clipped.
-    """
-    md = metadata
-    for k in metadata:
-        if k.strip().upper() == 'INFO':
-            md = metadata['INFO']
-            break
-    md['UnwrapThreshold'] = f'{thresh:.2f}'
-    if clip > 0:
-        md['UnwrapClipped'] = f'{clip:.2f}'
-    
 
 def modify_data(data, samplingrate, metadata, channels, scale,
                 unwrap_clip, unwrap_thresh, decimate_fac):
@@ -355,30 +294,6 @@ def modify_data(data, samplingrate, metadata, channels, scale,
         data = decimate(data, decimate_fac, axis=0)
         samplingrate /= decimate_fac
     return data, samplingrate
-
-
-def add_metadata(metadata, md_list):
-    """ Add or modify metadata.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-    md_list: list of str
-        List of key-value pairs for updating the metadata.
-
-    Returns
-    -------
-    metadata: nested dict
-        Modified metadata.
-    """
-    if not md_list:
-        return metadata
-    fmd = flatten_metadata(metadata)
-    for md in md_list:
-        k, v = md.split('=')
-        fmd[k.strip()] = v.strip()
-    return unflatten_metadata(fmd)
 
 
 def format_outfile(outfile, metadata):
