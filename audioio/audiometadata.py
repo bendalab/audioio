@@ -760,7 +760,9 @@ def update_gain(metadata, fac):
         else:
             v, u, n = parse_number(vs)
             if not v is None:
-                u = u.removesuffix('/V')  # fix some TeeGrid gains
+                # fix some TeeGrid gains:
+                if len(u) >= 2 and u[-2:] == '/V':
+                    u = u[:-2]
                 m[k] = f'{v/fac:.{n}f}{u}'
                 return True
     return False

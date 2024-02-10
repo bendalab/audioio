@@ -36,7 +36,7 @@ jobs:
         shell: bash
 
       - name: Run tests
-        run: nosetests -vv -s --with-coverage --cover-package=audioio
+        run: nosetests -vv --with-coverage --cover-package=audioio
         shell: bash
 
       - name: Build documentation
