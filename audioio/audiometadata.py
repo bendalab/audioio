@@ -26,6 +26,7 @@ RIFF/WAVE files.
 - `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
 - `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
 - `find_key()`: find dictionary in metadata hierarchy containing the specified key.
+- `add_sections()`: add sections to metadata dictionary.
 - `add_metadata()`: add or modify metadata.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
@@ -465,6 +466,82 @@ def find_key(metadata, key, sep='__'):
     return mm, kk
 
 
+def add_sections(metadata, sections, value=False, sep='__'):
+    """Add sections to metadata dictionary.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key: str
+        Names of sections to be added to `metadata`.
+        Section names separated by `sep`. 
+    value: bool
+        If True, then the last element in `key` is a key for a value,
+        not a section.
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    md: dict
+        Dictionary of the last added section.
+    key: str
+        Last key. Only returned if `value` is set to `True`.
+
+    Examples
+    --------
+
+    Add a section and a sub-section to the metadata:
+    ```
+    >>> md = dict()
+    >>> m = add_sections(md, 'Recording__Location')
+    >>> m['Country'] = 'Lummerland'
+    >>> print_metadata(md)
+    Recording:
+        Location:
+            Country: Lummerland
+    ```
+
+    Add a section with a key-value pair:
+    ```
+    >>> md = dict()
+    >>> m, k = add_sections(md, 'Recording__Location', True)
+    >>> m[k] = 'Lummerland'
+    >>> print_metadata(md)
+    Recording:
+        Location: Lummerland
+    ```
+
+    Adds well to `find_key()`:
+    ```
+    >>> md = dict(Recording=dict())
+    >>> m, k = find_key(md, 'Recording__Location__Country')
+    >>> m, k = add_sections(m, k, True)
+    >>> m[k] = 'Lummerland'
+    >>> print_metadata(md)
+    Recording:
+        Location:
+            Country: Lummerland
+    ```
+
+    """
+    mm = metadata
+    ks = sections.split(sep)
+    n = len(ks)
+    if value:
+        n -= 1
+    for k in ks[:n]:
+        if len(k) == 0:
+            continue
+        mm[k] = dict()
+        mm = mm[k]
+    if value:
+        return mm, ks[-1]
+    else:
+        return mm
+
+        
 def add_metadata(metadata, md_list, sep='__'):
     """ Add or modify metadata.
 
@@ -479,14 +556,8 @@ def add_metadata(metadata, md_list, sep='__'):
     """
     for md in md_list:
         k, v = md.split('=')
-        mm, kk = find_key(metadata, k)
-        # add missing sections:
-        if sep in kk:
-            ks = kk.split(sep)
-            for k in ks[:-1]:
-                mm[k] = dict()
-                mm = mm[k]
-            kk = ks[-1]
+        mm, kk = find_key(metadata, k, sep)
+        mm, kk = add_sections(mm, kk, True, sep)
         mm[kk] = v.strip()
 
             

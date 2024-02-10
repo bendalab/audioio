@@ -133,6 +133,30 @@ def test_find_key():
     m[k] = 64
     assert_equal(md['gggg']['zzz'], 64, 'find non-existing section')
 
+
+def test_add_sections():
+    md = dict()
+    m = amd.add_sections(md, 'Recording__Location')
+    m['Country'] = 10
+    assert_equal(md['Recording']['Location']['Country'], 10, 'added sections')
+    md = dict()
+    m, k = amd.add_sections(md, 'Recording__Location', True)
+    m[k] = 10
+    assert_equal(md['Recording']['Location'], 10, 'added sections and key-value pair')
+    md = dict(Recording=dict())
+    m, k = amd.find_key(md, 'Recording__Location__Country')
+    m, k = amd.add_sections(m, k, True)
+    m[k] = 10
+    assert_equal(md['Recording']['Location']['Country'], 10, 'added sections to existing section')
+    md = dict()
+    m = amd.add_sections(md, '')
+    assert_equal(len(m), 0, 'added empty section')
+    assert_equal(len(md), 0, 'added empty section')
+    m, k = amd.add_sections(md, '', True)
+    assert_equal(len(m), 0, 'added empty key-value pair')
+    assert_equal(len(md), 0, 'added empty key-value pair')
+    assert_equal(k, '', 'added empty key-value pair')
+    
     
 def test_markers():
     data, rate = generate_data()
