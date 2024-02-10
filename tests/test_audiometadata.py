@@ -252,6 +252,12 @@ def test_remove_metadata():
     amd.remove_metadata(md, ('eee',))
     assert_true('eee' in md['bbbb'], 'do not remove metadata section')
 
+     
+def test_cleanup_metadata():
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict()))
+    amd.cleanup_metadata(md)
+    assert_true('eee' not in md['bbbb'], 'cleanup metadata')
+
     
 def test_markers():
     data, rate = generate_data()

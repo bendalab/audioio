@@ -620,6 +620,33 @@ def remove_metadata(metadata, key_list, sep='__'):
         if not kk is None and kk in mm:
             del mm[kk]
             
+        
+def cleanup_metadata(metadata):
+    """Remove empty sections from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, cleanup_metadata
+    >>> md = dict(aaaa=2, bbbb=dict())
+    >>> cleanup_metadata(md)
+    >>> print_metadata(md)
+    aaaa: 2
+    ```
+
+    """
+    for k in list(metadata):
+        if isinstance(metadata[k], dict):
+            if len(metadata[k]) == 0:
+                del metadata[k]
+            else:
+                cleanup_metadata(metadata[k])
+            
 
 def parse_number(s):
     """Parse string with number and unit.
