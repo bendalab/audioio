@@ -78,7 +78,8 @@ from .version import __version__, __year__
 from .audioloader import load_audio
 from .audiometadata import metadata, markers
 from .audiometadata import flatten_metadata, unflatten_metadata
-from .audiometadata import add_metadata, update_gain, add_unwrap
+from .audiometadata import add_metadata, remove_metadata, cleanup_metadata
+from .audiometadata import update_gain, add_unwrap
 from .audiotools import unwrap
 from .audiowriter import available_formats, available_encodings
 from .audiowriter import format_from_extension, write_audio
@@ -117,6 +118,9 @@ def add_arguments(parser):
     parser.add_argument('-a', dest='md_list', action='append', default=[],
                         type=str, metavar='KEY=VALUE',
                         help='add key-value pairs to metadata. Keys can have section names separated by "."')
+    parser.add_argument('-r', dest='remove_keys', action='append', default=[],
+                        type=str, metavar='KEY',
+                        help='remove keys from metadata. Keys can have section names separated by "."')
     parser.add_argument('-n', dest='nmerge', default=0, type=int, metavar='NUM',
                         help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
@@ -390,6 +394,9 @@ def main(*cargs):
                                          args.unwrap_clip,
                                          args.unwrap, args.decimate)
         add_metadata(md, args.md_list, '.')
+        if len(args.remove_keys) > 0:
+            remove_metadata(md, args.remove_keys, '.')
+            cleanup_metadata(md)
         outfile = format_outfile(outfile, md)
         # write out audio:
         write_audio(outfile, data, samplingrate,

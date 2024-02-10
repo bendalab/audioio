@@ -23,12 +23,13 @@ RIFF/WAVE files.
 - `metadata()`: read metadata of an audio file.
 - `write_metadata_text()`: write meta data into a text/yaml file.
 - `print_metadata()`: write meta data to standard output.
-- `flatten_metadata()`: Flatten hierachical metadata to a single dictionary.
-- `unflatten_metadata()`: Unflatten a previously flattened metadata dictionary.
+- `flatten_metadata()`: flatten hierachical metadata to a single dictionary.
+- `unflatten_metadata()`: unflatten a previously flattened metadata dictionary.
 - `find_key()`: find dictionary in metadata hierarchy containing the specified key.
 - `add_sections()`: add sections to metadata dictionary.
 - `add_metadata()`: add or modify metadata.
 - `remove_metadata()`: remove key-value pairs from metadata.
+- `cleanup_metadata()`: remove empty sections from metadata.
 - `parse_number()`: parse string with number and unit.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
