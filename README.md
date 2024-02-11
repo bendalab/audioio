@@ -124,7 +124,7 @@ with aio.AudioLoader('audio/file.wav', 60.0) as data:
 
 Even simpler, iterate in blocks over the file with overlap using the
 [`blocks()`
-generator](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.blocks):
+generator](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader.blocks):
 ```
 from scipy.signal import spectrogram
 nfft = 2048
@@ -180,14 +180,28 @@ module for details.
 
 ### Converting audio files
 
-AudioIO provides a simple command line script to convert audio files:
+AudioIO provides a command line script for converting, downsampling,
+renaming and merging audio files:
 ```sh
 > audioconverter -e float -o test.wav test.mp3
 ```
 If possible, `audioconverter` tries to keep metadata and marker lists.
 
-See API documentation of the
+See documentation of the
 [`audioconverter`](https://bendalab.github.io/audioio/api/audioconverter.html)
+module for details.
+
+
+### Display metadata and markers
+
+AudioIO provides a command line script that prints metadata and
+markers of audio files to the console:
+```sh
+> audiometadata test.wav
+```
+
+See documentation of the
+[`audiometadata`](https://bendalab.github.io/audioio/api/audiometadata.html#script)
 module for details.
 
 
