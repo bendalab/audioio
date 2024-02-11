@@ -140,6 +140,7 @@ import warnings
 import struct
 import numpy as np
 import xml.etree.ElementTree as ET
+from .audiometadata import flatten_metadata, unflatten_metadata
 
 
 info_tags = dict(AGES='Rated',
@@ -705,7 +706,6 @@ def read_guano_chunk(sf, store_empty=True):
     metadata: nested dict
         Dictionary with key-value pairs.
     """
-    from .audiometadata import unflatten_metadata
     md = {}
     size = struct.unpack('<I', sf.read(4))[0]
     size += size % 2
@@ -1344,7 +1344,6 @@ def write_guano_chunk(df, metadata, keys_written=None):
         return 0, []
     if not 'GUANO' in metadata:
         return 0, []
-    from .audiometadata import flatten_metadata
     fmd = flatten_metadata(metadata['GUANO'], True, '|')
     for k in fmd:
         fmd[k] = fmd[k].replace('\n', r'\n')

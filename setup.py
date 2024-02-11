@@ -20,15 +20,14 @@ for further instructions and recommendations on additional audio packages.
 
 ## Features
 
-
 - Audio data are always *numpy arrays of floats* (`np.float64`) with values ranging between -1 and 1 ...
 - ... independent of how the data are stored in an audio file.
 - [`load_audio()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.load_audio) function for loading a whole audio file.
 - *Blockwise random-access* loading of large audio files ([`class AudioLoader`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader)).
 - [`blocks()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.blocks) generator for iterating over blocks of data with optional overlap.
 - [`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio) function for writing data, metadata, and markers to an audio file. 
-- Read [`metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.metadata) as nested dictionaries of key-value pairs.
-- Read [`markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.markers), i.e. cue points with spans, labels, and descriptions.
+- Read [`metadata()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata) as nested dictionaries of key-value pairs.
+- Read [`markers()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers), i.e. cue points with spans, labels, and descriptions.
 - Platform independent, synchronous (blocking) and asynchronous (non blocking) playback of numpy arrays  via [`play()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play).
 - Automatic resampling of data for playback to match supported sampling rates.
 - Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages ([audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).

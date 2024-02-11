@@ -1,6 +1,8 @@
-"""Loading data from audio files.
+"""Loading data, metadata, and markers from audio files.
 
 - `load_audio()`: load a whole audio file at once.
+- `metadata()`: read metadata of an audio file.
+- `markers()`: read markers of an audio file.
 - `AudioLoader`: read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 
@@ -19,11 +21,12 @@ python -m audioio.audioloader audiofile.wav
 ```
 """
  
+import sys
 import warnings
 import os.path
 import numpy as np
 from .audiomodules import *
-from .audiometadata import metadata, markers
+from .riffmetadata import metadata_riff, markers_riff
 from .audiotools import unwrap
 
 
@@ -386,6 +389,72 @@ def load_audio(filepath, verbose=0):
         raise IOError('failed to load data from file "%s".%s' %
                       (filepath, need_install))
     return data, rate
+
+
+def metadata(filepath, store_empty=False):
+    """ Read metadata of an audio file.
+
+    Parameters
+    ----------
+    filepath: string or file handle
+        The RIFF/WAVE file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    meta_data: nested dict
+        Meta data contained in the audio file.  Keys of the nested
+        dictionaries are always strings.  If the corresponding
+        values are dictionaries, then the key is the section name
+        of the metadata contained in the dictionary. All other
+        types of values are values for the respective key. In
+        particular they are strings. But other
+        simple types like ints or floats are also allowed.
+
+    Examples
+    --------
+    ```
+    from audioio import metadata, print_metadata
+    md = metadata('data.wav')
+    print_metadata(md)
+    ```
+    """
+    try:
+        return metadata_riff(filepath, store_empty)
+    except ValueError: # not a RIFF file
+        return {}
+
+
+def markers(filepath):
+    """ Read markers of an audio file.
+
+    Parameters
+    ----------
+    filepath: string or file handle
+        The audio file.
+
+    Returns
+    -------
+    locs: 2-D array of ints
+        Marker positions (first column) and spans (second column)
+        for each marker (rows).
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column)
+        for each marker (rows).
+
+    Examples
+    --------
+    ```
+    from audioio import markers, print_markers
+    locs, labels = markers('data.wav')
+    print_markers(md)
+    ```
+    """
+    try:
+        return markers_riff(filepath)
+    except ValueError: # not a RIFF file
+        return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
 
             
 def blocks(data, block_size, noverlap=0, start=0, stop=None):
@@ -1650,5 +1719,4 @@ def main(*args):
 
 
 if __name__ == "__main__":
-    import sys
     main(*sys.argv[1:])

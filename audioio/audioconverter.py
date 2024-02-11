@@ -65,7 +65,7 @@ options:
   -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their
                 values from the input file
 
-version 1.3.0 by Benda-Lab (2020-2024)
+version 2.0.0 by Benda-Lab (2020-2024)
 ```
 
 """
@@ -76,8 +76,7 @@ import argparse
 import numpy as np
 from scipy.signal import decimate
 from .version import __version__, __year__
-from .audioloader import load_audio
-from .audiometadata import metadata, markers
+from .audioloader import load_audio, metadata, markers
 from .audiometadata import flatten_metadata, unflatten_metadata
 from .audiometadata import add_metadata, remove_metadata, cleanup_metadata
 from .audiometadata import update_gain, add_unwrap

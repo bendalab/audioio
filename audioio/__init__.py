@@ -15,6 +15,7 @@ if not '-m' in sys.argv:
                'audiotools',
                'riffmetadata',
                'audiometadata',
+               'audiomarkers',
                'audiowriter',
                'playaudio']
     
@@ -25,13 +26,14 @@ if not '-m' in sys.argv:
     from .audiomodules import missing_modules, missing_modules_instructions
     from .audiomodules import installation_instruction
     from .audioloader import load_audio, AudioLoader, blocks
+    from .audioloader import metadata, markers
     from .audiotools import despike, unwrap
-    from .audiometadata import metadata, flatten_metadata, unflatten_metadata
+    from .audiometadata import flatten_metadata, unflatten_metadata
     from .audiometadata import write_metadata_text, print_metadata
-    from .audiometadata import find_key, add_sections
-    from .audiometadata import add_metadata, remove_metadata, cleanup_metadata
+    from .audiometadata import find_key, add_sections, add_metadata
+    from .audiometadata import remove_metadata, cleanup_metadata
     from .audiometadata import parse_number, update_gain, add_unwrap
-    from .audiometadata import markers, write_markers, print_markers
+    from .audiomarkers import write_markers, print_markers
     from .audiowriter import write_audio, available_formats, available_encodings
     from .playaudio import play, beep, PlayAudio
     from .playaudio import note2freq, fade_in, fade_out, fade

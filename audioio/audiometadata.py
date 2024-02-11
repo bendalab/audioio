@@ -1,11 +1,4 @@
-"""Loading metadata and marker lists from audio files.
-
-For a demo run the module as:
-```
-python -m audioio.metadata audiofile.wav
-```
-
-## Metadata
+"""Working with metadata.
 
 To interface the various ways to store and read metadata of audio
 files, the `audiometadata` module simply uses nested dictionaries.  The
@@ -20,7 +13,6 @@ metadata type you want, that has as a value a dictionary with the
 actual metadata. For example the "INFO", "BEXT", and "iXML" chunks of
 RIFF/WAVE files.
 
-- `metadata()`: read metadata of an audio file.
 - `write_metadata_text()`: write meta data into a text/yaml file.
 - `print_metadata()`: write meta data to standard output.
 - `flatten_metadata()`: flatten hierachical metadata to a single dictionary.
@@ -34,21 +26,6 @@ RIFF/WAVE files.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
 
-
-## Markers
-
-Markers are used to mark specific positions or regions in the audio
-data.  Each marker has a position, a span, a label, and a text.
-Position, and span are handled with 1-D or 2-D arrays of ints, where
-each row is a marker and the columns are position and span. The span
-column is optional. Labels and texts come in another 1-D or 2-D array
-of objects pointing to strings. Again, rows are the markers, first
-column are the labels, and second column the optional texts. Try to
-keep the labels short, and use text for longer descriptions.
-
-- `markers()`: read markers of an audio file.
-- `write_markers()`: write markers to a text file or stream.
-- `print_markers()`: write markers to standard output.
 
 ## Script
 
@@ -78,27 +55,28 @@ metadata:
       Software        : TeeGrid R4-senors-logger v1.0
 ```
 
+
+Alternatively, the script can be run from the module as:
+```
+python -m audioio.metadata audiofile.wav
+```
+
 Running
 ```sh
-audioconverter --help
+audiometadata --help
 ```
 prints
 ```text
-usage: audiometadata [-h] [--version] [-f] [-m] [-c] file
+usage: audiomodules [--version] [--help] [PACKAGE]
 
-Convert audio file formats.
+Installation status and instructions of python audio packages.
 
-positional arguments:
-  file        audio file
+optional arguments:
+  --help      show this help message and exit
+  --version   show version number and exit
+  PACKAGE     show installation instructions for PACKAGE
 
-options:
-  -h, --help  show this help message and exit
-  --version   show program's version number and exit
-  -f          list file format only
-  -m          list metadata only
-  -c          list cues/markers only
-
-version 1.2.0 by Benda-Lab (2020-2024)
+version 2.0.0 by Benda-Lab (2015-2024)
 ```
 
 """
@@ -108,42 +86,6 @@ import argparse
 import numpy as np
 from .version import __version__, __year__
 from .audiomodules import *
-from .riffmetadata import metadata_riff, markers_riff
-
-
-def metadata(filepath, store_empty=False):
-    """ Read metadata of an audio file.
-
-    Parameters
-    ----------
-    filepath: string or file handle
-        The RIFF/WAVE file.
-    store_empty: bool
-        If `False` do not add meta data with empty values.
-
-    Returns
-    -------
-    meta_data: nested dict
-        Meta data contained in the audio file.  Keys of the nested
-        dictionaries are always strings.  If the corresponding
-        values are dictionaries, then the key is the section name
-        of the metadata contained in the dictionary. All other
-        types of values are values for the respective key. In
-        particular they are strings. But other
-        simple types like ints or floats are also allowed.
-
-    Examples
-    --------
-    ```
-    from audioio import metadata, print_metadata
-    md = metadata('data.wav')
-    print_metadata(md)
-    ```
-    """
-    try:
-        return metadata_riff(filepath, store_empty)
-    except ValueError: # not a RIFF file
-        return {}
 
 
 def write_metadata_text(fh, meta, prefix='', indent=4):
@@ -816,114 +758,6 @@ def add_unwrap(metadata, thresh, clip=0):
         md['UnwrapClippedAmplitude'] = f'{clip:.2f}'
     
 
-def markers(filepath):
-    """ Read markers of an audio file.
-
-    Parameters
-    ----------
-    filepath: string or file handle
-        The audio file.
-
-    Returns
-    -------
-    locs: 2-D array of ints
-        Marker positions (first column) and spans (second column)
-        for each marker (rows).
-    labels: 2-D array of string objects
-        Labels (first column) and texts (second column)
-        for each marker (rows).
-
-    Examples
-    --------
-    ```
-    from audioio import markers, print_markers
-    locs, labels = markers('data.wav')
-    print_markers(md)
-    ```
-    """
-    try:
-        return markers_riff(filepath)
-    except ValueError: # not a RIFF file
-        return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
-
-
-def write_markers(fh, locs, labels=None, sep=' ', prefix=''):
-    """Write markers to a text file or stream.
-
-    Parameters
-    ----------
-    fh: filename or stream
-        If not a stream, the file with name `fh` is opened.
-        Otherwise `fh` is used as a stream for writing.
-    locs: 1-D or 2-D array of ints
-        Marker positions (first column) and optional spans (second column)
-        for each marker (rows).
-    labels: 1-D or 2-D array of string objects
-        Labels (first column) and optional texts (second column)
-        for each marker (rows).
-    sep: str
-        Column separator.
-    prefix: str
-        This string is written at the beginning of each line.
-    """
-    if hasattr(fh, 'write'):
-        own_file = False
-    else:
-        own_file = True
-        fh = open(fh, 'w')
-    # what do we have:
-    if locs.ndim == 1:
-        locs = locs.reshape(-1, 1)
-    has_span = locs.shape[1] > 1
-    has_labels = False
-    has_text = False
-    if labels is not None and len(labels) > 0:
-        has_labels = True
-        if labels.ndim == 1:
-            labels = labels.reshape(-1, 1)
-        has_text = labels.shape[1] > 1
-    # table header:
-    fh.write(f'{prefix}{"position":8}')
-    if has_span:
-        fh.write(f'{sep}{"span":6}')
-    if has_labels:
-        fh.write(f'{sep}{"label":10}')
-    if has_text:
-        fh.write(f'{sep}{"text"}')
-    fh.write('\n')
-    # table data:
-    for i in range(len(locs)):
-        fh.write(f'{prefix}{locs[i,0]:8}')
-        if has_span:
-            fh.write(f'{sep}{locs[i,1]:6}')
-        if has_labels:
-            fh.write(f'{sep}{labels[i,0]:10}')
-        if has_text:
-            fh.write(f'{sep}{labels[i,1]}')
-    fh.write('\n')
-    if own_file:
-        fh.close()
-
-        
-def print_markers(locs, labels=None, sep=' ', prefix=''):
-    """Write markers to standard output.
-
-    Parameters
-    ----------
-    locs: 1-D or 2-D array of ints
-        Marker positions (first column) and optional spans (second column)
-        for each marker (rows).
-    labels: 1-D or 2-D array of string objects
-        Labels (first column) and optional texts (second column)
-        for each marker (rows).
-    sep: str
-        Column separator.
-    prefix: str
-        This string is written at the beginning of each line.
-    """
-    write_markers(sys.stdout, locs, labels, sep, prefix)
-        
-
 def demo(filepathes, list_format, list_metadata, list_cues):
     """Print metadata and markers of audio files.
 
@@ -939,42 +773,36 @@ def demo(filepathes, list_format, list_metadata, list_cues):
         If True, list markers/cues only.
     """
     from .audioloader import AudioLoader
+    from .audiomarkers import print_markers
     for filepath in filepathes:
-        if list_cues:
-            locs, labels = markers(filepath)
-            print_markers(locs, labels)
-        elif list_metadata:
-            meta_data = metadata(filepath, store_empty=False)
-            print_metadata(meta_data)
-        elif list_format:
-            with AudioLoader(filepath, 1, 0) as sf:
-                fmt_md = dict(filepath=filepath,
-                              samplingrate=f'{sf.samplerate:.0f}Hz',
-                              channels=sf.shape[1],
-                              frames=sf.shape[0],
-                              duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+        with AudioLoader(filepath, 1, 0) as sf:
+            fmt_md = dict(filepath=filepath,
+                          samplingrate=f'{sf.samplerate:.0f}Hz',
+                          channels=sf.shape[1],
+                          frames=sf.shape[0],
+                          duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+            meta_data = sf.metadata(store_empty=False)
+            locs, labels = sf.markers()
+            if list_cues:
+                if len(locs) > 0:
+                    print_markers(locs, labels)
+            elif list_metadata:
+                print_metadata(meta_data)
+            elif list_format:
                 print_metadata(fmt_md)
-        else:
-            meta_data = metadata(filepath, store_empty=False)
-            locs, labels = markers(filepath)
-            print('file:')
-            with AudioLoader(filepath, 1, 0) as sf:
-                fmt_md = dict(filepath=filepath,
-                              samplingrate=f'{sf.samplerate:.0f}Hz',
-                              channels=sf.shape[1],
-                              frames=sf.shape[0],
-                              duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+            else:
+                print('file:')
                 print_metadata(fmt_md, '  ')
-            if len(meta_data) > 0:
-                print()
-                print('metadata:')
-                print_metadata(meta_data, '  ')
-            if len(locs) > 0:
-                print()
-                print('markers:')
-                print_markers(locs, labels)
-            if len(filepathes) > 0:
-                print()
+                if len(meta_data) > 0:
+                    print()
+                    print('metadata:')
+                    print_metadata(meta_data, '  ')
+                if len(locs) > 0:
+                    print()
+                    print('markers:')
+                    print_markers(locs, labels)
+                if len(filepathes) > 0:
+                    print()
         if len(filepathes) > 0:
             print()
 

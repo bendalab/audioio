@@ -98,6 +98,24 @@ or alternatively from your distribution's package:
 sudo apt install python3-soundfile
 ```
 
+Running
+```sh
+audioconverter --help
+```
+prints
+```text
+usage: audiomodules [--version] [--help] [PACKAGE]
+
+Installation status and instructions of python audio packages.
+
+optional arguments:
+  --help      show this help message and exit
+  --version   show version number and exit
+  PACKAGE     show installation instructions for PACKAGE
+
+version 2.0.0 by Benda-Lab (2015-2024)
+```
+
 ## Links
 
 For an overview on python modules regarding file I/O see, for example,

@@ -33,8 +33,8 @@ for handling metadata and marker lists.
 - *Blockwise random-access* loading of large audio files ([`class AudioLoader`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader)).
 - [`blocks()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.blocks) generator for iterating over blocks of data with optional overlap.
 - [`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio) function for writing data, metadata, and markers to an audio file. 
-- Read [`metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.metadata) as nested dictionaries of key-value pairs.
-- Read [`markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.markers), i.e. cue points with spans, labels, and descriptions.
+- Read [`metadata()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata) as nested dictionaries of key-value pairs.
+- Read [`markers()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers), i.e. cue points with spans, labels, and descriptions.
 - Platform independent, synchronous (blocking) and asynchronous (non blocking) playback of numpy arrays  via [`play()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play).
 - Automatic resampling of data for playback to match supported sampling rates.
 - Detailed and *platform specific installation instructions* (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages ([audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).
@@ -91,7 +91,7 @@ plt.show()
 
 Get a nested dictionary with key-value pairs of the file's metadata
 and print it using
-[`metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.metadata)
+[`metadata()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata)
 and
 [`print_metadata()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.print_metadata):
 ```
@@ -100,9 +100,9 @@ aio.print_metadata(md)
 ```
 
 Get and print marker positions, spans, labels and texts using
-[`markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.markers)
+[`markers()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers)
 and
-[`print_markers()`](https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.print_markers):
+[`print_markers()`](https://bendalab.github.io/audioio/api/audiomarkers.html#audioio.audiomarkers.print_markers):
 ```
 locs, labels = aio.markers('audio/file.wav')
 aio.print_markers(locs, labels)
@@ -147,9 +147,9 @@ with aio.AudioLoader('audio/file.wav', 60.0) as data:
 ```
 
 See API documentation of the
-[`audioloader`](https://bendalab.github.io/audioio/api/audioloader.html)
-and
-[`audiometadata`](https://bendalab.github.io/audioio/api/audiometadata.html)
+[`audioloader`](https://bendalab.github.io/audioio/api/audioloader.html),
+[`audiometadata`](https://bendalab.github.io/audioio/api/audiometadata.html), and
+[`audiomarkers`](https://bendalab.github.io/audioio/api/audiomarkers.html)
 modules for details.
 
 

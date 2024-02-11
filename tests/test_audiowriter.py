@@ -247,7 +247,7 @@ def test_write_metadata():
         if not am.select_module(lib):
             continue
         write_func(filename, data, samplerate, md)
-        mmd = amd.metadata(filename)
+        mmd = al.metadata(filename)
         os.remove(filename)
         assert_equal(md, mmd, 'metadata for wavefiles')
         am.enable_module()
@@ -261,7 +261,7 @@ def test_write_metadata():
         if not 'OGG' in aw.available_formats():
             continue
         write_func(filename, data, samplerate, md, encoding='VORBIS')
-        mmd = amd.metadata(filename)
+        mmd = al.metadata(filename)
         os.remove(filename)
         assert_equal(len(mmd), 0, 'metadata for ogg files')
         am.enable_module()
@@ -269,7 +269,7 @@ def test_write_metadata():
     if am.audio_modules['pydub']:
         filename = 'test.mp3'
         aw.write_pydub(filename, data, samplerate, md)
-        mmd = amd.metadata(filename)
+        mmd = al.metadata(filename)
         os.remove(filename)
         assert_equal(len(mmd), 0, 'metadata for mp3 files')
         am.enable_module()
