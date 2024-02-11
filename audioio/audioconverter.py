@@ -10,12 +10,11 @@ combines the audio and marker data and writes them along with the
 metadata to an output file using `audiowriter.write_audio()`.
 
 Thus, all formats supported by these functions and the installed
-python audio modules are supported. This implies that MP3 files can be
+python audio modules are available. This implies that MP3 files can be
 read via the [audioread](https://github.com/beetbox/audioread) module,
-but they cannot be written (use the `ffmpeg` or `avconv` tools for
-that).  Output file formats are limited to what the [sndfile
-library](http://www.mega-nerd.com/libsndfile/) supports (this is
-actually a lot), provided the
+and they can be written via [pydub](https://github.com/jiaaro/pydub).
+Many other input and output file formats are supported by the [sndfile
+library](http://www.mega-nerd.com/libsndfile/), provided the
 [SoundFile](http://pysoundfile.readthedocs.org) or
 [wavefile](https://github.com/vokimon/python-wavefile) python packages
 are [installed](https://bendalab.github.io/audioio/installation).
@@ -30,7 +29,7 @@ for a list of supported output file formats and
 ```sh
 audioconverter -f wav -l
 ```
-for a list of supported encodings for a given output format.
+for a list of supported encodings for a given output format (`-f`option).
 
 Running
 ```sh
@@ -188,6 +187,7 @@ def list_formats_encodings(data_format):
     ----------
     data_format: None or str
         If provided, list encodings for this data format.
+        Otherwise, list available audio file formats.
     """
     if not data_format:
         print('available file formats:')
@@ -248,7 +248,7 @@ def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
 
 def modify_data(data, samplingrate, metadata, channels, scale,
                 unwrap_clip, unwrap_thresh, decimate_fac):
-    """ Put metadata values into name of output file.
+    """ Modify audio data and add modifications to metadata.
 
     Parameters
     ----------

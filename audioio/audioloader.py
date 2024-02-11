@@ -302,7 +302,9 @@ audio_loader_funcs = (
     )
 """List of implemented load functions.
 
-Each element of the list is a tuple with the module's name and the load function.
+Each element of the list is a tuple with the module's name and its
+load function.
+
 """    
 
 
@@ -397,9 +399,9 @@ def metadata(filepath, store_empty=False):
     Parameters
     ----------
     filepath: string or file handle
-        The RIFF/WAVE file.
+        The audio file from which to read metadata.
     store_empty: bool
-        If `False` do not add meta data with empty values.
+        If `False` do not return meta data with empty values.
 
     Returns
     -------
@@ -411,6 +413,8 @@ def metadata(filepath, store_empty=False):
         types of values are values for the respective key. In
         particular they are strings. But other
         simple types like ints or floats are also allowed.
+        See `audioio.audiometadata` module for available functions
+        to work with such metadata.
 
     Examples
     --------
@@ -428,6 +432,9 @@ def metadata(filepath, store_empty=False):
 
 def markers(filepath):
     """ Read markers of an audio file.
+
+    See `audioio.audiomarkers` module for available functions
+    to work with markers.
 
     Parameters
     ----------
@@ -448,7 +455,7 @@ def markers(filepath):
     ```
     from audioio import markers, print_markers
     locs, labels = markers('data.wav')
-    print_markers(md)
+    print_markers(locs, labels)
     ```
     """
     try:
@@ -830,8 +837,8 @@ class BufferArray(object):
 
         See unwrap() function from the audioio package.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         thresh: float
             Threshold for detecting wrapped data.
             If zero, do not unwrap.
@@ -1057,12 +1064,17 @@ class AudioLoader(BufferArray):
             types of values are values for the respective key. In
             particular they are strings. But other
             simple types like ints or floats are also allowed.
+            See `audioio.audiometadata` module for available functions
+            to work with such metadata.
         """
         return metadata(self.filepath, store_empty)
 
 
     def markers(self):
         """Read markers of the audio file.
+
+        See `audioio.audiomarkers` module for available functions
+        to work with markers.
 
         Returns
         -------

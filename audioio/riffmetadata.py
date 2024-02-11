@@ -102,7 +102,7 @@ short, and use text for longer descriptions, if necessary.
 - `write_riff_chunk()`: write RIFF file header.
 - `write_filesize()`: write the file size into the RIFF file header.
 - `write_chunk_name()`: change the name of a chunk.
-- `write_fmt_chunk()`: write format chunk.
+- `write_format_chunk()`: write format chunk.
 - `write_data_chunk()`: write data chunk.
 - `write_info_chunk()`: write metadata to LIST INFO chunk.
 - `write_bext_chunk()`: write metadata to BEXT chunk.
@@ -243,7 +243,7 @@ info_tags = dict(AGES='Rated',
                  UWPC='UnwrapClippedAmplitude',
                  IBRD='uCBoard',
                  IMAC='MACAdress')
-"""Tags of the INFO chunk and their description.
+"""Dictionary with known tags of the INFO chunk as keys and their description as value.
 
 See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
 """
@@ -264,7 +264,7 @@ bext_tags = dict(
     MaxShortTermLoudness=2,
     Reserved=180,
     CodingHistory=0)
-"""Tags of the BEXT chunk and their size in bytes.
+"""Dictionary with tags of the BEXT chunk as keys and their size in bytes as values.
 
 See https://tech.ebu.ch/docs/tech/tech3285.pdf
 """
@@ -367,7 +367,7 @@ ixml_tags = [
     'LOCATION_TYPE',
     'LOCATION_TIME',
     ]
-"""Valid tags of the iXML chunk.
+"""List with valid tags of the iXML chunk.
 
 See http://www.gallery.co.uk/ixml/
 """

@@ -3,14 +3,15 @@
 Markers are used to mark specific positions or regions in the audio
 data.  Each marker has a position, a span, a label, and a text.
 Position, and span are handled with 1-D or 2-D arrays of ints, where
-each row is a marker and the columns are position and span. The span
-column is optional. Labels and texts come in another 1-D or 2-D array
-of objects pointing to strings. Again, rows are the markers, first
-column are the labels, and second column the optional texts. Try to
-keep the labels short, and use text for longer descriptions.
+each row is a marker and the columns are position and optional
+span. Labels and texts come in another 1-D or 2-D array of objects
+pointing to strings. Again, rows are the markers, first column are the
+labels, and second column the optional texts. Try to keep the labels
+short, and use text for longer descriptions.
 
 - `write_markers()`: write markers to a text file or stream.
 - `print_markers()`: write markers to standard output.
+
 """
 
 import sys
