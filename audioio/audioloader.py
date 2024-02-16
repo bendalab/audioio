@@ -363,7 +363,7 @@ def load_audio(filepath, verbose=0):
                     if verbose > 1:
                         print(f'  sampling rate: {rate:g} Hz')
                         print(f'  channels     : {data.shape[1]}')
-                        print(f'  frame        : {len(data)}')
+                        print(f'  frames       : {len(data)}')
                 break
         except Exception as e:
             pass
@@ -1391,7 +1391,7 @@ class AudioLoader(BufferArray):
         """
         self.verbose = verbose
         if self.verbose > 0:
-            print(f'open_audio_read(filepath) with filepath={filepath}')
+            print(f'open_audioread(filepath) with filepath={filepath}')
         if not audio_modules['audioread']:
             self.samplerate = 0.0
             self.channels = 0
@@ -1582,7 +1582,7 @@ class AudioLoader(BufferArray):
                         if verbose > 1:
                             print(f'  sampling rate: {self.samplerate} Hz')
                             print(f'  channels     : {data.channels}')
-                            print(f'  frame        : {self.frames}')
+                            print(f'  frames       : {self.frames}')
                     break
             except Exception as e:
                     pass
