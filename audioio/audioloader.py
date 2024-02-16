@@ -995,6 +995,9 @@ class AudioLoader(BufferArray):
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
         super().__init__(verbose)
+        self._metadata = None
+        self._locs = None
+        self._labels = None
         self.filepath = None
         self.sf = None
         self.close = self._close
@@ -1047,7 +1050,7 @@ class AudioLoader(BufferArray):
         return blocks(self, block_size, noverlap, start, stop)
 
     def metadata(self, store_empty=False):
-        """Read metadata of the audio file.
+        """Metadata of the audio file.
 
         Parameters
         ----------
@@ -1067,8 +1070,9 @@ class AudioLoader(BufferArray):
             See `audioio.audiometadata` module for available functions
             to work with such metadata.
         """
-        return metadata(self.filepath, store_empty)
-
+        if self._metadata is None:
+            self._metadata = metadata(self.filepath, store_empty)
+        return self._metadata
 
     def markers(self):
         """Read markers of the audio file.
@@ -1085,8 +1089,10 @@ class AudioLoader(BufferArray):
             Labels (first column) and texts (second column)
             for each marker (rows).
         """
-        return markers(self.filepath)
-    
+        if self._locs is None:
+            self._locs, self._labels = markers(self.filepath)
+        return self._locs, self._labels 
+        
     # wave interface:        
     def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the wave module.
