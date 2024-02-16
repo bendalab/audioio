@@ -30,7 +30,7 @@ from .riffmetadata import metadata_riff, markers_riff
 from .audiotools import unwrap
 
 
-def load_wave(filepath, verbose=0):
+def load_wave(filepath):
     """Load wav file using the wave module from pythons standard libray.
     
     Documentation
@@ -41,8 +41,6 @@ def load_wave(filepath, verbose=0):
     ----------
     filepath: string
         The full path and name of the file to load.
-    verbose: int
-        Not used.
 
     Returns
     -------
@@ -77,7 +75,7 @@ def load_wave(filepath, verbose=0):
     return data, float(rate)
 
     
-def load_ewave(filepath, verbose=0):
+def load_ewave(filepath):
     """Load wav file using ewave module.
 
     Documentation
@@ -88,8 +86,6 @@ def load_ewave(filepath, verbose=0):
     ----------
     filepath: string
         The full path and name of the file to load.
-    verbose: int
-        Not used.
 
     Returns
     -------
@@ -119,7 +115,7 @@ def load_ewave(filepath, verbose=0):
     return data, float(rate)
 
     
-def load_wavfile(filepath, verbose=0):
+def load_wavfile(filepath):
     """Load wav file using scipy.io.wavfile.
 
     Documentation
@@ -131,8 +127,6 @@ def load_wavfile(filepath, verbose=0):
     ----------
     filepath: string
         The full path and name of the file to load.
-    verbose: int
-        If larger than zero show detailed error/warning messages.
 
     Returns
     -------
@@ -151,11 +145,9 @@ def load_wavfile(filepath, verbose=0):
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
 
-    if verbose < 2:
-        warnings.filterwarnings("ignore")
+    warnings.filterwarnings("ignore")
     rate, data = wavfile.read(filepath)
-    if verbose < 2:
-        warnings.filterwarnings("always")
+    warnings.filterwarnings("always")
     if data.dtype == np.uint8:
         data = data / 128.0 - 1.0
     elif np.issubdtype(data.dtype, np.signedinteger):
@@ -167,7 +159,7 @@ def load_wavfile(filepath, verbose=0):
     return data, float(rate)
 
 
-def load_soundfile(filepath, verbose=0):
+def load_soundfile(filepath):
     """Load audio file using SoundFile (based on libsndfile).
 
     Documentation
@@ -179,8 +171,6 @@ def load_soundfile(filepath, verbose=0):
     ----------
     filepath: string
         The full path and name of the file to load.
-    verbose: int
-        Not used.
 
     Returns
     -------
@@ -207,7 +197,7 @@ def load_soundfile(filepath, verbose=0):
     return data, float(rate)
 
 
-def load_wavefile(filepath, verbose=0):
+def load_wavefile(filepath):
     """Load audio file using wavefile (based on libsndfile).
 
     Documentation
@@ -218,8 +208,6 @@ def load_wavefile(filepath, verbose=0):
     ----------
     filepath: string
         The full path and name of the file to load.
-    verbose: int
-        Not used.
 
     Returns
     -------
@@ -242,7 +230,7 @@ def load_wavefile(filepath, verbose=0):
     return data.astype(np.float64, copy=False).T, float(rate)
 
 
-def load_audioread(filepath, verbose=0):
+def load_audioread(filepath):
     """Load audio file using audioread.
 
     Documentation
@@ -253,8 +241,6 @@ def load_audioread(filepath, verbose=0):
     ----------
     filepath: string
         The full path and name of the file to load.
-    verbose: int
-        Not used.
 
     Returns
     -------
@@ -370,7 +356,7 @@ def load_audio(filepath, verbose=0):
             not_installed.append(lib)
             continue
         try:
-            data, rate = load_file(filepath, verbose)
+            data, rate = load_file(filepath)
             if len(data) > 0:
                 success = True
                 if verbose > 0:
