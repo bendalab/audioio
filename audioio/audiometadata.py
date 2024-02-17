@@ -660,7 +660,7 @@ def parse_number(s):
     return v, u, nd
 
             
-def update_gain(metadata, fac):
+def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
     """Update gain setting in metadata.
 
     Searches for the first appearance of the keyword `Gain` (case
@@ -673,6 +673,13 @@ def update_gain(metadata, fac):
         Metadata to be updated.
     fac: float
         Factor that was used to scale the data.
+    gainkey: str or list of str
+        Key in the file's metadata that holds some gain information.
+        If found, the data will be multiplied with the gain,
+        and if available, the corresponding unit is returned.
+        See the `audiometadata.find_key()` function for details.
+    sep: str
+        String that separates section names in `gainkey`.
 
     Returns
     -------
@@ -690,23 +697,26 @@ def update_gain(metadata, fac):
     >>> print_metadata(md)
     Artist: John Doe
     Recording:
-        gain: 0.7mV
+        gain: 0.70mV
     ```
 
     """
-    m, k = find_key(metadata, 'Gain')
-    if k in m:
-        vs = m[k]
-        if isinstance(vs, (int, float)):
-            m[k] = vs/fac
-        else:
-            v, u, n = parse_number(vs)
-            if not v is None:
-                # fix some TeeGrid gains:
-                if len(u) >= 2 and u[-2:] == '/V':
-                    u = u[:-2]
-                m[k] = f'{v/fac:.{n}f}{u}'
-                return True
+    if not isinstance(gainkey, (list, tuple, np.ndarray)):
+        gainkey = (gainkey,)
+    for gk in gainkey:
+        m, k = find_key(metadata, gk, sep)
+        if k in m:
+            vs = m[k]
+            if isinstance(vs, (int, float)):
+                m[k] = vs/fac
+            else:
+                v, u, n = parse_number(vs)
+                if not v is None:
+                    # fix some TeeGrid gains:
+                    if len(u) >= 2 and u[-2:] == '/V':
+                        u = u[:-2]
+                    m[k] = f'{v/fac:.{n+1}f}{u}'
+                    return True
     return False
     
             
