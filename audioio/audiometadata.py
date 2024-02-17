@@ -86,7 +86,6 @@ import sys
 import argparse
 import numpy as np
 from .version import __version__, __year__
-from .audiomodules import *
 
 
 def write_metadata_text(fh, meta, prefix='', indent=4):
@@ -115,19 +114,21 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
     ```
     """
     
-    def write_dict(df, meta, level):
+    def write_dict(df, md, level):
         w = 0
-        for k in meta:
-            if not isinstance(meta[k], dict) and w < len(k):
+        for k in md:
+            if not isinstance(md[k], dict) and w < len(k):
                 w = len(k)
-        for k in meta:
+        for k in md:
             clevel = level*indent
-            if isinstance(meta[k], dict):
+            if isinstance(md[k], dict):
                 df.write(f'{prefix}{"":>{clevel}}{k}:\n')
-                write_dict(df, meta[k], level+1)
+                write_dict(df, md[k], level+1)
             else:
-                df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {meta[k]}\n')
+                df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {md[k]}\n')
 
+    if meta is None:
+        return
     if hasattr(fh, 'write'):
         own_file = False
     else:
@@ -407,6 +408,8 @@ def find_key(metadata, key, sep='__'):
         # nothing found:
         return False, metadata, sep.join(keys)
 
+    if metadata is None:
+        return {}, None
     ks = key.strip().split(sep)
     found, mm, kk = find_keys(metadata, ks)
     return mm, kk
@@ -525,6 +528,8 @@ def add_metadata(metadata, md_list, sep='__'):
     ```
 
     """
+    if metadata is None:
+        return
     for md in md_list:
         k, v = md.split('=')
         mm, kk = find_key(metadata, k, sep)
@@ -559,6 +564,8 @@ def remove_metadata(metadata, key_list, sep='__'):
     ```
 
     """
+    if metadata is None:
+        return
     for k in key_list:
         mm, kk = find_key(metadata, k, sep)
         if not kk is None and kk in mm:
@@ -688,6 +695,8 @@ def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='__'):
     """
     unit = 'a.u.'
     fac = 1.0
+    if metadata is None or len(metadata) == 0:
+        return fac, unit
     if not isinstance(gainkey, (list, tuple, np.ndarray)):
         gainkey = (gainkey,)
     for gk in gainkey:
@@ -746,6 +755,8 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
     ```
 
     """
+    if metadata is None or len(metadata) == 0:
+        return fac, unit
     if not isinstance(gainkey, (list, tuple, np.ndarray)):
         gainkey = (gainkey,)
     for gk in gainkey:
@@ -803,6 +814,8 @@ def add_unwrap(metadata, thresh, clip=0):
     ```
 
     """
+    if metadata is None:
+        return
     md = metadata
     for k in metadata:
         if k.strip().upper() == 'INFO':
