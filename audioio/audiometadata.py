@@ -23,6 +23,7 @@ RIFF/WAVE files.
 - `remove_metadata()`: remove key-value pairs from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
 - `parse_number()`: parse string with number and unit.
+- `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
 
@@ -596,10 +597,11 @@ def parse_number(s):
 
     Parameters
     ----------
-    s: str
+    s: str or float or int
         String to be parsed. The initial part of the string is
         expected to be a number, the part following the number is
-        interpreted as the unit.
+        interpreted as the unit. If float or int, then return this
+        as the value with empty unit.
 
     Returns
     -------
@@ -639,6 +641,8 @@ def parse_number(s):
     ```
 
     """
+    if not hasattr(s, '__len__'):
+        return float(s), '', 5
     n = len(s)
     ip = n
     have_point = False
@@ -658,6 +662,47 @@ def parse_number(s):
     u = s[n:].strip()
     nd = n - ip if n >= ip else 0
     return v, u, nd
+
+
+def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='__'):
+    """Get gain and unit from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata with key-value pairs.
+    gainkey: str or list of str
+        Key in the file's metadata that holds some gain information.
+        If found, the data will be multiplied with the gain,
+        and if available, the corresponding unit is returned.
+        See the `audiometadata.find_key()` function for details.
+    sep: str
+        String that separates section names in `gainkey`.
+
+    Returns
+    -------
+    fac: float
+        Gain factor. If not found in metadata return 1.
+    unit: string
+        Unit of the data if found in the metadata, otherwise "a.u.".
+    """
+    unit = 'a.u.'
+    fac = 1.0
+    if not isinstance(gainkey, (list, tuple, np.ndarray)):
+        gainkey = (gainkey,)
+    for gk in gainkey:
+        m, k = find_key(metadata, gk, sep)
+        if k in m:
+            gs = m[k]
+            v, u, _ = parse_number(gs)
+            fac = v
+            # fix some TeeGrid gains:
+            if len(u) >= 2 and u[-2:] == '/V':
+                u = u[:-2]
+            if u:
+                unit = u
+            break
+    return fac, unit
 
             
 def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
