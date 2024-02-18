@@ -248,6 +248,20 @@ def test_get_int():
     v = amd.get_int(md, 'cccc', default=1)
     assert_equal(v, 1, 'get default')
 
+
+def test_get_str():
+    md = dict(aaaa=42, bbbb='hello')
+    v = amd.get_str(md, 'bbbb')
+    assert_equal(v, 'hello', 'get str')
+    v = amd.get_str(md, 'aaaa')
+    assert_equal(v, '42', 'get int as str')
+    v = amd.get_str(md, ['cccc', 'bbbb'])
+    assert_equal(v, 'hello', 'get two keys')
+    v = amd.get_str(md, 'cccc')
+    assert_equal(v, None, 'get invalid key')
+    v = amd.get_str(md, 'cccc', default='-')
+    assert_equal(v, '-', 'get default')
+
     
 def test_gain():
     md = dict(Gain='1.42mV')

@@ -32,7 +32,7 @@ if not '-m' in sys.argv:
     from .audiometadata import write_metadata_text, print_metadata
     from .audiometadata import find_key, add_sections, add_metadata
     from .audiometadata import remove_metadata, cleanup_metadata
-    from .audiometadata import parse_number, get_number, get_int
+    from .audiometadata import parse_number, get_number, get_int, get_str
     from .audiometadata import get_gain, update_gain, add_unwrap
     from .audiomarkers import write_markers, print_markers
     from .audiowriter import write_audio, available_formats, available_encodings

@@ -702,7 +702,8 @@ def get_number(metadata, keys, sep='__', default=None, default_unit=''):
     v: None, int, or float
         Value referenced by `key` as float.
         Without decimal point, an int is returned.
-        If the key`s value does not contain a number,
+        If none of the `keys` was found or
+        the key`s value does not contain a number,
         then `default` is returned.
     u: str
         Corresponding unit.
@@ -777,7 +778,8 @@ def get_int(metadata, keys, sep='__', default=None):
     -------
     v: None or int
         Value referenced by `key` as integer.
-        If the key's value does not contain a number or represents
+        If none of the `keys` was found,
+        the key's value does not contain a number or represents
         a floating point value, then `default` is returned.
 
     Examples
@@ -819,6 +821,70 @@ def get_int(metadata, keys, sep='__', default=None):
             v, _, n = parse_number(m[k])
             if v is not None and n == 0:
                 return int(v)
+    return default
+
+
+def get_str(metadata, keys, sep='__', default=None):
+    """Find a key in metadata and return its string value.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Returns value of the first key found.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or str
+        Return value if `key` is not found or the value does
+        not contain a string.
+
+    Returns
+    -------
+    v: None or str
+        String value referenced by `key`.
+        If none of the `keys` was found, then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_str
+    >>> md = dict(aaaa=42, bbbb='hello')
+
+    # string:
+    >>> get_str(md, 'bbbb')
+    'hello'
+
+    # int as str:
+    >>> get_str(md, 'aaaa')
+    '42'
+
+    # two keys:
+    >>> get_str(md, ['cccc', 'bbbb'])
+    'hello'
+
+    # not found:
+    >>> get_str(md, 'cccc')
+    None
+
+    # not found with default value:
+    >>> get_str(md, 'cccc', default='-')
+    '-'
+    ```
+
+    """
+    if metadata is None or len(metadata) == 0:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            return str(m[k])
     return default
 
 
