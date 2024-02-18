@@ -23,8 +23,10 @@ RIFF/WAVE files.
 - `remove_metadata()`: remove key-value pairs from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
 - `parse_number()`: parse string with number and unit.
+- `change_unit()`: scale numerical value to a new unit.
 - `get_number()`: find a key in metadata and return its number and unit.
 - `get_int()`: find a key in metadata and return its integer value.
+- `get_str()`: find a key in metadata and return its string value.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
@@ -677,6 +679,177 @@ def parse_number(s):
 
 
 def get_number(metadata, keys, sep='__', default=None, default_unit=''):
+    """Find a key in metadata and return its number and unit.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Returns value of the first key found.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None, int, or float
+        Returned value if `key` is not found or the value does
+        not contain a number.
+    default_unit: str
+        Returned unit if `key` is not found or the key's value does
+        not have a unit.
+
+    Returns
+    -------
+    v: None, int, or float
+        Value referenced by `key` as float.
+        Without decimal point, an int is returned.
+        If none of the `keys` was found or
+        the key`s value does not contain a number,
+        then `default` is returned.
+    u: str
+        Corresponding unit.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_number
+    >>> md = dict(aaaa='42', bbbb='42.3ms')
+
+    # integer:
+    >>> get_number(md, 'aaaa')
+    (42, '')
+
+    # float with unit:
+    >>> get_number(md, 'bbbb')
+    (42.3, 'ms')
+
+    # two keys:
+    >>> get_number(md, ['cccc', 'bbbb'])
+    (42.3, 'ms')
+
+    # not found:
+    >>> get_number(md, 'cccc')
+    (None, '')
+
+    # not found with default value:
+    >>> get_number(md, 'cccc', default=1.0, default_unit='a.u.')
+    (1.0, 'a.u.')
+    ```
+
+    """
+    if metadata is None or len(metadata) == 0:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    value = default
+    unit = default_unit
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            v, u, _ = parse_number(m[k])
+            if v is not None:
+                if not u:
+                    u = default_unit
+                return v, u
+            elif u and unit == default_unit:
+                unit = u
+    return value, unit
+
+
+unit_prefixes = {'Deka': 1e1, 'deka': 1e1, 'Hekto': 1e2, 'hekto': 1e2,
+                 'kilo': 1e3, 'Kilo': 1e3, 'Mega': 1e6, 'mega': 1e6,
+                 'Giga': 1e9, 'giga': 1e9, 'Tera': 1e12, 'tera': 1e12, 
+                 'Peta': 1e15, 'peta': 1e15, 'Exa': 1e18, 'exa': 1e18, 
+                 'Dezi': 1e-1, 'dezi': 1e-1, 'Zenti': 1e-2, 'centi': 1e-2,
+                 'Milli': 1e-3, 'milli': 1e-3, 'Micro': 1e-6, 'micro': 1e-6, 
+                 'Nano': 1e-9, 'nano': 1e-9, 'Piko': 1e-12, 'piko': 1e-12, 
+                 'Femto': 1e-15, 'femto': 1e-15, 'Atto': 1e-18, 'atto': 1e-18, 
+                 'da': 1e1, 'h': 1e2, 'K': 1e3, 'k': 1e3, 'M': 1e6,
+                 'G': 1e9, 'T': 1e12, 'P': 1e15, 'E': 1e18, 
+                 'd': 1e-1, 'c': 1e-2, 'mu': 1e-6, 'u': 1e-6, 'm': 1e-3,
+                 'n': 1e-9, 'p': 1e-12, 'f': 1e-15, 'a': 1e-18}
+""" SI prefixes for units with corresponding factors. """
+
+
+def change_unit(val, old_unit, new_unit):
+    """Scale numerical value to a new unit.
+
+    Adapted from https://github.com/relacs/relacs/blob/1facade622a80e9f51dbf8e6f8171ac74c27f100/options/src/parameter.cc#L1647-L1703
+
+    Parameters
+    ----------
+    val: float
+        Value given in `old_unit`.
+    old_unit: str
+        Unit of `val`.
+    new_unit: str
+        Requested unit of return value.
+
+    Returns
+    -------
+    new_val: float
+        The input value `val` scaled to `new_unit`.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import change_unit
+    >>> change_unit(5, 'mm', 'cm')
+    0.5
+
+    >>> change_unit(5, 'cm', 'mm')
+    50.0
+
+    >>> change_unit(4, 'kg', 'g')
+    4000.0
+
+    >>> change_unit(12, '%', '')
+    0.12
+
+    >>> change_unit(1.24, '', '%')
+    124.0
+
+    >>> change_unit(2.5, 'min', 's')
+    150.0
+
+    >>> change_unit(3600, 's', 'h')
+    1.0
+
+    ```
+
+    """
+    # missing unit?
+    if not new_unit and not old_unit:
+        return val
+
+    # special units that directly translate into factors:
+    unit_factors = {'%': 0.01, 'hour': 60.0*60.0, 'h': 60.0*60.0, 'min': 60.0}
+
+    # parse old unit:
+    f1 = 1.0
+    if old_unit in unit_factors:
+        f1 = unit_factors[old_unit]
+    else:
+        for k in unit_prefixes:
+            if len(old_unit) > len(k) and old_unit[:len(k)] == k:
+                f1 = unit_prefixes[k];
+  
+    # parse new unit:
+    f2 = 1.0
+    if new_unit in unit_factors:
+        f2 = unit_factors[new_unit]
+    else:
+        for k in unit_prefixes:
+            if len(new_unit) > len(k) and new_unit[:len(k)] == k:
+                f2 = unit_prefixes[k];
+  
+    return val*f1/f2
+
+
+def get_XXXXnumber(metadata, keys, sep='__', default=None, default_unit=''):
     """Find a key in metadata and return its number and unit.
 
     Parameters

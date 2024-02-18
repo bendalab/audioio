@@ -213,7 +213,24 @@ def test_parse_number():
     assert_equal(u, '', 'parse float')
     assert_equal(n, 5, 'parse float')
 
+     
+def test_change_unit():
+    v = amd.change_unit(5, 'mm', 'cm')
+    assert_equal(v, 0.5, 'change unit')
+    v = amd.change_unit(5, 'cm', 'mm')
+    assert_equal(v, 50.0, 'change unit')
+    v = amd.change_unit(4, 'kg', 'g')
+    assert_equal(v, 4000, 'change unit')
+    v = amd.change_unit(12, '%', '')
+    assert_equal(v, 0.12, 'change unit')
+    v = amd.change_unit(1.24, '', '%')
+    assert_equal(v, 124.0, 'change unit')
+    v = amd.change_unit(2.5, 'min', 's')
+    assert_equal(v, 150.0, 'change unit')
+    v = amd.change_unit(3600, 's', 'h')
+    assert_equal(v, 1.0, 'change unit')
 
+    
 def test_get_number():
     md = dict(aaaa='42', bbbb='42.3ms')
     v, u = amd.get_number(md, 'aaaa')
