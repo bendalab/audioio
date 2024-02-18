@@ -215,6 +215,10 @@ def test_parse_number():
 
      
 def test_change_unit():
+    v = amd.change_unit(5, '', 'cm')
+    assert_equal(v, 5.0, 'change unit')
+    v = amd.change_unit(5, 'mm', '')
+    assert_equal(v, 5.0, 'change unit')
     v = amd.change_unit(5, 'mm', 'cm')
     assert_equal(v, 0.5, 'change unit')
     v = amd.change_unit(5, 'cm', 'mm')
@@ -231,23 +235,39 @@ def test_change_unit():
     assert_equal(v, 1.0, 'change unit')
 
     
-def test_get_number():
+def test_get_number_unit():
     md = dict(aaaa='42', bbbb='42.3ms')
-    v, u = amd.get_number(md, 'aaaa')
+    v, u = amd.get_number_unit(md, 'aaaa')
     assert_equal(v, 42, 'get integer')
     assert_equal(u, '', 'get integer')
-    v, u = amd.get_number(md, 'bbbb')
+    v, u = amd.get_number_unit(md, 'bbbb')
     assert_equal(v, 42.3, 'get float with unit')
     assert_equal(u, 'ms', 'get float with unit')
-    v, u = amd.get_number(md, ['cccc', 'bbbb'])
+    v, u = amd.get_number_unit(md, ['cccc', 'bbbb'])
     assert_equal(v, 42.3, 'get two keys')
     assert_equal(u, 'ms', 'get two keys')
-    v, u = amd.get_number(md, 'cccc')
+    v, u = amd.get_number_unit(md, 'cccc')
     assert_equal(v, None, 'get invalid key')
     assert_equal(u, '', 'get invalid key')
-    v, u = amd.get_number(md, 'cccc', default=1.0, default_unit='a.u.')
+    v, u = amd.get_number_unit(md, 'cccc', default=1.0, default_unit='a.u.')
     assert_equal(v, 1.0, 'get defaults')
     assert_equal(u, 'a.u.', 'get defaults key')
+
+
+def test_get_number():
+    md = dict(aaaa='42', bbbb='42.3ms')
+    v = amd.get_number(md, 's', 'bbbb')
+    assert_equal(v, 0.0423, 'get number in seconds')
+    v = amd.get_number(md, 'us', 'bbbb')
+    assert_equal(v, 42300.0, 'get number in microseconds')
+    v = amd.get_number(md, 'Hz', 'aaaa')
+    assert_equal(v, 42, 'get number without unit')
+    v = amd.get_number(md, 's', ['cccc', 'bbbb'])
+    assert_equal(v, 0.0423, 'get number with two keys')
+    v = amd.get_number(md, 's', 'cccc')
+    assert_equal(v, None, 'get number with invalid key')
+    v = amd.get_number(md, 's', 'cccc', default=1.0)
+    assert_equal(v, 1.0, 'get number with default value')
 
 
 def test_get_int():
