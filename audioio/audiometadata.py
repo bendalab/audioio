@@ -678,86 +678,6 @@ def parse_number(s):
     return v, u, nd
 
 
-def get_number(metadata, keys, sep='__', default=None, default_unit=''):
-    """Find a key in metadata and return its number and unit.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-    keys: str or list of str
-        Keys in the metadata to be searched for (case insensitive).
-        Returns value of the first key found.
-        May contain section names separated by `sep`. 
-        See `audiometadata.find_key()` for details.
-    sep: str
-        String that separates section names in `key`.
-    default: None, int, or float
-        Returned value if `key` is not found or the value does
-        not contain a number.
-    default_unit: str
-        Returned unit if `key` is not found or the key's value does
-        not have a unit.
-
-    Returns
-    -------
-    v: None, int, or float
-        Value referenced by `key` as float.
-        Without decimal point, an int is returned.
-        If none of the `keys` was found or
-        the key`s value does not contain a number,
-        then `default` is returned.
-    u: str
-        Corresponding unit.
-
-    Examples
-    --------
-
-    ```
-    >>> from audioio import get_number
-    >>> md = dict(aaaa='42', bbbb='42.3ms')
-
-    # integer:
-    >>> get_number(md, 'aaaa')
-    (42, '')
-
-    # float with unit:
-    >>> get_number(md, 'bbbb')
-    (42.3, 'ms')
-
-    # two keys:
-    >>> get_number(md, ['cccc', 'bbbb'])
-    (42.3, 'ms')
-
-    # not found:
-    >>> get_number(md, 'cccc')
-    (None, '')
-
-    # not found with default value:
-    >>> get_number(md, 'cccc', default=1.0, default_unit='a.u.')
-    (1.0, 'a.u.')
-    ```
-
-    """
-    if metadata is None or len(metadata) == 0:
-        return default, default_unit
-    if not isinstance(keys, (list, tuple, np.ndarray)):
-        keys = (keys,)
-    value = default
-    unit = default_unit
-    for key in keys:
-        m, k = find_key(metadata, key, sep)
-        if k in m:
-            v, u, _ = parse_number(m[k])
-            if v is not None:
-                if not u:
-                    u = default_unit
-                return v, u
-            elif u and unit == default_unit:
-                unit = u
-    return value, unit
-
-
 unit_prefixes = {'Deka': 1e1, 'deka': 1e1, 'Hekto': 1e2, 'hekto': 1e2,
                  'kilo': 1e3, 'Kilo': 1e3, 'Mega': 1e6, 'mega': 1e6,
                  'Giga': 1e9, 'giga': 1e9, 'Tera': 1e12, 'tera': 1e12, 
@@ -847,6 +767,86 @@ def change_unit(val, old_unit, new_unit):
                 f2 = unit_prefixes[k];
   
     return val*f1/f2
+
+
+def get_number(metadata, keys, sep='__', default=None, default_unit=''):
+    """Find a key in metadata and return its number and unit.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Returns value of the first key found.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None, int, or float
+        Returned value if `key` is not found or the value does
+        not contain a number.
+    default_unit: str
+        Returned unit if `key` is not found or the key's value does
+        not have a unit.
+
+    Returns
+    -------
+    v: None, int, or float
+        Value referenced by `key` as float.
+        Without decimal point, an int is returned.
+        If none of the `keys` was found or
+        the key`s value does not contain a number,
+        then `default` is returned.
+    u: str
+        Corresponding unit.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_number
+    >>> md = dict(aaaa='42', bbbb='42.3ms')
+
+    # integer:
+    >>> get_number(md, 'aaaa')
+    (42, '')
+
+    # float with unit:
+    >>> get_number(md, 'bbbb')
+    (42.3, 'ms')
+
+    # two keys:
+    >>> get_number(md, ['cccc', 'bbbb'])
+    (42.3, 'ms')
+
+    # not found:
+    >>> get_number(md, 'cccc')
+    (None, '')
+
+    # not found with default value:
+    >>> get_number(md, 'cccc', default=1.0, default_unit='a.u.')
+    (1.0, 'a.u.')
+    ```
+
+    """
+    if metadata is None or len(metadata) == 0:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    value = default
+    unit = default_unit
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            v, u, _ = parse_number(m[k])
+            if v is not None:
+                if not u:
+                    u = default_unit
+                return v, u
+            elif u and unit == default_unit:
+                unit = u
+    return value, unit
 
 
 def get_XXXXnumber(metadata, keys, sep='__', default=None, default_unit=''):
