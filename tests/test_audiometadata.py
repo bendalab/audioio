@@ -207,11 +207,46 @@ def test_parse_number():
     v, u, n = amd.parse_number(42)
     assert_equal(v, 42, 'parse integer')
     assert_equal(u, '', 'parse integer')
-    assert_equal(n, 5, 'parse integer')
+    assert_equal(n, 0, 'parse integer')
     v, u, n = amd.parse_number(42.1)
     assert_equal(v, 42.1, 'parse float')
     assert_equal(u, '', 'parse float')
     assert_equal(n, 5, 'parse float')
+
+
+def test_get_number():
+    md = dict(aaaa='42', bbbb='42.3ms')
+    v, u = amd.get_number(md, 'aaaa')
+    assert_equal(v, 42, 'get integer')
+    assert_equal(u, '', 'get integer')
+    v, u = amd.get_number(md, 'bbbb')
+    assert_equal(v, 42.3, 'get float with unit')
+    assert_equal(u, 'ms', 'get float with unit')
+    v, u = amd.get_number(md, ['cccc', 'bbbb'])
+    assert_equal(v, 42.3, 'get two keys')
+    assert_equal(u, 'ms', 'get two keys')
+    v, u = amd.get_number(md, 'cccc')
+    assert_equal(v, None, 'get invalid key')
+    assert_equal(u, '', 'get invalid key')
+    v, u = amd.get_number(md, 'cccc', default=1.0, default_unit='a.u.')
+    assert_equal(v, 1.0, 'get defaults')
+    assert_equal(u, 'a.u.', 'get defaults key')
+
+
+def test_get_int():
+    md = dict(aaaa='42', bbbb='42.3ms')
+    v = amd.get_int(md, 'aaaa')
+    assert_equal(v, 42, 'get integer')
+    v = amd.get_int(md, 'bbbb')
+    assert_equal(v, None, 'get float instead of int')
+    v = amd.get_int(md, ['cccc', 'aaaa'])
+    assert_equal(v, 42, 'get two keys')
+    v = amd.get_int(md, ['bbbb', 'aaaa'])
+    assert_equal(v, 42, 'get two keys')
+    v = amd.get_int(md, 'cccc')
+    assert_equal(v, None, 'get invalid key')
+    v = amd.get_int(md, 'cccc', default=1)
+    assert_equal(v, 1, 'get default')
 
     
 def test_gain():
@@ -252,7 +287,7 @@ def test_gain():
     
     md = dict(Gain='ms')
     f, u = amd.get_gain(md)
-    assert_equal(f, None)
+    assert_equal(f, 1.0)
     assert_equal(u, 'ms')
     r = amd.update_gain(md, 2)
     assert_equal(md['Gain'], 'ms')

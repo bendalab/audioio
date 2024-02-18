@@ -23,6 +23,8 @@ RIFF/WAVE files.
 - `remove_metadata()`: remove key-value pairs from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
 - `parse_number()`: parse string with number and unit.
+- `get_number()`: find a key in metadata and return its number and unit.
+- `get_int()`: find a key in metadata and return its integer value.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
@@ -604,7 +606,7 @@ def parse_number(s):
 
     Parameters
     ----------
-    s: str or float or int
+    s: str, float, or int
         String to be parsed. The initial part of the string is
         expected to be a number, the part following the number is
         interpreted as the unit. If float or int, then return this
@@ -612,7 +614,7 @@ def parse_number(s):
 
     Returns
     -------
-    v: None, int or float
+    v: None, int, or float
         Value of the string as float. Without decimal point, an int is returned.
         If the string does not contain a number, None is returned.
     u: str
@@ -649,7 +651,10 @@ def parse_number(s):
 
     """
     if not hasattr(s, '__len__'):
-        return float(s), '', 5
+        if isinstance(s, int):
+            return s, '', 0
+        else:
+            return s, '', 5
     n = len(s)
     ip = n
     have_point = False
@@ -669,6 +674,152 @@ def parse_number(s):
     u = s[n:].strip()
     nd = n - ip if n >= ip else 0
     return v, u, nd
+
+
+def get_number(metadata, keys, sep='__', default=None, default_unit=''):
+    """Find a key in metadata and return its number and unit.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Returns value of the first key found.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None, int, or float
+        Returned value if `key` is not found or the value does
+        not contain a number.
+    default_unit: str
+        Returned unit if `key` is not found or the key's value does
+        not have a unit.
+
+    Returns
+    -------
+    v: None, int, or float
+        Value referenced by `key` as float.
+        Without decimal point, an int is returned.
+        If the key`s value does not contain a number,
+        then `default` is returned.
+    u: str
+        Corresponding unit.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_number
+    >>> md = dict(aaaa='42', bbbb='42.3ms')
+
+    # integer:
+    >>> get_number(md, 'aaaa')
+    (42, '')
+
+    # float with unit:
+    >>> get_number(md, 'bbbb')
+    (42.3, 'ms')
+
+    # two keys:
+    >>> get_number(md, ['cccc', 'bbbb'])
+    (42.3, 'ms')
+
+    # not found:
+    >>> get_number(md, 'cccc')
+    (None, '')
+
+    # not found with default value:
+    >>> get_number(md, 'cccc', default=1.0, default_unit='a.u.')
+    (1.0, 'a.u.')
+    ```
+
+    """
+    if metadata is None or len(metadata) == 0:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    value = default
+    unit = default_unit
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            v, u, _ = parse_number(m[k])
+            if v is not None:
+                if not u:
+                    u = default_unit
+                return v, u
+            elif u and unit == default_unit:
+                unit = u
+    return value, unit
+
+
+def get_int(metadata, keys, sep='__', default=None):
+    """Find a key in metadata and return its integer value.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Returns value of the first key found.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or int
+        Return value if `key` is not found or the value does
+        not contain an integer.
+
+    Returns
+    -------
+    v: None or int
+        Value referenced by `key` as integer.
+        If the key's value does not contain a number or represents
+        a floating point value, then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_int
+    >>> md = dict(aaaa='42', bbbb='42.3ms')
+
+    # integer:
+    >>> get_int(md, 'aaaa')
+    42
+
+    # two keys:
+    >>> get_int(md, ['cccc', 'aaaa'])
+    42
+
+    # float:
+    >>> get_int(md, 'bbbb')
+    None
+
+    # not found:
+    >>> get_int(md, 'cccc')
+    None
+
+    # not found with default value:
+    >>> get_int(md, 'cccc', default=0)
+    0
+    ```
+
+    """
+    if metadata is None or len(metadata) == 0:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            v, _, n = parse_number(m[k])
+            if v is not None and n == 0:
+                return int(v)
+    return default
 
 
 def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='__'):
@@ -693,25 +844,11 @@ def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='__'):
     unit: string
         Unit of the data if found in the metadata, otherwise "a.u.".
     """
-    unit = 'a.u.'
-    fac = 1.0
-    if metadata is None or len(metadata) == 0:
-        return fac, unit
-    if not isinstance(gainkey, (list, tuple, np.ndarray)):
-        gainkey = (gainkey,)
-    for gk in gainkey:
-        m, k = find_key(metadata, gk, sep)
-        if k in m:
-            gs = m[k]
-            v, u, _ = parse_number(gs)
-            fac = v
-            # fix some TeeGrid gains:
-            if len(u) >= 2 and u[-2:] == '/V':
-                u = u[:-2]
-            if u:
-                unit = u
-            break
-    return fac, unit
+    v, u = get_number(metadata, gainkey, sep, 1.0, 'a.u.')
+    # fix some TeeGrid gains:
+    if len(u) >= 2 and u[-2:] == '/V':
+        u = u[:-2]
+    return v, u
 
             
 def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
