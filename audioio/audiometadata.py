@@ -27,6 +27,7 @@ RIFF/WAVE files.
 - `get_number_unit()`: find a key in metadata and return its number and unit.
 - `get_number()`: find a key in metadata and return its value in a given unit.
 - `get_int()`: find a key in metadata and return its integer value.
+- `get_bool()`: find a key in metadata and return its boolean value.
 - `get_str()`: find a key in metadata and return its string value.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
@@ -994,6 +995,95 @@ def get_int(metadata, keys, sep='__', default=None):
             if v is not None and n == 0:
                 return int(v)
     return default
+
+
+def get_bool(metadata, keys, sep='__', default=None):
+    """Find a key in metadata and return its boolean value.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Value of the first key found is returned.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or bool
+        Return value if `key` is not found or the value does
+        not specify a boolean value.
+
+    Returns
+    -------
+    v: None or bool
+        Value referenced by `key` as boolean.
+        True if 'true', 'yes' (case insensitive) or any number larger than zero.
+        False if 'false', 'no' (case insensitive) or any number equal to zero.
+        If none of the `keys` was found or
+        the key's value does specify a boolean value,
+        then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_bool
+    >>> md = dict(aaaa='TruE', bbbb='No', cccc=0, dddd=1, eeee=True, ffff='ui')
+
+    # case insensitive:
+    >>> get_bool(md, 'aaaa')
+    True
+
+    >>> get_bool(md, 'bbbb')
+    False
+
+    >>> get_bool(md, 'cccc')
+    False
+
+    >>> get_bool(md, 'dddd')
+    True
+
+    >>> get_bool(md, 'eeee')
+    True
+
+    # not found:
+    >>> get_bool(md, 'ffff')
+    None
+
+    # two keys (string is preferred over number):
+    >>> get_bool(md, ['cccc', 'aaaa'])
+    True
+
+    # two keys (take first match):
+    >>> get_bool(md, ['cccc', 'ffff'])
+    False
+
+    # not found with default value:
+    >>> get_bool(md, 'ffff', default=False)
+    False
+    ```
+
+    """
+    if metadata is None or len(metadata) == 0:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    val = default
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            vs = m[k]
+            v, _, _ = parse_number(vs)
+            if v is not None:
+                val = abs(v) > 1e-8
+            else:
+                if vs.upper() in ['TRUE', 'T', 'YES', 'Y']:
+                    return True
+                if vs.upper() in ['FALSE', 'F', 'NO', 'N']:
+                    return False
+    return val
 
 
 def get_str(metadata, keys, sep='__', default=None):

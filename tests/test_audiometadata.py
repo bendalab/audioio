@@ -286,6 +286,28 @@ def test_get_int():
     assert_equal(v, 1, 'get default')
 
 
+def test_bool():
+    md = dict(aaaa='TruE', bbbb='No', cccc=0, dddd=1, eeee=True, ffff='ui')
+    v = amd.get_bool(md, 'aaaa')
+    assert_equal(v, True, 'get boolean truth string')
+    v = amd.get_bool(md, 'bbbb')
+    assert_equal(v, False, 'get boolean false string')
+    v = amd.get_bool(md, 'cccc')
+    assert_equal(v, False, 'get boolean false integer')
+    v = amd.get_bool(md, 'dddd')
+    assert_equal(v, True, 'get boolean true integer')
+    v = amd.get_bool(md, 'eeee')
+    assert_equal(v, True, 'get boolean true')
+    v = amd.get_bool(md, 'ffff')
+    assert_equal(v, None, 'get non-boolean string')
+    v = amd.get_bool(md, ['cccc', 'aaaa'])
+    assert_equal(v, True, 'prefer boolean string')
+    v = amd.get_bool(md, ['cccc', 'ffff'])
+    assert_equal(v, False, 'get boolean first match')
+    v = amd.get_bool(md, 'ffff', default=False)
+    assert_equal(v, False, 'get boolean default')
+
+    
 def test_get_str():
     md = dict(aaaa=42, bbbb='hello')
     v = amd.get_str(md, 'bbbb')
