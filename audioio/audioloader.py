@@ -710,7 +710,7 @@ class BufferArray(object):
             if self.unwrap:
                 data = self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:]
                 # TODO: handle edge effects!
-                amx = self.ampl_max if self.unwrap_clips else self.ampl_max/2
+                amax = self.ampl_max if self.unwrap_clips else self.ampl_max/2
                 unwrap(data, self.unwrap_thresh, amax)
                 if self.unwrap_clips:
                     data[data > self.ampl_max] = self.ampl_max
