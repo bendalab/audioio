@@ -54,8 +54,8 @@ options:
   -f FORMAT     audio format of output file
   -e ENCODING   audio encoding of output file
   -s SCALE      scale the data by factor SCALE
-  -u [THRESH]   unwrap clipped data with threshold (default is 0.5) and divide by two
-  -U [THRESH]   unwrap clipped data with threshold (default is 0.5) and clip
+  -u [THRESH]   unwrap clipped data with threshold (default is 1.5) and divide by two
+  -U [THRESH]   unwrap clipped data with threshold (default is 1.5) and clip
   -d FAC        downsample by integer factor
   -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
   -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "."
@@ -104,11 +104,11 @@ def add_arguments(parser):
     parser.add_argument('-s', dest='scale', default=1, type=float,
                         help='scale the data by factor SCALE')
     parser.add_argument('-u', dest='unwrap', default=0, type=float,
-                        metavar='THRESH', const=0.5, nargs='?',
-                        help='unwrap clipped data with threshold (default is 0.5) and divide by two')
+                        metavar='THRESH', const=1.5, nargs='?',
+                        help='unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and divide by two')
     parser.add_argument('-U', dest='unwrap_clip', default=0, type=float,
-                        metavar='THRESH', const=0.5, nargs='?',
-                        help='unwrap clipped data with threshold (default is 0.5) and clip')
+                        metavar='THRESH', const=1.5, nargs='?',
+                        help='unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and clip')
     parser.add_argument('-d', dest='decimate', default=1, type=int,
                         metavar='FAC',
                         help='downsample by integer factor')
@@ -247,7 +247,7 @@ def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
 
 
 def modify_data(data, samplingrate, metadata, channels, scale,
-                unwrap_clip, unwrap_thresh, decimate_fac):
+                unwrap_clip, unwrap_thresh, ampl_max, unit, decimate_fac):
     """ Modify audio data and add modifications to metadata.
 
     Parameters
@@ -263,12 +263,16 @@ def modify_data(data, samplingrate, metadata, channels, scale,
     scale: float
         Scaling factor to be applied to the data.
     unwrap_clip: float
-        If larger than zero, unwrap the data using this as a threshold,
-        and clip the data at +-1.
+        If larger than zero, unwrap the data using this as a threshold
+        relative to `ampl_max`, and clip the data at +-`ampl_max`.
     unwrap_thresh: float
-        If larger than zero, unwrap the data using this as a threshold,
-        and downscale the data by a factor of two. Also update the gain
-        in the metadata.
+        If larger than zero, unwrap the data using this as a threshold
+        relative to `ampl_max`, and downscale the data by a factor of two.
+        Also update the gain in the metadata.
+    ampl_max: float
+        Maximum amplitude of the input range.
+    unit: str
+        Unit of the input range.
     decimate_fac: int
         Downsample the data by this factor.
 
@@ -284,15 +288,15 @@ def modify_data(data, samplingrate, metadata, channels, scale,
         update_gain(metadata, 1/scale)
     # fix data:
     if unwrap_clip > 1e-3:
-        unwrap(data, unwrap_clip)
-        data[data > 1] = 1
-        data[data < -1] = -1
-        add_unwrap(metadata, unwrap_clip, 1.0)
+        unwrap(data, unwrap_clip, ampl_max)
+        data[data > +ampl_max] = +ampl_max
+        data[data < -ampl_max] = -ampl_max
+        add_unwrap(metadata, unwrap_clip*ampl_max, ampl_max, unit)
     elif unwrap_thresh > 1e-3:
-        unwrap(data, unwrap_thresh)
+        unwrap(data, unwrap_thresh, ampl_max)
         data *= 0.5
         update_gain(metadata, 0.5)
-        add_unwrap(metadata, unwrap_thresh, 0.0)
+        add_unwrap(metadata, unwrap_thresh*ampl_max, 0.0, unit)
     # decimate:
     if decimate_fac > 1:
         data = decimate(data, decimate_fac, axis=0)
@@ -392,7 +396,8 @@ def main(*cargs):
         data, samplingrate = modify_data(data, samplingrate, md,
                                          channels, args.scale,
                                          args.unwrap_clip,
-                                         args.unwrap, args.decimate)
+                                         args.unwrap, 1.0, '',
+                                         args.decimate)
         add_metadata(md, args.md_list, '.')
         if len(args.remove_keys) > 0:
             remove_metadata(md, args.remove_keys, '.')

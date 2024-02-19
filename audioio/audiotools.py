@@ -73,7 +73,7 @@ def despike(data, thresh=1.0, n=1):
                                            j*data[1+k:][sel])/(k+1)
 
 
-def unwrap(data, thresh=1.5):
+def unwrap(data, thresh=1.5, ampl_max=1.0):
     """Unwrap clipped data that are folded into the available data range.
 
     In some amplifiers/ADCs clipped data appear on the opposite side
@@ -85,37 +85,36 @@ def unwrap(data, thresh=1.5):
         Data to be fixed in place.
     thresh: float
         Minimum difference between succeeding data points required
-        for initiating unwrapping.
+        for initiating unwrapping relative to ampl_max.
+    ampl_max: float
+        Maximum amplitude of the input range.
     """
 
     @jit(nopython=True)
-    def unwrap_trace(data, delta):
-        thresh = delta - 1.0
+    def unwrap_trace(data, thresh, ampl_max):
         step = 0.0
         for i in range(1, len(data)):
             cstep = 0.0
             dd = data[i] - data[i-1]
             if data[i] >= 0:
-                if abs(dd - 2.0) < abs(dd):
-                    cstep = -2.0
+                if abs(dd - 2.0*ampl_max) < abs(dd):
+                    cstep = -2.0*ampl_max
             if data[i] <= 0:
-                if abs(dd + 2.0) < abs(dd + cstep):
-                    cstep = +2.0
-            #if step != cstep and (cstep == 0.0 or \
-            #                      (abs(data[i-1]) > thresh and \
-            #                       abs(dd) > delta)):
-            if step != cstep and (cstep == 0.0 or abs(dd) > delta):
+                if abs(dd + 2.0*ampl_max) < abs(dd + cstep):
+                    cstep = +2.0*ampl_max
+            if step != cstep and (cstep == 0.0 or abs(dd) > thresh):
                 step = cstep
             data[i] += step
         
     @jit(nopython=True, parallel=True)
-    def unwrap_traces(data, thresh):
+    def unwrap_traces(data, thresh, ampl_max):
         for c in prange(data.shape[1]):
-            unwrap_trace(data[:,c], thresh)
+            unwrap_trace(data[:,c], thresh, ampl_max)
 
     if not has_numba:
         warnings.warn('unwrap() requires numba to work')
+    thresh *= ampl_max
     if data.ndim > 1:
-        unwrap_traces(data, thresh)
+        unwrap_traces(data, thresh, ampl_max)
     else:
-        unwrap_trace(data, thresh)
+        unwrap_trace(data, thresh, ampl_max)

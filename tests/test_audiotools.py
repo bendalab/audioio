@@ -86,13 +86,20 @@ def test_unwrap():
     t = np.arange(0.0, duration, 1.0/samplerate)
     data = 1.5*np.sin(2.0*np.pi*880.0*t) * 2**15
     data = data.astype(dtype=np.int16).astype(dtype=float)/2**15
-    sdata = data[:]
-
+    
+    sdata = data.copy()
     at.unwrap(sdata)
     assert_equal(len(sdata), len(t), 'unwrap keeps frames')
     assert_equal(sdata.ndim, 1, 'unwrap keeps single dimension')
     assert_true(np.max(sdata) > 1.4, 'unwrap expands beyond +1')
     assert_true(np.min(sdata) < -1.4, 'unwrap expands below -1')
+    
+    sdata = data * 120
+    at.unwrap(sdata, 1.5, 120)
+    assert_equal(len(sdata), len(t), 'unwrap keeps frames')
+    assert_equal(sdata.ndim, 1, 'unwrap keeps single dimension')
+    assert_true(np.max(sdata) > 1.4*120, 'unwrap expands beyond +1')
+    assert_true(np.min(sdata) < -1.4*120, 'unwrap expands below -1')
 
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):

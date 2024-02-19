@@ -382,6 +382,9 @@ def test_add_unwrap():
      amd.add_unwrap(md, 0.6, 0.8)
      assert_equal(md['UnwrapThreshold'], '0.60', 'added unwrap threshold and clip')
      assert_equal(md['UnwrapClippedAmplitude'], '0.80', 'added unwrap threshold and clip')
+     amd.add_unwrap(md, 120, 160, 'mV')
+     assert_equal(md['UnwrapThreshold'], '120.00mV', 'added unwrap threshold and clip and unit')
+     assert_equal(md['UnwrapClippedAmplitude'], '160.00mV', 'added unwrap threshold and clip and unit')
      
      md = dict(INFO=dict(Time='early'))
      amd.add_unwrap(md, 0.4)

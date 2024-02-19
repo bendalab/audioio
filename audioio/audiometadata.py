@@ -1241,7 +1241,7 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
     return False
     
             
-def add_unwrap(metadata, thresh, clip=0):
+def add_unwrap(metadata, thresh, clip=0, unit=''):
     """Add unwrap infos to metadata.
 
     If `audiotools.unwrap()` was applied to the data, then this
@@ -1263,6 +1263,8 @@ def add_unwrap(metadata, thresh, clip=0):
         Threshold used for unwrapping.
     clip: float
         Level at which unwrapped data have been clipped.
+    unit: str
+        Unit of `thresh` and `clip`.
 
     Examples
     --------
@@ -1286,9 +1288,9 @@ def add_unwrap(metadata, thresh, clip=0):
         if k.strip().upper() == 'INFO':
             md = metadata['INFO']
             break
-    md['UnwrapThreshold'] = f'{thresh:.2f}'
+    md['UnwrapThreshold'] = f'{thresh:.2f}{unit}'
     if clip > 0:
-        md['UnwrapClippedAmplitude'] = f'{clip:.2f}'
+        md['UnwrapClippedAmplitude'] = f'{clip:.2f}{unit}'
     
 
 def demo(filepathes, list_format, list_metadata, list_cues):

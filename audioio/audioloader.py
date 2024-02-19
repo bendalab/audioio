@@ -608,7 +608,7 @@ class BufferArray(object):
         self.backsize = 0
         self.buffer = np.zeros((0,0))
         self.unwrap = False
-        self.unwrap_thresh = 0.5
+        self.unwrap_thresh = 0.0
         self.unwrap_clips = False
         self.verbose = verbose
 
@@ -710,7 +710,8 @@ class BufferArray(object):
             if self.unwrap:
                 data = self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:]
                 # TODO: handle edge effects!
-                unwrap(data, self.unwrap_thresh)
+                amx = self.ampl_max if self.unwrap_clips else self.ampl_max/2
+                unwrap(data, self.unwrap_thresh, amax)
                 if self.unwrap_clips:
                     data[data > self.ampl_max] = self.ampl_max
                     data[data < self.ampl_min] = self.ampl_min
@@ -819,7 +820,7 @@ class BufferArray(object):
         Parameters
         ----------
         thresh: float
-            Threshold for detecting wrapped data.
+            Threshold for detecting wrapped data relative to self.ampl_max.
             If zero, do not unwrap.
         clips: bool
             If True, then clip the unwrapped data properly.
