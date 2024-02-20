@@ -985,7 +985,7 @@ def get_int(metadata, keys, sep='__', default=None):
 
     """
     if metadata is None or len(metadata) == 0:
-        return default, default_unit
+        return default
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
     for key in keys:
@@ -1067,7 +1067,7 @@ def get_bool(metadata, keys, sep='__', default=None):
 
     """
     if metadata is None or len(metadata) == 0:
-        return default, default_unit
+        return default
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
     val = default
@@ -1140,7 +1140,7 @@ def get_str(metadata, keys, sep='__', default=None):
 
     """
     if metadata is None or len(metadata) == 0:
-        return default, default_unit
+        return default
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
     for key in keys:
