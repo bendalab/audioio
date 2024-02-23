@@ -27,6 +27,7 @@ import os.path
 import numpy as np
 from .audiomodules import *
 from .riffmetadata import metadata_riff, markers_riff
+from .audiometadata import update_gain, add_unwrap
 from .audiotools import unwrap
 
 
@@ -610,6 +611,8 @@ class BufferArray(object):
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
+        self.unwrap_ampl = 1.0
+        self.unwrap_downscale = True
         self.verbose = verbose
 
     def __enter__(self):
@@ -710,11 +713,12 @@ class BufferArray(object):
             if self.unwrap:
                 data = self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:]
                 # TODO: handle edge effects!
-                amax = self.ampl_max if self.unwrap_clips else self.ampl_max/2
-                unwrap(data, self.unwrap_thresh, amax)
+                unwrap(data, self.unwrap_thresh, self.unwrap_ampl)
                 if self.unwrap_clips:
                     data[data > self.ampl_max] = self.ampl_max
                     data[data < self.ampl_min] = self.ampl_min
+                elif self.unwrap_down_scale:
+                    data *= 0.5
             if self.verbose > 1:
                 print(f'  loaded {self.buffer.shape[0]} frames from {self.offset} up to {self.offset+self.buffer.shape[0]}')
 
@@ -812,7 +816,7 @@ class BufferArray(object):
             allocate_buffer(size)
         return r_offset, r_size
 
-    def set_unwrap(self, thresh, clips=False):
+    def set_unwrap(self, thresh, clips=False, down_scale=True, unit=''):
         """Set parameters for unwrapping clipped data.
 
         See unwrap() function from the audioio package.
@@ -820,20 +824,38 @@ class BufferArray(object):
         Parameters
         ----------
         thresh: float
-            Threshold for detecting wrapped data relative to self.ampl_max.
+            Threshold for detecting wrapped data relative to self.unwrap_ampl
+            which is initially set to self.ampl_max.
             If zero, do not unwrap.
         clips: bool
             If True, then clip the unwrapped data properly.
             Otherwise, unwrap the data and double the
             minimum and maximum data range
             (self.ampl_min and self.ampl_max).
+        down_scale: bool
+            If not `clip`, then downscale the signal by a factor of two,
+            in order to keep the range between -1 and 1.
+        unit: str
+            Unit of the data.
         """
+        self.unwrap_ampl = self.ampl_max
         self.unwrap_thresh = thresh
         self.unwrap_clips = clips
+        self.unwrap_down_scale = down_scale
         self.unwrap = thresh > 1e-3
-        if self.unwrap and not self.unwrap_clips:
-            self.ampl_min *= 2
-            self.ampl_max *= 2
+        if self.unwrap:
+            if self.unwrap_clips:
+                add_unwrap(self.metadata(), unwrap_thresh*self.unwrap_ampl,
+                           self.unwrap_ampl, unit)
+            elif self.down_scale:
+                update_gain(self.metadata(), 0.5)
+                add_unwrap(self.metadata(), 0.5*unwrap_thresh*self.unwrap_ampl,
+                           0.0, unit)
+            else:
+                self.ampl_min *= 2
+                self.ampl_max *= 2
+                add_unwrap(self.metadata(), unwrap_thresh*self.unwrap_ampl,
+                           0.0, unit)
 
             
 class AudioLoader(BufferArray):
@@ -942,10 +964,10 @@ class AudioLoader(BufferArray):
         The curently available data from the file.
     ampl_min: float
         Minimum amplitude the file format supports.
-        Mostly -1.0, but -2.0 when unwrapping the data.
+        Always -1.0 for audio data.
     ampl_max: float
         Maximum amplitude the file format supports.
-        Mostly +1.0, but +2.0 when unwrapping the data.
+        Always +1.0 for audio data.
 
     Methods
     -------
