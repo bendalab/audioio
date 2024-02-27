@@ -53,9 +53,9 @@ def write_markers(fh, locs, labels=None, sep=' ', prefix=''):
             labels = labels.reshape(-1, 1)
         has_text = labels.shape[1] > 1
     # table header:
-    fh.write(f'{prefix}{"position":8}')
+    fh.write(f'{prefix}{"position":10}')
     if has_span:
-        fh.write(f'{sep}{"span":6}')
+        fh.write(f'{sep}{"span":8}')
     if has_labels:
         fh.write(f'{sep}{"label":10}')
     if has_text:
@@ -63,14 +63,14 @@ def write_markers(fh, locs, labels=None, sep=' ', prefix=''):
     fh.write('\n')
     # table data:
     for i in range(len(locs)):
-        fh.write(f'{prefix}{locs[i,0]:8}')
+        fh.write(f'{prefix}{locs[i,0]:10}')
         if has_span:
-            fh.write(f'{sep}{locs[i,1]:6}')
+            fh.write(f'{sep}{locs[i,1]:8}')
         if has_labels:
             fh.write(f'{sep}{labels[i,0]:10}')
         if has_text:
             fh.write(f'{sep}{labels[i,1]}')
-    fh.write('\n')
+        fh.write('\n')
     if own_file:
         fh.close()
 
