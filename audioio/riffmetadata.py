@@ -761,7 +761,7 @@ def read_cue_chunk(sf):
         Each row is a marker with unique identifier in the first column,
         position in the second column, and span in the third column.
         The cue chunk does not encode spans, so the third column is
-        initilazied with zeros.
+        initialized with zeros.
     """
     locs = []
     size, n = struct.unpack('<II', sf.read(8))
