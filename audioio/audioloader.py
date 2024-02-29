@@ -1573,7 +1573,7 @@ class AudioLoader(BufferArray):
         """
         self.buffer = np.array([])
         self.samplerate = 0.0
-        if len(filepath) == 0:
+        if not filepath:
             raise ValueError('input argument filepath is empty string!')
         if not os.path.isfile(filepath):
             raise FileNotFoundError(f'file "{filepath}" not found')
