@@ -172,7 +172,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         buffer[data >= 1.0] = factor - 1
     wf.writeframes(buffer.tobytes())
     wf.close()
-    append_riff(filepath, metadata, locs, labels)
+    append_riff(filepath, metadata, locs, labels, samplerate)
 
 
 def formats_ewave():
@@ -279,7 +279,7 @@ def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
     with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
                     dtype=ewave_encodings[encoding], nchannels=channels) as wf:
         wf.write(data, scale=True)
-    append_riff(filepath, metadata, locs, labels)
+    append_riff(filepath, metadata, locs, labels, samplerate)
 
 
 def formats_wavfile():
@@ -392,7 +392,7 @@ def write_wavfile(filepath, data, samplerate, metadata=None,
     else:
         buffer = data.astype(dtype, copy=False)
     wavfile.write(filepath, int(samplerate), buffer)
-    append_riff(filepath, metadata, locs, labels)
+    append_riff(filepath, metadata, locs, labels, samplerate)
 
 
 def formats_soundfile():
@@ -484,7 +484,7 @@ def write_soundfile(filepath, data, samplerate, metadata=None,
     soundfile.write(filepath, data, int(samplerate), format=format,
                     subtype=encoding)
     try:
-        append_riff(filepath, metadata, locs, labels)
+        append_riff(filepath, metadata, locs, labels, samplerate)
     except ValueError:
         pass
 
@@ -611,7 +611,7 @@ def write_wavefile(filepath, data, samplerate, metadata=None,
                              format=format_value|encoding_value) as w:
         w.write(data.T)
     try:
-        append_riff(filepath, metadata, locs, labels)
+        append_riff(filepath, metadata, locs, labels, samplerate)
     except ValueError:
         pass
 
@@ -761,7 +761,7 @@ def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
                                frame_rate=samplerate, channels=channels)
     sound.export(filepath, format=format.lower(), codec=encoding)
     try:
-        append_riff(filepath, metadata, locs, labels)
+        append_riff(filepath, metadata, locs, labels, samplerate)
     except ValueError:
         pass
     
