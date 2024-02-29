@@ -893,8 +893,9 @@ def read_lbl_chunk(sf, samplerate):
     locs = np.zeros((nn, 3), dtype=int)
     labels = np.zeros((nn, 2), dtype=object)
     n = 0
+    print('new')
     for c in range(nn):
-        line = sf.read(65).decode('latin1').strip()
+        line = sf.read(65).decode('latin1')
         fields = line.split('\t')
         if len(fields) >= 4:
             start_idx = int(float(fields[0].strip('\x00'))*samplerate)
