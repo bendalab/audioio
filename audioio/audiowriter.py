@@ -94,7 +94,7 @@ def encodings_wave(format):
 
 
 def write_wave(filepath, data, samplerate, metadata=None, locs=None,
-               labels=None, format=None, encoding=None):
+               labels=None, format=None, encoding=None, marker_hint='cue'):
     """Write audio data using the wave module from pythons standard libray.
     
     Documentation
@@ -124,6 +124,9 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     encoding: string or None
         Encoding of the data: 'PCM_32', 'PCM_16', or 'PCM_U8'.
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
 
     Raises
     ------
@@ -172,7 +175,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         buffer[data >= 1.0] = factor - 1
     wf.writeframes(buffer.tobytes())
     wf.close()
-    append_riff(filepath, metadata, locs, labels, samplerate)
+    append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
 
 
 def formats_ewave():
@@ -211,7 +214,7 @@ def encodings_ewave(format):
 
 
 def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
-                labels=None, format=None, encoding=None):
+                labels=None, format=None, encoding=None, marker_hint='cue'):
     """Write audio data using the ewave module from pythons standard libray.
 
     Documentation
@@ -241,6 +244,9 @@ def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
     encoding: string or None
         Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'FLOAT', 'DOUBLE'
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
 
     Raises
     ------
@@ -279,7 +285,7 @@ def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
     with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
                     dtype=ewave_encodings[encoding], nchannels=channels) as wf:
         wf.write(data, scale=True)
-    append_riff(filepath, metadata, locs, labels, samplerate)
+    append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
 
 
 def formats_wavfile():
@@ -318,7 +324,8 @@ def encodings_wavfile(format):
 
 
 def write_wavfile(filepath, data, samplerate, metadata=None,
-                  locs=None, labels=None, format=None, encoding=None):
+                  locs=None, labels=None, format=None, encoding=None,
+                  marker_hint='cue'):
     """Write audio data using the scipy.io.wavfile module.
     
     Documentation
@@ -348,6 +355,9 @@ def write_wavfile(filepath, data, samplerate, metadata=None,
     encoding: string or None
         Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE'
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
 
     Raises
     ------
@@ -392,7 +402,7 @@ def write_wavfile(filepath, data, samplerate, metadata=None,
     else:
         buffer = data.astype(dtype, copy=False)
     wavfile.write(filepath, int(samplerate), buffer)
-    append_riff(filepath, metadata, locs, labels, samplerate)
+    append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
 
 
 def formats_soundfile():
@@ -429,7 +439,8 @@ def encodings_soundfile(format):
 
 
 def write_soundfile(filepath, data, samplerate, metadata=None,
-                    locs=None, labels=None, format=None, encoding=None):
+                    locs=None, labels=None, format=None, encoding=None,
+                    marker_hint='cue'):
     """Write audio data using the SoundFile module (based on libsndfile).
     
     Documentation
@@ -459,6 +470,9 @@ def write_soundfile(filepath, data, samplerate, metadata=None,
     encoding: string or None
         Encoding of the data.
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
 
     Raises
     ------
@@ -484,7 +498,7 @@ def write_soundfile(filepath, data, samplerate, metadata=None,
     soundfile.write(filepath, data, int(samplerate), format=format,
                     subtype=encoding)
     try:
-        append_riff(filepath, metadata, locs, labels, samplerate)
+        append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
     except ValueError:
         pass
 
@@ -537,7 +551,8 @@ def encodings_wavefile(format):
 
     
 def write_wavefile(filepath, data, samplerate, metadata=None,
-                   locs=None, labels=None, format=None, encoding=None):
+                   locs=None, labels=None, format=None, encoding=None,
+                   marker_hint='cue'):
     """Write audio data using the wavefile module (based on libsndfile).
     
     Documentation
@@ -567,6 +582,9 @@ def write_wavefile(filepath, data, samplerate, metadata=None,
     encoding: string or None
         Encoding of the data as in wavefile.Format.
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
 
     Raises
     ------
@@ -611,7 +629,7 @@ def write_wavefile(filepath, data, samplerate, metadata=None,
                              format=format_value|encoding_value) as w:
         w.write(data.T)
     try:
-        append_riff(filepath, metadata, locs, labels, samplerate)
+        append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
     except ValueError:
         pass
 
@@ -687,7 +705,7 @@ def encodings_pydub(format):
     return encodings
 
 def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
-                labels=None, format=None, encoding=None):
+                labels=None, format=None, encoding=None, marker_hint='cue'):
     """Write audio data using the Pydub module.
     
     Documentation
@@ -717,6 +735,9 @@ def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
     encoding: string or None
         Encoding of the data.
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
 
     Raises
     ------
@@ -761,7 +782,7 @@ def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
                                frame_rate=samplerate, channels=channels)
     sound.export(filepath, format=format.lower(), codec=encoding)
     try:
-        append_riff(filepath, metadata, locs, labels, samplerate)
+        append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
     except ValueError:
         pass
     
@@ -866,7 +887,8 @@ Each element of the list is a tuple with the module's name and the write functio
 
 
 def write_audio(filepath, data, samplerate, metadata=None, locs=None,
-                labels=None, format=None, encoding=None, verbose=0):
+                labels=None, format=None, encoding=None, marker_hint='cue',
+                verbose=0):
     """Write audio data, metadata, and marker to file.
 
     Parameters
@@ -893,6 +915,9 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     encoding: string or None
         Encoding of the data. See `available_encodings()` for possible values.
         If None or empty string use 'PCM_16'.
+    marker_hint: str
+        - 'cue': store markers in cue and and adtl chunks.
+        - 'lbl': store markers in avisoft lbl chunk.
     verbose: int
         If >0 show detailed error/warning messages.
 
@@ -927,7 +952,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     if format == 'WAV' and (metadata is not None or locs is not None):
         try:
             audioio_write_wave(filepath, data, samplerate, metadata,
-                               locs, labels, encoding)
+                               locs, labels, encoding, marker_hint)
             return
         except ValueError:
             pass
@@ -937,7 +962,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
             continue
         try:
             write_file(filepath, data, samplerate, metadata, locs,
-                       labels, format, encoding)
+                       labels, format, encoding, marker_hint)
             success = True
             if verbose > 0:
                 print('wrote data to file "%s" using %s module' %

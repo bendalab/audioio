@@ -208,6 +208,20 @@ def test_markers():
     llocs, llabels = rm.markers_riff(filename)
     assert_true(np.all(locs == llocs), 'same locs')
     assert_true(np.all(labels == llabels), 'same labels')
+    
+    rm.write_wave(filename, data, rate, None, locs, labels, marker_hint='cue')
+    llocs, llabels = rm.markers_riff(filename)
+    assert_true(np.all(locs == llocs), 'same locs in cue lists')
+    assert_true(np.all(labels == llabels), 'same labels in cue lists')
+    
+    rm.write_wave(filename, data, rate, None, locs, labels, marker_hint='lbl')
+    llocs, llabels = rm.markers_riff(filename)
+    print(locs)
+    print(llocs)
+    print(labels)
+    print(llabels)
+    assert_true(np.all(locs == llocs), 'same locs in lbl chunk')
+    assert_true(np.all(labels == llabels), 'same labels in lbl chunk')
 
     with open(filename, 'rb') as sf:
         llocs, llabels = rm.markers_riff(sf)

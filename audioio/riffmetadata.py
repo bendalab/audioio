@@ -898,8 +898,8 @@ def read_lbl_chunk(sf, samplerate):
         line = sf.read(65).decode('latin1')
         fields = line.split('\t')
         if len(fields) >= 4:
-            start_idx = int(float(fields[0].strip('\x00'))*samplerate)
-            end_idx = int(float(fields[1].strip('\x00'))*samplerate)
+            start_idx = int(np.round(float(fields[0].strip('\x00'))*samplerate))
+            end_idx = int(np.round(float(fields[1].strip('\x00'))*samplerate))
             locs[n,0] = 0
             locs[n,1] = start_idx
             locs[n,2] = end_idx - start_idx
@@ -1657,7 +1657,7 @@ def write_lbl_chunk(df, locs, labels, samplerate):
     # first empty entry:
     df.write(b' ' * 63)
     df.write(b'\r\n')
-    for k in len(locs):
+    for k in range(len(locs)):
         t0 = locs[k,0]/samplerate
         t1 = t0
         t1 += locs[k,1]/samplerate
@@ -1733,7 +1733,8 @@ def append_metadata_riff(df, metadata):
     return n, tags
 
 
-def append_markers_riff(df, locs, labels=None, samplerate=None, chunk='cue'):
+def append_markers_riff(df, locs, labels=None, samplerate=None,
+                        marker_hint='cue'):
     """Append marker chunks to RIFF file.
 
     You still need to update the filesize by calling
@@ -1752,7 +1753,7 @@ def append_markers_riff(df, locs, labels=None, samplerate=None, chunk='cue'):
     samplerate: float
         Sampling rate of the data in Hertz, needed for storing markers
         in seconds.
-    chunk: str
+    marker_hint: str
         - 'cue': store markers in cue and and adtl chunks.
         - 'lbl': store markers in avisoft lbl chunk.
 
@@ -1788,7 +1789,7 @@ def append_markers_riff(df, locs, labels=None, samplerate=None, chunk='cue'):
             labels = labels[idxs,:]
     n = 0
     tags = []
-    if chunk.lower() == 'cue':
+    if marker_hint.lower() == 'cue':
         # write marker positions:
         nc = write_cue_chunk(df, locs)
         if nc > 0:
@@ -1804,19 +1805,19 @@ def append_markers_riff(df, locs, labels=None, samplerate=None, chunk='cue'):
         if nc > 0:
             tags.append('LIST-ADTL')
         n += nc
-    elif chunk.lower() == 'lbl':
+    elif marker_hint.lower() == 'lbl':
         # write avisoft labels:
-        nc = write_lbl_chunks(df, locs, labels, samplerate)
+        nc = write_lbl_chunk(df, locs, labels, samplerate)
         if nc > 0:
             tags.append('LBL ')
         n += nc
     else:
-        raise ValueError(f'chunk "{chunk}" not supported for storing markers')
+        raise ValueError(f'marker_hint "{marker_hint}" not supported for storing markers')
     return n, tags
 
 
 def write_wave(filepath, data, samplerate, metadata=None, locs=None,
-               labels=None, encoding=None, chunk='cue'):
+               labels=None, encoding=None, marker_hint='cue'):
     """Write time series, metadata and markers to a WAVE file.
 
     Only 16 or 32bit PCM encoding is supported.
@@ -1842,7 +1843,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     encoding: string or None
         Encoding of the data: 'PCM_32' or 'PCM_16'.
         If None or empty string use 'PCM_16'.
-     chunk: str
+     marker_hint: str
         - 'cue': store markers in cue and and adtl chunks.
         - 'lbl': store markers in avisoft lbl chunk.
 
@@ -1897,12 +1898,12 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
                                samplerate, bits)
         append_metadata_riff(df, metadata)
         write_data_chunk(df, data, bits)
-        append_markers_riff(df, locs, labels, samplerate, chunk)
+        append_markers_riff(df, locs, labels, samplerate, marker_hint)
         write_filesize(df)
 
 
 def append_riff(filepath, metadata=None, locs=None, labels=None,
-                samplerate=None, chunk='cue'):
+                samplerate=None, marker_hint='cue'):
     """Append metadata and markers to an existing RIFF file.
 
     Parameters
@@ -1921,7 +1922,7 @@ def append_riff(filepath, metadata=None, locs=None, labels=None,
     samplerate: float
         Sampling rate of the data in Hertz, needed for storing markers
         in seconds.
-    chunk: str
+    marker_hint: str
         - 'cue': store markers in cue and and adtl chunks.
         - 'lbl': store markers in avisoft lbl chunk.
 
@@ -1960,7 +1961,7 @@ def append_riff(filepath, metadata=None, locs=None, labels=None,
         nc, tgs = append_metadata_riff(df, metadata)
         n += nc
         tags.extend(tgs)
-        nc, tgs = append_markers_riff(df, locs, labels, samplerate, chunk)
+        nc, tgs = append_markers_riff(df, locs, labels, samplerate, marker_hint)
         n += nc
         tags.extend(tgs)
         write_filesize(df)
