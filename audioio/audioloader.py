@@ -607,7 +607,7 @@ class BufferArray(object):
         self.offset = 0
         self.buffersize = 0
         self.backsize = 0
-        self.buffer = np.zeros((0,0))
+        self.buffer = np.zeros((0, 0))
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
@@ -634,8 +634,8 @@ class BufferArray(object):
         if self.iter_counter >= self.frames:
             raise StopIteration
         else:
-            self.update_buffer(self.iter_counter, self.iter_counter+1)
-            return self.buffer[self.iter_counter-self.offset,:]
+            self.update_buffer(self.iter_counter, self.iter_counter + 1)
+            return self.buffer[self.iter_counter - self.offset,:]
 
     def __getitem__(self, key):
         """Access data of the audio file."""
@@ -707,11 +707,10 @@ class BufferArray(object):
             r_offset, r_size = self._recycle_buffer(offset, size)
             self.offset = offset
             # load buffer content from file, this is backend specific:
-            self.load_buffer(r_offset, r_size,
-                             self.buffer[r_offset-self.offset:
-                                         r_offset+r_size-self.offset,:])
+            data = self.buffer[r_offset-self.offset:
+                               r_offset-self.offset+r_size,:]
+            self.load_buffer(r_offset, r_size, data)
             if self.unwrap:
-                data = self.buffer[r_offset-self.offset:r_offset+r_size-self.offset,:]
                 # TODO: handle edge effects!
                 unwrap(data, self.unwrap_thresh, self.unwrap_ampl)
                 if self.unwrap_clips:
