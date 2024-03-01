@@ -844,7 +844,8 @@ class BufferArray(object):
         self.unwrap = thresh > 1e-3
         if self.unwrap:
             if self.unwrap_clips:
-                add_unwrap(self.metadata(), unwrap_thresh*self.unwrap_ampl,
+                add_unwrap(self.metadata(),
+                           self.unwrap_thresh*self.unwrap_ampl,
                            self.unwrap_ampl, unit)
             elif down_scale:
                 update_gain(self.metadata(), 0.5)

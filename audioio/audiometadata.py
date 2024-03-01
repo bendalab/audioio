@@ -1221,7 +1221,7 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
 
     """
     if metadata is None or len(metadata) == 0:
-        return fac, unit
+        return False
     if not isinstance(gainkey, (list, tuple, np.ndarray)):
         gainkey = (gainkey,)
     for gk in gainkey:

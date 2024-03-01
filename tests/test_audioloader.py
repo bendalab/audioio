@@ -283,14 +283,52 @@ def test_blocks():
 
 
 def test_unwrap():
+    duration = 0.1
     samplerate = 44100.0
-    t = np.arange(0.0, 1.0, 1.0/samplerate)
-    data = np.sin(2.0*np.pi*880.0*t) * t
-    al.unwrap(data)
-    data = data.reshape((-1, 1))
-    al.unwrap(data)
-    data = data.reshape((-1, 2))
-    al.unwrap(data)
+    channels = 4
+    t = np.arange(0.0, duration, 1.0/samplerate)
+    data = 1.5*np.sin(2.0*np.pi*880.0*t) * 2**15
+    data = data.astype(dtype=np.int16).astype(dtype=float)/2**15
+    data = data.astype(dtype=float)
+    filename = 'test.wav'
+    aw.write_wave(filename, data, samplerate, metadata={'Gain': '20mV'},
+                  encoding='PCM_16')
+
+    with al.AudioLoader(filename) as sf:
+        sf.set_unwrap(1.5, down_scale=False)
+        sdata = sf[:,:]
+        md = sf.metadata()['INFO']
+    assert_equal(md['UnwrapThreshold'], '1.50', 'AudioLoader with unwrap adds metadata')
+    assert_equal(md['Gain'], '20mV', 'AudioLoader with unwrap modifies gain')
+    assert_equal(len(sdata), len(t), 'AudioLoader with unwrap keeps frames')
+    assert_equal(sdata.ndim, 2, 'AudioLoader with unwrap keeps two dimensions')
+    assert_true(np.max(sdata) > 1.4, 'AudioLoader with unwrap expands beyond +1')
+    assert_true(np.min(sdata) < -1.4, 'AudioLoader with unwrap expands below -1')
+
+    with al.AudioLoader(filename) as sf:
+        sf.set_unwrap(1.5)
+        sdata = sf[:,:]
+        md = sf.metadata()['INFO']
+    assert_equal(md['UnwrapThreshold'], '0.75', 'AudioLoader with unwrap adds metadata')
+    assert_equal(md['Gain'], '40.0mV', 'AudioLoader with unwrap modifies gain')
+    assert_equal(len(sdata), len(t), 'AudioLoader with unwrap keeps frames')
+    assert_equal(sdata.ndim, 2, 'AudioLoader with unwrap keeps two dimensions')
+    assert_true(np.max(sdata) <= 1.0, 'AudioLoader with unwrap downscales below +1')
+    assert_true(np.min(sdata) >= -1.0, 'AudioLoader with unwrap downscales above -1')
+
+    with al.AudioLoader(filename) as sf:
+        sf.set_unwrap(1.5, clips=True)
+        sdata = sf[:,:]
+        md = sf.metadata()['INFO']
+    assert_equal(md['UnwrapThreshold'], '1.50', 'AudioLoader with unwrap adds metadata')
+    assert_equal(md['UnwrapClippedAmplitude'], '1.00', 'AudioLoader with unwrap adds metadata')
+    assert_equal(md['Gain'], '20mV', 'AudioLoader with unwrap modifies gain')
+    assert_equal(len(sdata), len(t), 'AudioLoader with unwrap keeps frames')
+    assert_equal(sdata.ndim, 2, 'AudioLoader with unwrap keeps two dimensions')
+    assert_true(np.max(sdata) <= 1.0, 'AudioLoader with unwrap clips at +1')
+    assert_true(np.min(sdata) >= -1.0, 'AudioLoader with unwrap clips at -1')
+    
+    os.remove(filename)
 
 
 def test_demo():
