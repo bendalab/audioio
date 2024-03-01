@@ -846,14 +846,16 @@ class BufferArray(object):
             if self.unwrap_clips:
                 add_unwrap(self.metadata(), unwrap_thresh*self.unwrap_ampl,
                            self.unwrap_ampl, unit)
-            elif self.down_scale:
+            elif down_scale:
                 update_gain(self.metadata(), 0.5)
-                add_unwrap(self.metadata(), 0.5*unwrap_thresh*self.unwrap_ampl,
+                add_unwrap(self.metadata(),
+                           0.5*self.unwrap_thresh*self.unwrap_ampl,
                            0.0, unit)
             else:
                 self.ampl_min *= 2
                 self.ampl_max *= 2
-                add_unwrap(self.metadata(), unwrap_thresh*self.unwrap_ampl,
+                add_unwrap(self.metadata(),
+                           self.unwrap_thresh*self.unwrap_ampl,
                            0.0, unit)
 
             
