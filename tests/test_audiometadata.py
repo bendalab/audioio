@@ -107,6 +107,7 @@ def test_flatten():
     amd.print_metadata(md)
     amd.print_metadata(md, '# ')
     amd.print_metadata(md, '# ', 2)
+    amd.print_metadata(None)
     
     filename = 'test.txt'
     amd.write_metadata_text(filename, md)
@@ -133,6 +134,9 @@ def test_find_key():
     assert_equal(k, 'zzz', 'find non-existing section')
     m[k] = 64
     assert_equal(md['gggg']['zzz'], 64, 'find non-existing section')
+    m, k = amd.find_key(None, 'aaaa')
+    assert_equal(len(m), 0, 'find in None metadata')
+    assert_equal(k, None, 'find in None metadata')
 
 
 def test_add_sections():
@@ -252,6 +256,9 @@ def test_get_number_unit():
     v, u = amd.get_number_unit(md, 'cccc', default=1.0, default_unit='a.u.')
     assert_equal(v, 1.0, 'get defaults')
     assert_equal(u, 'a.u.', 'get defaults key')
+    v, u = amd.get_number_unit(None, 'cccc')
+    assert_equal(v, None, 'get None from None metadata')
+    assert_equal(u, '', 'get empty unit from None metadata')
 
 
 def test_get_number():
@@ -268,6 +275,8 @@ def test_get_number():
     assert_equal(v, None, 'get number with invalid key')
     v = amd.get_number(md, 's', 'cccc', default=1.0)
     assert_equal(v, 1.0, 'get number with default value')
+    v = amd.get_number(None, 's', 'cccc')
+    assert_equal(v, None, 'get None from None metadata')
 
 
 def test_get_int():
@@ -284,6 +293,8 @@ def test_get_int():
     assert_equal(v, None, 'get invalid key')
     v = amd.get_int(md, 'cccc', default=1)
     assert_equal(v, 1, 'get default')
+    v = amd.get_int(None, 'cccc')
+    assert_equal(v, None, 'get None from None metadata')
 
 
 def test_bool():
@@ -306,6 +317,8 @@ def test_bool():
     assert_equal(v, False, 'get boolean first match')
     v = amd.get_bool(md, 'ffff', default=False)
     assert_equal(v, False, 'get boolean default')
+    v = amd.get_bool(None, 'ffff')
+    assert_equal(v, None, 'get None from None metadata')
 
     
 def test_get_str():
@@ -320,6 +333,8 @@ def test_get_str():
     assert_equal(v, None, 'get invalid key')
     v = amd.get_str(md, 'cccc', default='-')
     assert_equal(v, '-', 'get default')
+    v = amd.get_str(None, 'cccc')
+    assert_equal(v, None, 'get None from None metadata')
 
     
 def test_gain():
@@ -374,6 +389,10 @@ def test_gain():
     assert_equal(md['Recording']['xgain'], '1.4mV')
     assert_equal(r, False)
 
+    f, u = amd.get_gain(None)
+    assert_equal(f, 1.0)
+    assert_equal(u, 'a.u.')
+
     
 def test_add_unwrap():
      md = dict(Recording=dict(Time='early'))
@@ -393,6 +412,8 @@ def test_add_unwrap():
      assert_equal(md['INFO']['UnwrapThreshold'], '0.60', 'added unwrap threshold and clip')
      assert_equal(md['INFO']['UnwrapClippedAmplitude'], '0.80', 'added unwrap threshold and clip')
 
+     amd.add_unwrap(None, 0.6, 0.8)
+     
      
 def test_remove_metadata():
     md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)))
@@ -401,14 +422,16 @@ def test_remove_metadata():
     amd.remove_metadata(md, ('xxx',))
     amd.remove_metadata(md, ('eee',))
     assert_true('eee' in md['bbbb'], 'do not remove metadata section')
+    amd.remove_metadata(None, ('ccc',))
 
      
 def test_cleanup_metadata():
     md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict()))
     amd.cleanup_metadata(md)
     assert_true('eee' not in md['bbbb'], 'cleanup metadata')
+    amd.cleanup_metadata(None)
 
-    
+
 def test_main():
     data, rate = generate_data()
     filename = 'test.wav'

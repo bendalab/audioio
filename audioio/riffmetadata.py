@@ -1244,7 +1244,7 @@ def write_info_chunk(df, metadata):
         Keys written to the INFO chunk.
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return 0, []
     is_info = False
     if 'INFO' in metadata:
@@ -1260,7 +1260,7 @@ def write_info_chunk(df, metadata):
             return 0, []
         if isinstance(metadata[k], dict):
             if is_info:
-                warnings.warn(f'value of info tag for key "{k}" must be a string.')
+                warnings.warn(f'value of key "{k}" in INFO chunk cannot be a dictionary.')
             return 0, []
         v = str(metadata[k])
         n += 8 + len(v) + len(v) % 2
@@ -1305,7 +1305,7 @@ def write_bext_chunk(df, metadata):
         Keys written to the BEXT chunk.
 
     """
-    if metadata is None or len(metadata) == 0 or not 'BEXT' in metadata:
+    if not metadata or not 'BEXT' in metadata:
         return 0, []
     metadata = metadata['BEXT']
     for k in metadata:
@@ -1384,7 +1384,7 @@ def write_ixml_chunk(df, metadata, keys_written=None):
             kw.append(k)
         return kw
 
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return 0, []
     md = metadata
     if keys_written:
@@ -1438,7 +1438,7 @@ def write_guano_chunk(df, metadata, keys_written=None):
         Keys written to the GUANO chunk: `['GUANO']`.
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return 0, []
     if not 'GUANO' in metadata:
         return 0, []
@@ -1501,7 +1501,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
             kw.append(k)
         return kw
 
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return 0, []
     md = metadata
     if keys_written:
@@ -1687,8 +1687,7 @@ def write_lbl_chunk(df, locs, labels, samplerate):
         Number of bytes written to the stream.
 
     """
-    if ((locs is None or len(locs) == 0) and \
-        (labels is None or len(labels) == 0)):
+    if locs is None or len(locs) == 0:
         return 0
     size = (1 + len(locs)) * 65
     df.write(b'LBL ')
@@ -1743,7 +1742,7 @@ def append_metadata_riff(df, metadata):
     tags: list of str
         Tag names of chunks written to audio file.
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return 0, []
     n = 0
     tags = []
@@ -1818,8 +1817,7 @@ def append_markers_riff(df, locs, labels=None, samplerate=None,
     """
     if locs is None or len(locs) == 0:
         return 0, []
-    if not locs is None and not labels is None and \
-       len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
+    if labels is not None and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
     # make locs and labels 2-D:
     if not locs is None and locs.ndim == 1:
@@ -1827,11 +1825,10 @@ def append_markers_riff(df, locs, labels=None, samplerate=None,
     if not labels is None and labels.ndim == 1:
         labels = labels.reshape(-1, 1)
     # sort markers according to their position:
-    if not locs is None and len(locs) > 0:
-        idxs = np.argsort(locs[:,0])
-        locs = locs[idxs,:]
-        if not labels is None and len(labels) > 0:
-            labels = labels[idxs,:]
+    idxs = np.argsort(locs[:,0])
+    locs = locs[idxs,:]
+    if not labels is None and len(labels) > 0:
+        labels = labels[idxs,:]
     n = 0
     tags = []
     if marker_hint.lower() == 'cue':
@@ -1930,8 +1927,8 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         bits = 32
     else:
         raise ValueError(f'file encoding {encoding} not supported')
-    if not locs is None and not labels is None and \
-       len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
+    if locs is not None and len(locs) > 0 and \
+       labels is not None and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
     # write WAVE file:
     with open(filepath, 'wb') as df:
@@ -1993,8 +1990,8 @@ def append_riff(filepath, metadata=None, locs=None, labels=None,
     """
     if not filepath:
         raise ValueError('no file specified!')
-    if not locs is None and not labels is None and \
-       len(locs) > 0 and len(labels) > 0 and len(labels) != len(locs):
+    if locs is not None and len(locs) > 0 and \
+       labels is not None and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
     # check RIFF file:
     chunks = read_chunk_tags(filepath)

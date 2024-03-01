@@ -133,7 +133,7 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
             else:
                 df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {md[k]}\n')
 
-    if meta is None:
+    if not meta:
         return
     if hasattr(fh, 'write'):
         own_file = False
@@ -414,7 +414,7 @@ def find_key(metadata, key, sep='__'):
         # nothing found:
         return False, metadata, sep.join(keys)
 
-    if metadata is None:
+    if not metadata:
         return {}, None
     ks = key.strip().split(sep)
     found, mm, kk = find_keys(metadata, ks)
@@ -570,7 +570,7 @@ def remove_metadata(metadata, key_list, sep='__'):
     ```
 
     """
-    if metadata is None:
+    if not metadata:
         return
     for k in key_list:
         mm, kk = find_key(metadata, k, sep)
@@ -597,6 +597,8 @@ def cleanup_metadata(metadata):
     ```
 
     """
+    if not metadata:
+        return
     for k in list(metadata):
         if isinstance(metadata[k], dict):
             if len(metadata[k]) == 0:
@@ -842,7 +844,7 @@ def get_number_unit(metadata, keys, sep='__', default=None, default_unit=''):
     ```
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return default, default_unit
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
@@ -984,7 +986,7 @@ def get_int(metadata, keys, sep='__', default=None):
     ```
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return default
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
@@ -1066,7 +1068,7 @@ def get_bool(metadata, keys, sep='__', default=None):
     ```
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return default
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
@@ -1139,7 +1141,7 @@ def get_str(metadata, keys, sep='__', default=None):
     ```
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return default
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
@@ -1220,7 +1222,7 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
     ```
 
     """
-    if metadata is None or len(metadata) == 0:
+    if not metadata:
         return False
     if not isinstance(gainkey, (list, tuple, np.ndarray)):
         gainkey = (gainkey,)
