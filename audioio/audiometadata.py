@@ -28,6 +28,7 @@ RIFF/WAVE files.
 - `get_number()`: find a key in metadata and return its value in a given unit.
 - `get_int()`: find a key in metadata and return its integer value.
 - `get_bool()`: find a key in metadata and return its boolean value.
+- `get_datetime()`: find keys in metadata and return a datatime.
 - `get_str()`: find a key in metadata and return its string value.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
@@ -91,6 +92,7 @@ version 2.0.0 by Benda-Lab (2015-2024)
 import sys
 import argparse
 import numpy as np
+import datetime as dt
 from .version import __version__, __year__
 
 
@@ -1086,6 +1088,90 @@ def get_bool(metadata, keys, sep='__', default=None):
                 if vs.upper() in ['FALSE', 'F', 'NO', 'N']:
                     return False
     return val
+
+
+def get_datetime(metadata, keys=(('DateTimeOriginal',),
+                                 ('OriginationDate', 'OriginationTime'),
+                                 ('Location_Time',)),
+                 sep='__', default=None):
+    """Find keys in metadata and return a datatime.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: tuple of str or list of tuple of str
+        Datetimes can be stored in metadata as two separate key-value pairs,
+        one for the date and one for the time. Or by a single key-value pair
+        for a date-time values. This is why the keys need to be specified in
+        tuples with one or tow keys.
+        Value of the first tuple of keys found is returned.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or str
+        Return value if `key` is not found or the value does
+        not contain a string.
+
+    Returns
+    -------
+    v: None or datetime
+        Datetime referenced by `keys`.
+        If none of the `keys` was found, then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    >>> from audioio import get_datetime
+    >>> import datetime as dt
+    >>> md = dict(date='2024-03-02', time='10:42:24',
+                  datetime='2023-04-15T22:10:00')
+
+    # separate date and time:
+    >>> get_datetime(md, ('date', 'time'))
+    datetime.datetime(2024, 3, 2, 10, 42, 24)
+
+    # single datetime:
+    >>> get_datetime(md, ('datetime',))
+    datetime.datetime(2023, 4, 15, 22, 10)
+
+    # two alternative key tuples:
+    >>> get_datetime(md, [('aaaa',), ('date', 'time')])
+    datetime.datetime(2024, 3, 2, 10, 42, 24)
+
+    # not found:
+    >>> get_datetime(md, ('cccc',))
+    None
+
+    # not found with default value:
+    >>> get_datetime(md, ('cccc', 'dddd'),
+                     default=dt.datetime(2022, 2, 22, 22, 2, 12))
+    datetime.datetime(2022, 2, 22, 22, 2, 12)
+    ```
+
+    """
+    if not metadata:
+        return default
+    if len(keys) > 0 and isinstance(keys[0], str):
+        keys = (keys,)
+    for keyp in keys:
+        if len(keyp) == 1:
+            m, k = find_key(metadata, keyp[0], sep)
+            if k in m:
+                return dt.datetime.fromisoformat(m[k])
+        else:
+            m, k = find_key(metadata, keyp[0], sep)
+            if not k in m:
+                continue
+            date = dt.date.fromisoformat(m[k])
+            m, k = find_key(metadata, keyp[1], sep)
+            if not k in m:
+                continue
+            time = dt.time.fromisoformat(m[k])
+            return dt.datetime.combine(date, time)
+    return default
 
 
 def get_str(metadata, keys, sep='__', default=None):

@@ -1,5 +1,6 @@
 from nose.tools import assert_true, assert_false, assert_equal, assert_raises
 import os
+import datetime as dt
 import numpy as np
 import audioio.audioloader as al
 import audioio.audiowriter as aw
@@ -319,6 +320,22 @@ def test_bool():
     assert_equal(v, False, 'get boolean default')
     v = amd.get_bool(None, 'ffff')
     assert_equal(v, None, 'get None from None metadata')
+
+
+def test_get_datetime():
+    md = dict(date='2024-03-02', time='10:42:24',
+              datetime='2023-04-15T22:10:00')
+    v = amd.get_datetime(md, ('date', 'time'))
+    assert_equal(v, dt.datetime(2024, 3, 2, 10, 42, 24), 'get datetime with pair of date and time')
+    v = amd.get_datetime(md, ('datetime',))
+    assert_equal(v, dt.datetime(2023, 4, 15, 22, 10), 'get datetime with single datetime string')
+    v = amd.get_datetime(md, [('aaaa',), ('date', 'time')])
+    assert_equal(v, dt.datetime(2024, 3, 2, 10, 42, 24), 'get datetime with invalid key and pair of date and time')
+    v = amd.get_datetime(md, ('cccc',))
+    assert_equal(v, None, 'get datetime with invalid key')
+    v = amd.get_datetime(md, ('cccc', 'dddd'),
+                         default=dt.datetime(2022, 2, 22, 22, 2, 12))
+    assert_equal(v, dt.datetime(2022, 2, 22, 22, 2, 12), 'get default datetime with invalid key')
 
     
 def test_get_str():
