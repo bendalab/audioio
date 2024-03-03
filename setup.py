@@ -64,5 +64,5 @@ setup(
             'audiometadata = audioio.audiometadata:main',
             'audiomodules = audioio.audiomodules:main',
         ]},
-    install_requires = ['numpy']
+    install_requires = ['numpy', 'scipy']
 )

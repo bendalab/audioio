@@ -45,6 +45,7 @@ from sys import platform
 import os
 import warnings
 import numpy as np
+from scipy.signal import decimate
 from time import sleep
 from io import BytesIO
 from multiprocessing import Process
@@ -151,7 +152,7 @@ def fade_in(data, rate, fadetime):
     nr = min(int(np.round(fadetime*rate)), len(data)//2) 
     x = np.arange(float(nr))/float(nr) # 0 to pi/2
     y = np.sin(0.5*np.pi*x)**2.0
-    if len(data.shape) > 1:
+    if data.ndim > 1:
         data[:nr, :] *= y[:, None]
     else:
         data[:nr] *= y
@@ -180,7 +181,7 @@ def fade_out(data, rate, fadetime):
     nr = min(int(np.round(fadetime*rate)), len(data)//2) 
     x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi
     y = np.sin(0.5*np.pi*x)**2.0
-    if len(data.shape) > 1:
+    if data.ndim > 1:
         data[-nr:, :] *= y[:, None]
     else:
         data[-nr:] *= y
@@ -297,14 +298,12 @@ class PlayAudio(object):
             self.stop()
         self.rate = rate
         self.channels = 1
-        if len(data.shape) > 1:
+        if data.ndim > 1:
             self.channels = data.shape[1]
         # convert data:
         rawdata = data - np.mean(data, axis=0)
         if scale is None:
-            maxd = np.abs(np.max(rawdata))
-            mind = np.abs(np.min(rawdata))
-            scale = 1.0/max((mind, maxd))
+            scale = 1.0/np.max(np.abs(rawdata))
         rawdata *= scale
         self.data = np.floor(rawdata*(2**15-1)).astype(np.int16, order='C')
         self.index = 0
@@ -358,29 +357,41 @@ class PlayAudio(object):
 
     def _down_sample(self, channels, scale=1):
         """Sample the data down and adapt maximum channel number."""
-        if type(scale) == int:
-            if len(self.data.shape) > 1:
-                self.data = np.asarray(self.data[::scale, :channels], order='C')
+        iscale = 1
+        rscale = scale
+        if isinstance(scale, int):
+            iscale = scale
+            rscale = 1.0
+        elif scale > 2:
+            iscale = int(np.floor(scale))
+            rscale = scale/iscale
+        
+        if iscale > 1:
+            data = decimate(self.data, iscale, axis=0)
+            if self.data.ndim > 1:
+                self.data = np.asarray(data[:,:channels],
+                                       dtype=np.int16, order='C')
             else:
-                self.data = np.asarray(self.data[::scale], order='C')
-        else:
+                self.data = np.asarray(data, dtype=np.int16, order='C')
+            if self.verbose > 0:
+                print(f'decimated sampling rate from {self.rate:.1f}Hz down to {self.rate/iscale:.1f}Hz')
+            self.rate /= iscale
+
+        if rscale != 1.0:
             dt0 = 1.0/self.rate
-            dt1 = scale/self.rate
+            dt1 = rscale/self.rate
             old_time = np.arange(len(self.data))*dt0
             new_time = np.arange(0.0, old_time[-1]+0.5*dt0, dt1)
-            if len(self.data.shape) > 1:
+            if self.data.ndim > 1:
                 data = np.zeros((len(new_time), channels), order='C')
                 for c in range(channels):
-                    data[:, c] = np.interp(new_time, old_time, self.data[:, c])
+                    data[:,c] = np.interp(new_time, old_time, self.data[:,c])
             else:
                 data = np.interp(new_time, old_time, self.data)
-            if self.data.dtype == data.dtype and flags['C_CONTIGUOUS']:
-                self.data = data
-            else:
-                self.data = np.asarray(data, dtype=self.data.dtype, order='C')
-        if self.verbose > 0:
-            print(f'adapted sampling rate from {self.rate:.1f}Hz down to {self.rate/scale:.1f}Hz')
-        self.rate /= scale
+            self.data = np.asarray(data, dtype=self.data.dtype, order='C')
+            if self.verbose > 0:
+                print(f'adapted sampling rate from {self.rate:.1f}Hz to {self.rate/rscale:.1f}Hz')
+            self.rate /= rscale
         self.channels = channels
 
     def __del__(self):
@@ -467,7 +478,7 @@ class PlayAudio(object):
             self.index += len(out_data)
             # zero padding:
             if len(out_data) < frames:
-                if len(self.data.shape) > 1:
+                if self.data.ndim > 1:
                     out_data = np.vstack((out_data,
                       np.zeros((frames-len(out_data), self.channels), dtype=np.int16)))
                 else:
@@ -643,13 +654,13 @@ class PlayAudio(object):
         if self.index < len(self.data):
             ndata = len(self.data) - self.index
             if ndata >= frames :
-                if len(self.data.shape) <= 1:
+                if self.data.ndim <= 1:
                     out_data[:,0] = self.data[self.index:self.index+frames]
                 else:
                     out_data[:, :] = self.data[self.index:self.index+frames, :]
                 self.index += frames
             else:
-                if len(self.data.shape) <= 1:
+                if self.data.ndim <= 1:
                     out_data[:ndata, 0] = self.data[self.index:]
                     out_data[ndata:, 0] = np.zeros(frames-ndata, dtype=np.int16)
                 else:
@@ -661,7 +672,7 @@ class PlayAudio(object):
             # we need to play more to make sure everything is played!
             # This is because of an ALSA bug and might be fixed in newer versions,
             # see http://music.columbia.edu/pipermail/portaudio/2012-May/013959.html
-            if len(self.data.shape) <= 1:
+            if self.data.ndim <= 1:
                 out_data[:, 0] = np.zeros(frames, dtype=np.int16)
             else:
                 out_data[:, :] = np.zeros((frames, self.channels), dtype=np.int16)
