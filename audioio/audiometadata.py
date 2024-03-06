@@ -33,6 +33,7 @@ RIFF/WAVE files.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
 - `update_starttime()`: update start-of-recording times in metadata.
+- `add_history()`: add a string describing coding history to metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
 
 
@@ -1403,6 +1404,73 @@ def update_starttime(metadata, deltat, samplerate):
             tref = int(m[k])
             m[k] = tref + int(np.round(deltat.total_seconds()*samplerate))
             success = True
+    return success
+
+
+def add_history(metadata, history, key=None, sep='__'):
+    """Add a string describing coding history to metadata.
+    
+    Add `history` to 'CodingHistory', 'History', and
+    'BWF_CODING_HISTORY' fields in the metadata.
+    If none of these fields are present and `key` is not None or empty,
+    then assign `history` to this key. If this key does not exist
+    in the metadata, it is created.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    history: str
+        String to be added to the history.
+    key: str
+        Sections and name of a history key to be added to `metadata`.
+        Section names are separated by `sep`. 
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    success: bool
+        True if the history string has beend added to the metadata.
+
+    Example
+    -------
+    Add string to existing history key-value pair:
+    ```
+    >>> from audioio import add_history
+    >>> md = dict(aaa='xyz', BEXT=dict(CodingHistory='original recordings'))
+    >>> add_history(md, 'just a snippet')
+    >>> print(md['BEXT']['CodingHistory'])
+    original recordings
+    just a snippet
+    ```
+
+    Assing string to new key-value pair:
+    ```
+    >>> md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
+    >>> add_history(md, 'just a snippet', 'BEXT__CodingHistory')
+    >>> print(md['BEXT']['CodingHistory'])
+    just a snippet
+    ```
+
+    """
+    if not metadata:
+        return False
+    success = False
+    for keys in ('History', 'CodingHistory', 'BWF_CODING_HISTORY'):
+        m, k = find_key(metadata, keys)
+        if k in m:
+            s = m[k]
+            if len(s) >= 2 and s[-2:] != '\r\n':
+                s += '\r\n'
+            s += history
+            m[k] = s
+            success = True
+    if not success and key:
+        m, k = find_key(metadata, key, sep)
+        m, k = add_sections(m, k, True, sep)
+        m[k] = history
+        success = True
     return success
     
             

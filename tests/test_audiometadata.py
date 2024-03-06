@@ -433,6 +433,19 @@ def test_gain():
     assert_equal(u, 'a.u.')
 
     
+def test_add_history():
+    md = dict(aaa='xyz', BEXT=dict(CodingHistory='original recordings'))
+    r = amd.add_history(md, 'just a snippet')
+    assert_equal(r, True, 'add_history()')
+    assert_equal(md['BEXT']['CodingHistory'], 'original recordings\r\njust a snippet', 'added history')
+    md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
+    r = amd.add_history(md, 'just a snippet')
+    assert_equal(r, False, 'add_history() no field')
+    r = amd.add_history(md, 'just a snippet', 'BEXT__CodingHistory')
+    assert_equal(r, True, 'add_history() added missing field')
+    assert_equal(md['BEXT']['CodingHistory'], 'just a snippet', 'added history')
+
+     
 def test_add_unwrap():
      md = dict(Recording=dict(Time='early'))
      amd.add_unwrap(md, 0.4)

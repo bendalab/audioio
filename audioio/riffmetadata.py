@@ -586,19 +586,19 @@ def read_bext_chunk(sf, store_empty=True):
     md = {}
     size = struct.unpack('<I', sf.read(4))[0]
     size += size % 2
-    s = sf.read(256).decode('latin-1').rstrip(' \x00')
+    s = sf.read(256).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['Description'] = s
-    s = sf.read(32).decode('latin-1').rstrip(' \x00')
+    s = sf.read(32).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['Originator'] = s
-    s = sf.read(32).decode('latin-1').rstrip(' \x00')
+    s = sf.read(32).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['OriginatorReference'] = s
-    s = sf.read(10).decode('latin-1').rstrip(' \x00')
+    s = sf.read(10).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['OriginationDate'] = s
-    s = sf.read(8).decode('latin-1').rstrip(' \x00')
+    s = sf.read(8).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['OriginationTime'] = s
     reference, version = struct.unpack('<QH', sf.read(10))
@@ -606,7 +606,7 @@ def read_bext_chunk(sf, store_empty=True):
         md['TimeReference'] = reference
     if version > 0 or store_empty:
         md['Version'] = version
-    s = sf.read(64).decode('latin-1').rstrip(' \x00')
+    s = sf.read(64).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['UMID'] = s
     lvalue, lrange, peak, momentary, shortterm = struct.unpack('<hhhhh', sf.read(10))
@@ -620,11 +620,11 @@ def read_bext_chunk(sf, store_empty=True):
         md['MaxMomentaryLoudness'] = momentary
     if shortterm > 0 or store_empty:
         md['MaxShortTermLoudness'] = shortterm
-    s = sf.read(180).decode('latin-1').rstrip(' \x00')
+    s = sf.read(180).decode('ascii').rstrip(' \x00')
     if s or store_empty:
         md['Reserved'] = s
     size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
-    s = sf.read(size).decode('latin-1').rstrip(' \x00\n\r')
+    s = sf.read(size).decode('ascii').rstrip(' \x00\n\r')
     if s or store_empty:
         md['CodingHistory'] = s
     return md
@@ -1315,8 +1315,10 @@ def write_bext_chunk(df, metadata):
     n = 0
     for k in bext_tags:
         n += bext_tags[k]
-    ch = metadata.get('CodingHistory', '').encode('latin-1')
-    nch = len(ch) + len(ch) % 2 + 2
+    ch = metadata.get('CodingHistory', '').encode('ascii')
+    if len(ch) >= 2 and ch[-2:] != '\r\n':
+        ch += '\r\n'
+    nch = len(ch) + len(ch) % 2
     n += nch
     df.write(b'BEXT')
     df.write(struct.pack('<I', n))
@@ -1330,10 +1332,10 @@ def write_bext_chunk(df, metadata):
             df.write(struct.pack('<Q', int(v)))
         elif bn == 0:
             df.write(ch)
-            df.write(b'\n\r' + bytes(nch - len(ch) - 2))
+            df.write(bytes(nch - len(ch)))
         else:
-            v = metadata.get(k, '').encode('latin-1')
-            df.write(v + bytes(bn - len(v)))
+            v = metadata.get(k, '').encode('ascii')
+            df.write(v[:bn] + bytes(bn - len(v)))
     return 8 + n, ['BEXT']
 
 
