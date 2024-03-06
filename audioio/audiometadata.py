@@ -32,6 +32,7 @@ RIFF/WAVE files.
 - `get_str()`: find a key in metadata and return its string value.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
+- `update_starttime()`: update start-of-recording times in metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
 
 
@@ -1327,6 +1328,62 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
                     m[k] = f'{v/fac:.{n+1}f}{u}'
                     return True
     return False
+
+
+def update_starttime(metadata, deltat, samplerate):
+    """Update start-of-recording times in metadata.
+
+    Add `deltat` to 'DateTimeOriginal', 'OriginationDate',
+    'OriginationTime', and 'TimeReference' fields in the metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    deltat: float
+        Time in seconds to be added to start times.
+    samplerate: float
+        Sampling rate of the data in Hertz.
+
+    Returns
+    -------
+    success: bool
+        True if at least one time has been updated.
+    """
+    if not metadata:
+        return False
+    if not isinstance(deltat, dt.timedelta):
+        deltat = dt.timedelta(seconds=deltat)
+    success = False
+    # datetime:
+    for key in ('DateTimeOriginal',):
+        m, k = find_key(metadata, key)
+        if k in m:
+            datetime = dt.datetime.fromisoformat(m[k]) + deltat
+            m[k] = datetime.isoformat(timespec='seconds')
+            success = True
+    # separate date and time:
+    for keyp in (('OriginationDate', 'OriginationTime'),):
+        md, kd = find_key(metadata, keyp[0])
+        if not kd in md:
+            continue
+        date = dt.date.fromisoformat(md[kd])
+        mt, kt = find_key(metadata, keyp[1])
+        if not kt in mt:
+            continue
+        time = dt.time.fromisoformat(mt[kt])
+        datetime = dt.datetime.combine(date, time) + deltat
+        md[kd] = datetime.date().isoformat()
+        mt[kt] = datetime.time().isoformat(timespec='seconds')
+        success = True
+    # time reference in samples:
+    for key in ('TimeReference',):
+        m, k = find_key(metadata, key)
+        if k in m:
+            tref = int(m[k])
+            m[k] = tref + int(np.round(deltat.total_seconds()*samplerate))
+            success = True
+    return success
     
             
 def add_unwrap(metadata, thresh, clip=0, unit=''):
