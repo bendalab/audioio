@@ -1317,7 +1317,7 @@ def write_bext_chunk(df, metadata):
         n += bext_tags[k]
     ch = metadata.get('CodingHistory', '').encode('ascii')
     if len(ch) >= 2 and ch[-2:] != '\r\n':
-        ch += '\r\n'
+        ch += b'\r\n'
     nch = len(ch) + len(ch) % 2
     n += nch
     df.write(b'BEXT')
