@@ -1349,6 +1349,26 @@ def update_starttime(metadata, deltat, samplerate):
     -------
     success: bool
         True if at least one time has been updated.
+
+    Example
+    -------
+    ```
+    >>> from audioio import print_metadata, update_starttime
+    >>> md = dict(DateTimeOriginal='2023-04-15T22:10:00',
+                  OtherTime='2023-05-16T23:20:10',
+                  BEXT=dict(OriginationDate='2024-03-02',
+                            OriginationTime='10:42:24',
+                            TimeReference=123456))
+    >>> update_starttime(md, 4.2, 48000)
+    >>> print_metadata(md)
+    DateTimeOriginal: 2023-04-15T22:10:04
+    OtherTime       : 2023-05-16T23:20:10
+    BEXT:
+        OriginationDate: 2024-03-02
+        OriginationTime: 10:42:28
+        TimeReference  : 325056
+    ```
+
     """
     if not metadata:
         return False

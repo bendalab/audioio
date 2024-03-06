@@ -337,6 +337,28 @@ def test_get_datetime():
                          default=dt.datetime(2022, 2, 22, 22, 2, 12))
     assert_equal(v, dt.datetime(2022, 2, 22, 22, 2, 12), 'get default datetime with invalid key')
 
+
+def test_update_starttime():
+    md = dict(DateTimeOriginal='2023-04-15T22:10:00',
+              OtherTime='2023-05-16T23:20:10',
+              BEXT=dict(OriginationDate='2024-03-02',
+                        OriginationTime='10:42:24',
+                        TimeReference=123456))
+    r = amd.update_starttime(None, 4.2, 48000)
+    assert_equal(r, False, 'update_starttime() without metadata')
+    r = amd.update_starttime(md, 4.2, 48000)
+    assert_equal(r, True, 'update_starttime() with metadata')
+    assert_equal(md['DateTimeOriginal'], '2023-04-15T22:10:04',
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['OriginationDate'], '2024-03-02',
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['OriginationTime'], '10:42:28',
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['TimeReference'], 123456 + int(4.2*48000),
+                 'update_starttime() with metadata')
+    assert_equal(md['OtherTime'], '2023-05-16T23:20:10',
+                 'update_starttime() with metadata')
+
     
 def test_get_str():
     md = dict(aaaa=42, bbbb='hello')
