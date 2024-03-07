@@ -1526,7 +1526,7 @@ def add_unwrap(metadata, thresh, clip=0, unit=''):
         md['UnwrapClippedAmplitude'] = f'{clip:.2f}{unit}'
     
 
-def demo(filepathes, list_format, list_metadata, list_cues):
+def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
     """Print metadata and markers of audio files.
 
     Parameters
@@ -1539,10 +1539,21 @@ def demo(filepathes, list_format, list_metadata, list_cues):
         If True, list metadata only.
     list_cues: bool
         If True, list markers/cues only.
+    list_chunks: bool
+        If True, list all chunks contained in a riff/wave file.
     """
     from .audioloader import AudioLoader
     from .audiomarkers import print_markers
+    from .riffmetadata import read_chunk_tags
     for filepath in filepathes:
+        if list_chunks:
+            chunks = read_chunk_tags(filepath)
+            print(f'{"chunk tag":10s} {"position":10s}  {"size":10s}')
+            for tag in chunks:
+                pos = chunks[tag][0] - 8
+                size = chunks[tag][1] + 8
+                print(f'{tag:9s} {pos:10d} {size:10d}')
+            continue
         with AudioLoader(filepath, 1, 0) as sf:
             fmt_md = dict(filepath=filepath,
                           samplingrate=f'{sf.samplerate:.0f}Hz',
@@ -1594,13 +1605,15 @@ def main(*cargs):
                         help='list metadata only')
     parser.add_argument('-c', dest='cues', action='store_true',
                         help='list cues/markers only')
+    parser.add_argument('-t', dest='chunks', action='store_true',
+                        help='list tags of all riff/wave chunks contained in the file')
     parser.add_argument('files', type=str, nargs='+',
                         help='audio file')
     if len(cargs) == 0:
         cargs = None
     args = parser.parse_args(cargs)
 
-    demo(args.files, args.dataformat, args.metadata, args.cues)
+    demo(args.files, args.dataformat, args.metadata, args.cues, args.chunks)
 
 
 if __name__ == "__main__":
