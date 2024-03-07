@@ -533,10 +533,16 @@ def read_info_chunks(sf, store_empty):
     list_size -= 4
     if list_type == 'INFO':
         while list_size >= 8:
-            key = sf.read(4).decode('latin-1').rstrip(' \x00')
+            key = sf.read(4).decode('ascii').rstrip(' \x00')
             size = struct.unpack('<I', sf.read(4))[0]
             size += size % 2
-            value = sf.read(size).decode('latin-1').rstrip(' \x00')
+            bs = sf.read(size)
+            x = np.frombuffer(bs, dtype=np.uint8)
+            if np.sum((x >= 0x80) & (x <= 0x9f)) > 0:
+                s = bs.decode('windows-1252')
+            else:
+                s = bs.decode('latin1')
+            value = s.rstrip(' \x00\x02')
             list_size -= 8 + size
             if key in info_tags:
                 key = info_tags[key]
@@ -586,19 +592,19 @@ def read_bext_chunk(sf, store_empty=True):
     md = {}
     size = struct.unpack('<I', sf.read(4))[0]
     size += size % 2
-    s = sf.read(256).decode('ascii').rstrip(' \x00')
+    s = sf.read(256).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['Description'] = s
-    s = sf.read(32).decode('ascii').rstrip(' \x00')
+    s = sf.read(32).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['Originator'] = s
-    s = sf.read(32).decode('ascii').rstrip(' \x00')
+    s = sf.read(32).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['OriginatorReference'] = s
-    s = sf.read(10).decode('ascii').rstrip(' \x00')
+    s = sf.read(10).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['OriginationDate'] = s
-    s = sf.read(8).decode('ascii').rstrip(' \x00')
+    s = sf.read(8).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['OriginationTime'] = s
     reference, version = struct.unpack('<QH', sf.read(10))
@@ -606,7 +612,7 @@ def read_bext_chunk(sf, store_empty=True):
         md['TimeReference'] = reference
     if version > 0 or store_empty:
         md['Version'] = version
-    s = sf.read(64).decode('ascii').rstrip(' \x00')
+    s = sf.read(64).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['UMID'] = s
     lvalue, lrange, peak, momentary, shortterm = struct.unpack('<hhhhh', sf.read(10))
@@ -620,11 +626,11 @@ def read_bext_chunk(sf, store_empty=True):
         md['MaxMomentaryLoudness'] = momentary
     if shortterm > 0 or store_empty:
         md['MaxShortTermLoudness'] = shortterm
-    s = sf.read(180).decode('ascii').rstrip(' \x00')
+    s = sf.read(180).decode('ascii').strip(' \x00')
     if s or store_empty:
         md['Reserved'] = s
     size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
-    s = sf.read(size).decode('ascii').rstrip(' \x00\n\r')
+    s = sf.read(size).decode('ascii').strip(' \x00\n\r')
     if s or store_empty:
         md['CodingHistory'] = s
     return md

@@ -1546,13 +1546,18 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
     from .audiomarkers import print_markers
     from .riffmetadata import read_chunk_tags
     for filepath in filepathes:
+        if len(filepathes) > 1 and (list_cues or list_metadata or
+                                    list_format or list_chunks):
+            print(filepath)
         if list_chunks:
             chunks = read_chunk_tags(filepath)
-            print(f'{"chunk tag":10s} {"position":10s}  {"size":10s}')
+            print(f'  {"chunk tag":10s} {"position":10s}  {"size":10s}')
             for tag in chunks:
                 pos = chunks[tag][0] - 8
                 size = chunks[tag][1] + 8
-                print(f'{tag:9s} {pos:10d} {size:10d}')
+                print(f'  {tag:9s} {pos:10d} {size:10d}')
+            if len(filepathes) > 1:
+                print()
             continue
         with AudioLoader(filepath, 1, 0) as sf:
             fmt_md = dict(filepath=filepath,
@@ -1580,9 +1585,9 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
                     print()
                     print('markers:')
                     print_markers(locs, labels)
-                if len(filepathes) > 0:
+                if len(filepathes) > 1:
                     print()
-        if len(filepathes) > 0:
+        if len(filepathes) > 1:
             print()
 
 
