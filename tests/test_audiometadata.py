@@ -118,20 +118,20 @@ def test_flatten():
 def test_find_key():
     md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)),
               gggg=dict(hhh=6))
-    m, k = amd.find_key(md, 'bbbb__ddd')
+    m, k = amd.find_key(md, 'bbbb.ddd')
     m[k] = 10
     assert_equal(md['bbbb']['ddd'], 10, 'find key-value pair')
     m, k = amd.find_key(md, 'hhh')
     m[k] = 12
     assert_equal(md['gggg']['hhh'], 12, 'find key-value pair')
-    m, k = amd.find_key(md, 'bbbb__eee__xx')
+    m, k = amd.find_key(md, 'bbbb.eee.xx')
     assert_true(k not in md['bbbb']['eee'], 'find non-existing key-value pair')
     m[k] = 42
     assert_equal(md['bbbb']['eee']['xx'], 42, 'find key-value pair')
     m, k = amd.find_key(md, 'eee')
     m['yy'] = 46
     assert_equal(md['bbbb']['eee']['yy'], 46, 'find section')
-    m, k = amd.find_key(md, 'gggg__zzz')
+    m, k = amd.find_key(md, 'gggg.zzz')
     assert_equal(k, 'zzz', 'find non-existing section')
     m[k] = 64
     assert_equal(md['gggg']['zzz'], 64, 'find non-existing section')
@@ -142,15 +142,15 @@ def test_find_key():
 
 def test_add_sections():
     md = dict()
-    m = amd.add_sections(md, 'Recording__Location')
+    m = amd.add_sections(md, 'Recording.Location')
     m['Country'] = 10
     assert_equal(md['Recording']['Location']['Country'], 10, 'added sections')
     md = dict()
-    m, k = amd.add_sections(md, 'Recording__Location', True)
+    m, k = amd.add_sections(md, 'Recording.Location', True)
     m[k] = 10
     assert_equal(md['Recording']['Location'], 10, 'added sections and key-value pair')
     md = dict(Recording=dict())
-    m, k = amd.find_key(md, 'Recording__Location__Country')
+    m, k = amd.find_key(md, 'Recording.Location.Country')
     m, k = amd.add_sections(m, k, True)
     m[k] = 10
     assert_equal(md['Recording']['Location']['Country'], 10, 'added sections to existing section')
@@ -167,9 +167,9 @@ def test_add_sections():
 def test_add_metadata():
      md = dict(Recording=dict(Time='early'))
      amd.add_metadata(md, ['Artist=John Doe',
-                           'Recording__Time=late',
-                           'Recording__Quality=amazing',
-                           'Location__Country=Lummerland'])
+                           'Recording.Time=late',
+                           'Recording.Quality=amazing',
+                           'Location.Country=Lummerland'])
      assert_equal(md['Recording']['Time'], 'late', 'add_metadata')
      assert_equal(md['Recording']['Quality'], 'amazing', 'add_metadata')
      assert_equal(md['Artist'], 'John Doe', 'add_metadata')
@@ -441,7 +441,7 @@ def test_add_history():
     md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
     r = amd.add_history(md, 'just a snippet')
     assert_equal(r, False, 'add_history() no field')
-    r = amd.add_history(md, 'just a snippet', 'BEXT__CodingHistory')
+    r = amd.add_history(md, 'just a snippet', 'BEXT.CodingHistory')
     assert_equal(r, True, 'add_history() added missing field')
     assert_equal(md['BEXT']['CodingHistory'], 'just a snippet', 'added history')
 

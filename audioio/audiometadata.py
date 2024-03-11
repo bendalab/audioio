@@ -180,7 +180,7 @@ def print_metadata(meta, prefix='', indent=4):
     write_metadata_text(sys.stdout, meta, prefix, indent)
 
 
-def flatten_metadata(md, keep_sections=False, sep='__'):
+def flatten_metadata(md, keep_sections=False, sep='.'):
     """Flatten hierarchical metadata to a single dictionary.
 
     Parameters
@@ -214,11 +214,11 @@ def flatten_metadata(md, keep_sections=False, sep='__'):
     
     >>> fmd = flatten_metadata(md, keep_sections=True)
     >>> print_metadata(fmd)
-    aaaa         : 2
-    bbbb__ccc    : 3
-    bbbb__ddd    : 4
-    bbbb__eee__hh: 5
-    iiii__jjj    : 6
+    aaaa       : 2
+    bbbb.ccc   : 3
+    bbbb.ddd   : 4
+    bbbb.eee.hh: 5
+    iiii.jjj   : 6
     ```
     """
     def flatten(cd, section):
@@ -236,7 +236,7 @@ def flatten_metadata(md, keep_sections=False, sep='__'):
     return flatten(md, '')
 
 
-def unflatten_metadata(md, sep='__'):
+def unflatten_metadata(md, sep='.'):
     """Unflatten a previously flattened metadata dictionary.
 
     Parameters
@@ -264,7 +264,7 @@ def unflatten_metadata(md, sep='__'):
     bbbb.eee.hh: 5
     iiii.jjj   : 6
     
-    >>> md = unflatten_metadata(fmd, '.')
+    >>> md = unflatten_metadata(fmd)
     >>> print_metadata(md)
     aaaa: 2
     bbbb:
@@ -297,7 +297,7 @@ def unflatten_metadata(md, sep='__'):
     return umd
 
 
-def find_key(metadata, key, sep='__'):
+def find_key(metadata, key, sep='.'):
     """Find dictionary in metadata hierarchy containing the specified key.
 
     Parameters
@@ -345,7 +345,7 @@ def find_key(metadata, key, sep='__'):
             ff: 5
     gggg:
         hhh: 6
-    >>> m, k = find_key(md, 'bbbb__ddd')
+    >>> m, k = find_key(md, 'bbbb.ddd')
     >>> m[k] = 10
     >>> print_metadata(md)
     aaaa: 2
@@ -361,7 +361,7 @@ def find_key(metadata, key, sep='__'):
     gggg:
         hhh: 12
 
-    >>> m, k = find_key(md, 'bbbb__eee__xx')
+    >>> m, k = find_key(md, 'bbbb.eee.xx')
     >>> m[k] = 42
     >>> print_metadata(md)
     ...
@@ -382,7 +382,7 @@ def find_key(metadata, key, sep='__'):
             xx: 42
             yy: 46
     ...
-    >>> m, k = find_key(md, 'gggg__zzz')
+    >>> m, k = find_key(md, 'gggg.zzz')
     >>> k
     'zzz'
     >>> m[k] = 64
@@ -425,7 +425,7 @@ def find_key(metadata, key, sep='__'):
     return mm, kk
 
 
-def add_sections(metadata, sections, value=False, sep='__'):
+def add_sections(metadata, sections, value=False, sep='.'):
     """Add sections to metadata dictionary.
 
     Parameters
@@ -455,7 +455,7 @@ def add_sections(metadata, sections, value=False, sep='__'):
     ```
     >>> from audioio import print_metadata, add_sections
     >>> md = dict()
-    >>> m = add_sections(md, 'Recording__Location')
+    >>> m = add_sections(md, 'Recording.Location')
     >>> m['Country'] = 'Lummerland'
     >>> print_metadata(md)
     Recording:
@@ -466,7 +466,7 @@ def add_sections(metadata, sections, value=False, sep='__'):
     Add a section with a key-value pair:
     ```
     >>> md = dict()
-    >>> m, k = add_sections(md, 'Recording__Location', True)
+    >>> m, k = add_sections(md, 'Recording.Location', True)
     >>> m[k] = 'Lummerland'
     >>> print_metadata(md)
     Recording:
@@ -476,7 +476,7 @@ def add_sections(metadata, sections, value=False, sep='__'):
     Adds well to `find_key()`:
     ```
     >>> md = dict(Recording=dict())
-    >>> m, k = find_key(md, 'Recording__Location__Country')
+    >>> m, k = find_key(md, 'Recording.Location.Country')
     >>> m, k = add_sections(m, k, True)
     >>> m[k] = 'Lummerland'
     >>> print_metadata(md)
@@ -502,7 +502,7 @@ def add_sections(metadata, sections, value=False, sep='__'):
         return mm
 
         
-def add_metadata(metadata, md_list, sep='__'):
+def add_metadata(metadata, md_list, sep='.'):
     """Add or modify metadata.
 
     Parameters
@@ -524,10 +524,10 @@ def add_metadata(metadata, md_list, sep='__'):
     Recording:
         Time: early
 
-    >>> add_metadata(md, ['Artist=John Doe',                # new key-value pair
-                          'Recording__Time=late',           # change value of existing key 
-                          'Recording__Quality=amazing',     # new key-value pair in existing section
-                          'Location__Country=Lummerland'])  # new key-value pair in new section
+    >>> add_metadata(md, ['Artist=John Doe',               # new key-value pair
+                          'Recording.Time=late',           # change value of existing key 
+                          'Recording.Quality=amazing',     # new key-value pair in existing section
+                          'Location.Country=Lummerland'])  # new key-value pair in new section
     >>> print_metadata(md)
     Recording:
         Time   : late
@@ -547,7 +547,7 @@ def add_metadata(metadata, md_list, sep='__'):
         mm[kk] = v.strip()
 
         
-def remove_metadata(metadata, key_list, sep='__'):
+def remove_metadata(metadata, key_list, sep='.'):
     """Remove key-value pairs from metadata.
 
     Parameters
@@ -787,7 +787,7 @@ def change_unit(val, old_unit, new_unit):
     return val*f1/f2
 
 
-def get_number_unit(metadata, keys, sep='__', default=None, default_unit=''):
+def get_number_unit(metadata, keys, sep='.', default=None, default_unit=''):
     """Find a key in metadata and return its number and unit.
 
     Parameters
@@ -867,7 +867,7 @@ def get_number_unit(metadata, keys, sep='__', default=None, default_unit=''):
     return value, unit
 
 
-def get_number(metadata, unit, keys, sep='__', default=None):
+def get_number(metadata, unit, keys, sep='.', default=None):
     """Find a key in metadata and return its value in a given unit.
 
     Parameters
@@ -935,7 +935,7 @@ def get_number(metadata, unit, keys, sep='__', default=None):
         return change_unit(v, u, unit)
 
 
-def get_int(metadata, keys, sep='__', default=None):
+def get_int(metadata, keys, sep='.', default=None):
     """Find a key in metadata and return its integer value.
 
     Parameters
@@ -1003,7 +1003,7 @@ def get_int(metadata, keys, sep='__', default=None):
     return default
 
 
-def get_bool(metadata, keys, sep='__', default=None):
+def get_bool(metadata, keys, sep='.', default=None):
     """Find a key in metadata and return its boolean value.
 
     Parameters
@@ -1095,7 +1095,7 @@ def get_bool(metadata, keys, sep='__', default=None):
 def get_datetime(metadata, keys=(('DateTimeOriginal',),
                                  ('OriginationDate', 'OriginationTime'),
                                  ('Location_Time',)),
-                 sep='__', default=None):
+                 sep='.', default=None):
     """Find keys in metadata and return a datatime.
 
     Parameters
@@ -1176,7 +1176,7 @@ def get_datetime(metadata, keys=(('DateTimeOriginal',),
     return default
 
 
-def get_str(metadata, keys, sep='__', default=None):
+def get_str(metadata, keys, sep='.', default=None):
     """Find a key in metadata and return its string value.
 
     Parameters
@@ -1240,7 +1240,7 @@ def get_str(metadata, keys, sep='__', default=None):
     return default
 
 
-def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='__'):
+def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='.'):
     """Get gain and unit from metadata.
 
     Parameters
@@ -1269,7 +1269,7 @@ def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='__'):
     return v, u
 
             
-def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='__'):
+def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='.'):
     """Update gain setting in metadata.
 
     Searches for the first appearance of the keyword `Gain` (case
@@ -1407,7 +1407,7 @@ def update_starttime(metadata, deltat, samplerate):
     return success
 
 
-def add_history(metadata, history, key=None, sep='__'):
+def add_history(metadata, history, key=None, sep='.'):
     """Add a string describing coding history to metadata.
     
     Add `history` to 'CodingHistory', 'History', and
@@ -1448,7 +1448,7 @@ def add_history(metadata, history, key=None, sep='__'):
     Assing string to new key-value pair:
     ```
     >>> md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
-    >>> add_history(md, 'just a snippet', 'BEXT__CodingHistory')
+    >>> add_history(md, 'just a snippet', 'BEXT.CodingHistory')
     >>> print(md['BEXT']['CodingHistory'])
     just a snippet
     ```
