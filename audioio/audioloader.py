@@ -1015,7 +1015,7 @@ class AudioLoader(BufferArray):
         """
         return blocks(self, block_size, noverlap, start, stop)
 
-    def metadata(self, store_empty=False):
+    def metadata(self):
         """Metadata of the audio file.
 
         Parameters
@@ -1040,7 +1040,7 @@ class AudioLoader(BufferArray):
             if self._load_metadata is None:
                 self._metadata = {}
             else:
-                self._metadata = self._load_metadata(self.filepath, store_empty)
+                self._metadata = self._load_metadata(self.filepath)
         return self._metadata
 
     def markers(self):
