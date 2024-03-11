@@ -3,6 +3,7 @@
 - `load_audio()`: load a whole audio file at once.
 - `metadata()`: read metadata of an audio file.
 - `markers()`: read markers of an audio file.
+- `BufferArray()`: random access to 2D data of which only a part is held in memory.
 - `AudioLoader`: read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 
@@ -545,6 +546,8 @@ class BufferArray(object):
     self.channels        # number of channels per frame
     self.frames          # total number of frames
     self.shape = (self.frames, self.channels)        
+    self.ndim            # number of dimensions: always 2 (frames and channels)
+    self.size            # total number of samples: frames times channels
     self.buffersize      # number of frames the buffer should hold
     self.backsize        # number of frames kept for moving back
     self._init_buffer()
@@ -584,7 +587,6 @@ class BufferArray(object):
     - `__getitem__`: Access data.
     - `update_buffer()`: Update the buffer for a range of frames.
     - `load_buffer()`: Load a range of frames into a buffer.
-    - `set_unwrap()`: Set parameters for unwrapping clipped data.
 
     Notes
     -----
@@ -817,51 +819,6 @@ class BufferArray(object):
         else:
             allocate_buffer(size)
         return r_offset, r_size
-
-    def set_unwrap(self, thresh, clips=False, down_scale=True, unit=''):
-        """Set parameters for unwrapping clipped data.
-
-        See unwrap() function from the audioio package.
-
-        Parameters
-        ----------
-        thresh: float
-            Threshold for detecting wrapped data relative to self.unwrap_ampl
-            which is initially set to self.ampl_max.
-            If zero, do not unwrap.
-        clips: bool
-            If True, then clip the unwrapped data properly.
-            Otherwise, unwrap the data and double the
-            minimum and maximum data range
-            (self.ampl_min and self.ampl_max).
-        down_scale: bool
-            If not `clip`, then downscale the signal by a factor of two,
-            in order to keep the range between -1 and 1.
-        unit: str
-            Unit of the data.
-        """
-        self.unwrap_ampl = self.ampl_max
-        self.unwrap_thresh = thresh
-        self.unwrap_clips = clips
-        self.unwrap_down_scale = down_scale
-        self.unwrap = thresh > 1e-3
-        if self.unwrap:
-            if self.unwrap_clips:
-                add_unwrap(self.metadata(),
-                           self.unwrap_thresh*self.unwrap_ampl,
-                           self.unwrap_ampl, unit)
-            elif down_scale:
-                update_gain(self.metadata(), 0.5)
-                add_unwrap(self.metadata(),
-                           0.5*self.unwrap_thresh*self.unwrap_ampl,
-                           0.0, unit)
-            else:
-                self.ampl_min *= 2
-                self.ampl_max *= 2
-                add_unwrap(self.metadata(),
-                           self.unwrap_thresh*self.unwrap_ampl,
-                           0.0, unit)
-
             
 class AudioLoader(BufferArray):
     """Buffered reading of audio data for random access of the data in the file.
@@ -1099,7 +1056,52 @@ class AudioLoader(BufferArray):
         if self._locs is None:
             self._locs, self._labels = markers(self.filepath)
         return self._locs, self._labels 
-        
+
+    def set_unwrap(self, thresh, clips=False, down_scale=True, unit=''):
+        """Set parameters for unwrapping clipped data.
+
+        See unwrap() function from the audioio package.
+
+        Parameters
+        ----------
+        thresh: float
+            Threshold for detecting wrapped data relative to self.unwrap_ampl
+            which is initially set to self.ampl_max.
+            If zero, do not unwrap.
+        clips: bool
+            If True, then clip the unwrapped data properly.
+            Otherwise, unwrap the data and double the
+            minimum and maximum data range
+            (self.ampl_min and self.ampl_max).
+        down_scale: bool
+            If not `clip`, then downscale the signal by a factor of two,
+            in order to keep the range between -1 and 1.
+        unit: str
+            Unit of the data.
+        """
+        self.unwrap_ampl = self.ampl_max
+        self.unwrap_thresh = thresh
+        self.unwrap_clips = clips
+        self.unwrap_down_scale = down_scale
+        self.unwrap = thresh > 1e-3
+        if self.unwrap:
+            if self.unwrap_clips:
+                add_unwrap(self.metadata(),
+                           self.unwrap_thresh*self.unwrap_ampl,
+                           self.unwrap_ampl, unit)
+            elif down_scale:
+                update_gain(self.metadata(), 0.5)
+                add_unwrap(self.metadata(),
+                           0.5*self.unwrap_thresh*self.unwrap_ampl,
+                           0.0, unit)
+            else:
+                self.ampl_min *= 2
+                self.ampl_max *= 2
+                add_unwrap(self.metadata(),
+                           self.unwrap_thresh*self.unwrap_ampl,
+                           0.0, unit)
+
+                
     # wave interface:        
     def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading using the wave module.
