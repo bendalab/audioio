@@ -567,6 +567,8 @@ class BufferArray(object):
         Frames and channels of the data.
     ndim: int
         Number of dimensions: always 2 (frames and channels).
+    size: int
+        Total number of samples: frames times channels.
     offset: int
         Index of first frame in the current buffer.
     buffer: array of floats
@@ -602,6 +604,7 @@ class BufferArray(object):
         self.frames = 0
         self.shape = (0, 0)
         self.ndim = 2
+        self.size = 0
         self.ampl_min = -1.0
         self.ampl_max = +1.0
         self.offset = 0
@@ -1126,6 +1129,7 @@ class AudioLoader(BufferArray):
             self.samplerate = 0.0
             self.channels = 0
             self.frames = 0
+            self.size = 0
             self.shape = (0, 0)
             self.offset = 0
             raise ImportError
@@ -1143,6 +1147,7 @@ class AudioLoader(BufferArray):
         self.channels = self.sf.getnchannels()
         self.frames = self.sf.getnframes()
         self.shape = (self.frames, self.channels)
+        self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
@@ -1210,6 +1215,7 @@ class AudioLoader(BufferArray):
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
+            self.size = 0
             self.offset = 0
             raise ImportError
         if self.sf is not None:
@@ -1220,6 +1226,7 @@ class AudioLoader(BufferArray):
         self.channels = self.sf.nchannels
         self.frames = self.sf.nframes
         self.shape = (self.frames, self.channels)
+        self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
@@ -1279,6 +1286,7 @@ class AudioLoader(BufferArray):
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
+            self.size = 0
             self.offset = 0
             raise ImportError
         if self.sf is not None:
@@ -1288,11 +1296,13 @@ class AudioLoader(BufferArray):
         self.samplerate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = 0
+        self.size = 0
         if self.sf.seekable():
             self.frames = self.sf.seek(0, soundfile.SEEK_END)
             self.sf.seek(0, soundfile.SEEK_SET)
         # TODO: if not seekable, we cannot handle that file!
         self.shape = (self.frames, self.channels)
+        self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
@@ -1350,6 +1360,7 @@ class AudioLoader(BufferArray):
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
+            self.size = 0
             self.offset = 0
             raise ImportError
         if self.sf is not None:
@@ -1360,6 +1371,7 @@ class AudioLoader(BufferArray):
         self.channels = self.sf.channels
         self.frames = self.sf.frames
         self.shape = (self.frames, self.channels)
+        self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
@@ -1422,6 +1434,7 @@ class AudioLoader(BufferArray):
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
+            self.size = 0
             self.offset = 0
             raise ImportError
         if self.sf is not None:
@@ -1432,6 +1445,7 @@ class AudioLoader(BufferArray):
         self.channels = self.sf.channels
         self.frames = int(np.ceil(self.samplerate*self.sf.duration))
         self.shape = (self.frames, self.channels)
+        self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
