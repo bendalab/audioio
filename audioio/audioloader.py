@@ -1037,7 +1037,10 @@ class AudioLoader(BufferArray):
             to work with such metadata.
         """
         if self._metadata is None:
-            self._metadata = self._load_metadata(self.filepath, store_empty)
+            if self._load_metadata is None:
+                self._metadata = {}
+            else:
+                self._metadata = self._load_metadata(self.filepath, store_empty)
         return self._metadata
 
     def markers(self):
@@ -1056,7 +1059,11 @@ class AudioLoader(BufferArray):
             for each marker (rows).
         """
         if self._locs is None:
-            self._locs, self._labels = self._load_markers(self.filepath)
+            if self._load_markers is None:
+                self._locs = np.zeros((0, 2), dtype=int)
+                self._labels = np.zeros((0, 2), dtype=object)
+            else:
+                self._locs, self._labels = self._load_markers(self.filepath)
         return self._locs, self._labels 
 
     def set_unwrap(self, thresh, clips=False, down_scale=True, unit=''):
