@@ -959,15 +959,15 @@ class AudioLoader(BufferArray):
 
     """
     
-    def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0,
-                 store_empty=False):
+    def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
+                 verbose=0, **meta_kwargs):
         super().__init__(verbose)
         self._metadata = None
         self._locs = None
         self._labels = None
         self._load_metadata = metadata
         self._load_markers = markers
-        self._metadata_kwargs = dict(store_empty=store_empty)
+        self._metadata_kwargs = meta_kwargs
         self.filepath = None
         self.sf = None
         self.close = self._close
