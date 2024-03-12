@@ -907,6 +907,8 @@ class AudioLoader(BufferArray):
         Part of the buffer to be loaded before the requested start index in seconds.
     verbose: int
         If larger than zero show detailed error/warning messages.
+    store_empty: bool
+        If `False` do not return meta data with empty values.
 
     Attributes
     ----------
@@ -957,13 +959,15 @@ class AudioLoader(BufferArray):
 
     """
     
-    def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0):
+    def __init__(self, filepath=None, buffersize=10.0, backsize=0.0, verbose=0,
+                 store_empty=False):
         super().__init__(verbose)
         self._metadata = None
         self._locs = None
         self._labels = None
         self._load_metadata = metadata
         self._load_markers = markers
+        self._metadata_kwargs = dict(store_empty=store_empty)
         self.filepath = None
         self.sf = None
         self.close = self._close
@@ -1040,7 +1044,8 @@ class AudioLoader(BufferArray):
             if self._load_metadata is None:
                 self._metadata = {}
             else:
-                self._metadata = self._load_metadata(self.filepath)
+                self._metadata = self._load_metadata(self.filepath,
+                                                     **self._metadata_kwargs)
         return self._metadata
 
     def markers(self):
