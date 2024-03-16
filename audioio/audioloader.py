@@ -920,6 +920,10 @@ class AudioLoader(BufferArray):
         The number of channels.
     frames: int
         The number of frames in the file. Same as `len()`.
+    format: str or None
+        Format of the audio file.
+    encoding: str or None
+        Encoding/subtype of the audio file.
     shape: tuple
         Frames and channels of the data.
     offset: int
@@ -962,6 +966,8 @@ class AudioLoader(BufferArray):
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
                  verbose=0, **meta_kwargs):
         super().__init__(verbose)
+        self.format = None
+        self.encoding = None
         self._metadata = None
         self._locs = None
         self._labels = None
@@ -973,6 +979,14 @@ class AudioLoader(BufferArray):
         self.close = self._close
         if filepath is not None:
             self.open(filepath, buffersize, backsize, verbose)
+            
+    numpy_encodings = {np.dtype(np.int64): 'PCM_64',
+                       np.dtype(np.int32): 'PCM_32',
+                       np.dtype(np.int16): 'PCM_16',
+                       np.dtype(np.single): 'FLOAT',
+                       np.dtype(np.double): 'DOUBLE'}
+    """ Map numpy dtypes to encodings.
+    """
 
     def _close(self):
         pass
@@ -1154,11 +1168,14 @@ class AudioLoader(BufferArray):
         self.sf = wave.open(filepath, 'r')
         self.filepath = filepath
         self.samplerate = float(self.sf.getframerate())
+        self.format = 'WAV'
         sampwidth = self.sf.getsampwidth()
         if sampwidth == 1:
             self.dtype = 'u1'
+            self.encoding = 'PCM_U8'
         else:
             self.dtype = f'i{sampwidth}' 
+            self.encoding = f'PCM_S{sampwidth}'
         self.factor = 1.0/(2.0**(sampwidth*8-1))
         self.channels = self.sf.getnchannels()
         self.frames = self.sf.getnframes()
@@ -1243,6 +1260,8 @@ class AudioLoader(BufferArray):
         self.frames = self.sf.nframes
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
+        self.format = 'WAV' # or WAVEX?
+        self.encoding = numpy_encodings[self.sf.dtype]
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
@@ -1319,6 +1338,8 @@ class AudioLoader(BufferArray):
         # TODO: if not seekable, we cannot handle that file!
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
+        self.format = self.sf.format
+        self.format = self.sf.subtype
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
@@ -1388,6 +1409,17 @@ class AudioLoader(BufferArray):
         self.frames = self.sf.frames
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
+        # get format and encoding:
+        for attr in dir(wavefile.Format):
+            v = getattr(wavefile.Format, attr)
+            if isinstance(v, int):
+                if v & wavefile.Format.TYPEMASK > 0 and \
+                   (sf.format & wavefile.Format.TYPEMASK) == v:
+                    self.format = attr
+                if v & wavefile.Format.SUBMASK > 0 and \
+                   (sf.format & wavefile.Format.SUBMASK) == v:
+                    self.encoding = attr
+        # init buffer:
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
