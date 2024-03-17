@@ -136,7 +136,7 @@ def write_metadata_text(fh, meta, prefix='', indent=4, replace=None):
             clevel = level*indent
             if isinstance(md[k], dict):
                 df.write(f'{prefix}{"":>{clevel}}{k}:\n')
-                write_dict(df, md[k], level+1)
+                write_dict(df, md[k], level+1, smap)
             else:
                 v = md[k]
                 if len(smap) > 0:
