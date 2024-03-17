@@ -1560,11 +1560,7 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
                 print()
             continue
         with AudioLoader(filepath, 1, 0) as sf:
-            fmt_md = dict(filepath=filepath,
-                          samplingrate=f'{sf.samplerate:.0f}Hz',
-                          channels=sf.shape[1],
-                          frames=sf.shape[0],
-                          duration=f'{sf.shape[0]/sf.samplerate:.3f}s')
+            fmt_md = sf.format_dict()
             meta_data = sf.metadata()
             locs, labels = sf.markers()
             if list_cues:

@@ -946,6 +946,7 @@ class AudioLoader(BufferArray):
     - `update_buffer()`: Update the internal buffer for a range of frames.
     - `load_buffer()`: Load a range of frames into a buffer.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
+    - `format_dict()`: technical infos about how the data are stored.
     - `metadata()`: Metadata stored along with the audio data.
     - `markers()`: Markers stored along with the audio data.
     - `set_unwrap()`: Set parameters for unwrapping clipped data.
@@ -1033,6 +1034,27 @@ class AudioLoader(BufferArray):
         """
         return blocks(self, block_size, noverlap, start, stop)
 
+    def format_dict(self):
+        """ Technical infos about how the data are stored in the file.
+
+        Returns
+        -------
+        fmt: dict
+            Dictionary with filepath, format, encoding, samplingrate,
+            channels, frames, and duration as strings of the audio file.
+
+        """
+        fmt = dict(filepath=self.filepath)
+        if self.format is not None:
+            fmt['format'] = self.format
+        if self.encoding is not None:
+            fmt['encoding'] = self.encoding
+        fmt.update(dict(samplingrate=f'{self.samplerate:.0f}Hz',
+                        channels=self.channels,
+                        frames=self.frames,
+                        duration=f'{self.frames/self.samplerate:.3f}s'))
+        return fmt
+        
     def metadata(self):
         """Metadata of the audio file.
 
@@ -1339,7 +1361,7 @@ class AudioLoader(BufferArray):
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
         self.format = self.sf.format
-        self.format = self.sf.subtype
+        self.encoding = self.sf.subtype
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
