@@ -1414,10 +1414,10 @@ class AudioLoader(BufferArray):
             v = getattr(wavefile.Format, attr)
             if isinstance(v, int):
                 if v & wavefile.Format.TYPEMASK > 0 and \
-                   (sf.format & wavefile.Format.TYPEMASK) == v:
+                   (self.sf.format & wavefile.Format.TYPEMASK) == v:
                     self.format = attr
                 if v & wavefile.Format.SUBMASK > 0 and \
-                   (sf.format & wavefile.Format.SUBMASK) == v:
+                   (self.sf.format & wavefile.Format.SUBMASK) == v:
                     self.encoding = attr
         # init buffer:
         self.buffersize = int(buffersize*self.samplerate)
