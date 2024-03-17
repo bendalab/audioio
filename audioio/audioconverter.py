@@ -75,7 +75,7 @@ import argparse
 import numpy as np
 from scipy.signal import decimate
 from .version import __version__, __year__
-from .audioloader import load_audio, metadata, markers
+from .audioloader import load_audio, markers, AudioLoader
 from .audiometadata import flatten_metadata, unflatten_metadata
 from .audiometadata import add_metadata, remove_metadata, cleanup_metadata
 from .audiometadata import update_gain, add_unwrap
@@ -370,9 +370,18 @@ def main(*cargs):
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
         # read in audio:
+        """
         data, samplingrate = load_audio(infile)
         md = metadata(infile)
         locs, labels = markers(infile)
+        """
+        with AudioLoader(infile) as sf:
+            data = sf[:,:]
+            samplingrate = sf.samplerate
+            md = sf.metadata()
+            locs, labels = sf.markers()
+            if sf.encoding is not None and args.encoding is None:
+                args.encoding = sf.encoding
         if args.verbose > 1:
             print(f'loaded audio file "{infile}"')
         for infile in args.file[i0+1:i0+nmerge]:
