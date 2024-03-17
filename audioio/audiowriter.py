@@ -855,21 +855,16 @@ def available_encodings(format):
     -------
     ```
     >>> from audioio import available_encodings
-    >>> e = available_encodings()
+    >>> e = available_encodings('WAV')
     >>> printf(e)
-    ['AAC', 'AC3', ..., 'PCM_16', 'PCM_24', 'PCM_32', ..., 'WAVPACK', 'WMAV1', 'WMAV2']
+    ['ALAW', 'DOUBLE', 'FLOAT', 'G721_32', 'GSM610', 'IMA_ADPCM', 'MS_ADPCM', 'PCM_16', 'PCM_24', 'PCM_32', 'PCM_U8', 'ULAW']
     ```
     """
-    got_sndfile = False
-    encodings = set()
     for module, encodings_func in audio_encodings_funcs:
-        if got_sndfile and module == 'scipy.io.wavfile':
-            continue
         encs = encodings_func(format)
-        encodings |= set(encs)
-        if module in ['soundfile', 'wavefile'] and len(encs) > 0:
-            got_sndfile = True
-    return sorted(list(encodings))
+        if len(encs) > 0:
+            return encs
+    return []
 
 
 audio_writer_funcs = (
@@ -957,6 +952,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
         except ValueError:
             pass
     # write audio file by trying available modules:
+    errors = [f'failed to write data to file "{filepath}":']
     for lib, write_file in audio_writer_funcs:
         if not audio_modules[lib]:
             continue
@@ -973,8 +969,8 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
                     print('  frames       : %d' % len(data))
             return
         except Exception as e:
-            pass
-    raise IOError('failed to write data to file "%s"' % filepath)
+            errors.append(f'  {lib} failed: {str(e)}')
+    raise IOError('\n'.join(errors))
 
 
 def demo(file_path, channels=2, encoding=''):

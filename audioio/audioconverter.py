@@ -347,6 +347,8 @@ def main(*cargs):
     channels = parse_channels(args.channels)
     
     if args.list_formats:
+        if args.data_format is None and len(args.file) > 0:
+            args.data_format = args.file[0]
         list_formats_encodings(args.data_format)
         return
 
@@ -370,11 +372,6 @@ def main(*cargs):
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
         # read in audio:
-        """
-        data, samplingrate = load_audio(infile)
-        md = metadata(infile)
-        locs, labels = markers(infile)
-        """
         with AudioLoader(infile) as sf:
             data = sf[:,:]
             samplingrate = sf.samplerate
