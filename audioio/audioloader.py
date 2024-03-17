@@ -1261,7 +1261,7 @@ class AudioLoader(BufferArray):
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
         self.format = 'WAV' # or WAVEX?
-        self.encoding = numpy_encodings[self.sf.dtype]
+        self.encoding = self.numpy_encodings[self.sf.dtype]
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
         self._init_buffer()
