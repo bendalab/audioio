@@ -1388,7 +1388,7 @@ def write_ixml_chunk(df, metadata, keys_written=None):
             if isinstance(metadata[k], dict):
                 build_xml(e, metadata[k])
             else:
-                e.text = str(metadata[k]).replace('\n', '.')
+                e.text = str(metadata[k])
             kw.append(k)
         return kw
 
@@ -1505,7 +1505,7 @@ def write_odml_chunk(df, metadata, keys_written=None):
                 prop = ET.SubElement(node, 'Property')
                 prop.attrib = dict(name=k)
                 value = ET.SubElement(prop, 'Value')
-                value.attrib = dict(value=str(metadata[k]).replace('\n', '.'))
+                value.attrib = dict(value=str(metadata[k]))
             kw.append(k)
         return kw
 
@@ -2041,7 +2041,7 @@ def demo(filepath):
                 print(f'{"":<{level*4}}{sk}:')
                 print_meta_data(md, level+1)
             else:
-                v = str(md).replace('\n', '.')
+                v = str(md).replace('\n', '.').replace('\r', '.')
                 print(f'{"":<{level*4}s}{sk:<20s}: {v}')
         
     # read meta data:

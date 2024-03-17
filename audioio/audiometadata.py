@@ -99,7 +99,7 @@ import datetime as dt
 from .version import __version__, __year__
 
 
-def write_metadata_text(fh, meta, prefix='', indent=4):
+def write_metadata_text(fh, meta, prefix='', indent=4, replace=None):
     """Write meta data into a text/yaml file or stream.
 
     With the default parameters, the output is a valid yaml file.
@@ -115,6 +115,8 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
         This string is written at the beginning of each line.
     indent: int
         Number of characters used for indentation of sections.
+    replace: char or None
+        If specified, replace special characters by this character.
 
     Examples
     --------
@@ -125,7 +127,7 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
     ```
     """
     
-    def write_dict(df, md, level):
+    def write_dict(df, md, level, smap):
         w = 0
         for k in md:
             if not isinstance(md[k], dict) and w < len(k):
@@ -136,7 +138,10 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
                 df.write(f'{prefix}{"":>{clevel}}{k}:\n')
                 write_dict(df, md[k], level+1)
             else:
-                df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {md[k]}\n')
+                v = md[k]
+                if len(smap) > 0:
+                    v = v.translate(smap)
+                df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {v}\n')
 
     if not meta:
         return
@@ -145,12 +150,15 @@ def write_metadata_text(fh, meta, prefix='', indent=4):
     else:
         own_file = True
         fh = open(fh, 'w')
-    write_dict(fh, meta, 0)
+    smap = {}
+    if replace:
+        smap = str.maketrans('\r\n\t\x00', ''.join([replace]*4))
+    write_dict(fh, meta, 0, smap)
     if own_file:
         fh.close()
         
 
-def print_metadata(meta, prefix='', indent=4):
+def print_metadata(meta, prefix='', indent=4, replace=None):
     """Write meta data to standard output.
 
     Parameters
@@ -161,6 +169,8 @@ def print_metadata(meta, prefix='', indent=4):
         This string is written at the beginning of each line.
     indent: int
         Number of characters used for indentation of sections.
+    replace: char or None
+        If specified, replace special characters by this character.
 
     Examples
     --------
@@ -178,7 +188,7 @@ def print_metadata(meta, prefix='', indent=4):
         jjj: 6
     ```
     """
-    write_metadata_text(sys.stdout, meta, prefix, indent)
+    write_metadata_text(sys.stdout, meta, prefix, indent, replace)
 
 
 def flatten_metadata(md, keep_sections=False, sep='.'):
@@ -1620,7 +1630,7 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
                 if len(locs) > 0:
                     print_markers(locs, labels)
             elif list_metadata:
-                print_metadata(meta_data)
+                print_metadata(meta_data, replace='.')
             elif list_format:
                 print_metadata(fmt_md)
             else:
@@ -1629,7 +1639,7 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
                 if len(meta_data) > 0:
                     print()
                     print('metadata:')
-                    print_metadata(meta_data, '  ')
+                    print_metadata(meta_data, '  ', replace='.')
                 if len(locs) > 0:
                     print()
                     print('markers:')

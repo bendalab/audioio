@@ -78,6 +78,7 @@ from .version import __version__, __year__
 from .audioloader import load_audio, markers, AudioLoader
 from .audiometadata import flatten_metadata, unflatten_metadata
 from .audiometadata import add_metadata, remove_metadata, cleanup_metadata
+from .audiometadata import bext_history_str, add_history
 from .audiometadata import update_gain, add_unwrap
 from .audiotools import unwrap
 from .audiowriter import available_formats, available_encodings
@@ -372,11 +373,14 @@ def main(*cargs):
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
         # read in audio:
+        pre_history = None 
         with AudioLoader(infile) as sf:
             data = sf[:,:]
             samplingrate = sf.samplerate
             md = sf.metadata()
             locs, labels = sf.markers()
+            pre_history = bext_history_str(sf.encoding, sf.samplerate,
+                                           sf.channels, sf.filepath)
             if sf.encoding is not None and args.encoding is None:
                 args.encoding = sf.encoding
         if args.verbose > 1:
@@ -409,6 +413,13 @@ def main(*cargs):
             remove_metadata(md, args.remove_keys, '.')
             cleanup_metadata(md)
         outfile = format_outfile(outfile, md)
+        # history:
+        hkey = 'CodingHistory'
+        if 'BEXT' in md:
+            hkey = 'BEXT.' + hkey
+        history = bext_history_str(args.encoding, samplingrate,
+                                   data.shape[1], outfile)
+        add_history(md, history, hkey, pre_history)
         # write out audio:
         write_audio(outfile, data, samplingrate,
                     md, locs, labels,

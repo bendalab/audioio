@@ -79,6 +79,7 @@ def test_main():
     xdata, xrate = al.load_audio(destfile + '.wav')
     assert_equal(len(xdata), n, 'len of merged files')
     md1 = al.metadata(filename)
+    md1['CodingHistory'] = 'A=PCM,F=44100,W=16,M=stereo,T=test.wav\r\nA=PCM,F=44100,W=16,M=stereo,T=test2.wav'
     md2 = al.metadata(destfile + '.wav')
     assert_equal(md1, md2, 'metadata of merged files')
     ac.main('-d', '4', '-o', destfile + '.wav', filename)
