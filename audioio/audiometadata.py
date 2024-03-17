@@ -1456,7 +1456,7 @@ def bext_history_str(encoding, rate, channels, text=None):
     if mode is not None:
         codes.append(f'M={mode}')
     if text is not None:
-        codes.append(f'T={text}')
+        codes.append(f'T={text.rstrip()}')
     return ','.join(codes)
 
 
@@ -1518,7 +1518,7 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
         m, k = find_key(metadata, keys)
         if k in m:
             s = m[k]
-            if len(s) >= 2 and s[-2:] != '\r\n':
+            if len(s) >= 1 and s[-1] != '\n' and s[-1] != '\r':
                 s += '\r\n'
             s += history
             m[k] = s
@@ -1529,7 +1529,7 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
         s = ''
         if pre_history is not None:
             s = pre_history
-        if len(s) >= 2 and s[-2:] != '\r\n':
+        if len(s) >= 1 and s[-1] != '\n' and s[-1] != '\r':
             s += '\r\n'
         s += history
         m[k] = s
