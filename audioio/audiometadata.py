@@ -33,6 +33,7 @@ RIFF/WAVE files.
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
 - `update_starttime()`: update start-of-recording times in metadata.
+- `bext_history_str()`: assemble a string for the BEXT CodingHistory field.
 - `add_history()`: add a string describing coding history to metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
 
@@ -1407,7 +1408,49 @@ def update_starttime(metadata, deltat, samplerate):
     return success
 
 
-def add_history(metadata, history, key=None, sep='.'):
+def bext_history_str(encoding, rate, channels, text=None):
+    """ Assemble a string for the BEXT CodingHistory field.
+
+    Parameters
+    ----------
+    encoding: str or None
+        Encoding of the data.
+    rate: int or float
+        Sampling rate in Hertz.
+    channels: int
+        Number of channels.
+    text: str or None
+        Optional free text.
+
+    Returns
+    -------
+    s: str
+        String for the BEXT CodingHistory field,
+        something like "A=PCM_16,F=44100,W=16,M=stereo,T=cut out"
+    """
+    codes = []
+    bits = None
+    if encoding is not None:
+        if encoding[:3] == 'PCM':
+            bits = int(encoding[4:])
+            encoding = 'PCM'
+        codes.append(f'A={encoding}')
+    codes.append(f'F={rate:.0f}')
+    if bits is not None:
+        codes.append(f'W={bits}')
+    mode = None
+    if channels == 1:
+        mode = 'mono'
+    elif channels == 2:
+        mode = 'stereo'
+    if mode is not None:
+        codes.append(f'M={mode}')
+    if text is not None:
+        codes.append(f'T={text}')
+    return ','.join(codes)
+
+
+def add_history(metadata, history, key=None, pre_history=None, sep='.'):
     """Add a string describing coding history to metadata.
     
     Add `history` to 'CodingHistory', 'History', and
@@ -1422,9 +1465,12 @@ def add_history(metadata, history, key=None, sep='.'):
         Metadata to be updated.
     history: str
         String to be added to the history.
-    key: str
+    key: str or None
         Sections and name of a history key to be added to `metadata`.
-        Section names are separated by `sep`. 
+        Section names are separated by `sep`.
+    pre_history: str or None
+        If a new key `key` is created, then assign this string followed
+        by `history`.
     sep: str
         String that separates section names in `key`.
 
@@ -1448,8 +1494,9 @@ def add_history(metadata, history, key=None, sep='.'):
     Assing string to new key-value pair:
     ```
     >>> md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
-    >>> add_history(md, 'just a snippet', 'BEXT.CodingHistory')
+    >>> add_history(md, 'just a snippet', 'BEXT.CodingHistory', 'original data')
     >>> print(md['BEXT']['CodingHistory'])
+    original data
     just a snippet
     ```
 
@@ -1469,7 +1516,13 @@ def add_history(metadata, history, key=None, sep='.'):
     if not success and key:
         m, k = find_key(metadata, key, sep)
         m, k = add_sections(m, k, True, sep)
-        m[k] = history
+        s = ''
+        if pre_history is not None:
+            s = pre_history
+        if len(s) >= 2 and s[-2:] != '\r\n':
+            s += '\r\n'
+        s += history
+        m[k] = s
         success = True
     return success
     

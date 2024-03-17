@@ -587,7 +587,7 @@ def read_bext_chunk(sf, store_empty=True):
         - 'MaxMomentaryLoudness': highest value of the momentary loudness level.
         - 'MaxShortTermLoudness': highest value of the short-term loudness level.
         - 'Reserved': 180 bytes reserved for extension.
-        - 'CodingHistory': description of coding processed applied to the audio data.
+        - 'CodingHistory': description of coding processed applied to the audio data, with comma separated subfields: "A=" coding algorithm, e.g. PCM, "F=" sampling rate in Hertz, "B=" bit-rate for MPEG files, "W=" word length in bits, "M=" mono, stereo, dual-mono, joint-stereo, "T=" free text. 
     """
     md = {}
     size = struct.unpack('<I', sf.read(4))[0]

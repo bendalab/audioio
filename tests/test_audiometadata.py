@@ -433,17 +433,39 @@ def test_gain():
     assert_equal(u, 'a.u.')
 
     
+def test_bext_history_str():
+    s = amd.bext_history_str('PCM_32', 44100, 2)
+    assert_equal(s, 'A=PCM,F=44100,W=32,M=stereo', 'bext_add_history')
+    s = amd.bext_history_str('PCM_32', 44100, 2, 'free')
+    assert_equal(s, 'A=PCM,F=44100,W=32,M=stereo,T=free', 'bext_add_history')
+    s = amd.bext_history_str('PCM_32', 44100, 1)
+    assert_equal(s, 'A=PCM,F=44100,W=32,M=mono', 'bext_add_history')
+    s = amd.bext_history_str('PCM_32', 44100, 3)
+    assert_equal(s, 'A=PCM,F=44100,W=32', 'bext_add_history')
+    s = amd.bext_history_str('PCM_24', 96000, 3)
+    assert_equal(s, 'A=PCM,F=96000,W=24', 'bext_add_history')
+    s = amd.bext_history_str('ALAW', 96000, 1)
+    assert_equal(s, 'A=ALAW,F=96000,M=mono', 'bext_add_history')
+
+    
 def test_add_history():
     md = dict(aaa='xyz', BEXT=dict(CodingHistory='original recordings'))
     r = amd.add_history(md, 'just a snippet')
     assert_equal(r, True, 'add_history()')
     assert_equal(md['BEXT']['CodingHistory'], 'original recordings\r\njust a snippet', 'added history')
+    
     md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
     r = amd.add_history(md, 'just a snippet')
     assert_equal(r, False, 'add_history() no field')
+    
     r = amd.add_history(md, 'just a snippet', 'BEXT.CodingHistory')
     assert_equal(r, True, 'add_history() added missing field')
     assert_equal(md['BEXT']['CodingHistory'], 'just a snippet', 'added history')
+    
+    md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
+    r = amd.add_history(md, 'just a snippet', 'BEXT.CodingHistory', 'original')
+    assert_equal(r, True, 'add_history() added missing field')
+    assert_equal(md['BEXT']['CodingHistory'], 'original\r\njust a snippet', 'added history and pre-history')
 
      
 def test_add_unwrap():
