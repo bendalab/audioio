@@ -1041,7 +1041,7 @@ class AudioLoader(BufferArray):
         -------
         fmt: dict
             Dictionary with filepath, format, encoding, samplingrate,
-            channels, frames, and duration as strings of the audio file.
+            channels, frames, and duration of the audio file as strings.
 
         """
         fmt = dict(filepath=self.filepath)
