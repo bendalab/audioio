@@ -1626,7 +1626,7 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
             if len(filepathes) > 1:
                 print()
             continue
-        with AudioLoader(filepath, 1, 0) as sf:
+        with AudioLoader(filepath, 1, 0, verbose=0) as sf:
             fmt_md = sf.format_dict()
             meta_data = sf.metadata()
             locs, labels = sf.markers()

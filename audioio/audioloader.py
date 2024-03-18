@@ -282,11 +282,11 @@ def load_audioread(filepath):
 
 audio_loader_funcs = (
     ('soundfile', load_soundfile),
-    ('audioread', load_audioread),
     ('wave', load_wave),
     ('wavefile', load_wavefile),
     ('ewave', load_ewave),
-    ('scipy.io.wavfile', load_wavfile)
+    ('scipy.io.wavfile', load_wavfile),
+    ('audioread', load_audioread),
     )
 """List of implemented load functions.
 
@@ -348,8 +348,8 @@ def load_audio(filepath, verbose=0):
         raise EOFError(f'file "{filepath}" is empty (size=0)!')
 
     # load an audio file by trying various modules:
-    success = False
     not_installed = []
+    errors = [f'failed to load data from file "{filepath}":']
     for lib, load_file in audio_loader_funcs:
         if not audio_modules[lib]:
             if verbose > 1:
@@ -359,23 +359,22 @@ def load_audio(filepath, verbose=0):
         try:
             data, rate = load_file(filepath)
             if len(data) > 0:
-                success = True
                 if verbose > 0:
                     print(f'loaded data from file "{filepath}" using {lib} module')
                     if verbose > 1:
                         print(f'  sampling rate: {rate:g} Hz')
                         print(f'  channels     : {data.shape[1]}')
                         print(f'  frames       : {len(data)}')
-                break
+                return data, rate
         except Exception as e:
-            pass
-    if not success:
-        need_install = ""
-        if len(not_installed) > 0:
-            need_install = " You may need to install one of the " + \
-              ', '.join(not_installed) + " packages."
-        raise IOError(f'failed to load data from file "{filepath}".{need_install}')
-    return data, rate
+            errors.append(f'  {lib} failed: {str(e)}')
+            if verbose > 1:
+                print(errors[-1])
+    if len(not_installed) > 0:
+        errors.append('\n  You may need to install one of the ' + \
+          ', '.join(not_installed) + ' packages.')
+    raise IOError('\n'.join(errors))
+    return np.zeros(0), 0.0
 
 
 def metadata(filepath, store_empty=False):
@@ -1197,7 +1196,7 @@ class AudioLoader(BufferArray):
             self.encoding = 'PCM_U8'
         else:
             self.dtype = f'i{sampwidth}' 
-            self.encoding = f'PCM_S{sampwidth}'
+            self.encoding = f'PCM_{sampwidth*8}'
         self.factor = 1.0/(2.0**(sampwidth*8-1))
         self.channels = self.sf.getnchannels()
         self.frames = self.sf.getnframes()
@@ -1666,41 +1665,44 @@ class AudioLoader(BufferArray):
         if os.path.getsize(filepath) <= 0:
             raise EOFError(f'file "{filepath}" is empty (size=0)!')
         # list of implemented open functions:
-        audio_open = [
-            ['soundfile', self.open_soundfile],
-            ['audioread', self.open_audioread],
-            ['wave', self.open_wave],
-            ['wavefile', self.open_wavefile],
-            ['ewave', self.open_ewave]
-            ]
+        audio_open = (
+            ('soundfile', self.open_soundfile),
+            ('wave', self.open_wave),
+            ('wavefile', self.open_wavefile),
+            ('ewave', self.open_ewave),
+            ('audioread', self.open_audioread),
+            )
         # open an audio file by trying various modules:
-        success = False
         not_installed = []
+        errors = [f'failed to load data from file "{filepath}":']
         for lib, open_file in audio_open:
             if not audio_modules[lib]:
                 if verbose > 1:
-                    print(f'failed to load data from file "{filepath}" using {lib} module')
+                    print(f'unable to load data from file "{filepath}" using {lib} module: module not available')
                 not_installed.append(lib)
                 continue
             try:
                 open_file(filepath, buffersize, backsize, verbose-1)
                 if self.frames > 0:
-                    success = True
                     if verbose > 0:
                         print(f'opened audio file "{filepath}" using {lib}')
                         if verbose > 1:
+                            if self.format is not None:
+                                print(f'  format       : {self.format}')
+                            if self.encoding is not None:
+                                print(f'  encoding     : {self.encoding}')
                             print(f'  sampling rate: {self.samplerate} Hz')
-                            print(f'  channels     : {data.channels}')
+                            print(f'  channels     : {self.channels}')
                             print(f'  frames       : {self.frames}')
-                    break
+                    return self
             except Exception as e:
-                    pass
-        if not success:
-            need_install = ""
-            if len(not_installed) > 0:
-                need_install = " You may need to install one of the " + \
-                  ', '.join(not_installed) + " packages."
-            raise IOError(f'failed to load data from file "{filepath}".{need_install}')
+                errors.append(f'  {lib} failed: {str(e)}')
+                if verbose > 1:
+                    print(errors[-1])
+        if len(not_installed) > 0:
+            errors.append('\n  You may need to install one of the ' + \
+              ', '.join(not_installed) + ' packages.')
+        raise IOError('\n'.join(errors))
         return self
 
     
