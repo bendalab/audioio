@@ -138,10 +138,14 @@ def write_metadata_text(fh, meta, prefix='', indent=4, replace=None):
                 df.write(f'{prefix}{"":>{clevel}}{k}:\n')
                 write_dict(df, md[k], level+1, smap)
             else:
-                v = f'{md[k]}'
+                value = md[k]
+                if isinstance(value, (list, tuple)):
+                    value = ', '.join([f'{v}' for v in value])
+                else:
+                    value = f'{value}'
                 if len(smap) > 0:
-                    v = v.translate(smap)
-                df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {v}\n')
+                    value = value.translate(smap)
+                df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {value}\n')
 
     if not meta:
         return
