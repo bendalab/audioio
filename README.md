@@ -26,12 +26,12 @@ files and devices for scientific data analysis.
 - Audio data are always numpy arrays of floats with values ranging between -1 and 1 independent of how the data are stored in an audio file.
 - [`load_audio()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.load_audio) function for loading data of a whole audio file at once.
 - Blockwise, random-access loading of large audio files ([`class AudioLoader`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader)).
-- Read arbitrary [`metadata()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata) as nested dictionaries of key-value pairs. Supported RIFF chunks are [INFO lists](https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file), (BEXT)](https://tech.ebu.ch/docs/tech/tech3285.pdf), [iXML](http://www.gallery.co.uk/ixml/), and [GUANO](https://github.com/riggsd/guano-spec). 
+- Read arbitrary [`metadata()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata) as nested dictionaries of key-value pairs. Supported RIFF chunks are [INFO lists](https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file), [BEXT](https://tech.ebu.ch/docs/tech/tech3285.pdf), [iXML](http://www.gallery.co.uk/ixml/), and [GUANO](https://github.com/riggsd/guano-spec). 
 - Read [`markers()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers), i.e. cue points with spans, labels, and descriptions.
 - [`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio) function for writing data, metadata, and markers to an audio file. 
 - Platform independent, synchronous (blocking) and asynchronous (non blocking) playback of numpy arrays  via [`play()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play).
 - Automatic resampling of data for playback to match supported sampling rates.
-- Detailed and platform specific installation instructions (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages ([audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).
+- Detailed and platform specific installation instructions (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages (see [audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).
 
 The AudioIO modules try to use whatever audio packages are installed
 on your system to achieve their tasks. AudioIO, however, adds own code
@@ -283,6 +283,12 @@ which ones are recommended to install, and how to install them.
 See API documentation of the
 [`audiomodules`](https://bendalab.github.io/audioio/api/audiomodules.html)
 module for details.
+
+
+## Used by
+
+- [thunderfish](https://github.com/bendalab/thunderfish): Algorithms and programs for analysing electric field recordings of weakly electric fish.
+- [audian](https://github.com/bendalab/audian): Python-based GUI for viewing and analyzing recordings of animal vocalizations.
 
 
 ## Alternatives
