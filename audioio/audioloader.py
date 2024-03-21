@@ -1665,7 +1665,7 @@ class AudioLoader(BufferArray):
         if os.path.getsize(filepath) <= 0:
             raise EOFError(f'file "{filepath}" is empty (size=0)!')
         # list of implemented open functions:
-        audio_open = (
+        audio_open_funcs = (
             ('soundfile', self.open_soundfile),
             ('wave', self.open_wave),
             ('wavefile', self.open_wavefile),
@@ -1675,7 +1675,7 @@ class AudioLoader(BufferArray):
         # open an audio file by trying various modules:
         not_installed = []
         errors = [f'failed to load data from file "{filepath}":']
-        for lib, open_file in audio_open:
+        for lib, open_file in audio_open_funcs:
             if not audio_modules[lib]:
                 if verbose > 1:
                     print(f'unable to load data from file "{filepath}" using {lib} module: module not available')
