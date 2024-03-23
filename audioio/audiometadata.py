@@ -143,6 +143,8 @@ def write_metadata_text(fh, meta, prefix='', indent=4, replace=None):
                     value = ', '.join([f'{v}' for v in value])
                 else:
                     value = f'{value}'
+                value = value.replace('\r\n', r'\n')
+                value = value.replace('\n', r'\n')
                 if len(smap) > 0:
                     value = value.translate(smap)
                 df.write(f'{prefix}{"":>{clevel}}{k:<{w}}: {value}\n')
@@ -330,7 +332,7 @@ def find_key(metadata, key, sep='.'):
 
     Returns
     -------
-    md: None or dict
+    md: dict
         If `key` specifies a section, then this section is returned.
         If `key`specifies a key-value pair, then the dictionary
         containing the key is returned.
@@ -527,7 +529,7 @@ def add_metadata(metadata, md_list, sep='.'):
     ----------
     metadata: nested dict
         Metadata.
-    md_list: list of str
+    md_list: str or list of str
         List of key-value pairs for updating the metadata.
         Values are separated from keys by '='.
     sep: str
@@ -558,6 +560,8 @@ def add_metadata(metadata, md_list, sep='.'):
     """
     if metadata is None:
         return
+    if not isinstance(md_list, (list, tuple, np.ndarray)):
+        md_list = (md_list,)
     for md in md_list:
         k, v = md.split('=')
         mm, kk = find_key(metadata, k, sep)
