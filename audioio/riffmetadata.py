@@ -23,17 +23,14 @@ extended. With standard chunks, not all types of metadata can be
 stored.
 
 The [GUANO (Grand Unified Acoustic Notation
-Ontology)](https://github.com/riggsd/guano-spec), designed for bat
-acoustic recordings, has some standard ontologies that are of much
-more interest in scientific context, and also allows for
-extensions. This seems to be a good solution for some settings.
-
-Here, we add support for a novel odML chunk, that allows to store
-nested dictionaries of key-value pairs without any restrictions on the
-keys. The primary goal of the [odML data
-model](https://doi.org/10.3389/fninf.2011.00016) is to facilitate the
-immediate storage of all available metadata without the need to update
-an XML schema or terminology first.
+Ontology)](https://github.com/riggsd/guano-spec), primarily designed
+for bat acoustic recordings, has some standard ontologies that are of
+much more interest in scientific context.  In addition, GUANO allows
+for extensions with arbitray nested keys and string encoded values.
+In that respect it is a well defined and easy to handle serialization
+of the [odML data model](https://doi.org/10.3389/fninf.2011.00016).
+We use GUANO to write all metadata that do not fit into the INFO, BEXT
+or IXML chunks into a WAVE file.
 
 To interface the various ways to store and read metadata of RIFF
 files, the `riffmetadata` module simply uses nested dictionaries.  The
@@ -50,14 +47,14 @@ characters and there are no subsections, then an INFO list chunk is
 written. If no "INFO" key exists, then with the same procedure all
 elements of the provided metadata are checked for being valid INFO
 tags, and on success an INFO list chunk is written. Then, in similar
-ways, `write_wave()` tries to assemble valid BEXT, iXML, and GUANO
-chunks, based on the tags in `bext_tags` abd `ixml_tags`. All
-remaining metadata are then stored in an ODML chunk.
+ways, `write_wave()` tries to assemble valid BEXT and iXML chunks,
+based on the tags in `bext_tags` abd `ixml_tags`. All remaining
+metadata are then stored in an GUANO chunk.
 
-When reading metadata from a RIFF file, INFO, BEXT, iXML, and GUANO
-chunks are returned as subsections with the respective keys. Metadata
-from an odML chunk are stored directly in the metadata dictionary
-without marking them as odML.
+When reading metadata from a RIFF file, INFO, BEXT and iXML chunks are
+returned as subsections with the respective keys. Metadata from an
+GUANO chunk are stored directly in the metadata dictionary without
+marking them as GUANO.
 
 ## Markers
 
@@ -93,7 +90,6 @@ short, and use text for longer descriptions, if necessary.
 - `read_bext_chunk()`: read in metadata from the broadcast-audio extension chunk.
 - `read_ixml_chunk()`: read in metadata from an IXML chunk.
 - `read_guano_chunk()`: read in metadata from a GUANO chunk.
-- `read_odml_chunk()`: read in metadata from an odml chunk.
 - `read_cue_chunk()`: read in marker positions from cue chunk.
 - `read_playlist_chunk()`: read in marker spans from playlist chunk.
 - `read_adtl_chunks()`: read in associated data list chunks.
@@ -110,7 +106,6 @@ short, and use text for longer descriptions, if necessary.
 - `write_bext_chunk()`: write metadata to BEXT chunk.
 - `write_ixml_chunk()`: write metadata to iXML chunk.
 - `write_guano_chunk()`: write metadata to GUANO chunk.
-- `write_odml_chunk()`: write metadata to ODML chunk.
 - `write_cue_chunk()`: write marker positions to cue chunk.
 - `write_playlist_chunk()`: write marker spans to playlist chunk.
 - `write_adtl_chunks()`: write associated data list chunks.
@@ -143,7 +138,7 @@ import warnings
 import struct
 import numpy as np
 import xml.etree.ElementTree as ET
-from .audiometadata import flatten_metadata, unflatten_metadata
+from .audiometadata import flatten_metadata, unflatten_metadata, find_key
 
 
 info_tags = dict(AGES='Rated',
@@ -677,68 +672,28 @@ def read_ixml_chunk(sf, store_empty=True):
     return md
 
 
-def read_odml_chunk(sf, store_empty=True):
-    """Read in metadata from an odml chunk.
-
-    For storing any type of nested key-value pairs we define a new 
-    odml chunk holding the metadata as XML according to the odML data model.
-    For a description of odML see https://doi.org/10.3389/fninf.2011.00016 and
-    https://github.com/G-Node/python-odml
-    
-    Parameters
-    ----------
-    sf: stream
-        File stream of RIFF file.
-    store_empty: bool
-        If `False` do not add meta data with empty values.
-
-    Returns
-    -------
-    metadata: nested dict
-        Dictionary with key-value pairs.
-    """
-
-    def parse_odml(element, store_empty=True):
-        md = {}
-        for e in element:
-            if e.tag == 'Section':
-                md[e.attrib['name']] = parse_odml(e, store_empty)
-            elif e.tag == 'Property':
-                v = ''
-                if len(e) > 0 and e[0].tag == 'Value' and 'value' in e[0].attrib:
-                    v = e[0].attrib['value']
-                if len(v) > 0 or store_empty:
-                    md[e.attrib['name']] = v
-        return md
-
-    size = struct.unpack('<I', sf.read(4))[0]
-    size += size % 2
-    xmls = sf.read(size).decode('latin-1').rstrip(' \x00')
-    root = ET.fromstring(xmls)
-    md = {root.tag: parse_odml(root, store_empty)}
-    if len(md) == 1 and 'odML' in md:
-        md = md['odML']
-    return md
-
-
-def read_guano_chunk(sf, store_empty=True):
+def read_guano_chunk(sf):
     """Read in metadata from a GUANO chunk.
 
     GUANO is the Grand Unified Acoustic Notation Ontology, an
     extensible, open format for embedding metadata within bat acoustic
     recordings. See https://github.com/riggsd/guano-spec for details.
+
+    The GUANO specification allows for the inclusion of arbitrary
+    nested keys and string encoded values. In that respect it is a
+    well defined and easy to handle serialization of the [odML data
+    model](https://doi.org/10.3389/fninf.2011.00016).
     
     Parameters
     ----------
     sf: stream
         File stream of RIFF file.
-    store_empty: bool
-        If `False` do not add meta data with empty values.
 
     Returns
     -------
     metadata: nested dict
         Dictionary with key-value pairs.
+
     """
     md = {}
     size = struct.unpack('<I', sf.read(4))[0]
@@ -746,9 +701,7 @@ def read_guano_chunk(sf, store_empty=True):
     for line in io.StringIO(sf.read(size).decode('utf-8')):
         ss = line.split(':')
         if len(ss) > 1:
-            md[ss[0].strip()] = ss[1].strip().replace(r'\n', '\n')
-        elif store_empty:
-            md[ss[0].strip()] = ''
+            md[ss[0].strip()] = ':'.join(ss[1:]).strip().replace(r'\n', '\n')
     return unflatten_metadata(md, '|')
 
     
@@ -957,8 +910,7 @@ def metadata_riff(filepath, store_empty=False):
         particular they are strings, or list of strings. But other
         simple types like ints or floats are also allowed.
         First level contains sections of meta data
-        (e.g. keys 'INFO', 'BEXT', 'IXML', 'GUANO', values are
-        dictionaries).
+        (e.g. keys 'INFO', 'BEXT', 'IXML', values are dictionaries).
 
     Raises
     ------
@@ -999,11 +951,7 @@ def metadata_riff(filepath, store_empty=False):
             if len(md) > 0:
                 meta_data['IXML'] = md
         elif chunk == 'GUAN':
-            md = read_guano_chunk(sf, store_empty)
-            if len(md) > 0:
-                meta_data['GUANO'] = md
-        elif chunk == 'ODML':
-            md = read_odml_chunk(sf, store_empty)
+            md = read_guano_chunk(sf)
             if len(md) > 0:
                 meta_data.update(md)
         else:
@@ -1419,19 +1367,23 @@ def write_ixml_chunk(df, metadata, keys_written=None):
 
 
 def write_guano_chunk(df, metadata, keys_written=None):
-    """Write GUANO metadata to guan chunk.
+    """Write metadata to guan chunk.
 
     GUANO is the Grand Unified Acoustic Notation Ontology, an
     extensible, open format for embedding metadata within bat acoustic
     recordings. See https://github.com/riggsd/guano-spec for details.
 
-    If `metadata` contains a GUANO key, then the content of this key
-    is written as a GUANO chunk.
+    The GUANO specification allows for the inclusion of arbitrary
+    nested keys and string encoded values. In that respect it is a
+    well defined and easy to handle serialization of the [odML data
+    model](https://doi.org/10.3389/fninf.2011.00016).
+
+    This will write *all* metadata that are not in `keys_written`.
 
     Parameters
     ----------
     df: stream
-        File stream for writing odml chunk.
+        File stream for writing guano chunk.
     metadata: nested dict
         Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
@@ -1443,72 +1395,9 @@ def write_guano_chunk(df, metadata, keys_written=None):
     n: int
         Number of bytes written to the stream.
     keys_written: list of str
-        Keys written to the GUANO chunk: `['GUANO']`.
+        Top-level keys written to the GUANO chunk.
 
     """
-    if not metadata:
-        return 0, []
-    if not 'GUANO' in metadata:
-        return 0, []
-    fmd = flatten_metadata(metadata['GUANO'], True, '|')
-    for k in fmd:
-        fmd[k] = fmd[k].replace('\n', r'\n')
-    # TODO make sure we have 'GUANO|Version' at the beginning
-    sio = io.StringIO()
-    for k in fmd:
-       sio.write(f'{k}:{fmd[k]}\n')
-    bs = sio.getvalue().encode('utf-8')
-    if len(bs) % 2 == 1:
-        bs += bytes(1)
-    n = len(bs)
-    df.write(b'guan')
-    df.write(struct.pack('<I', n))
-    df.write(bs)
-    return n, ['GUANO']
-
-
-def write_odml_chunk(df, metadata, keys_written=None):
-    """Write metadata to ODML chunk.
-
-    For storing any type of nested key-value pairs we define a new 
-    odml chunk holding the metadata as XML according to the odML data model.
-    For odML see https://doi.org/10.3389/fninf.2011.00016 and
-    https://github.com/G-Node/python-odml
-
-    This will write *all* metadata that are not in `keys_written`.
-
-    Parameters
-    ----------
-    df: stream
-        File stream for writing odml chunk.
-    metadata: nested dict
-        Metadata as key-value pairs. Values can be strings, integers,
-        or dictionaries.
-    keys_written: list of str
-        Keys that have already written to INFO, BEXT, IXML, GUANO chunk.
-
-    Returns
-    -------
-    n: int
-        Number of bytes written to the stream.
-    keys_written: list of str
-        Keys written to the IXML chunk.
-    """
-    def build_odml(node, metadata):
-        kw = []
-        for k in metadata:
-            if isinstance(metadata[k], dict):
-                sec = ET.SubElement(node, 'Section')
-                sec.attrib = dict(name=k)
-                build_odml(sec, metadata[k])
-            else:
-                prop = ET.SubElement(node, 'Property')
-                prop.attrib = dict(name=k)
-                value = ET.SubElement(prop, 'Value')
-                value.attrib = dict(value=str(metadata[k]))
-            kw.append(k)
-        return kw
-
     if not metadata:
         return 0, []
     md = metadata
@@ -1516,16 +1405,24 @@ def write_odml_chunk(df, metadata, keys_written=None):
         md = {k: metadata[k] for k in metadata if not k in keys_written}
     if len(md) == 0:
         return 0, []
-    root = ET.Element('odML')
-    kw = build_odml(root, md)
-    bs = bytes(ET.tostring(root, xml_declaration=True,
-                           short_empty_elements=False))
+    fmd = flatten_metadata(md, True, '|')
+    for k in fmd:
+        if isinstance(fmd[k], str):
+            fmd[k] = fmd[k].replace('\n', r'\n')
+    sio = io.StringIO()
+    m, k = find_key(md, 'GUANO.Version')
+    if k is None:
+       sio.write('GUANO|Version:1.0\n')
+    for k in fmd:
+       sio.write(f'{k}:{fmd[k]}\n')
+    bs = sio.getvalue().encode('utf-8')
     if len(bs) % 2 == 1:
-        bs += bytes(1)
-    df.write(b'odml')
-    df.write(struct.pack('<I', len(bs)))
+        bs += b' '
+    n = len(bs)
+    df.write(b'guan')
+    df.write(struct.pack('<I', n))
     df.write(bs)
-    return 8 + len(bs), kw
+    return n, list(md)
 
 
 def write_cue_chunk(df, locs):
@@ -1771,17 +1668,12 @@ def append_metadata_riff(df, metadata):
         tags.append('IXML')
     n += nc
     kw.extend(xkw)
-    # metadata GUANO chunk:
-    nc, bkw = write_guano_chunk(df, metadata)
+    # write remaining metadata to GUANO chunk:
+    nc, _ = write_guano_chunk(df, metadata, kw)
     if nc > 0:
         tags.append('GUAN')
     n += nc
     kw.extend(bkw)
-    # write remaining metadata to odML chunk:
-    nc, _ = write_odml_chunk(df, metadata, kw)
-    if nc > 0:
-        tags.append('ODML')
-    n += nc
     return n, tags
 
 

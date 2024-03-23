@@ -44,8 +44,8 @@ def test_write():
         n, t = rm.write_ixml_chunk(df, None)
         assert_equal(n, 0, 'no ixml chunk')
         assert_equal(len(t), 0, 'no ixml chunk')
-        n, t = rm.write_odml_chunk(df, None)
-        assert_equal(n, 0, 'no odml chunk')
+        n, t = rm.write_guano_chunk(df, None)
+        assert_equal(n, 0, 'no guano chunk')
         assert_equal(len(t), 0, 'no odml chunk')
         n = rm.write_cue_chunk(df, None)
         assert_equal(n, 0, 'no cue chunk')
@@ -132,24 +132,12 @@ def test_metadata():
     md['IXML']['Note'] = 'still testing'
 
     # GUANO:
-    md = dict(GUANO=iimd)
+    md = dict(GUANO=dict(**iimd))
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
-    assert_true('GUANO' in mdd, 'GUANO section exists')
     assert_equal(md, mdd, 'GUANO section matches')
-    md['GUANO']['Engineer'] = ''
-    rm.write_wave(filename, data, rate, md)
-    mdd = rm.metadata_riff(filename, True)
-    assert_true('GUANO' in mdd, 'GUANO section exists')
-    md['GUANO']['Engineer'] = 'John Doe'
-
-    # ODML:
-    md = dict(Recording=omd, Production=bbmd, Notes=xmd)
-    rm.write_wave(filename, data, rate, md)
-    mdd = rm.metadata_riff(filename, False)
-    assert_equal(md, mdd, 'ODML sections match')
     
-    md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
+    md = dict(INFO=iimd, BEXT=bmd, IXML=xmd,
               Recording=omd, Production=bmd, Notes=xmd)
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
@@ -160,8 +148,8 @@ def test_metadata():
     assert_true('IXML' in mdd, 'IXML section exists')
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
     assert_true('Recording' in mdd, 'Recording section exists')
-    assert_true('Production' in mdd, 'Recording section exists')
-    assert_true('Notes' in mdd, 'Recording section exists')
+    assert_true('Production' in mdd, 'Production section exists')
+    assert_true('Notes' in mdd, 'Notes section exists')
     assert_equal(md['Notes'], mdd['Notes'], 'Notes section matches')
     md = dict(Recording=omd, Production='', Notes=xmd)
     rm.write_wave(filename, data, rate, md)

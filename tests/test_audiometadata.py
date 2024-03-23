@@ -61,11 +61,13 @@ def test_metadata():
     assert_true('IXML' in mdd, 'IXML section exists')
     assert_equal(xmd, mdd['IXML'], 'IXML section matches')
 
-    # ODML:
+    # GUANO:
     md = dict(Recording=omd, Production=bbmd, Notes=xmd)
     aw.write_audio(filename, data, rate, md)
     mdd = al.metadata(filename, False)
-    assert_equal(md, mdd, 'ODML sections match')
+    print(md)
+    print(mdd)
+    assert_equal(md, mdd, 'GUANO sections match')
     
     md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
               Recording=omd, Production=bmd, Notes=xmd)

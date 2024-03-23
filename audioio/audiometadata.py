@@ -297,6 +297,9 @@ def unflatten_metadata(md, sep='.'):
     for k in md:
         ks = k.split(sep)
         # go up the hierarchy:
+        for i in range(len(csk) - len(ks)):
+            csk.pop()
+            cmd.pop()
         for kss in reversed(ks[:len(csk)]):
             if kss == csk[-1]:
                 break
@@ -339,7 +342,7 @@ def find_key(metadata, key, sep='.'):
     key: None or str
         If `key` was found, the actual key into `md` specifying a
         key-value pair. None if `key` specifies a section. If `key`
-        was not found, then the part of `key`that was not found.
+        was not found, then the part of `key` that was not found.
 
     Examples
     --------
@@ -1109,7 +1112,7 @@ def get_bool(metadata, keys, sep='.', default=None):
 
 def get_datetime(metadata, keys=(('DateTimeOriginal',),
                                  ('OriginationDate', 'OriginationTime'),
-                                 ('Location_Time',)),
+                                 ('Location_Time',), ('Timestamp',)),
                  sep='.', default=None):
     """Find keys in metadata and return a datatime.
 
