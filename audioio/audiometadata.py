@@ -1,17 +1,16 @@
 """Working with metadata.
 
-To interface the various ways to store and read metadata of audio
-files, the `audiometadata` module simply uses nested dictionaries.  The
-keys are always strings. Values are strings, integers or other simple
-types for key-value pairs. Value strings can also be numbers followed
-by a unit. For defining subsections of key-value pairs, values can be
-dictionaries . The dictionaries can be nested to arbitrary depth.
+To interface the various ways metadata are stored in audio files, the
+`audioio` package uses nested dictionaries.  The keys are always
+strings. Values are strings, integers, floats, or other simple types
+for key-value pairs. Value strings can also be numbers followed by a
+unit. For defining subsections of key-value pairs, values can be
+dictionaries. The dictionaries can be nested to arbitrary depth.
 
 Often, audio files have very specific ways to store metadata. You can
-enforce using these by providing a key with the name of the
-metadata type you want, that has as a value a dictionary with the
-actual metadata. For example, the "INFO", "BEXT", and "iXML" chunks of
-RIFF/WAVE files.
+enforce using these by putting them into a dictionary that is added to
+the metadata with a key having the name of the metadata type you want,
+e.g. the "INFO", "BEXT", and "iXML" chunks of RIFF/WAVE files.
 
 ## Functions
 
@@ -395,11 +394,13 @@ def parse_number(s):
     ```
 
     """
-    if not hasattr(s, '__len__'):
+    if not isinstance(s, str):
         if isinstance(s, int):
             return s, '', 0
-        else:
+        if isinstance(s, float):
             return s, '', 5
+        else:
+            return None, '', 0
     n = len(s)
     ip = n
     have_point = False
@@ -531,32 +532,27 @@ def find_key(metadata, key, sep='.'):
         Metadata.
     key: str
         Key to be searched for (case insensitive).
-        May contain section names separated by `sep`. 
+        May contain section names separated by `sep`, i.e.
+        "aaa.bbb.ccc" searches "ccc" (can be key-value pair or section)
+        in section "bbb" that needs to be a subsection of section "aaa".
     sep: str
         String that separates section names in `key`.
 
     Returns
     -------
     md: dict
-        If `key` specifies a section, then this section is returned.
-        If `key`specifies a key-value pair, then the dictionary
-        containing the key is returned.
-        If only some first sections of `key` have been found,
-        then the innermost matching dictionary is returned, together 
-        with the part of `key` that has not been found.
+        The innermost dictionary matching some sections of the search key.
         If `key` is not at all contained in the metadata,
         the top-level dictionary is returned.
-    key: None or str
-        If `key` was found, the actual key into `md` specifying a
-        key-value pair. None if `key` specifies a section. If `key`
-        was not found, then the part of `key` that was not found.
+    key: str
+        The part of the search key that was not found in `md`, or the
+        the final part of the search key, found in `md`.
 
     Examples
     --------
 
-    When searching for key-value pairs, then independent of whether
-    found or not found, you can assign to the returned dictionary with
-    the returned key:
+    Independent of whether found or not found, you can assign to the
+    returned dictionary with the returned key.
 
     ```
     >>> from audioio import print_metadata, find_key
@@ -570,6 +566,7 @@ def find_key(metadata, key, sep='.'):
             ff: 5
     gggg:
         hhh: 6
+
     >>> m, k = find_key(md, 'bbbb.ddd')
     >>> m[k] = 10
     >>> print_metadata(md)
@@ -596,10 +593,11 @@ def find_key(metadata, key, sep='.'):
     ...
     ```
 
-    When searching for sections, the innermost found is returned:
+    When searching for sections, the one conaining the searched section
+    is returned:
     ```
     >>> m, k = find_key(md, 'eee')
-    >>> m['yy'] = 46
+    >>> m[k]['yy'] = 46
     >>> print_metadata(md)
     ...
         eee:
@@ -607,22 +605,20 @@ def find_key(metadata, key, sep='.'):
             xx: 42
             yy: 46
     ...
-    >>> m, k = find_key(md, 'gggg.zzz')
-    >>> k
-    'zzz'
-    >>> m[k] = 64
-    >>> print_metadata(md)
-    ...
-    gggg:
-        hhh: 12
-        zzz: 64
-    ```
 
     """
     def find_keys(metadata, keys):
         key = keys[0].strip().upper()
         for k in metadata:
             if k.upper() == key:
+                if len(keys) == 1:
+                    # found key:
+                    return True, metadata, k
+                elif isinstance(metadata[k], dict): 
+                    # keep searching within the next section:
+                    return find_keys(metadata[k], keys[1:])
+                break
+            """
                 if isinstance(metadata[k], dict):
                     if len(keys) > 1:
                         # keep searching within the next section:
@@ -634,7 +630,8 @@ def find_key(metadata, key, sep='.'):
                     # found key-value pair:
                     return True, metadata, k
                 break
-        # search in sections:
+            """
+        # search in subsections:
         for k in metadata:
             if isinstance(metadata[k], dict):
                 found, mm, kk = find_keys(metadata[k], keys)
@@ -942,12 +939,12 @@ def get_bool(metadata, keys, sep='.', default=None):
     val = default
     for key in keys:
         m, k = find_key(metadata, key, sep)
-        if k in m:
+        if k in m and not isinstance(m[k], dict):
             vs = m[k]
             v, _, _ = parse_number(vs)
             if v is not None:
                 val = abs(v) > 1e-8
-            else:
+            elif isinstance(vs, str):
                 if vs.upper() in ['TRUE', 'T', 'YES', 'Y']:
                     return True
                 if vs.upper() in ['FALSE', 'F', 'NO', 'N']:
@@ -1025,16 +1022,29 @@ def get_datetime(metadata, keys=(('DateTimeOriginal',),
         if len(keyp) == 1:
             m, k = find_key(metadata, keyp[0], sep)
             if k in m:
-                return dt.datetime.fromisoformat(m[k])
+                if isinstance(m[k], dt.datetime):
+                    return m[k]
+                elif isinstance(m[k], str):
+                    return dt.datetime.fromisoformat(m[k])
         else:
             m, k = find_key(metadata, keyp[0], sep)
             if not k in m:
                 continue
-            date = dt.date.fromisoformat(m[k])
+            if isinstance(m[k], dt.date):
+                date = m[k]
+            elif isinstance(m[k], str):
+                date = dt.date.fromisoformat(m[k])
+            else:
+                continue
             m, k = find_key(metadata, keyp[1], sep)
             if not k in m:
                 continue
-            time = dt.time.fromisoformat(m[k])
+            if isinstance(m[k], dt.datetime):
+                time = m[k]
+            elif isinstance(m[k], str):
+                time = dt.time.fromisoformat(m[k])
+            else:
+                continue
             return dt.datetime.combine(date, time)
     return default
 
@@ -1098,7 +1108,7 @@ def get_str(metadata, keys, sep='.', default=None):
         keys = (keys,)
     for key in keys:
         m, k = find_key(metadata, key, sep)
-        if k in m:
+        if k in m and not isinstance(m[k], dict):
             return str(m[k])
     return default
 
@@ -1228,14 +1238,15 @@ def add_metadata(metadata, md_list, sep='.'):
 
         
 def remove_metadata(metadata, key_list, sep='.'):
-    """Remove key-value pairs from metadata.
+    """Remove key-value pairs or sections from metadata.
 
     Parameters
     ----------
     metadata: nested dict
         Metadata.
-    key_list: list of str
-        List of keys to key-value pairs to be removed from the metadata.
+    key_list: str or list of str
+        List of keys to key-value pairs or sections to be removed
+        from the metadata.
     sep: str
         String that separates section names in the keys of `key_list`.
 
@@ -1256,9 +1267,11 @@ def remove_metadata(metadata, key_list, sep='.'):
     """
     if not metadata:
         return
+    if not isinstance(key_list, (list, tuple, np.ndarray)):
+        key_list = (key_list,)
     for k in key_list:
         mm, kk = find_key(metadata, k, sep)
-        if not kk is None and kk in mm:
+        if kk in mm:
             del mm[kk]
             
         
@@ -1367,7 +1380,7 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='.'):
         gainkey = (gainkey,)
     for gk in gainkey:
         m, k = find_key(metadata, gk, sep)
-        if k in m:
+        if k in m and not isinstance(m[k], dict):
             vs = m[k]
             if isinstance(vs, (int, float)):
                 m[k] = vs/fac
@@ -1430,30 +1443,45 @@ def update_starttime(metadata, deltat, samplerate):
     # datetime:
     for key in ('DateTimeOriginal',):
         m, k = find_key(metadata, key)
-        if k in m:
-            datetime = dt.datetime.fromisoformat(m[k]) + deltat
-            m[k] = datetime.isoformat(timespec='seconds')
+        if k in m and not isinstance(m[k], dict):
+            if isinstance(m[k], dt.datetime):
+                m[k] += deltat
+            else:
+                datetime = dt.datetime.fromisoformat(m[k]) + deltat
+                m[k] = datetime.isoformat(timespec='seconds')
             success = True
     # separate date and time:
     for keyp in (('OriginationDate', 'OriginationTime'),):
         md, kd = find_key(metadata, keyp[0])
-        if not kd in md:
+        if not kd in md or isinstance(md[kd], dict):
             continue
-        date = dt.date.fromisoformat(md[kd])
+        if isinstance(md[kd], dt.date):
+            date = md[kd]
+            is_date = True
+        else:
+            date = dt.date.fromisoformat(md[kd])
+            is_date = False
         mt, kt = find_key(metadata, keyp[1])
-        if not kt in mt:
+        if not kt in mt or isinstance(mt[kt], dict):
             continue
-        time = dt.time.fromisoformat(mt[kt])
+        if isinstance(mt[kt], dt.time):
+            time = mt[kt]
+            is_time = True
+        else:
+            time = dt.time.fromisoformat(mt[kt])
+            is_time = False
         datetime = dt.datetime.combine(date, time) + deltat
-        md[kd] = datetime.date().isoformat()
-        mt[kt] = datetime.time().isoformat(timespec='seconds')
+        md[kd] = datetime.date() if is_date else datetime.date().isoformat()
+        mt[kt] = datetime.time() if is_time else datetime.time().isoformat(timespec='seconds')
         success = True
     # time reference in samples:
     for key in ('TimeReference',):
         m, k = find_key(metadata, key)
-        if k in m:
+        if k in m and not isinstance(m[k], dict):
+            is_int = isinstance(m[k], int)
             tref = int(m[k])
-            m[k] = tref + int(np.round(deltat.total_seconds()*samplerate))
+            tref += int(np.round(deltat.total_seconds()*samplerate))
+            m[k] = tref if is_int else f'{tref}'
             success = True
     return success
 
@@ -1556,7 +1584,7 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
     success = False
     for keys in ('History', 'CodingHistory', 'BWF_CODING_HISTORY'):
         m, k = find_key(metadata, keys)
-        if k in m:
+        if k in m and not isinstance(m[k], dict):
             s = m[k]
             if len(s) >= 1 and s[-1] != '\n' and s[-1] != '\r':
                 s += '\r\n'

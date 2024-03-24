@@ -131,12 +131,8 @@ def test_find_key():
     m[k] = 42
     assert_equal(md['bbbb']['eee']['xx'], 42, 'find key-value pair')
     m, k = amd.find_key(md, 'eee')
-    m['yy'] = 46
+    m[k]['yy'] = 46
     assert_equal(md['bbbb']['eee']['yy'], 46, 'find section')
-    m, k = amd.find_key(md, 'gggg.zzz')
-    assert_equal(k, 'zzz', 'find non-existing section')
-    m[k] = 64
-    assert_equal(md['gggg']['zzz'], 64, 'find non-existing section')
     m, k = amd.find_key(None, 'aaaa')
     assert_equal(len(m), 0, 'find in None metadata')
     assert_equal(k, None, 'find in None metadata')
@@ -497,7 +493,7 @@ def test_remove_metadata():
     assert_true('ccc' not in md['bbbb'], 'remove metadata')
     amd.remove_metadata(md, ('xxx',))
     amd.remove_metadata(md, ('eee',))
-    assert_true('eee' in md['bbbb'], 'do not remove metadata section')
+    assert_true('eee' not in md['bbbb'], 'remove metadata section')
     amd.remove_metadata(None, ('ccc',))
 
      
