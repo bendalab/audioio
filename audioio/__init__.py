@@ -6,7 +6,7 @@ import sys
 
 # avoid double inclusion of audioio modules if called as modules,
 # e.g. python -m audioio.audiowriter`:
-if not '-m' in sys.argv:
+if len(sys.argv) > 0 and sys.argv[0] != '-m':
     
     from .version import __version__
     

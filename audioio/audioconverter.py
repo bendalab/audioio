@@ -54,8 +54,9 @@ options:
   -f FORMAT     audio format of output file
   -e ENCODING   audio encoding of output file
   -s SCALE      scale the data by factor SCALE
-  -u [THRESH]   unwrap clipped data with threshold (default is 1.5) and divide by two
-  -U [THRESH]   unwrap clipped data with threshold (default is 1.5) and clip
+  -u [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and divide by
+                two
+  -U [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and clip
   -d FAC        downsample by integer factor
   -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
   -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "."

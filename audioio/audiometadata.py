@@ -52,7 +52,7 @@ Add and remove metadata:
 - `add_sections()`: add sections to metadata dictionary.
 - `set_metadata()`: set values of existing metadata.
 - `add_metadata()`: add or modify metadata.
-- `remove_metadata()`: remove key-value pairs from metadata.
+- `remove_metadata()`: remove key-value pairs or sections from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
 
 ### Special metadata fields
@@ -114,16 +114,22 @@ audiometadata --help
 ```
 prints
 ```text
-usage: audiomodules [--version] [--help] [PACKAGE]
+usage: audiometadata [-h] [--version] [-f] [-m] [-c] [-t] files [files ...]
 
-Installation status and instructions of python audio packages.
+Convert audio file formats.
 
-optional arguments:
-  --help      show this help message and exit
-  --version   show version number and exit
-  PACKAGE     show installation instructions for PACKAGE
+positional arguments:
+  files       audio file
 
-version 2.0.0 by Benda-Lab (2015-2024)
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+  -f          list file format only
+  -m          list metadata only
+  -c          list cues/markers only
+  -t          list tags of all riff/wave chunks contained in the file
+
+version 2.0.0 by Benda-Lab (2020-2024)
 ```
 
 """
@@ -603,7 +609,7 @@ def find_key(metadata, key, sep='.'):
 
     When searching for sections, the one conaining the searched section
     is returned:
-    ```
+    ```py
     >>> m, k = find_key(md, 'eee')
     >>> m[k]['yy'] = 46
     >>> print_metadata(md)
@@ -613,6 +619,7 @@ def find_key(metadata, key, sep='.'):
             xx: 42
             yy: 46
     ...
+    ```
 
     """
     def find_keys(metadata, keys):
@@ -965,7 +972,7 @@ default_starttime_keys = [['DateTimeOriginal'],
                           ['Location_Time'],
                           ['Timestamp']]
 """Default keys of times of start of the recording in metadata.
-Used by `get_datetime()` and update_starttime() functions.
+Used by `get_datetime()` and `update_starttime()` functions.
 """
 
 def get_datetime(metadata, keys=default_starttime_keys,
