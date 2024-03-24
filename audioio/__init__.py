@@ -30,7 +30,8 @@ if not '-m' in sys.argv:
     from .audiotools import despike, unwrap
     from .audiometadata import flatten_metadata, unflatten_metadata
     from .audiometadata import write_metadata_text, print_metadata
-    from .audiometadata import find_key, add_sections, add_metadata
+    from .audiometadata import find_key, add_sections
+    from .audiometadata import set_metadata, add_metadata
     from .audiometadata import remove_metadata, cleanup_metadata
     from .audiometadata import parse_number, change_unit, get_number
     from .audiometadata import get_number_unit, get_int, get_bool

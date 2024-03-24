@@ -50,6 +50,7 @@ Find keys and get their values parsed and converted to various types:
 Add and remove metadata:
 
 - `add_sections()`: add sections to metadata dictionary.
+- `set_metadata()`: set values of existing metadata.
 - `add_metadata()`: add or modify metadata.
 - `remove_metadata()`: remove key-value pairs from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
@@ -1190,8 +1191,57 @@ def add_sections(metadata, sections, value=False, sep='.'):
         return mm
 
         
+def set_metadata(metadata, md_list, sep='.'):
+    """Set value of existing metadata.
+
+    Only if a key is found in the metadata, its value is updated.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    md_list: str or list of str
+        List of key-value pairs for updating the metadata.
+        Values are separated from keys by '='.
+    sep: str
+        String that separates section names in the keys of `md_list`.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, set_metadata
+    >>> md = dict(Recording=dict(Time='early'))
+    >>> print_metadata(md)
+    Recording:
+        Time: early
+
+    >>> set_metadata(md, ['Artist=John Doe',       # new key-value pair
+                          'Recording.Time=late'])  # change value of existing key
+    >>> print_metadata(md)
+    Recording:
+        Time   : late
+    ```
+
+    See also
+    --------
+    add_metadata()
+
+    """
+    if metadata is None:
+        return
+    if not isinstance(md_list, (list, tuple, np.ndarray)):
+        md_list = (md_list,)
+    for md in md_list:
+        k, v = md.split('=')
+        mm, kk = find_key(metadata, k, sep)
+        if kk in mm:
+            mm[kk] = v.strip()
+
+        
 def add_metadata(metadata, md_list, sep='.'):
     """Add or modify metadata.
+
+    If a key does not exist, it is added to the metadata.
 
     Parameters
     ----------
@@ -1224,6 +1274,10 @@ def add_metadata(metadata, md_list, sep='.'):
     Location:
         Country: Lummerland
     ```
+
+    See also
+    --------
+    set_metadata()
 
     """
     if metadata is None:

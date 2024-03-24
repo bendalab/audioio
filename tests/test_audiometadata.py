@@ -162,6 +162,16 @@ def test_add_sections():
     assert_equal(k, '', 'added empty key-value pair')
 
     
+def test_set_metadata():
+     md = dict(Recording=dict(Time='early'))
+     amd.set_metadata(md, ['Artist=John Doe',
+                           'Recording.Time=late'])
+     print(md)
+     assert_equal(md['Recording']['Time'], 'late', 'set_metadata')
+     assert_equal(len(md), 1, 'set_metadata')
+     assert_equal(len(md['Recording']), 1, 'set_metadata')
+
+    
 def test_add_metadata():
      md = dict(Recording=dict(Time='early'))
      amd.add_metadata(md, ['Artist=John Doe',
