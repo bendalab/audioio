@@ -10,26 +10,55 @@ dictionaries . The dictionaries can be nested to arbitrary depth.
 Often, audio files have very specific ways to store metadata. You can
 enforce using these by providing a key with the name of the
 metadata type you want, that has as a value a dictionary with the
-actual metadata. For example the "INFO", "BEXT", and "iXML" chunks of
+actual metadata. For example, the "INFO", "BEXT", and "iXML" chunks of
 RIFF/WAVE files.
+
+## Functions
+
+### Output
+
+Write nested dictionaries as texts:
 
 - `write_metadata_text()`: write meta data into a text/yaml file.
 - `print_metadata()`: write meta data to standard output.
+
+### Flatten
+
+Conversion between nested and flat dictionaries:
+
 - `flatten_metadata()`: flatten hierachical metadata to a single dictionary.
 - `unflatten_metadata()`: unflatten a previously flattened metadata dictionary.
-- `find_key()`: find dictionary in metadata hierarchy containing the specified key.
-- `add_sections()`: add sections to metadata dictionary.
-- `add_metadata()`: add or modify metadata.
-- `remove_metadata()`: remove key-value pairs from metadata.
-- `cleanup_metadata()`: remove empty sections from metadata.
+
+### Parse numbers with units
+
 - `parse_number()`: parse string with number and unit.
 - `change_unit()`: scale numerical value to a new unit.
+
+### Find and get values
+
+Find keys and get their values parsed and converted to various types:
+
+- `find_key()`: find dictionary in metadata hierarchy containing the specified key.
 - `get_number_unit()`: find a key in metadata and return its number and unit.
 - `get_number()`: find a key in metadata and return its value in a given unit.
 - `get_int()`: find a key in metadata and return its integer value.
 - `get_bool()`: find a key in metadata and return its boolean value.
 - `get_datetime()`: find keys in metadata and return a datatime.
 - `get_str()`: find a key in metadata and return its string value.
+
+### Organize metadata
+
+Add and remove metadata:
+
+- `add_sections()`: add sections to metadata dictionary.
+- `add_metadata()`: add or modify metadata.
+- `remove_metadata()`: remove key-value pairs from metadata.
+- `cleanup_metadata()`: remove empty sections from metadata.
+
+### Special
+
+Retrieve and set specific metadata:
+
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
 - `update_starttime()`: update start-of-recording times in metadata.
@@ -317,322 +346,6 @@ def unflatten_metadata(md, sep='.'):
     return umd
 
 
-def find_key(metadata, key, sep='.'):
-    """Find dictionary in metadata hierarchy containing the specified key.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-    key: str
-        Key to be searched for (case insensitive).
-        May contain section names separated by `sep`. 
-    sep: str
-        String that separates section names in `key`.
-
-    Returns
-    -------
-    md: dict
-        If `key` specifies a section, then this section is returned.
-        If `key`specifies a key-value pair, then the dictionary
-        containing the key is returned.
-        If only some first sections of `key` have been found,
-        then the innermost matching dictionary is returned, together 
-        with the part of `key` that has not been found.
-        If `key` is not at all contained in the metadata,
-        the top-level dictionary is returned.
-    key: None or str
-        If `key` was found, the actual key into `md` specifying a
-        key-value pair. None if `key` specifies a section. If `key`
-        was not found, then the part of `key` that was not found.
-
-    Examples
-    --------
-
-    When searching for key-value pairs, then independent of whether
-    found or not found, you can assign to the returned dictionary with
-    the returned key:
-
-    ```
-    >>> from audioio import print_metadata, find_key
-    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)), gggg=dict(hhh=6))
-    >>> print_metadata(md)
-    aaaa: 2
-    bbbb:
-        ccc: 3
-        ddd: 4
-        eee:
-            ff: 5
-    gggg:
-        hhh: 6
-    >>> m, k = find_key(md, 'bbbb.ddd')
-    >>> m[k] = 10
-    >>> print_metadata(md)
-    aaaa: 2
-    bbbb:
-        ccc: 3
-        ddd: 10
-    ...
-
-    >>> m, k = find_key(md, 'hhh')
-    >>> m[k] = 12
-    >>> print_metadata(md)
-    ...
-    gggg:
-        hhh: 12
-
-    >>> m, k = find_key(md, 'bbbb.eee.xx')
-    >>> m[k] = 42
-    >>> print_metadata(md)
-    ...
-        eee:
-            ff: 5
-            xx: 42
-    ...
-    ```
-
-    When searching for sections, the innermost found is returned:
-    ```
-    >>> m, k = find_key(md, 'eee')
-    >>> m['yy'] = 46
-    >>> print_metadata(md)
-    ...
-        eee:
-            ff: 5
-            xx: 42
-            yy: 46
-    ...
-    >>> m, k = find_key(md, 'gggg.zzz')
-    >>> k
-    'zzz'
-    >>> m[k] = 64
-    >>> print_metadata(md)
-    ...
-    gggg:
-        hhh: 12
-        zzz: 64
-    ```
-
-    """
-    def find_keys(metadata, keys):
-        key = keys[0].strip().upper()
-        for k in metadata:
-            if k.upper() == key:
-                if isinstance(metadata[k], dict):
-                    if len(keys) > 1:
-                        # keep searching within the next section:
-                        return find_keys(metadata[k], keys[1:])
-                    else:
-                        # found section:
-                        return True, metadata[k], None
-                elif len(keys) == 1:
-                    # found key-value pair:
-                    return True, metadata, k
-                break
-        # search in sections:
-        for k in metadata:
-            if isinstance(metadata[k], dict):
-                found, mm, kk = find_keys(metadata[k], keys)
-                if found:
-                    return True, mm, kk
-        # nothing found:
-        return False, metadata, sep.join(keys)
-
-    if not metadata:
-        return {}, None
-    ks = key.strip().split(sep)
-    found, mm, kk = find_keys(metadata, ks)
-    return mm, kk
-
-
-def add_sections(metadata, sections, value=False, sep='.'):
-    """Add sections to metadata dictionary.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-    key: str
-        Names of sections to be added to `metadata`.
-        Section names separated by `sep`. 
-    value: bool
-        If True, then the last element in `key` is a key for a value,
-        not a section.
-    sep: str
-        String that separates section names in `key`.
-
-    Returns
-    -------
-    md: dict
-        Dictionary of the last added section.
-    key: str
-        Last key. Only returned if `value` is set to `True`.
-
-    Examples
-    --------
-
-    Add a section and a sub-section to the metadata:
-    ```
-    >>> from audioio import print_metadata, add_sections
-    >>> md = dict()
-    >>> m = add_sections(md, 'Recording.Location')
-    >>> m['Country'] = 'Lummerland'
-    >>> print_metadata(md)
-    Recording:
-        Location:
-            Country: Lummerland
-    ```
-
-    Add a section with a key-value pair:
-    ```
-    >>> md = dict()
-    >>> m, k = add_sections(md, 'Recording.Location', True)
-    >>> m[k] = 'Lummerland'
-    >>> print_metadata(md)
-    Recording:
-        Location: Lummerland
-    ```
-
-    Adds well to `find_key()`:
-    ```
-    >>> md = dict(Recording=dict())
-    >>> m, k = find_key(md, 'Recording.Location.Country')
-    >>> m, k = add_sections(m, k, True)
-    >>> m[k] = 'Lummerland'
-    >>> print_metadata(md)
-    Recording:
-        Location:
-            Country: Lummerland
-    ```
-
-    """
-    mm = metadata
-    ks = sections.split(sep)
-    n = len(ks)
-    if value:
-        n -= 1
-    for k in ks[:n]:
-        if len(k) == 0:
-            continue
-        mm[k] = dict()
-        mm = mm[k]
-    if value:
-        return mm, ks[-1]
-    else:
-        return mm
-
-        
-def add_metadata(metadata, md_list, sep='.'):
-    """Add or modify metadata.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-    md_list: str or list of str
-        List of key-value pairs for updating the metadata.
-        Values are separated from keys by '='.
-    sep: str
-        String that separates section names in the keys of `md_list`.
-
-    Examples
-    --------
-    ```
-    >>> from audioio import print_metadata, add_metadata
-    >>> md = dict(Recording=dict(Time='early'))
-    >>> print_metadata(md)
-    Recording:
-        Time: early
-
-    >>> add_metadata(md, ['Artist=John Doe',               # new key-value pair
-                          'Recording.Time=late',           # change value of existing key 
-                          'Recording.Quality=amazing',     # new key-value pair in existing section
-                          'Location.Country=Lummerland'])  # new key-value pair in new section
-    >>> print_metadata(md)
-    Recording:
-        Time   : late
-        Quality: amazing
-    Artist: John Doe
-    Location:
-        Country: Lummerland
-    ```
-
-    """
-    if metadata is None:
-        return
-    if not isinstance(md_list, (list, tuple, np.ndarray)):
-        md_list = (md_list,)
-    for md in md_list:
-        k, v = md.split('=')
-        mm, kk = find_key(metadata, k, sep)
-        mm, kk = add_sections(mm, kk, True, sep)
-        mm[kk] = v.strip()
-
-        
-def remove_metadata(metadata, key_list, sep='.'):
-    """Remove key-value pairs from metadata.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-    key_list: list of str
-        List of keys to key-value pairs to be removed from the metadata.
-    sep: str
-        String that separates section names in the keys of `key_list`.
-
-    Examples
-    --------
-    ```
-    >>> from audioio import print_metadata, remove_metadata
-    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)))
-    >>> remove_metadata(md, ('ccc',))
-    >>> print_metadata(md)
-    aaaa: 2
-    bbbb:
-        ddd: 4
-        eee:
-            ff: 5
-    ```
-
-    """
-    if not metadata:
-        return
-    for k in key_list:
-        mm, kk = find_key(metadata, k, sep)
-        if not kk is None and kk in mm:
-            del mm[kk]
-            
-        
-def cleanup_metadata(metadata):
-    """Remove empty sections from metadata.
-
-    Parameters
-    ----------
-    metadata: nested dict
-        Metadata.
-
-    Examples
-    --------
-    ```
-    >>> from audioio import print_metadata, cleanup_metadata
-    >>> md = dict(aaaa=2, bbbb=dict())
-    >>> cleanup_metadata(md)
-    >>> print_metadata(md)
-    aaaa: 2
-    ```
-
-    """
-    if not metadata:
-        return
-    for k in list(metadata):
-        if isinstance(metadata[k], dict):
-            if len(metadata[k]) == 0:
-                del metadata[k]
-            else:
-                cleanup_metadata(metadata[k])
-            
-
 def parse_number(s):
     """Parse string with number and unit.
 
@@ -807,6 +520,134 @@ def change_unit(val, old_unit, new_unit):
                 f2 = unit_prefixes[k];
   
     return val*f1/f2
+
+
+def find_key(metadata, key, sep='.'):
+    """Find dictionary in metadata hierarchy containing the specified key.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key: str
+        Key to be searched for (case insensitive).
+        May contain section names separated by `sep`. 
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    md: dict
+        If `key` specifies a section, then this section is returned.
+        If `key`specifies a key-value pair, then the dictionary
+        containing the key is returned.
+        If only some first sections of `key` have been found,
+        then the innermost matching dictionary is returned, together 
+        with the part of `key` that has not been found.
+        If `key` is not at all contained in the metadata,
+        the top-level dictionary is returned.
+    key: None or str
+        If `key` was found, the actual key into `md` specifying a
+        key-value pair. None if `key` specifies a section. If `key`
+        was not found, then the part of `key` that was not found.
+
+    Examples
+    --------
+
+    When searching for key-value pairs, then independent of whether
+    found or not found, you can assign to the returned dictionary with
+    the returned key:
+
+    ```
+    >>> from audioio import print_metadata, find_key
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)), gggg=dict(hhh=6))
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            ff: 5
+    gggg:
+        hhh: 6
+    >>> m, k = find_key(md, 'bbbb.ddd')
+    >>> m[k] = 10
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 10
+    ...
+
+    >>> m, k = find_key(md, 'hhh')
+    >>> m[k] = 12
+    >>> print_metadata(md)
+    ...
+    gggg:
+        hhh: 12
+
+    >>> m, k = find_key(md, 'bbbb.eee.xx')
+    >>> m[k] = 42
+    >>> print_metadata(md)
+    ...
+        eee:
+            ff: 5
+            xx: 42
+    ...
+    ```
+
+    When searching for sections, the innermost found is returned:
+    ```
+    >>> m, k = find_key(md, 'eee')
+    >>> m['yy'] = 46
+    >>> print_metadata(md)
+    ...
+        eee:
+            ff: 5
+            xx: 42
+            yy: 46
+    ...
+    >>> m, k = find_key(md, 'gggg.zzz')
+    >>> k
+    'zzz'
+    >>> m[k] = 64
+    >>> print_metadata(md)
+    ...
+    gggg:
+        hhh: 12
+        zzz: 64
+    ```
+
+    """
+    def find_keys(metadata, keys):
+        key = keys[0].strip().upper()
+        for k in metadata:
+            if k.upper() == key:
+                if isinstance(metadata[k], dict):
+                    if len(keys) > 1:
+                        # keep searching within the next section:
+                        return find_keys(metadata[k], keys[1:])
+                    else:
+                        # found section:
+                        return True, metadata[k], None
+                elif len(keys) == 1:
+                    # found key-value pair:
+                    return True, metadata, k
+                break
+        # search in sections:
+        for k in metadata:
+            if isinstance(metadata[k], dict):
+                found, mm, kk = find_keys(metadata[k], keys)
+                if found:
+                    return True, mm, kk
+        # nothing found:
+        return False, metadata, sep.join(keys)
+
+    if not metadata:
+        return {}, None
+    ks = key.strip().split(sep)
+    found, mm, kk = find_keys(metadata, ks)
+    return mm, kk
 
 
 def get_number_unit(metadata, keys, sep='.', default=None, default_unit=''):
@@ -1261,6 +1102,194 @@ def get_str(metadata, keys, sep='.', default=None):
             return str(m[k])
     return default
 
+
+def add_sections(metadata, sections, value=False, sep='.'):
+    """Add sections to metadata dictionary.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key: str
+        Names of sections to be added to `metadata`.
+        Section names separated by `sep`. 
+    value: bool
+        If True, then the last element in `key` is a key for a value,
+        not a section.
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    md: dict
+        Dictionary of the last added section.
+    key: str
+        Last key. Only returned if `value` is set to `True`.
+
+    Examples
+    --------
+
+    Add a section and a sub-section to the metadata:
+    ```
+    >>> from audioio import print_metadata, add_sections
+    >>> md = dict()
+    >>> m = add_sections(md, 'Recording.Location')
+    >>> m['Country'] = 'Lummerland'
+    >>> print_metadata(md)
+    Recording:
+        Location:
+            Country: Lummerland
+    ```
+
+    Add a section with a key-value pair:
+    ```
+    >>> md = dict()
+    >>> m, k = add_sections(md, 'Recording.Location', True)
+    >>> m[k] = 'Lummerland'
+    >>> print_metadata(md)
+    Recording:
+        Location: Lummerland
+    ```
+
+    Adds well to `find_key()`:
+    ```
+    >>> md = dict(Recording=dict())
+    >>> m, k = find_key(md, 'Recording.Location.Country')
+    >>> m, k = add_sections(m, k, True)
+    >>> m[k] = 'Lummerland'
+    >>> print_metadata(md)
+    Recording:
+        Location:
+            Country: Lummerland
+    ```
+
+    """
+    mm = metadata
+    ks = sections.split(sep)
+    n = len(ks)
+    if value:
+        n -= 1
+    for k in ks[:n]:
+        if len(k) == 0:
+            continue
+        mm[k] = dict()
+        mm = mm[k]
+    if value:
+        return mm, ks[-1]
+    else:
+        return mm
+
+        
+def add_metadata(metadata, md_list, sep='.'):
+    """Add or modify metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    md_list: str or list of str
+        List of key-value pairs for updating the metadata.
+        Values are separated from keys by '='.
+    sep: str
+        String that separates section names in the keys of `md_list`.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, add_metadata
+    >>> md = dict(Recording=dict(Time='early'))
+    >>> print_metadata(md)
+    Recording:
+        Time: early
+
+    >>> add_metadata(md, ['Artist=John Doe',               # new key-value pair
+                          'Recording.Time=late',           # change value of existing key 
+                          'Recording.Quality=amazing',     # new key-value pair in existing section
+                          'Location.Country=Lummerland'])  # new key-value pair in new section
+    >>> print_metadata(md)
+    Recording:
+        Time   : late
+        Quality: amazing
+    Artist: John Doe
+    Location:
+        Country: Lummerland
+    ```
+
+    """
+    if metadata is None:
+        return
+    if not isinstance(md_list, (list, tuple, np.ndarray)):
+        md_list = (md_list,)
+    for md in md_list:
+        k, v = md.split('=')
+        mm, kk = find_key(metadata, k, sep)
+        mm, kk = add_sections(mm, kk, True, sep)
+        mm[kk] = v.strip()
+
+        
+def remove_metadata(metadata, key_list, sep='.'):
+    """Remove key-value pairs from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key_list: list of str
+        List of keys to key-value pairs to be removed from the metadata.
+    sep: str
+        String that separates section names in the keys of `key_list`.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, remove_metadata
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)))
+    >>> remove_metadata(md, ('ccc',))
+    >>> print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ddd: 4
+        eee:
+            ff: 5
+    ```
+
+    """
+    if not metadata:
+        return
+    for k in key_list:
+        mm, kk = find_key(metadata, k, sep)
+        if not kk is None and kk in mm:
+            del mm[kk]
+            
+        
+def cleanup_metadata(metadata):
+    """Remove empty sections from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, cleanup_metadata
+    >>> md = dict(aaaa=2, bbbb=dict())
+    >>> cleanup_metadata(md)
+    >>> print_metadata(md)
+    aaaa: 2
+    ```
+
+    """
+    if not metadata:
+        return
+    for k in list(metadata):
+        if isinstance(metadata[k], dict):
+            if len(metadata[k]) == 0:
+                del metadata[k]
+            else:
+                cleanup_metadata(metadata[k])
+            
 
 def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='.'):
     """Get gain and unit from metadata.
