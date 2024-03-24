@@ -55,7 +55,7 @@ Add and remove metadata:
 - `remove_metadata()`: remove key-value pairs from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
 
-### Special
+### Special metadata fields
 
 Retrieve and set specific metadata:
 
@@ -65,6 +65,13 @@ Retrieve and set specific metadata:
 - `bext_history_str()`: assemble a string for the BEXT CodingHistory field.
 - `add_history()`: add a string describing coding history to metadata.
 - `add_unwrap()`: add unwrap infos to metadata.
+
+Lists of standard keys:
+
+- `default_starttime_keys`: keys of times of start of the recording.
+- `default_timeref_keys`: keys of integer time references.
+- `default_gain_keys`: keys of gain settings.
+- `default_history_keys`: keys of strings describing coding history.
 
 
 ## Script
@@ -953,9 +960,15 @@ def get_bool(metadata, keys, sep='.', default=None):
     return val
 
 
-def get_datetime(metadata, keys=(('DateTimeOriginal',),
-                                 ('OriginationDate', 'OriginationTime'),
-                                 ('Location_Time',), ('Timestamp',)),
+default_starttime_keys = [['DateTimeOriginal'],
+                          ['OriginationDate', 'OriginationTime'],
+                          ['Location_Time'],
+                          ['Timestamp']]
+"""Default keys of times of start of the recording in metadata.
+Used by `get_datetime()` and update_starttime() functions.
+"""
+
+def get_datetime(metadata, keys=default_starttime_keys,
                  sep='.', default=None):
     """Find keys in metadata and return a datatime.
 
@@ -971,6 +984,8 @@ def get_datetime(metadata, keys=(('DateTimeOriginal',),
         Value of the first tuple of keys found is returned.
         Keys may contain section names separated by `sep`. 
         See `audiometadata.find_key()` for details.
+        You can modify the default keys via the `default_starttime_keys` list
+        of the `audiometadata` module.
     sep: str
         String that separates section names in `key`.
     default: None or str
@@ -1356,22 +1371,28 @@ def cleanup_metadata(metadata):
                 del metadata[k]
             else:
                 cleanup_metadata(metadata[k])
-            
 
-def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='.'):
+
+default_gain_keys = ['gain']
+"""Default keys of gain settings in metadata. Used by `get_gain()` function.
+"""
+
+def get_gain(metadata, gain_key=default_gain_keys, sep='.'):
     """Get gain and unit from metadata.
 
     Parameters
     ----------
     metadata: nested dict
         Metadata with key-value pairs.
-    gainkey: str or list of str
+    gain_key: str or list of str
         Key in the file's metadata that holds some gain information.
         If found, the data will be multiplied with the gain,
         and if available, the corresponding unit is returned.
         See the `audiometadata.find_key()` function for details.
+        You can modify the default keys via the `default_gain_keys` list
+        of the `audiometadata` module.
     sep: str
-        String that separates section names in `gainkey`.
+        String that separates section names in `gain_key`.
 
     Returns
     -------
@@ -1380,14 +1401,14 @@ def get_gain(metadata, gainkey=['gain', 'scale', 'unit'], sep='.'):
     unit: string
         Unit of the data if found in the metadata, otherwise "a.u.".
     """
-    v, u = get_number_unit(metadata, gainkey, sep, 1.0, 'a.u.')
+    v, u = get_number_unit(metadata, gain_key, sep, 1.0, 'a.u.')
     # fix some TeeGrid gains:
     if len(u) >= 2 and u[-2:] == '/V':
         u = u[:-2]
     return v, u
 
             
-def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='.'):
+def update_gain(metadata, fac, gain_key=default_gain_keys, sep='.'):
     """Update gain setting in metadata.
 
     Searches for the first appearance of the keyword `Gain` (case
@@ -1400,13 +1421,15 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='.'):
         Metadata to be updated.
     fac: float
         Factor that was used to scale the data.
-    gainkey: str or list of str
+    gain_key: str or list of str
         Key in the file's metadata that holds some gain information.
         If found, the data will be multiplied with the gain,
         and if available, the corresponding unit is returned.
         See the `audiometadata.find_key()` function for details.
+        You can modify the default keys via the `default_gain_keys` list
+        of the `audiometadata` module.
     sep: str
-        String that separates section names in `gainkey`.
+        String that separates section names in `gain_key`.
 
     Returns
     -------
@@ -1430,9 +1453,9 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='.'):
     """
     if not metadata:
         return False
-    if not isinstance(gainkey, (list, tuple, np.ndarray)):
-        gainkey = (gainkey,)
-    for gk in gainkey:
+    if not isinstance(gain_key, (list, tuple, np.ndarray)):
+        gain_key = (gain_key,)
+    for gk in gain_key:
         m, k = find_key(metadata, gk, sep)
         if k in m and not isinstance(m[k], dict):
             vs = m[k]
@@ -1449,11 +1472,17 @@ def update_gain(metadata, fac, gainkey=['gain', 'scale', 'unit'], sep='.'):
     return False
 
 
-def update_starttime(metadata, deltat, samplerate):
+default_timeref_keys = ['TimeReference']
+"""Default keys of integer time references in metadata.
+Used by `update_starttime()` function.
+"""
+
+def update_starttime(metadata, deltat, samplerate,
+                     time_keys=default_starttime_keys,
+                     ref_keys=default_timeref_keys):
     """Update start-of-recording times in metadata.
 
-    Add `deltat` to 'DateTimeOriginal', 'OriginationDate',
-    'OriginationTime', and 'TimeReference' fields in the metadata.
+    Add `deltat` to `time_keys`and `ref_keys` fields in the metadata.
 
     Parameters
     ----------
@@ -1463,6 +1492,23 @@ def update_starttime(metadata, deltat, samplerate):
         Time in seconds to be added to start times.
     samplerate: float
         Sampling rate of the data in Hertz.
+    time_keys: tuple of str or list of tuple of str
+        Keys to fields denoting calender times, i.e. dates and times.
+        Datetimes can be stored in metadata as two separate key-value pairs,
+        one for the date and one for the time. Or by a single key-value pair
+        for a date-time values. This is why the keys need to be specified in
+        tuples with one or two keys.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default time keys via the `default_starttime_keys`
+        list of the `audiometadata` module.
+    ref_keys: str or list of str
+        Keys to time references, i.e. integers in seconds relative to
+        a reference time.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default reference keys via the
+        `default_timeref_keys` list of the `audiometadata` module.
 
     Returns
     -------
@@ -1494,42 +1540,47 @@ def update_starttime(metadata, deltat, samplerate):
     if not isinstance(deltat, dt.timedelta):
         deltat = dt.timedelta(seconds=deltat)
     success = False
-    # datetime:
-    for key in ('DateTimeOriginal',):
-        m, k = find_key(metadata, key)
-        if k in m and not isinstance(m[k], dict):
-            if isinstance(m[k], dt.datetime):
-                m[k] += deltat
+    if len(time_keys) > 0 and isinstance(time_keys[0], str):
+        time_keys = (time_keys,)
+    for key in time_keys:
+        if len(key) == 1:
+            # datetime:
+            m, k = find_key(metadata, key[0])
+            if k in m and not isinstance(m[k], dict):
+                if isinstance(m[k], dt.datetime):
+                    m[k] += deltat
+                else:
+                    datetime = dt.datetime.fromisoformat(m[k]) + deltat
+                    m[k] = datetime.isoformat(timespec='seconds')
+                success = True
+        else:
+            # separate date and time:
+            md, kd = find_key(metadata, key[0])
+            if not kd in md or isinstance(md[kd], dict):
+                continue
+            if isinstance(md[kd], dt.date):
+                date = md[kd]
+                is_date = True
             else:
-                datetime = dt.datetime.fromisoformat(m[k]) + deltat
-                m[k] = datetime.isoformat(timespec='seconds')
+                date = dt.date.fromisoformat(md[kd])
+                is_date = False
+            mt, kt = find_key(metadata, key[1])
+            if not kt in mt or isinstance(mt[kt], dict):
+                continue
+            if isinstance(mt[kt], dt.time):
+                time = mt[kt]
+                is_time = True
+            else:
+                time = dt.time.fromisoformat(mt[kt])
+                is_time = False
+            datetime = dt.datetime.combine(date, time) + deltat
+            md[kd] = datetime.date() if is_date else datetime.date().isoformat()
+            mt[kt] = datetime.time() if is_time else datetime.time().isoformat(timespec='seconds')
             success = True
-    # separate date and time:
-    for keyp in (('OriginationDate', 'OriginationTime'),):
-        md, kd = find_key(metadata, keyp[0])
-        if not kd in md or isinstance(md[kd], dict):
-            continue
-        if isinstance(md[kd], dt.date):
-            date = md[kd]
-            is_date = True
-        else:
-            date = dt.date.fromisoformat(md[kd])
-            is_date = False
-        mt, kt = find_key(metadata, keyp[1])
-        if not kt in mt or isinstance(mt[kt], dict):
-            continue
-        if isinstance(mt[kt], dt.time):
-            time = mt[kt]
-            is_time = True
-        else:
-            time = dt.time.fromisoformat(mt[kt])
-            is_time = False
-        datetime = dt.datetime.combine(date, time) + deltat
-        md[kd] = datetime.date() if is_date else datetime.date().isoformat()
-        mt[kt] = datetime.time() if is_time else datetime.time().isoformat(timespec='seconds')
-        success = True
     # time reference in samples:
-    for key in ('TimeReference',):
+    if isinstance(ref_keys, str):
+        ref_keys = (ref_keys,)
+    for key in ref_keys:
         m, k = find_key(metadata, key)
         if k in m and not isinstance(m[k], dict):
             is_int = isinstance(m[k], int)
@@ -1582,14 +1633,22 @@ def bext_history_str(encoding, rate, channels, text=None):
     return ','.join(codes)
 
 
-def add_history(metadata, history, key=None, pre_history=None, sep='.'):
+default_history_keys = ['History',
+                        'CodingHistory',
+                        'BWF_CODING_HISTORY']
+"""Default keys of strings describing coding history in metadata.
+Used by `add_history()` function.
+"""
+
+def add_history(metadata, history, new_key=None, pre_history=None,
+                history_keys=default_history_keys, sep='.'):
     """Add a string describing coding history to metadata.
     
     Add `history` to 'CodingHistory', 'History', and
-    'BWF_CODING_HISTORY' fields in the metadata.
-    If none of these fields are present and `key` is not None or empty,
-    then assign `history` to this key. If this key does not exist
-    in the metadata, it is created.
+    'BWF_CODING_HISTORY' fields in the metadata.  If none of these
+    fields are present but `new_key` is specified, then assign
+    `pre_history` and `history` to this key. If this key does not
+    exist in the metadata, it is created.
 
     Parameters
     ----------
@@ -1597,14 +1656,15 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
         Metadata to be updated.
     history: str
         String to be added to the history.
-    key: str or None
+    new_key: str or None
         Sections and name of a history key to be added to `metadata`.
         Section names are separated by `sep`.
     pre_history: str or None
-        If a new key `key` is created, then assign this string followed
+        If a new key `new_key` is created, then assign this string followed
         by `history`.
+    history_keys: str or list of str
     sep: str
-        String that separates section names in `key`.
+        String that separates section names in `new_key` and `history_keys`.
 
     Returns
     -------
@@ -1623,7 +1683,7 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
     just a snippet
     ```
 
-    Assing string to new key-value pair:
+    Assign string to new key-value pair:
     ```
     >>> md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
     >>> add_history(md, 'just a snippet', 'BEXT.CodingHistory', 'original data')
@@ -1635,8 +1695,10 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
     """
     if not metadata:
         return False
+    if isinstance(history_keys, str):
+        history_keys = (history_keys,)
     success = False
-    for keys in ('History', 'CodingHistory', 'BWF_CODING_HISTORY'):
+    for keys in history_keys:
         m, k = find_key(metadata, keys)
         if k in m and not isinstance(m[k], dict):
             s = m[k]
@@ -1645,8 +1707,8 @@ def add_history(metadata, history, key=None, pre_history=None, sep='.'):
             s += history
             m[k] = s
             success = True
-    if not success and key:
-        m, k = find_key(metadata, key, sep)
+    if not success and new_key:
+        m, k = find_key(metadata, new_key, sep)
         m, k = add_sections(m, k, True, sep)
         s = ''
         if pre_history is not None:
@@ -1711,12 +1773,12 @@ def add_unwrap(metadata, thresh, clip=0, unit=''):
         md['UnwrapClippedAmplitude'] = f'{clip:.2f}{unit}'
     
 
-def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
+def demo(file_pathes, list_format, list_metadata, list_cues, list_chunks):
     """Print metadata and markers of audio files.
 
     Parameters
     ----------
-    filepathes: list of str
+    file_pathes: list of str
         Pathes of audio files.
     list_format: bool
         If True, list file format only.
@@ -1730,9 +1792,9 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
     from .audioloader import AudioLoader
     from .audiomarkers import print_markers
     from .riffmetadata import read_chunk_tags
-    for filepath in filepathes:
-        if len(filepathes) > 1 and (list_cues or list_metadata or
-                                    list_format or list_chunks):
+    for filepath in file_pathes:
+        if len(file_pathes) > 1 and (list_cues or list_metadata or
+                                     list_format or list_chunks):
             print(filepath)
         if list_chunks:
             chunks = read_chunk_tags(filepath)
@@ -1741,7 +1803,7 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
                 pos = chunks[tag][0] - 8
                 size = chunks[tag][1] + 8
                 print(f'  {tag:9s} {pos:10d} {size:10d}')
-            if len(filepathes) > 1:
+            if len(file_pathes) > 1:
                 print()
             continue
         with AudioLoader(filepath, 1, 0, verbose=0) as sf:
@@ -1766,9 +1828,9 @@ def demo(filepathes, list_format, list_metadata, list_cues, list_chunks):
                     print()
                     print('markers:')
                     print_markers(locs, labels)
-                if len(filepathes) > 1:
+                if len(file_pathes) > 1:
                     print()
-        if len(filepathes) > 1:
+        if len(file_pathes) > 1:
             print()
 
 
