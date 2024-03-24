@@ -1312,7 +1312,21 @@ def add_metadata(metadata, md_list, sep='.'):
         mm, kk = add_sections(mm, kk, True, sep)
         mm[kk] = v.strip()
 
-        
+
+
+def pop_metadata(src_md, dest_md, key_list, sep='.'):
+    """TODO, add to __init__
+    """
+    if not src_md:
+        return
+    if not isinstance(key_list, (list, tuple, np.ndarray)):
+        key_list = (key_list,)
+    for key in key_list:
+        m, k = find_key(src_md, key, sep)
+        if k in m:
+            dest_md[k] = m.pop(k)
+
+            
 def remove_metadata(metadata, key_list, sep='.'):
     """Remove key-value pairs or sections from metadata.
 
