@@ -38,6 +38,8 @@ if not '-m' in sys.argv:
     from .audiometadata import get_datetime, update_starttime, get_str
     from .audiometadata import get_gain, update_gain, add_unwrap
     from .audiometadata import bext_history_str, add_history
+    from .audiometadata import default_starttime_keys, default_timeref_keys
+    from .audiometadata import default_gain_keys, default_history_keys
     from .audiomarkers import write_markers, print_markers
     from .audiowriter import write_audio, available_formats, available_encodings
     from .playaudio import play, beep, PlayAudio
