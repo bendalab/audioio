@@ -1398,7 +1398,8 @@ default_gain_keys = ['gain']
 """Default keys of gain settings in metadata. Used by `get_gain()` function.
 """
 
-def get_gain(metadata, gain_key=default_gain_keys, sep='.'):
+def get_gain(metadata, gain_key=default_gain_keys, sep='.',
+             default=None, default_unit=''):
     """Get gain and unit from metadata.
 
     Parameters
@@ -1414,6 +1415,10 @@ def get_gain(metadata, gain_key=default_gain_keys, sep='.'):
         of the `audiometadata` module.
     sep: str
         String that separates section names in `gain_key`.
+    default: None or float
+        Returned value if no valid gain was found in `metadata`.
+    default_unit: str
+        Returned unit if no valid gain was found in `metadata`.
 
     Returns
     -------
@@ -1422,7 +1427,7 @@ def get_gain(metadata, gain_key=default_gain_keys, sep='.'):
     unit: string
         Unit of the data if found in the metadata, otherwise "a.u.".
     """
-    v, u = get_number_unit(metadata, gain_key, sep, 1.0, 'a.u.')
+    v, u = get_number_unit(metadata, gain_key, sep, default, default_unit)
     # fix some TeeGrid gains:
     if len(u) >= 2 and u[-2:] == '/V':
         u = u[:-2]
@@ -1432,9 +1437,8 @@ def get_gain(metadata, gain_key=default_gain_keys, sep='.'):
 def update_gain(metadata, fac, gain_key=default_gain_keys, sep='.'):
     """Update gain setting in metadata.
 
-    Searches for the first appearance of the keyword `Gain` (case
-    insensitive) in the metadata hierarchy. If found, divide the gain
-    value by `fac`.
+    Searches for the first appearance of a gain key in the metadata
+    hierarchy. If found, divide the gain value by `fac`.
 
     Parameters
     ----------
@@ -1665,11 +1669,10 @@ def add_history(metadata, history, new_key=None, pre_history=None,
                 history_keys=default_history_keys, sep='.'):
     """Add a string describing coding history to metadata.
     
-    Add `history` to 'CodingHistory', 'History', and
-    'BWF_CODING_HISTORY' fields in the metadata.  If none of these
-    fields are present but `new_key` is specified, then assign
-    `pre_history` and `history` to this key. If this key does not
-    exist in the metadata, it is created.
+    Add `history` to the `history_keys` fields in the metadata.  If
+    none of these fields are present but `new_key` is specified, then
+    assign `pre_history` and `history` to this key. If this key does
+    not exist in the metadata, it is created.
 
     Parameters
     ----------
@@ -1684,6 +1687,11 @@ def add_history(metadata, history, new_key=None, pre_history=None,
         If a new key `new_key` is created, then assign this string followed
         by `history`.
     history_keys: str or list of str
+        Keys to fields where to add `history`.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default history keys via the `default_history_keys`
+        list of the `audiometadata` module.
     sep: str
         String that separates section names in `new_key` and `history_keys`.
 

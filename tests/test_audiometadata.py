@@ -409,20 +409,20 @@ def test_gain():
     md = dict(Gain=1.4)
     f, u = amd.get_gain(md)
     assert_equal(f, 1.4)
-    assert_equal(u, 'a.u.')
+    assert_equal(u, '')
     amd.update_gain(md, 2)
     assert_equal(md['Gain'], 0.7)
     
     md = dict(Gain=3)
     f, u = amd.get_gain(md)
     assert_equal(f, 3)
-    assert_equal(u, 'a.u.')
+    assert_equal(u, '')
     amd.update_gain(md, 2)
     assert_equal(md['Gain'], 1.5)
     
     md = dict(Gain='ms')
     f, u = amd.get_gain(md)
-    assert_equal(f, 1.0)
+    assert_equal(f, None)
     assert_equal(u, 'ms')
     r = amd.update_gain(md, 2)
     assert_equal(md['Gain'], 'ms')
@@ -430,15 +430,15 @@ def test_gain():
     
     md = dict(Artist='John Doe', Recording=dict(xgain='1.4mV'))
     f, u = amd.get_gain(md)
-    assert_equal(f, 1)
-    assert_equal(u, 'a.u.')
+    assert_equal(f, None)
+    assert_equal(u, '')
     r = amd.update_gain(md, 2)
     assert_equal(md['Recording']['xgain'], '1.4mV')
     assert_equal(r, False)
 
     f, u = amd.get_gain(None)
-    assert_equal(f, 1.0)
-    assert_equal(u, 'a.u.')
+    assert_equal(f, None)
+    assert_equal(u, '')
 
     
 def test_bext_history_str():
