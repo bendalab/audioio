@@ -184,6 +184,20 @@ def test_add_metadata():
      assert_equal(md['Location']['Country'], 'Lummerland', 'add_metadata')
 
      
+def test_move_metadata():
+    md = dict(Artist='John Doe', Recording=dict(Gain='1.42mV'))
+    amd.move_metadata(md, md['Recording'], 'Artist', 'Experimentalist')
+    assert_equal(len(md), 1, 'move_metadata()')
+    assert_equal(len(md['Recording']), 2, 'move_metadata()')
+    assert_true('Experimentalist' in md['Recording'], 'move_metadata()')
+    assert_equal(md['Recording']['Experimentalist'], 'John Doe', 'move_metadata()')
+    amd.move_metadata(md, md, 'Experimentalist')
+    assert_equal(len(md), 2, 'move_metadata()')
+    assert_equal(len(md['Recording']), 1, 'move_metadata()')
+    assert_true('Experimentalist' in md, 'move_metadata()')
+    assert_equal(md['Experimentalist'], 'John Doe', 'move_metadata()')
+
+    
 def test_parse_number():
     v, u, n = amd.parse_number('42')
     assert_equal(v, 42, 'parse integer number')

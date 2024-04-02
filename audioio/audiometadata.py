@@ -2,10 +2,11 @@
 
 To interface the various ways metadata are stored in audio files, the
 `audioio` package uses nested dictionaries.  The keys are always
-strings. Values are strings, integers, floats, or other simple types
-for key-value pairs. Value strings can also be numbers followed by a
-unit. For defining subsections of key-value pairs, values can be
-dictionaries. The dictionaries can be nested to arbitrary depth.
+strings. Values are strings, integers, floats, datetimes, or other
+simple types for key-value pairs. Value strings can also be numbers
+followed by a unit. For defining subsections of key-value pairs,
+values can be dictionaries. The dictionaries can be nested to
+arbitrary depth.
 
 Often, audio files have very specific ways to store metadata. You can
 enforce using these by putting them into a dictionary that is added to
@@ -51,7 +52,8 @@ Add and remove metadata:
 
 - `add_sections()`: add sections to metadata dictionary.
 - `set_metadata()`: set values of existing metadata.
-- `add_metadata()`: add or modify metadata.
+- `add_metadata()`: add or modify key-value pairs.
+- `move_metadata()`: remove a key from metadata and add it to a dictionary.
 - `remove_metadata()`: remove key-value pairs or sections from metadata.
 - `cleanup_metadata()`: remove empty sections from metadata.
 
@@ -1261,7 +1263,7 @@ def set_metadata(metadata, md_list, sep='.'):
 
         
 def add_metadata(metadata, md_list, sep='.'):
-    """Add or modify metadata.
+    """Add or modify key-value pairs.
 
     If a key does not exist, it is added to the metadata.
 
@@ -1314,17 +1316,48 @@ def add_metadata(metadata, md_list, sep='.'):
 
 
 
-def pop_metadata(src_md, dest_md, key_list, sep='.'):
-    """TODO, add to __init__
+def move_metadata(src_md, dest_md, keys, new_key=None, sep='.'):
+    """Remove a key from metadata and add it to a dictionary.
+
+    Parameters
+    ----------
+    src_md: nested dict
+        Metadata from which a key is removed.
+    dest_md: dict
+        Dictionary to which the found key and its value are added.
+    keys: str or list of str
+        List of keys to be searched for in `src_md`.
+        Move the first one found to `dest_md`.
+        See the `audiometadata.find_key()` function for details.
+    new_key: None or str
+        If specified add the value of the found key as `new_key` to
+        `dest_md`. Otherwise, use the search key.
+    sep: str
+        String that separates section names in `keys`.
+    
+    Examples
+    --------
+    ```
+    >>> from audioio import print_metadata, move_metadata
+    >>> md = dict(Artist='John Doe', Recording=dict(Gain='1.42mV'))
+    >>> move_metadata(md, md['Recording'], 'Artist', 'Experimentalist')
+    >>> print_metadata(md)
+    Recording:
+        Gain           : 1.42mV
+        Experimentalist: John Doe
+    ```
+    
     """
     if not src_md:
         return
-    if not isinstance(key_list, (list, tuple, np.ndarray)):
-        key_list = (key_list,)
-    for key in key_list:
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    for key in keys:
         m, k = find_key(src_md, key, sep)
         if k in m:
-            dest_md[k] = m.pop(k)
+            dest_key = new_key if new_key else k
+            dest_md[dest_key] = m.pop(k)
+            break
 
             
 def remove_metadata(metadata, key_list, sep='.'):
