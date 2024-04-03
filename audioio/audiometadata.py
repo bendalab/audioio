@@ -1366,6 +1366,11 @@ def move_metadata(src_md, dest_md, keys, new_key=None, sep='.'):
         `dest_md`. Otherwise, use the search key.
     sep: str
         String that separates section names in `keys`.
+
+    Returns
+    -------
+    moved: bool
+        `True` if key was found and moved to dictionary.
     
     Examples
     --------
@@ -1381,7 +1386,7 @@ def move_metadata(src_md, dest_md, keys, new_key=None, sep='.'):
     
     """
     if not src_md:
-        return
+        return False
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
     for key in keys:
@@ -1389,7 +1394,8 @@ def move_metadata(src_md, dest_md, keys, new_key=None, sep='.'):
         if k in m:
             dest_key = new_key if new_key else k
             dest_md[dest_key] = m.pop(k)
-            break
+            return True
+    return False
 
             
 def remove_metadata(metadata, key_list, sep='.'):

@@ -186,12 +186,16 @@ def test_add_metadata():
      
 def test_move_metadata():
     md = dict(Artist='John Doe', Recording=dict(Gain='1.42mV'))
-    amd.move_metadata(md, md['Recording'], 'Artist', 'Experimentalist')
+    m = amd.move_metadata(md, md, 'xxxx')
+    assert_false(m, 'move_metadata()')
+    m = amd.move_metadata(md, md['Recording'], 'Artist', 'Experimentalist')
+    assert_true(m, 'move_metadata()')
     assert_equal(len(md), 1, 'move_metadata()')
     assert_equal(len(md['Recording']), 2, 'move_metadata()')
     assert_true('Experimentalist' in md['Recording'], 'move_metadata()')
     assert_equal(md['Recording']['Experimentalist'], 'John Doe', 'move_metadata()')
-    amd.move_metadata(md, md, 'Experimentalist')
+    m = amd.move_metadata(md, md, 'Experimentalist')
+    assert_true(m, 'move_metadata()')
     assert_equal(len(md), 2, 'move_metadata()')
     assert_equal(len(md['Recording']), 1, 'move_metadata()')
     assert_true('Experimentalist' in md, 'move_metadata()')
