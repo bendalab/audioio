@@ -664,7 +664,8 @@ def find_key(metadata, key, sep='.'):
     return mm, kk
 
 
-def get_number_unit(metadata, keys, sep='.', default=None, default_unit=''):
+def get_number_unit(metadata, keys, sep='.', default=None,
+                    default_unit='', remove=False):
     """Find a key in metadata and return its number and unit.
 
     Parameters
@@ -684,6 +685,8 @@ def get_number_unit(metadata, keys, sep='.', default=None, default_unit=''):
     default_unit: str
         Returned unit if `key` is not found or the key's value does
         not have a unit.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -738,13 +741,15 @@ def get_number_unit(metadata, keys, sep='.', default=None, default_unit=''):
             if v is not None:
                 if not u:
                     u = default_unit
+                if remove:
+                    del m[k]
                 return v, u
             elif u and unit == default_unit:
                 unit = u
     return value, unit
 
 
-def get_number(metadata, unit, keys, sep='.', default=None):
+def get_number(metadata, unit, keys, sep='.', default=None, remove=False):
     """Find a key in metadata and return its value in a given unit.
 
     Parameters
@@ -763,6 +768,8 @@ def get_number(metadata, unit, keys, sep='.', default=None):
     default: None, int, or float
         Returned value if `key` is not found or the value does
         not contain a number.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -805,14 +812,14 @@ def get_number(metadata, unit, keys, sep='.', default=None):
     ```
 
     """
-    v, u = get_number_unit(metadata, keys, sep, None, unit)
+    v, u = get_number_unit(metadata, keys, sep, None, unit, remove)
     if v is None:
         return default
     else:
         return change_unit(v, u, unit)
 
 
-def get_int(metadata, keys, sep='.', default=None):
+def get_int(metadata, keys, sep='.', default=None, remove=False):
     """Find a key in metadata and return its integer value.
 
     Parameters
@@ -829,6 +836,8 @@ def get_int(metadata, keys, sep='.', default=None):
     default: None or int
         Return value if `key` is not found or the value does
         not contain an integer.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -876,11 +885,13 @@ def get_int(metadata, keys, sep='.', default=None):
         if k in m:
             v, _, n = parse_number(m[k])
             if v is not None and n == 0:
+                if remove:
+                    del m[k]
                 return int(v)
     return default
 
 
-def get_bool(metadata, keys, sep='.', default=None):
+def get_bool(metadata, keys, sep='.', default=None, remove=False):
     """Find a key in metadata and return its boolean value.
 
     Parameters
@@ -897,6 +908,8 @@ def get_bool(metadata, keys, sep='.', default=None):
     default: None or bool
         Return value if `key` is not found or the value does
         not specify a boolean value.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -963,8 +976,12 @@ def get_bool(metadata, keys, sep='.', default=None):
                 val = abs(v) > 1e-8
             elif isinstance(vs, str):
                 if vs.upper() in ['TRUE', 'T', 'YES', 'Y']:
+                    if remove:
+                        del m[k]
                     return True
                 if vs.upper() in ['FALSE', 'F', 'NO', 'N']:
+                    if remove:
+                        del m[k]
                     return False
     return val
 
@@ -978,7 +995,7 @@ Used by `get_datetime()` and `update_starttime()` functions.
 """
 
 def get_datetime(metadata, keys=default_starttime_keys,
-                 sep='.', default=None):
+                 sep='.', default=None, remove=False):
     """Find keys in metadata and return a datatime.
 
     Parameters
@@ -1000,6 +1017,8 @@ def get_datetime(metadata, keys=default_starttime_keys,
     default: None or str
         Return value if `key` is not found or the value does
         not contain a string.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -1047,34 +1066,42 @@ def get_datetime(metadata, keys=default_starttime_keys,
         if len(keyp) == 1:
             m, k = find_key(metadata, keyp[0], sep)
             if k in m:
-                if isinstance(m[k], dt.datetime):
-                    return m[k]
-                elif isinstance(m[k], str):
-                    return dt.datetime.fromisoformat(m[k])
+                v = m[k]
+                if isinstance(v, dt.datetime):
+                    if remove:
+                        del m[k]
+                    return v
+                elif isinstance(v, str):
+                    if remove:
+                        del m[k]
+                    return dt.datetime.fromisoformat(v)
         else:
-            m, k = find_key(metadata, keyp[0], sep)
-            if not k in m:
+            md, kd = find_key(metadata, keyp[0], sep)
+            if not kd in md:
                 continue
-            if isinstance(m[k], dt.date):
-                date = m[k]
-            elif isinstance(m[k], str):
-                date = dt.date.fromisoformat(m[k])
+            if isinstance(md[kd], dt.date):
+                date = md[kd]
+            elif isinstance(md[kd], str):
+                date = dt.date.fromisoformat(md[kd])
             else:
                 continue
-            m, k = find_key(metadata, keyp[1], sep)
-            if not k in m:
+            mt, kt = find_key(metadata, keyp[1], sep)
+            if not kt in mt:
                 continue
-            if isinstance(m[k], dt.datetime):
-                time = m[k]
-            elif isinstance(m[k], str):
-                time = dt.time.fromisoformat(m[k])
+            if isinstance(mt[kt], dt.datetime):
+                time = mt[kt]
+            elif isinstance(mt[kt], str):
+                time = dt.time.fromisoformat(mt[kt])
             else:
                 continue
+            if remove:
+                del md[kd]
+                del mt[kt]
             return dt.datetime.combine(date, time)
     return default
 
 
-def get_str(metadata, keys, sep='.', default=None):
+def get_str(metadata, keys, sep='.', default=None, remove=False):
     """Find a key in metadata and return its string value.
 
     Parameters
@@ -1091,6 +1118,8 @@ def get_str(metadata, keys, sep='.', default=None):
     default: None or str
         Return value if `key` is not found or the value does
         not contain a string.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -1134,7 +1163,10 @@ def get_str(metadata, keys, sep='.', default=None):
     for key in keys:
         m, k = find_key(metadata, key, sep)
         if k in m and not isinstance(m[k], dict):
-            return str(m[k])
+            v = m[k]
+            if remove:
+                del m[k]
+            return str(v)
     return default
 
 
@@ -1432,7 +1464,7 @@ default_gain_keys = ['gain']
 """
 
 def get_gain(metadata, gain_key=default_gain_keys, sep='.',
-             default=None, default_unit=''):
+             default=None, default_unit='', remove=False):
     """Get gain and unit from metadata.
 
     Parameters
@@ -1452,6 +1484,8 @@ def get_gain(metadata, gain_key=default_gain_keys, sep='.',
         Returned value if no valid gain was found in `metadata`.
     default_unit: str
         Returned unit if no valid gain was found in `metadata`.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
 
     Returns
     -------
@@ -1460,7 +1494,8 @@ def get_gain(metadata, gain_key=default_gain_keys, sep='.',
     unit: string
         Unit of the data if found in the metadata, otherwise "a.u.".
     """
-    v, u = get_number_unit(metadata, gain_key, sep, default, default_unit)
+    v, u = get_number_unit(metadata, gain_key, sep, default,
+                           default_unit, remove)
     # fix some TeeGrid gains:
     if len(u) >= 2 and u[-2:] == '/V':
         u = u[:-2]

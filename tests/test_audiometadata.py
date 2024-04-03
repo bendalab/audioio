@@ -279,6 +279,8 @@ def test_get_number_unit():
     v, u = amd.get_number_unit(md, 'cccc', default=1.0, default_unit='a.u.')
     assert_equal(v, 1.0, 'get defaults')
     assert_equal(u, 'a.u.', 'get defaults key')
+    v, u = amd.get_number_unit(md, 'bbbb', remove=True)
+    assert_true(not 'bbbb' in md)
     v, u = amd.get_number_unit(None, 'cccc')
     assert_equal(v, None, 'get None from None metadata')
     assert_equal(u, '', 'get empty unit from None metadata')
@@ -300,6 +302,8 @@ def test_get_number():
     assert_equal(v, 1.0, 'get number with default value')
     v = amd.get_number(None, 's', 'cccc')
     assert_equal(v, None, 'get None from None metadata')
+    v = amd.get_number(md, 's', 'bbbb', remove=True)
+    assert_true(not 'bbbb' in md)
 
 
 def test_get_int():
@@ -318,6 +322,10 @@ def test_get_int():
     assert_equal(v, 1, 'get default')
     v = amd.get_int(None, 'cccc')
     assert_equal(v, None, 'get None from None metadata')
+    v = amd.get_int(md, 'bbbb', remove=True)
+    assert_true('bbbb' in md)
+    v = amd.get_int(md, 'aaaa', remove=True)
+    assert_true(not 'aaaa' in md)
 
 
 def test_bool():
@@ -342,6 +350,8 @@ def test_bool():
     assert_equal(v, False, 'get boolean default')
     v = amd.get_bool(None, 'ffff')
     assert_equal(v, None, 'get None from None metadata')
+    v = amd.get_bool(md, 'bbbb', remove=True)
+    assert_true(not 'bbbb' in md)
 
 
 def test_get_datetime():
@@ -358,6 +368,11 @@ def test_get_datetime():
     v = amd.get_datetime(md, ('cccc', 'dddd'),
                          default=dt.datetime(2022, 2, 22, 22, 2, 12))
     assert_equal(v, dt.datetime(2022, 2, 22, 22, 2, 12), 'get default datetime with invalid key')
+    v = amd.get_datetime(md, ('date', 'time'), remove=True)
+    assert_true(not 'date' in md)
+    assert_true(not 'time' in md)
+    v = amd.get_datetime(md, ('datetime',), remove=True)
+    assert_true(not 'datetime' in md)
 
 
 def test_update_starttime():
@@ -396,6 +411,8 @@ def test_get_str():
     assert_equal(v, '-', 'get default')
     v = amd.get_str(None, 'cccc')
     assert_equal(v, None, 'get None from None metadata')
+    v = amd.get_str(md, 'bbbb', remove=True)
+    assert_true(not 'bbbb' in md)
 
     
 def test_gain():
@@ -449,6 +466,8 @@ def test_gain():
     r = amd.update_gain(md, 2)
     assert_equal(md['Recording']['xgain'], '1.4mV')
     assert_equal(r, False)
+    f, u = amd.get_gain(md, 'xgain', remove=True)
+    assert_true(not 'xgain' in md['Recording'])
 
     f, u = amd.get_gain(None)
     assert_equal(f, None)
