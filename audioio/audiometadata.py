@@ -1415,14 +1415,12 @@ def remove_metadata(metadata, key_list, sep='.'):
     --------
     ```
     >>> from audioio import print_metadata, remove_metadata
-    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)))
+    >>> md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4))
     >>> remove_metadata(md, ('ccc',))
     >>> print_metadata(md)
     aaaa: 2
     bbbb:
         ddd: 4
-        eee:
-            ff: 5
     ```
 
     """
