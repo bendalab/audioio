@@ -634,20 +634,6 @@ def find_key(metadata, key, sep='.'):
                 elif isinstance(metadata[k], dict): 
                     # keep searching within the next section:
                     return find_keys(metadata[k], keys[1:])
-                break
-            """
-                if isinstance(metadata[k], dict):
-                    if len(keys) > 1:
-                        # keep searching within the next section:
-                        return find_keys(metadata[k], keys[1:])
-                    else:
-                        # found section:
-                        return True, metadata[k], None
-                elif len(keys) == 1:
-                    # found key-value pair:
-                    return True, metadata, k
-                break
-            """
         # search in subsections:
         for k in metadata:
             if isinstance(metadata[k], dict):
@@ -967,6 +953,8 @@ def get_bool(metadata, keys, sep='.', default=None, remove=False):
     if not isinstance(keys, (list, tuple, np.ndarray)):
         keys = (keys,)
     val = default
+    mv = None
+    kv = None
     for key in keys:
         m, k = find_key(metadata, key, sep)
         if k in m and not isinstance(m[k], dict):
@@ -974,6 +962,8 @@ def get_bool(metadata, keys, sep='.', default=None, remove=False):
             v, _, _ = parse_number(vs)
             if v is not None:
                 val = abs(v) > 1e-8
+                mv = m
+                kv = k
             elif isinstance(vs, str):
                 if vs.upper() in ['TRUE', 'T', 'YES', 'Y']:
                     if remove:
@@ -983,6 +973,8 @@ def get_bool(metadata, keys, sep='.', default=None, remove=False):
                     if remove:
                         del m[k]
                     return False
+    if not mv is None and not kv is None and remove:
+        del mv[kv]
     return val
 
 
@@ -1088,7 +1080,7 @@ def get_datetime(metadata, keys=default_starttime_keys,
             mt, kt = find_key(metadata, keyp[1], sep)
             if not kt in mt:
                 continue
-            if isinstance(mt[kt], dt.datetime):
+            if isinstance(mt[kt], dt.time):
                 time = mt[kt]
             elif isinstance(mt[kt], str):
                 time = dt.time.fromisoformat(mt[kt])

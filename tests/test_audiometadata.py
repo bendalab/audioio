@@ -166,10 +166,13 @@ def test_set_metadata():
      md = dict(Recording=dict(Time='early'))
      amd.set_metadata(md, ['Artist=John Doe',
                            'Recording.Time=late'])
-     print(md)
      assert_equal(md['Recording']['Time'], 'late', 'set_metadata')
      assert_equal(len(md), 1, 'set_metadata')
      assert_equal(len(md['Recording']), 1, 'set_metadata')
+     assert_equal(md['Recording']['Time'], 'late')
+     amd.set_metadata(md, 'Time=very late')
+     assert_equal(md['Recording']['Time'], 'very late')
+     amd.set_metadata(None, 'Artist=John Doe')
 
     
 def test_add_metadata():
@@ -182,6 +185,8 @@ def test_add_metadata():
      assert_equal(md['Recording']['Quality'], 'amazing', 'add_metadata')
      assert_equal(md['Artist'], 'John Doe', 'add_metadata')
      assert_equal(md['Location']['Country'], 'Lummerland', 'add_metadata')
+     amd.add_metadata(md, 'Artist=John Doe')
+     amd.add_metadata(None, 'Artist=John Doe')
 
      
 def test_move_metadata():
@@ -200,6 +205,8 @@ def test_move_metadata():
     assert_equal(len(md['Recording']), 1, 'move_metadata()')
     assert_true('Experimentalist' in md, 'move_metadata()')
     assert_equal(md['Experimentalist'], 'John Doe', 'move_metadata()')
+    m = amd.move_metadata(None, md, 'xxxx')
+    assert_false(m, 'move_metadata()')
 
     
 def test_parse_number():
@@ -243,6 +250,10 @@ def test_parse_number():
     assert_equal(v, 42.1, 'parse float')
     assert_equal(u, '', 'parse float')
     assert_equal(n, 5, 'parse float')
+    v, u, n = amd.parse_number([42.3])
+    assert_equal(v, None, 'parse list')
+    assert_equal(u, '', 'parse list')
+    assert_equal(n, 0, 'parse list')
 
      
 def test_change_unit():
@@ -264,6 +275,8 @@ def test_change_unit():
     assert_equal(v, 150.0, 'change unit')
     v = amd.change_unit(3600, 's', 'h')
     assert_equal(v, 1.0, 'change unit')
+    v = amd.change_unit(5, '', '')
+    assert_equal(v, 5, 'change unit')
 
     
 def test_get_number_unit():
@@ -354,14 +367,24 @@ def test_bool():
     assert_equal(v, False, 'get boolean default')
     v = amd.get_bool(None, 'ffff')
     assert_equal(v, None, 'get None from None metadata')
+    v = amd.get_bool(md, 'cccc', remove=True)
+    assert_true(not 'cccc' in md)
     v = amd.get_bool(md, 'bbbb', remove=True)
     assert_true(not 'bbbb' in md)
+    v = amd.get_bool(md, 'aaaa', remove=True)
+    assert_true(not 'aaaa' in md)
 
 
 def test_get_datetime():
     md = dict(date='2024-03-02', time='10:42:24',
-              datetime='2023-04-15T22:10:00')
+              datetime='2023-04-15T22:10:00',
+              dtdate=dt.date.fromisoformat('2024-03-02'),
+              dttime=dt.time.fromisoformat('10:42:24'),
+              dtdatetime=dt.datetime.fromisoformat('2023-04-15T22:10:00'),
+              xdate=2024, xtime=10, xdatetime=2024)
     v = amd.get_datetime(md, ('date', 'time'))
+    assert_equal(v, dt.datetime(2024, 3, 2, 10, 42, 24), 'get datetime with pair of date and time strings')
+    v = amd.get_datetime(md, ('dtdate', 'dttime'))
     assert_equal(v, dt.datetime(2024, 3, 2, 10, 42, 24), 'get datetime with pair of date and time')
     v = amd.get_datetime(md, ('datetime',))
     assert_equal(v, dt.datetime(2023, 4, 15, 22, 10), 'get datetime with single datetime string')
@@ -369,14 +392,31 @@ def test_get_datetime():
     assert_equal(v, dt.datetime(2024, 3, 2, 10, 42, 24), 'get datetime with invalid key and pair of date and time')
     v = amd.get_datetime(md, ('cccc',))
     assert_equal(v, None, 'get datetime with invalid key')
+    v = amd.get_datetime(md, ('xdatetime',))
+    assert_equal(v, None, 'get datetime with invalid type')
+    v = amd.get_datetime(md, ('cccc', 'dddd'))
+    assert_equal(v, None, 'get date and time with invalid key')
+    v = amd.get_datetime(md, ('date', 'dddd'))
+    assert_equal(v, None, 'get date and time with invalid key')
+    v = amd.get_datetime(md, ('xdate', 'xtime'))
+    assert_equal(v, None, 'get date and time with invalid type')
+    v = amd.get_datetime(md, ('date', 'xtime'))
+    assert_equal(v, None, 'get date and time with invalid type')
     v = amd.get_datetime(md, ('cccc', 'dddd'),
                          default=dt.datetime(2022, 2, 22, 22, 2, 12))
     assert_equal(v, dt.datetime(2022, 2, 22, 22, 2, 12), 'get default datetime with invalid key')
     v = amd.get_datetime(md, ('date', 'time'), remove=True)
     assert_true(not 'date' in md)
     assert_true(not 'time' in md)
+    v = amd.get_datetime(md, ('dtdate', 'dttime'), remove=True)
+    assert_true(not 'dtdate' in md)
+    assert_true(not 'dttime' in md)
     v = amd.get_datetime(md, ('datetime',), remove=True)
     assert_true(not 'datetime' in md)
+    v = amd.get_datetime(md, ('dtdatetime',), remove=True)
+    assert_true(not 'datetime' in md)
+    v = amd.get_datetime(None, 'ffff')
+    assert_equal(v, None, 'get None from None metadata')
 
 
 def test_update_starttime():
@@ -424,8 +464,14 @@ def test_gain():
     f, u = amd.get_gain(md)
     assert_equal(f, 1.42)
     assert_equal(u, 'mV')
-    amd.update_gain(md, 2)
+    r = amd.update_gain(md, 2)
+    assert_true(r, 'update_gain()')
     assert_equal(md['Gain'], '0.710mV')
+    r = amd.update_gain(md, 2, 'gain')
+    assert_true(r, 'update_gain()')
+    assert_equal(md['Gain'], '0.3550mV')
+    r = amd.update_gain(None, 2)
+    assert_false(r, 'update_gain()')
     
     md = dict(Gain='1.42mV/V')
     f, u = amd.get_gain(md)
@@ -494,14 +540,16 @@ def test_bext_history_str():
 
     
 def test_add_history():
+    r = amd.add_history(None, 'just a snippet')
+    assert_false(r, 'add_history()')
     md = dict(aaa='xyz', BEXT=dict(CodingHistory='original recordings'))
     r = amd.add_history(md, 'just a snippet')
-    assert_equal(r, True, 'add_history()')
+    assert_true(r, 'add_history()')
     assert_equal(md['BEXT']['CodingHistory'], 'original recordings\r\njust a snippet', 'added history')
     
     md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
     r = amd.add_history(md, 'just a snippet')
-    assert_equal(r, False, 'add_history() no field')
+    assert_false(r, 'add_history() no field')
     
     r = amd.add_history(md, 'just a snippet', 'BEXT.CodingHistory')
     assert_equal(r, True, 'add_history() added missing field')
@@ -539,7 +587,7 @@ def test_remove_metadata():
     amd.remove_metadata(md, ('ccc',))
     assert_true('ccc' not in md['bbbb'], 'remove metadata')
     amd.remove_metadata(md, ('xxx',))
-    amd.remove_metadata(md, ('eee',))
+    amd.remove_metadata(md, 'eee')
     assert_true('eee' not in md['bbbb'], 'remove metadata section')
     amd.remove_metadata(None, ('ccc',))
 
@@ -573,6 +621,8 @@ def test_main():
     amd.main('-f', 'test.wav')
     amd.main('-m', 'test.wav')
     amd.main('-c', 'test.wav')
+    amd.main('-t', 'test.wav')
+    amd.main('-t', 'test.wav', 'test.wav')
     amd.main('-m', '-c', 'test.wav')
     aw.write_audio(filename, data, rate, md, locs)
     amd.main('test.wav')
