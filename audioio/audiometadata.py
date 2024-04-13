@@ -50,6 +50,7 @@ Find keys and get their values parsed and converted to various types:
 
 Add and remove metadata:
 
+- `strlist_to_dict()`: convert list of key-value-pair strings to dictionary.
 - `add_sections()`: add sections to metadata dictionary.
 - `set_metadata()`: set values of existing metadata.
 - `add_metadata()`: add or modify key-value pairs.
@@ -1238,9 +1239,43 @@ def add_sections(metadata, sections, value=False, sep='.'):
     else:
         return mm
 
-        
-def set_metadata(metadata, md_list, sep='.'):
-    """Set value of existing metadata.
+
+def strlist_to_dict(mds):
+    """Convert list of key-value-pair strings to dictionary.
+
+    Parameters
+    ----------
+    mds: None or dict or str or list of str
+        - None - returns empty dictionary.
+        - Flat dictionary - returned as is.
+        - String with key and value separated by '='.
+        - List of strings with keys and values separated by '='.
+        Keys may contain section names.
+
+    Returns
+    -------
+    md_dict: dict
+        Flat dictionary with key-value pairs.
+        Keys may contain section names.
+        Values are strings, simple types or dictionaries.
+    """
+    if mds is None:
+        return {}
+    if isinstance(mds, dict):
+        return mds
+    if not isinstance(mds, (list, tuple, np.ndarray)):
+        mds = (mds,)
+    md_dict = {}
+    for md in mds:
+        k, v = md.split('=')
+        k = k.strip()
+        v = v.strip()
+        md_dict[k] = v
+    return md_dict
+
+
+def set_metadata(metadata, mds, sep='.'):
+    """Set values of existing metadata.
 
     Only if a key is found in the metadata, its value is updated.
 
@@ -1248,11 +1283,14 @@ def set_metadata(metadata, md_list, sep='.'):
     ----------
     metadata: nested dict
         Metadata.
-    md_list: str or list of str
-        List of key-value pairs for updating the metadata.
-        Values are separated from keys by '='.
+    mds: dict or str or list of str
+        - Flat dictionary with key-value pairs for updating the metadata.
+          Values can be strings or other simple types or dictionaries.
+        - String with key and value separated by '='.
+        - List of strings with key and value separated by '='.
+        Keys may contain section names separated by `sep`.
     sep: str
-        String that separates section names in the keys of `md_list`.
+        String that separates section names in the keys of `md_dict`.
 
     Examples
     --------
@@ -1263,8 +1301,8 @@ def set_metadata(metadata, md_list, sep='.'):
     Recording:
         Time: early
 
-    >>> set_metadata(md, ['Artist=John Doe',       # new key-value pair
-                          'Recording.Time=late'])  # change value of existing key
+    >>> set_metadata(md, {'Artist': 'John Doe',       # new key-value pair
+                          'Recording.Time': 'late'})  # change value of existing key
     >>> print_metadata(md)
     Recording:
         Time   : late
@@ -1273,20 +1311,19 @@ def set_metadata(metadata, md_list, sep='.'):
     See also
     --------
     add_metadata()
+    strlist_to_dict()
 
     """
     if metadata is None:
         return
-    if not isinstance(md_list, (list, tuple, np.ndarray)):
-        md_list = (md_list,)
-    for md in md_list:
-        k, v = md.split('=')
+    md_dict = strlist_to_dict(mds)
+    for k in md_dict:
         mm, kk = find_key(metadata, k, sep)
         if kk in mm:
-            mm[kk] = v.strip()
+            mm[kk] = md_dict[k]
 
         
-def add_metadata(metadata, md_list, sep='.'):
+def add_metadata(metadata, mds, sep='.'):
     """Add or modify key-value pairs.
 
     If a key does not exist, it is added to the metadata.
@@ -1295,9 +1332,12 @@ def add_metadata(metadata, md_list, sep='.'):
     ----------
     metadata: nested dict
         Metadata.
-    md_list: str or list of str
-        List of key-value pairs for updating the metadata.
-        Values are separated from keys by '='.
+    mds: dict or str or list of str
+        - Flat dictionary with key-value pairs for updating the metadata.
+          Values can be strings or other simple types or dictionaries.
+        - String with key and value separated by '='.
+        - List of strings with key and value separated by '='.
+        Keys may contain section names separated by `sep`.
     sep: str
         String that separates section names in the keys of `md_list`.
 
@@ -1310,10 +1350,10 @@ def add_metadata(metadata, md_list, sep='.'):
     Recording:
         Time: early
 
-    >>> add_metadata(md, ['Artist=John Doe',               # new key-value pair
-                          'Recording.Time=late',           # change value of existing key 
-                          'Recording.Quality=amazing',     # new key-value pair in existing section
-                          'Location.Country=Lummerland'])  # new key-value pair in new section
+    >>> add_metadata(md, {'Artist': 'John Doe',               # new key-value pair
+                          'Recording.Time': 'late',           # change value of existing key 
+                          'Recording.Quality': 'amazing',     # new key-value pair in existing section
+                          'Location.Country': 'Lummerland'])  # new key-value pair in new section
     >>> print_metadata(md)
     Recording:
         Time   : late
@@ -1326,17 +1366,16 @@ def add_metadata(metadata, md_list, sep='.'):
     See also
     --------
     set_metadata()
+    strlist_to_dict()
 
     """
     if metadata is None:
         return
-    if not isinstance(md_list, (list, tuple, np.ndarray)):
-        md_list = (md_list,)
-    for md in md_list:
-        k, v = md.split('=')
+    md_dict = strlist_to_dict(mds)
+    for k in md_dict:
         mm, kk = find_key(metadata, k, sep)
         mm, kk = add_sections(mm, kk, True, sep)
-        mm[kk] = v.strip()
+        mm[kk] = md_dict[k]
 
 
 

@@ -162,31 +162,46 @@ def test_add_sections():
     assert_equal(k, '', 'added empty key-value pair')
 
     
+def test_strlist_to_dict():
+    mds = amd.strlist_to_dict(None)
+    assert_equal(mds, {}, 'strlist_to_dict')
+    md = dict(aaa=43)
+    mds = amd.strlist_to_dict(md)
+    assert_equal(mds, md, 'strlist_to_dict')
+    mds = amd.strlist_to_dict('Artist=John Doe')
+    assert_equal(len(mds), 1, 'strlist_to_dict')
+    assert_equal(mds['Artist'], 'John Doe', 'strlist_to_dict')
+    mds = amd.strlist_to_dict(['Artist=John Doe', 'Recording.Time=late'])
+    assert_equal(len(mds), 2, 'strlist_to_dict')
+    assert_equal(mds['Artist'], 'John Doe', 'strlist_to_dict')
+    assert_equal(mds['Recording.Time'], 'late', 'strlist_to_dict')
+
+    
 def test_set_metadata():
      md = dict(Recording=dict(Time='early'))
-     amd.set_metadata(md, ['Artist=John Doe',
-                           'Recording.Time=late'])
+     amd.set_metadata(md, {'Artist': 'John Doe',
+                           'Recording.Time': 'late'})
      assert_equal(md['Recording']['Time'], 'late', 'set_metadata')
      assert_equal(len(md), 1, 'set_metadata')
      assert_equal(len(md['Recording']), 1, 'set_metadata')
      assert_equal(md['Recording']['Time'], 'late')
-     amd.set_metadata(md, 'Time=very late')
+     amd.set_metadata(md, {'Time': 'very late'})
      assert_equal(md['Recording']['Time'], 'very late')
-     amd.set_metadata(None, 'Artist=John Doe')
+     amd.set_metadata(None, {'Artist': 'John Doe'})
 
     
 def test_add_metadata():
      md = dict(Recording=dict(Time='early'))
-     amd.add_metadata(md, ['Artist=John Doe',
-                           'Recording.Time=late',
-                           'Recording.Quality=amazing',
-                           'Location.Country=Lummerland'])
+     amd.add_metadata(md, {'Artist': 'John Doe',
+                           'Recording.Time': 'late',
+                           'Recording.Quality': 'amazing',
+                           'Location.Country': 'Lummerland'})
      assert_equal(md['Recording']['Time'], 'late', 'add_metadata')
      assert_equal(md['Recording']['Quality'], 'amazing', 'add_metadata')
      assert_equal(md['Artist'], 'John Doe', 'add_metadata')
      assert_equal(md['Location']['Country'], 'Lummerland', 'add_metadata')
-     amd.add_metadata(md, 'Artist=John Doe')
-     amd.add_metadata(None, 'Artist=John Doe')
+     amd.add_metadata(md, {'Artist': 'John Doe'})
+     amd.add_metadata(None, {'Artist': 'John Doe'})
 
      
 def test_move_metadata():
