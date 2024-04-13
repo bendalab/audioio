@@ -100,8 +100,8 @@ def test_metadata():
 
 def test_flatten():
     md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4),
-              eeee=dict(fff=5, ggg=dict(hh=6)),
-              iiii=dict(jjj=7))
+              eeee=dict(fff=[5, 6, 7], ggg=dict(hh=6)),
+              iiii=7)
 
     fmd = amd.flatten_metadata(md, False)
     fmd = amd.flatten_metadata(md, True)
@@ -424,21 +424,48 @@ def test_update_starttime():
               OtherTime='2023-05-16T23:20:10',
               BEXT=dict(OriginationDate='2024-03-02',
                         OriginationTime='10:42:24',
-                        TimeReference=123456))
+                        TimeReference='123456'))
     r = amd.update_starttime(None, 4.2, 48000)
-    assert_equal(r, False, 'update_starttime() without metadata')
-    r = amd.update_starttime(md, 4.2, 48000)
-    assert_equal(r, True, 'update_starttime() with metadata')
+    assert_false(r, 'update_starttime() without metadata')
+    r = amd.update_starttime(md, 4.2, 48000,
+                             time_keys=[['xxx'], ['yyy', 'zzzz'], ['OriginationDate', 'zzzz']] + amd.default_starttime_keys)
+    assert_true(r, 'update_starttime() with metadata')
     assert_equal(md['DateTimeOriginal'], '2023-04-15T22:10:04',
                  'update_starttime() with metadata')
     assert_equal(md['BEXT']['OriginationDate'], '2024-03-02',
                  'update_starttime() with metadata')
     assert_equal(md['BEXT']['OriginationTime'], '10:42:28',
                  'update_starttime() with metadata')
-    assert_equal(md['BEXT']['TimeReference'], 123456 + int(4.2*48000),
+    assert_equal(md['BEXT']['TimeReference'], str(123456 + int(4.2*48000)),
                  'update_starttime() with metadata')
     assert_equal(md['OtherTime'], '2023-05-16T23:20:10',
                  'update_starttime() with metadata')
+    r = amd.update_starttime(md, 4.2, 48000, time_keys=['DateTimeOriginal'],
+                             ref_keys='TimeReference')
+    assert_true(r, 'update_starttime() with metadata')
+    assert_equal(md['DateTimeOriginal'], '2023-04-15T22:10:08',
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['TimeReference'], str(123456 + int(2*4.2*48000)),
+                 'update_starttime() with metadata')
+
+    md = dict(DateTimeOriginal=dt.datetime.fromisoformat('2023-04-15T22:10:00'),
+              OtherTime=dt.datetime.fromisoformat('2023-05-16T23:20:10'),
+              BEXT=dict(OriginationDate=dt.date.fromisoformat('2024-03-02'),
+                        OriginationTime=dt.time.fromisoformat('10:42:24'),
+                        TimeReference=123456))
+    r = amd.update_starttime(md, 4.2, 48000)
+    assert_true(r, 'update_starttime() with metadata')
+    assert_equal(md['DateTimeOriginal'], dt.datetime.fromisoformat('2023-04-15T22:10:04.200'),
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['OriginationDate'], dt.date.fromisoformat('2024-03-02'),
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['OriginationTime'], dt.time.fromisoformat('10:42:28.200'),
+                 'update_starttime() with metadata')
+    assert_equal(md['BEXT']['TimeReference'], 123456 + int(4.2*48000),
+                 'update_starttime() with metadata')
+    assert_equal(md['OtherTime'], dt.datetime.fromisoformat('2023-05-16T23:20:10'),
+                 'update_starttime() with metadata')
+    
 
     
 def test_get_str():
@@ -546,6 +573,11 @@ def test_add_history():
     r = amd.add_history(md, 'just a snippet')
     assert_true(r, 'add_history()')
     assert_equal(md['BEXT']['CodingHistory'], 'original recordings\r\njust a snippet', 'added history')
+    md = dict(aaa='xyz', BEXT=dict(CodingHistory='original recordings'))
+    r = amd.add_history(md, 'just a snippet', history_keys='CodingHistory')
+    assert_true(r, 'add_history()')
+    r = amd.add_history(md, 'just a snippet', history_keys='History')
+    assert_false(r, 'add_history()')
     
     md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
     r = amd.add_history(md, 'just a snippet')
