@@ -3,17 +3,61 @@
 To interface the various ways metadata are stored in audio files, the
 `audioio` package uses nested dictionaries.  The keys are always
 strings. Values are strings, integers, floats, datetimes, or other
-simple types for key-value pairs. Value strings can also be numbers
-followed by a unit. For defining subsections of key-value pairs,
-values can be dictionaries. The dictionaries can be nested to
-arbitrary depth.
+simple types. Value strings can also be numbers followed by a unit,
+e.g. "4.2mV". For defining subsections of key-value pairs, values can
+be dictionaries. The dictionaries can be nested to arbitrary depth.
+
+```txt
+>>> from audioio import print_metadata
+>>> md = dict(Recording=dict(Experimenter='John Doe',
+                             DateTimeOriginal='2023-10-01T14:10:02',
+                             Count=42),
+               Hardware=dict(Amplifier='Teensy_Amp 4.1',
+                             Highpass='10Hz',
+                             Gain='120mV'))
+>>> print_metadata(md)
+Recording:
+    Experimenter    : John Doe
+    DateTimeOriginal: 2023-10-01T14:10:02
+    Count           : 42
+Hardware:
+    Amplifier: Teensy_Amp 4.1
+    Highpass : 10Hz
+    Gain     : 120mV
+```
 
 Often, audio files have very specific ways to store metadata. You can
 enforce using these by putting them into a dictionary that is added to
 the metadata with a key having the name of the metadata type you want,
-e.g. the "INFO", "BEXT", and "iXML" chunks of RIFF/WAVE files.
+e.g. the "INFO", "BEXT", "iXML", and "GUAN" chunks of RIFF/WAVE files.
 
 ## Functions
+
+The `audiometadata` module provides functions for handling and
+manipulating these nested dictionaries. Many functions take keys as
+arguments for finding or setting specific key-value pairs. These keys
+can be the key of a specific item of a (sub-) dictionary, no matter on
+which level of the metadata hierarchy it is. For example, simply
+searching for "Highpass" retrieves the corrseponding value "10Hz",
+although "Highpass" is contained in the sub-dictionary (or "section")
+with key "Hardware". The same item can also be specified together with
+its parent keys: "Hardware.Highpass". Parent keys (or section keys)
+are by default separated by '.', but all functions have a `sep`
+key-word that specifies the string separating section names in
+keys. Key matching is case insensitive.
+
+Since the same items are named by many different keys in the different
+types of metadata data models, the functions also take lists of keys
+as arguments.
+
+Do not forget that you can easily manipulate the metadata by means of
+the standard functions of dictionaries.
+
+If you need to make a copy of the metadata use `deepcopy`:
+```
+from copy import deepcopy
+md_orig = deepcopy(md)
+```
 
 ### Output
 
