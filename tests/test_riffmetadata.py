@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_false, assert_equal, assert_raises
+import pytest
 import os
 import numpy as np
 import audioio.riffmetadata as rm
@@ -21,37 +21,42 @@ def test_write():
     filename = 'test.wav'
     for encoding in ['PCM_16', 'PCM_32']:
         rm.write_wave(filename, data, rate, None, encoding=encoding)
-    assert_raises(ValueError, rm.write_wave, '', data, rate,
-                  None, encoding=encoding)
-    assert_raises(ValueError, rm.write_wave, filename, data, rate,
-                  None, encoding='XYZ')
+    with pytest.raises(ValueError):
+        rm.write_wave('', data, rate, None, encoding=encoding)
+    with pytest.raises(ValueError):
+        rm.write_wave(filename, data, rate, None, encoding='XYZ')
     with open(filename, 'wb') as df:
         rm.write_riff_chunk(df, 1000)
         rm.write_riff_chunk(df)
         rm.write_riff_chunk(df, 1000, '1234')
-        assert_raises(ValueError, rm.write_riff_chunk, df, 2000, tag='12345')
+        with pytest.raises(ValueError):
+            rm.write_riff_chunk(df, 2000, tag='12345')
         rm.write_chunk_name(df, 12, '1234')
-        assert_raises(ValueError, rm.write_chunk_name, df, 12, '123456')
+        with pytest.raises(ValueError):
+            rm.write_chunk_name(df, 12, '123456')
         n, t = rm.write_info_chunk(df, None)
-        assert_equal(n, 0, 'no info chunk')
-        assert_equal(len(t), 0, 'no info chunk')
+        assert n == 0, 'no info chunk'
+        assert len(t) == 0, 'no info chunk'
         n, t = rm.write_info_chunk(df, dict(INFO=dict(IART='John Doe', TITLX='TLDR')))
-        assert_equal(n, 0, 'no info chunk')
-        assert_equal(len(t), 0, 'no info chunk')
+        assert n == 0, 'no info chunk'
+        assert len(t) == 0, 'no info chunk'
         n, t = rm.write_bext_chunk(df, None)
-        assert_equal(n, 0, 'no bext chunk')
-        assert_equal(len(t), 0, 'no bext chunk')
+        assert n == 0, 'no bext chunk'
+        assert len(t) == 0, 'no bext chunk'
         n, t = rm.write_ixml_chunk(df, None)
-        assert_equal(n, 0, 'no ixml chunk')
-        assert_equal(len(t), 0, 'no ixml chunk')
+        assert n == 0, 'no ixml chunk'
+        assert len(t) == 0, 'no ixml chunk'
         n, t = rm.write_guano_chunk(df, None)
-        assert_equal(n, 0, 'no guano chunk')
-        assert_equal(len(t), 0, 'no odml chunk')
+        assert n == 0, 'no guano chunk'
+        assert len(t) == 0, 'no odml chunk'
         n = rm.write_cue_chunk(df, None)
-        assert_equal(n, 0, 'no cue chunk')
-        assert_raises(IndexError, rm.append_markers_riff, df, np.ones((4, 2)), np.zeros(3))
-    assert_raises(ValueError, rm.append_riff, '')
-    assert_raises(IndexError, rm.append_riff, filename, None, np.ones((4, 2)), np.zeros(3))
+        assert n == 0, 'no cue chunk'
+        with pytest.raises(IndexError):
+            rm.append_markers_riff(df, np.ones((4, 2)), np.zeros(3))
+    with pytest.raises(ValueError):
+        rm.append_riff('')
+    with pytest.raises(IndexError):
+        rm.append_riff(filename, None, np.ones((4, 2)), np.zeros(3))
     md = dict(Artist='John Doe')
     rm.append_riff(filename, md, np.ones((4, 2), dtype=int), np.zeros(4))
     rm.append_riff(filename, md, np.ones((4, 2), dtype=int), np.zeros(4))
@@ -65,17 +70,18 @@ def test_read():
     rm.write_wave(filename, data, rate, md)
     with open(filename, 'rb') as sf:
         n = rm.read_riff_header(sf)
-        assert_true(n > 0, 'riff header')
+        assert n > 0, 'riff header'
     with open(filename, 'rb') as sf:
         n = rm.read_riff_header(sf, 'WAVE')
-        assert_true(n > 0, 'riff header')
+        assert n > 0, 'riff header'
     with open(filename, 'rb') as sf:
-        assert_raises(ValueError, rm.read_riff_header, sf, 'XYZ ')
+        with pytest.raises(ValueError):
+            rm.read_riff_header(sf, 'XYZ ')
     chunks = rm.read_chunk_tags(filename)
-    assert_equal(len(chunks), 3, 'chunk tags')
+    assert len(chunks) == 3, 'chunk tags'
     with open(filename, 'rb') as sf:
         chunks = rm.read_chunk_tags(sf)
-        assert_equal(len(chunks), 3, 'chunk tags')
+        assert len(chunks) == 3, 'chunk tags'
     os.remove(filename)
 
     
@@ -98,63 +104,63 @@ def test_metadata():
     md = dict(INFO=imd)
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
-    assert_true('INFO' in mdd, 'INFO section exists')
-    assert_equal(iimd, mdd['INFO'], 'INFO section matches')
+    assert 'INFO' in mdd, 'INFO section exists'
+    assert iimd == mdd['INFO'], 'INFO section matches'
     with open(filename, 'rb') as sf:
         mdd = rm.metadata_riff(sf, False)
-    assert_true('INFO' in mdd, 'INFO section exists')
-    assert_equal(iimd, mdd['INFO'], 'INFO section matches')
+    assert 'INFO' in mdd, 'INFO section exists'
+    assert iimd == mdd['INFO'], 'INFO section matches'
     md['INFO']['IENG'] = ''
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, True)
-    assert_true('INFO' in mdd, 'INFO section exists')
+    assert 'INFO' in mdd, 'INFO section exists'
     md['INFO']['IENG'] = 'John Doe'
 
     # BEXT:
     md = dict(BEXT=bmd)
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
-    assert_true('BEXT' in mdd, 'BEXT section exists')
-    assert_equal(bmd, mdd['BEXT'], 'BEXT section matches')
+    assert 'BEXT' in mdd, 'BEXT section exists'
+    assert bmd == mdd['BEXT'], 'BEXT section matches'
     mdd = rm.metadata_riff(filename, True)
-    assert_true('BEXT' in mdd, 'BEXT section exists')
+    assert 'BEXT' in mdd, 'BEXT section exists'
 
     # IXML:
     md = dict(IXML=xmd)
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
-    assert_true('IXML' in mdd, 'IXML section exists')
-    assert_equal(xmd, mdd['IXML'], 'IXML section matches')
+    assert 'IXML' in mdd, 'IXML section exists'
+    assert xmd == mdd['IXML'], 'IXML section matches'
     md['IXML']['Note'] = ''
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, True)
-    assert_true('IXML' in mdd, 'IXML section exists')
+    assert 'IXML' in mdd, 'IXML section exists'
     md['IXML']['Note'] = 'still testing'
 
     # GUANO:
     md = dict(GUANO=dict(**iimd))
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
-    assert_equal(md, mdd, 'GUANO section matches')
+    assert md == mdd, 'GUANO section matches'
     
     md = dict(INFO=iimd, BEXT=bmd, IXML=xmd,
               Recording=omd, Production=bmd, Notes=xmd)
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, False)
-    assert_true('INFO' in mdd, 'INFO section exists')
-    assert_equal(iimd, mdd['INFO'], 'INFO section matches')
-    assert_true('BEXT' in mdd, 'BEXT section exists')
-    assert_equal(bmd, mdd['BEXT'], 'BEXT section matches')
-    assert_true('IXML' in mdd, 'IXML section exists')
-    assert_equal(xmd, mdd['IXML'], 'IXML section matches')
-    assert_true('Recording' in mdd, 'Recording section exists')
-    assert_true('Production' in mdd, 'Production section exists')
-    assert_true('Notes' in mdd, 'Notes section exists')
-    assert_equal(md['Notes'], mdd['Notes'], 'Notes section matches')
+    assert 'INFO' in mdd, 'INFO section exists'
+    assert iimd == mdd['INFO'], 'INFO section matches'
+    assert 'BEXT' in mdd, 'BEXT section exists'
+    assert bmd == mdd['BEXT'], 'BEXT section matches'
+    assert 'IXML' in mdd, 'IXML section exists'
+    assert xmd == mdd['IXML'], 'IXML section matches'
+    assert 'Recording' in mdd, 'Recording section exists'
+    assert 'Production' in mdd, 'Production section exists'
+    assert 'Notes' in mdd, 'Notes section exists'
+    assert md['Notes'] == mdd['Notes'], 'Notes section matches'
     md = dict(Recording=omd, Production='', Notes=xmd)
     rm.write_wave(filename, data, rate, md)
     mdd = rm.metadata_riff(filename, True)
-    assert_equal(len(mdd['Production']), 0, 'Empty Production value')
+    assert len(mdd['Production']) == 0, 'Empty Production value'
 
     # INFO:
     imd['SUBI'] = bmd
@@ -183,61 +189,61 @@ def test_markers():
     
     rm.write_wave(filename, data, rate, None, locs)
     llocs, llabels = rm.markers_riff(filename)
-    assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs == llocs), 'same locs')
+    assert len(llabels) == 0, 'no labels'
+    assert np.all(locs == llocs), 'same locs'
     
     rm.write_wave(filename, data, rate, None, locs[:,0])
     llocs, llabels = rm.markers_riff(filename)
-    assert_equal(len(llabels), 0, 'no labels')
-    assert_equal(len(llocs), len(locs), 'same number of locs')
-    assert_true(np.all(locs[:,0] == llocs[:,0]), 'same locs')
+    assert len(llabels) == 0, 'no labels'
+    assert len(llocs) == len(locs), 'same number of locs'
+    assert np.all(locs[:,0] == llocs[:,0]), 'same locs'
     
     rm.write_wave(filename, data, rate, None, locs, labels)
     llocs, llabels = rm.markers_riff(filename)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_true(np.all(labels == llabels), 'same labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert np.all(labels == llabels), 'same labels'
     
     rm.write_wave(filename, data, rate, None, locs, labels, marker_hint='cue')
     llocs, llabels = rm.markers_riff(filename)
-    assert_true(np.all(locs == llocs), 'same locs in cue lists')
-    assert_true(np.all(labels == llabels), 'same labels in cue lists')
+    assert np.all(locs == llocs), 'same locs in cue lists'
+    assert np.all(labels == llabels), 'same labels in cue lists'
 
     with open(filename, 'rb') as sf:
         llocs, llabels = rm.markers_riff(sf)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_true(np.all(labels == llabels), 'same labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert np.all(labels == llabels), 'same labels'
     
     rm.write_wave(filename, data, rate, None, locs, labels, marker_hint='lbl')
     llocs, llabels = rm.markers_riff(filename)
-    assert_true(np.all(locs == llocs), 'same locs in lbl chunk')
-    assert_true(np.all(labels[:,1] == llabels[:,1]), 'same texts in lbl chunk')
-    assert_true(np.all(llabels[llocs[:,1] > 0,0] == 'M'), 'M labels in lbl chunk')
-    assert_true(np.all(llabels[llocs[:,1] == 0,0] == labels[llocs[:,1] == 0,0]), 'same labels in lbl chunk')
+    assert np.all(locs == llocs), 'same locs in lbl chunk'
+    assert np.all(labels[:,1] == llabels[:,1]), 'same texts in lbl chunk'
+    assert np.all(llabels[llocs[:,1] > 0,0] == 'M'), 'M labels in lbl chunk'
+    assert np.all(llabels[llocs[:,1] == 0,0] == labels[llocs[:,1] == 0,0]), 'same labels in lbl chunk'
     
-    assert_raises(IndexError, rm.write_wave, filename, data, rate,
-                  None, locs, labels[:-2,:])
+    with pytest.raises(IndexError):
+        rm.write_wave(filename, data, rate, None, locs, labels[:-2,:])
     
     rm.write_wave(filename, data, rate, None, locs, labels[:,0])
     llocs, llabels = rm.markers_riff(filename)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_true(np.all(labels[:,0] == llabels[:,0]), 'same labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert np.all(labels[:,0] == llabels[:,0]), 'same labels'
     
     rm.write_wave(filename, data, rate, None, locs[:,0], labels[:,0])
     llocs, llabels = rm.markers_riff(filename)
-    assert_true(np.all(locs[:,0] == llocs[:,0]), 'same locs')
-    assert_true(np.all(labels[:,0] == llabels[:,0]), 'same labels')
+    assert np.all(locs[:,0] == llocs[:,0]), 'same locs'
+    assert np.all(labels[:,0] == llabels[:,0]), 'same labels'
     
     labels = np.zeros((len(locs), 2), dtype=np.object_)
     rm.write_wave(filename, data, rate, None, locs, labels)
     llocs, llabels = rm.markers_riff(filename)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_equal(len(llabels), 0, 'no labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert len(llabels) == 0, 'no labels'
 
     locs[:,-1] = 0
     rm.write_wave(filename, data, rate, None, locs)
     llocs, llabels = rm.markers_riff(filename)
-    assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs == llocs), 'same locs')
+    assert len(llabels) == 0, 'no labels'
+    assert np.all(locs == llocs), 'same locs'
 
     os.remove(filename)
 

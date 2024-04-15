@@ -25,15 +25,14 @@ jobs:
           pip install pyaudio
           pip install sounddevice
           pip install soundcard
-          pip install nose nose-cov
-          pip install codecov
+          pip install pytest pytest-cov
           pip install pdoc3
           pip install mkdocs
           pip install genbadge[coverage]
           pip install -r requirements.txt
 
       - name: Run tests
-        run: nosetests -vv --with-coverage --cover-html --cover-xml --cover-package=audioio
+        run: pytest -v --cov-report html:cover --cov-report term --cov audioio tests/
         shell: bash
 
       - name: Build documentation

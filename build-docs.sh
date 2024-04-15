@@ -13,7 +13,7 @@ PACKAGEROOT="$(dirname "$(realpath "$0")")"
 BUILDROOT="$PACKAGEROOT/site"
 
 # check for code coverage report:
-# need to call nosetest with --with-coverage --cover-html --cover-xml
+# need to call pytest --cov-report html:cover --cov-report term --cov audioio tests/
 HAS_COVER=false
 test -d cover && HAS_COVER=true
 

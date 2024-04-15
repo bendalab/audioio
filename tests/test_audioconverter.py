@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises
+import pytest
 import os
 import shutil
 import numpy as np
@@ -26,20 +26,31 @@ def test_main():
     destpath = 'test3'
     os.mkdir(destpath)
     write_audio_file(filename)
-    assert_raises(SystemExit, ac.main, '-h')
-    assert_raises(SystemExit, ac.main, '--help')
-    assert_raises(SystemExit, ac.main, '--version')
+    with pytest.raises(SystemExit):
+        ac.main()
+    with pytest.raises(SystemExit):
+        ac.main('-h')
+    with pytest.raises(SystemExit):
+        ac.main('--help')
+    with pytest.raises(SystemExit):
+        ac.main('--version')
     ac.main('-l')
     ac.main('-f', 'wav', '-l')
     ac.main('-f', 'wav', '-o', destfile, filename)
-    assert_raises(SystemExit, ac.main)
-    assert_raises(SystemExit, ac.main, '')
-    assert_raises(SystemExit, ac.main, '-f', 'xxx', '-l')
-    assert_raises(SystemExit, ac.main, '-f', 'xxx', '-o', destfile, filename)
-    assert_raises(SystemExit, ac.main, '-o', 'test.xxx', filename)
-    assert_raises(SystemExit, ac.main, '-f', 'xyz123', filename)
-    assert_raises(SystemExit, ac.main, filename)
-    assert_raises(SystemExit, ac.main, '-o', filename, filename)
+    with pytest.raises(SystemExit):
+        ac.main('')
+    with pytest.raises(SystemExit):
+        ac.main('-f', 'xxx', '-l')
+    with pytest.raises(SystemExit):
+        ac.main('-f', 'xxx', '-o', destfile, filename)
+    with pytest.raises(SystemExit):
+        ac.main('-o', 'test.xxx', filename)
+    with pytest.raises(SystemExit):
+        ac.main('-f', 'xyz123', filename)
+    with pytest.raises(SystemExit):
+        ac.main(filename)
+    with pytest.raises(SystemExit):
+        ac.main('-o', filename, filename)
     ac.main('-o', destfile + '.wav', filename)
     ac.main('-f', 'wav', '-o', destfile, filename)
     ac.main('-u', '-f', 'wav', '-o', destfile, filename)
@@ -64,11 +75,14 @@ def test_main():
     ac.main('-c', '1', '-o', destfile + '.wav', filename1)
     ac.main('-c', '0-2', '-o', destfile + '.wav', filename1)
     ac.main('-c', '0-1,3', '-o', destfile + '.wav', filename1)
-    assert_raises(SystemExit, ac.main, '-o', destfile + '.wav', filename, filename1)
+    with pytest.raises(SystemExit):
+        ac.main('-o', destfile + '.wav', filename, filename1)
     write_audio_file(filename1, 2, 20000)
-    assert_raises(SystemExit, ac.main, '-o', destfile + '.wav', filename, filename1)
+    with pytest.raises(SystemExit):
+        ac.main('-o', destfile + '.wav', filename, filename1)
     write_audio_file(filename1)
-    assert_raises(SystemExit, ac.main, '-n', '1', '-o', destfile, filename, filename1)
+    with pytest.raises(SystemExit):
+        ac.main('-n', '1', '-o', destfile, filename, filename1)
     ac.main('-n', '1', '-f', 'wav', '-o', destfile, filename, filename1)
     shutil.rmtree(destfile)
     ac.main('-vv', '-o', destfile + '.wav', filename, filename1)
@@ -77,17 +91,17 @@ def test_main():
     xdata, xrate = al.load_audio(filename1)
     n += len(xdata)
     xdata, xrate = al.load_audio(destfile + '.wav')
-    assert_equal(len(xdata), n, 'len of merged files')
+    assert len(xdata) == n, 'len of merged files'
     md1 = al.metadata(filename)
     md1['CodingHistory'] = 'A=PCM,F=44100,W=16,M=stereo,T=test.wav\nA=PCM,F=44100,W=16,M=stereo,T=test2.wav'
     md2 = al.metadata(destfile + '.wav')
     md2['CodingHistory'] = md2['CodingHistory'].replace('\r\n', '\n')
-    assert_equal(md1, md2, 'metadata of merged files')
+    assert md1 == md2, 'metadata of merged files'
     ac.main('-d', '4', '-o', destfile + '.wav', filename)
     xdata, xrate = al.load_audio(filename)
     ydata, yrate = al.load_audio(destfile + '.wav')
-    assert_equal(len(ydata), len(xdata)//4, 'decimation data')
-    assert_equal(yrate*4, xrate, 'decimation rate')
+    assert len(ydata) == len(xdata)//4, 'decimation data'
+    assert yrate*4 == xrate, 'decimation rate'
     ac.main('-o', 'test{Num}.wav', filename)
     os.remove('test42.wav')
     os.remove(filename)

@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_false, assert_equal, assert_raises
+import pytest
 import os
 import numpy as np
 import audioio.audioloader as al
@@ -31,48 +31,49 @@ def test_markers():
     
     aw.write_audio(filename, data, rate, None, locs)
     llocs, llabels = al.markers(filename)
-    assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs == llocs), 'same locs')
+    assert len(llabels) == 0, 'no labels'
+    assert np.all(locs == llocs), 'same locs'
     
     aw.write_audio(filename, data, rate, None, locs[:,0])
     llocs, llabels = al.markers(filename)
-    assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs[:,0] == llocs[:,0]), 'same locs')
+    assert len(llabels) == 0, 'no labels'
+    assert np.all(locs[:,0] == llocs[:,0]), 'same locs'
     
     aw.write_audio(filename, data, rate, None, locs, labels)
     llocs, llabels = al.markers(filename)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_true(np.all(labels == llabels), 'same labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert np.all(labels == llabels), 'same labels'
 
     with open(filename, 'rb') as sf:
         llocs, llabels = al.markers(sf)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_true(np.all(labels == llabels), 'same labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert np.all(labels == llabels), 'same labels'
     
-    assert_raises(IndexError, aw.write_audio, filename, data, rate,
-                  None, locs, labels[:-2,:])
+    with pytest.raises(IndexError):
+        aw.write_audio(filename, data, rate, None, locs,
+                       labels[:-2,:])
     
     aw.write_audio(filename, data, rate, None, locs, labels[:,0])
     llocs, llabels = al.markers(filename)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_true(np.all(labels[:,0] == llabels[:,0]), 'same labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert np.all(labels[:,0] == llabels[:,0]), 'same labels'
     
     aw.write_audio(filename, data, rate, None, locs[:,0], labels[:,0])
     llocs, llabels = al.markers(filename)
-    assert_true(np.all(locs[:,0] == llocs[:,0]), 'same locs')
-    assert_true(np.all(labels[:,0] == llabels[:,0]), 'same labels')
+    assert np.all(locs[:,0] == llocs[:,0]), 'same locs'
+    assert np.all(labels[:,0] == llabels[:,0]), 'same labels'
 
     labels = np.zeros((len(locs), 2), dtype=np.object_)
     aw.write_audio(filename, data, rate, None, locs, labels)
     llocs, llabels = al.markers(filename)
-    assert_true(np.all(locs == llocs), 'same locs')
-    assert_equal(len(llabels), 0, 'no labels')
+    assert np.all(locs == llocs), 'same locs'
+    assert len(llabels) == 0, 'no labels'
 
     locs[:,-1] = 0
     aw.write_audio(filename, data, rate, None, locs)
     llocs, llabels = al.markers(filename)
-    assert_equal(len(llabels), 0, 'no labels')
-    assert_true(np.all(locs == llocs), 'same locs')
+    assert len(llabels) == 0, 'no labels'
+    assert np.all(locs == llocs), 'same locs'
 
     os.remove(filename)
 

@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_greater, assert_greater_equal, assert_less, assert_raises
+import pytest
 import time
 import numpy as np
 import audioio.playaudio as ap
@@ -103,29 +103,38 @@ def test_downsample():
 
 def test_note2freq():
     fa = 460.0
-    assert_less(np.abs(ap.note2freq('a4', fa)-fa), 1e-6, 'wrong a4 frequency')
+    assert np.abs(ap.note2freq('a4', fa)-fa) < 1e-6, 'wrong a4 frequency'
     fp = 0.5*ap.note2freq('a0')
     for o in range(10):
         for n in 'cdefgab':
             note = '%s%d' % (n, o)
             f = ap.note2freq(note)
-            assert_greater(f, fp, 'frequency of %s should be greater than the one of previous note' % note)
+            assert f > fp, 'frequency of %s should be greater than the one of previous note' % note
             note = '%s#%d' % (n, o)
             fs = ap.note2freq(note)
-            assert_greater(fs, f, 'frequency of %s should be greater' % note)
+            assert fs > f, 'frequency of %s should be greater' % note
             note = '%sb%d' % (n, o)
             fb = ap.note2freq(note)
-            assert_less(fb, f, 'frequency of %s should be greater' % note)
+            assert fb < f, 'frequency of %s should be greater' % note
             fp = f
-    assert_raises(ValueError, ap.note2freq, 'h')
-    assert_raises(ValueError, ap.note2freq, 'da')
-    assert_raises(ValueError, ap.note2freq, 'dx#')
-    assert_raises(ValueError, ap.note2freq, 'd4#')
-    assert_raises(ValueError, ap.note2freq, 'd4x')
-    assert_raises(ValueError, ap.note2freq, 'd#4x')
-    assert_raises(ValueError, ap.note2freq, 'd-2')
-    assert_raises(ValueError, ap.note2freq, '')
-    assert_raises(ValueError, ap.note2freq, 0)
+    with pytest.raises(ValueError):
+        ap.note2freq('h')
+    with pytest.raises(ValueError):
+        ap.note2freq('da')
+    with pytest.raises(ValueError):
+        ap.note2freq('dx#')
+    with pytest.raises(ValueError):
+        ap.note2freq('d4#')
+    with pytest.raises(ValueError):
+        ap.note2freq('d4x')
+    with pytest.raises(ValueError):
+        ap.note2freq('d#4x')
+    with pytest.raises(ValueError):
+        ap.note2freq('d-2')
+    with pytest.raises(ValueError):
+        ap.note2freq('')
+    with pytest.raises(ValueError):
+        ap.note2freq(0)
 
 
 def test_demo():

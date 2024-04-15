@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_false, assert_equal, assert_raises
+import pytest
 import os
 import numpy as np
 import audioio.audiowriter as aw
@@ -32,18 +32,17 @@ def test_single_frame():
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
-            assert_false(np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with %s module' % lib)
-            assert_false(np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with %s module' % lib)
-            def access_end(n):
-                x = data[len(data)+n]
+            assert not np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with %s module' % lib
+            assert not np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with %s module' % lib
             for n in range(10):
-                assert_raises(IndexError, access_end, n)
+                with pytest.raises(IndexError):
+                    x = data[len(data)+n]
             failed = -1
             for inx in np.random.randint(-len(data), len(data), ntests):
                 if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
                     failed = inx
                     break
-            assert_true(failed < 0, 'single random frame access failed at index %d with %s module' % (failed, lib))
+            assert failed < 0, 'single random frame access failed at index %d with %s module' % (failed, lib)
     os.remove(filename)
     am.enable_module()
 
@@ -63,9 +62,9 @@ def test_slice():
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for n in range(5):
-                assert_false(np.any(np.abs(data[:n]-full_data[:n]) > tolerance), 'zero slice up to %d does not match' % n)
+                assert not np.any(np.abs(data[:n]-full_data[:n]) > tolerance), 'zero slice up to %d does not match' % n
             for n in range(1, 5):
-                assert_false(np.any(np.abs(data[:50:n]-full_data[:50:n]) > tolerance), 'step slice with step=%d does not match' % n)
+                assert not np.any(np.abs(data[:50:n]-full_data[:50:n]) > tolerance), 'step slice with step=%d does not match' % n
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
                 nframes = int(time*data.samplerate)
                 failed = -1
@@ -73,7 +72,7 @@ def test_slice():
                     if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
                         failed = inx
                         break
-                assert_true(failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+                assert failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
     os.remove(filename)
     am.enable_module()
 
@@ -100,7 +99,7 @@ def test_forward():
                     if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
                         failed = inx
                         break
-                assert_true(failed < 0, 'frame slice access forward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+                assert failed < 0, 'frame slice access forward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
     os.remove(filename)
     am.enable_module()
 
@@ -128,7 +127,7 @@ def test_backward():
                     if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
                         failed = inx
                         break
-                assert_true(failed < 0, 'frame slice access backward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+                assert failed < 0, 'frame slice access backward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
     os.remove(filename)
     am.enable_module()
 
@@ -155,7 +154,7 @@ def test_negative():
                     if np.any(np.abs(full_data[-inx:-inx+nframes] - data[-inx:-inx+nframes]) > tolerance):
                         failed = -inx
                         break
-                assert_true(failed < 0, 'frame slice access backward with negative indices failed at index %d with nframes=%d and %s module' % (failed, nframes, lib))
+                assert failed < 0, 'frame slice access backward with negative indices failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
     os.remove(filename)
     am.enable_module()
 
@@ -188,7 +187,7 @@ def test_multiple():
                         if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
                             failed = 1
                             break
-                    assert_equal(failed, -1, ('multiple random frame access failed with %s module at indices ' % lib) + str(inx))
+                    assert failed == -1, ('multiple random frame access failed with %s module at indices ' % lib) + str(inx)
     os.remove(filename)
     am.enable_module()
 
@@ -200,7 +199,8 @@ def test_modules():
     for lib, load_file in al.audio_loader_funcs:
         print(lib)
         am.disable_module(lib)
-        assert_raises(ImportError, load_file, filename)
+        with pytest.raises(ImportError):
+            load_file(filename)
         data = al.AudioLoader(verbose=4)
         load_funcs = {
             'soundfile': data.open_soundfile,
@@ -211,7 +211,8 @@ def test_modules():
             }
         if lib not in load_funcs:
             continue
-        assert_raises(ImportError, load_funcs[lib], filename, 10.0, 2.0)
+        with pytest.raises(ImportError):
+            load_funcs[lib](filename, 10.0, 2.0)
         if am.select_module(lib):
             # check double opening:
             load_funcs[lib](filename)
@@ -223,20 +224,28 @@ def test_modules():
 
 def test_audio_files():
     am.enable_module()
-    assert_raises(ValueError, al.load_audio, '')
-    assert_raises(FileNotFoundError, al.load_audio, 'xxx.wav')
-    assert_raises(ValueError, al.AudioLoader, '')
-    assert_raises(FileNotFoundError, al.AudioLoader, 'xxx.wav')
+    with pytest.raises(ValueError):
+        al.load_audio('')
+    with pytest.raises(ValueError):
+        al.AudioLoader('')
+    with pytest.raises(FileNotFoundError):
+        al.load_audio('xxx.wav')
+    with pytest.raises(FileNotFoundError):
+        al.AudioLoader('xxx.wav')
     filename = 'test.wav'
     df = open(filename, 'w')
     df.close()
-    assert_raises(EOFError, al.load_audio, filename)
-    assert_raises(EOFError, al.AudioLoader, filename)
+    with pytest.raises(EOFError):
+        al.load_audio(filename)
+    with pytest.raises(EOFError):
+        al.AudioLoader(filename)
     os.remove(filename)
     write_audio_file(filename)
     am.disable_module()
-    assert_raises(IOError, al.load_audio, filename)
-    assert_raises(IOError, al.AudioLoader, filename)
+    with pytest.raises(IOError):
+        al.load_audio(filename)
+    with pytest.raises(IOError):
+        al.AudioLoader(filename)
     os.remove(filename)
     am.enable_module()
 
@@ -249,7 +258,7 @@ def test_iter():
     tolerance = 2.0**(-15)
     with al.AudioLoader(filename, 0.2) as data:
         for k, x in enumerate(data):
-            assert_false(np.any(np.abs(x-full_data[k]) > tolerance), 'iteration %d does not match' % k)
+            assert not np.any(np.abs(x-full_data[k]) > tolerance), 'iteration %d does not match' % k
 
         
 def test_blocks():
@@ -264,22 +273,21 @@ def test_blocks():
             for x in al.blocks(data, n, 10):
                 read_data.append(x[:-10].copy())
         read_data = np.vstack(read_data)
-        assert_equal(full_data.shape[0]-10, read_data.shape[0], 'len of blocked data differ from input data')
-        assert_equal(full_data.shape[1], read_data.shape[1], 'columns of blocked data differ from input data')
-        assert_false(np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed')
+        assert full_data.shape[0]-10 == read_data.shape[0], 'len of blocked data differ from input data'
+        assert full_data.shape[1] == read_data.shape[1], 'columns of blocked data differ from input data'
+        assert not np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed'
         read_data = []
         with al.AudioLoader(filename) as data:
             for x in data.blocks(n, 10):
                 read_data.append(x[:-10].copy())
         read_data = np.vstack(read_data)
-        assert_equal(full_data.shape[0]-10, read_data.shape[0], 'len of blocked data differ from input data')
-        assert_equal(full_data.shape[1], read_data.shape[1], 'columns of blocked data differ from input data')
-        assert_false(np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed')
+        assert full_data.shape[0]-10 == read_data.shape[0], 'len of blocked data differ from input data'
+        assert full_data.shape[1] == read_data.shape[1], 'columns of blocked data differ from input data'
+        assert not np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed'
 
-    def wrong_blocks(data):
-        for x in al.blocks(data, 10, 20):
+    with pytest.raises(ValueError):
+        for x in al.blocks(full_data, 10, 20):
             pass
-    assert_raises(ValueError, wrong_blocks, full_data)
 
 
 def test_unwrap():
@@ -298,35 +306,35 @@ def test_unwrap():
         sf.set_unwrap(1.5, down_scale=False)
         sdata = sf[:,:]
         md = sf.metadata()['INFO']
-    assert_equal(md['UnwrapThreshold'], '1.50', 'AudioLoader with unwrap adds metadata')
-    assert_equal(md['Gain'], '20mV', 'AudioLoader with unwrap modifies gain')
-    assert_equal(len(sdata), len(t), 'AudioLoader with unwrap keeps frames')
-    assert_equal(sdata.ndim, 2, 'AudioLoader with unwrap keeps two dimensions')
-    assert_true(np.max(sdata) > 1.4, 'AudioLoader with unwrap expands beyond +1')
-    assert_true(np.min(sdata) < -1.4, 'AudioLoader with unwrap expands below -1')
+    assert md['UnwrapThreshold'] == '1.50', 'AudioLoader with unwrap adds metadata'
+    assert md['Gain'] == '20mV', 'AudioLoader with unwrap modifies gain'
+    assert len(sdata) == len(t), 'AudioLoader with unwrap keeps frames'
+    assert sdata.ndim == 2, 'AudioLoader with unwrap keeps two dimensions'
+    assert np.max(sdata) > 1.4, 'AudioLoader with unwrap expands beyond +1'
+    assert np.min(sdata) < -1.4, 'AudioLoader with unwrap expands below -1'
 
     with al.AudioLoader(filename) as sf:
         sf.set_unwrap(1.5)
         sdata = sf[:,:]
         md = sf.metadata()['INFO']
-    assert_equal(md['UnwrapThreshold'], '0.75', 'AudioLoader with unwrap adds metadata')
-    assert_equal(md['Gain'], '40.0mV', 'AudioLoader with unwrap modifies gain')
-    assert_equal(len(sdata), len(t), 'AudioLoader with unwrap keeps frames')
-    assert_equal(sdata.ndim, 2, 'AudioLoader with unwrap keeps two dimensions')
-    assert_true(np.max(sdata) <= 1.0, 'AudioLoader with unwrap downscales below +1')
-    assert_true(np.min(sdata) >= -1.0, 'AudioLoader with unwrap downscales above -1')
+    assert md['UnwrapThreshold'] == '0.75', 'AudioLoader with unwrap adds metadata'
+    assert md['Gain'] == '40.0mV', 'AudioLoader with unwrap modifies gain'
+    assert len(sdata) == len(t), 'AudioLoader with unwrap keeps frames'
+    assert sdata.ndim == 2, 'AudioLoader with unwrap keeps two dimensions'
+    assert np.max(sdata) <= 1.0, 'AudioLoader with unwrap downscales below +1'
+    assert np.min(sdata) >= -1.0, 'AudioLoader with unwrap downscales above -1'
 
     with al.AudioLoader(filename) as sf:
         sf.set_unwrap(1.5, clips=True)
         sdata = sf[:,:]
         md = sf.metadata()['INFO']
-    assert_equal(md['UnwrapThreshold'], '1.50', 'AudioLoader with unwrap adds metadata')
-    assert_equal(md['UnwrapClippedAmplitude'], '1.00', 'AudioLoader with unwrap adds metadata')
-    assert_equal(md['Gain'], '20mV', 'AudioLoader with unwrap modifies gain')
-    assert_equal(len(sdata), len(t), 'AudioLoader with unwrap keeps frames')
-    assert_equal(sdata.ndim, 2, 'AudioLoader with unwrap keeps two dimensions')
-    assert_true(np.max(sdata) <= 1.0, 'AudioLoader with unwrap clips at +1')
-    assert_true(np.min(sdata) >= -1.0, 'AudioLoader with unwrap clips at -1')
+    assert md['UnwrapThreshold'] == '1.50', 'AudioLoader with unwrap adds metadata'
+    assert md['UnwrapClippedAmplitude'] == '1.00', 'AudioLoader with unwrap adds metadata'
+    assert md['Gain'] == '20mV', 'AudioLoader with unwrap modifies gain'
+    assert len(sdata) == len(t), 'AudioLoader with unwrap keeps frames'
+    assert sdata.ndim == 2, 'AudioLoader with unwrap keeps two dimensions'
+    assert np.max(sdata) <= 1.0, 'AudioLoader with unwrap clips at +1'
+    assert np.min(sdata) >= -1.0, 'AudioLoader with unwrap clips at -1'
     
     os.remove(filename)
 

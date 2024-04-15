@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_equal, assert_greater_equal, assert_less, assert_almost_equal, assert_raises
+import pytest
 import os
 import numpy as np
 import audioio.audiowriter as aw
@@ -15,40 +15,36 @@ def test_formats_encodings():
         if aw.audio_modules[module]:
             min_f = min_formats[module]
             formats = formats_func()
-            assert_greater_equal(len(formats), min_f,
-                                 'formats_%s() did not return enough formats' % module.split('.')[-1])
+            assert len(formats) >= min_f, 'formats_%s() did not return enough formats' % module.split('.')[-1]
             for f in formats:
                 encodings = encodings_func(f)
-                assert_greater_equal(len(encodings), 1,
-                                     'encodings_%s() did not return enough encodings for format %s' % (module.split('.')[-1], f))
+                assert len(encodings) >= 1, 'encodings_%s() did not return enough encodings for format %s' % (module.split('.')[-1], f)
             encodings = encodings_func('xxx')
-            assert_equal(len(encodings), 0, 'encodings_%s() returned encodings for invalid format xxx' % module.split('.')[-1])
+            assert len(encodings) == 0, 'encodings_%s() returned encodings for invalid format xxx' % module.split('.')[-1]
             encodings = encodings_func('')
-            assert_equal(len(encodings), 0, 'encodings_%s() returned encodings for empty format xxx' % module.split('.')[-1])
+            assert len(encodings) == 0, 'encodings_%s() returned encodings for empty format xxx' % module.split('.')[-1]
 
     formats = aw.available_formats()
-    assert_greater_equal(len(formats), 1,
-                         'available_formats() did not return enough formats')
+    assert len(formats) >= 1, 'available_formats() did not return enough formats'
     for f in formats:
         encodings = aw.available_encodings(f)
-        assert_greater_equal(len(encodings), 1,
-                             'available_encodings() did not return enough encodings for format %s' % f)
+        assert len(encodings) >= 1, 'available_encodings() did not return enough encodings for format %s' % f
                 
 
 def test_write_read():
 
     def check(samplerate_write, data_write, samplerate_read, data_read, lib, encoding):
-        assert_almost_equal(samplerate_write, samplerate_read, 'samplerates differ for module %s with encoding %s' % (lib, encoding))
-        assert_equal(len(data_write), len(data_read), 'frames %d %d differ for module %s with encoding %s' % (len(data_write), len(data_read), lib, encoding))
-        assert_equal(len(data_write.shape), len(data_read.shape), 'shape len differs for module %s with encoding %s' % (lib, encoding))
-        assert_equal(len(data_read.shape), 2, 'shape differs from 2 for module %s with encoding %s' % (lib, encoding))
-        assert_equal(data_write.shape[0], data_read.shape[0], 'shape[0] differs for module %s with encoding %s' % (lib, encoding))
-        assert_equal(data_write.shape[1], data_read.shape[1], 'shape[1] differs for module %s with encoding %s' % (lib, encoding))
-        assert_equal(data_read.dtype, np.float64, 'read in data are not doubles for module %s with encoding %s' % (lib, encoding))
+        assert samplerate_write == pytest.approx(samplerate_read), 'samplerates differ for module %s with encoding %s' % (lib, encoding)
+        assert len(data_write) == len(data_read), 'frames %d %d differ for module %s with encoding %s' % (len(data_write), len(data_read), lib, encoding)
+        assert len(data_write.shape) == len(data_read.shape), 'shape len differs for module %s with encoding %s' % (lib, encoding)
+        assert len(data_read.shape) == 2, 'shape differs from 2 for module %s with encoding %s' % (lib, encoding)
+        assert data_write.shape[0] == data_read.shape[0], 'shape[0] differs for module %s with encoding %s' % (lib, encoding)
+        assert data_write.shape[1] == data_read.shape[1], 'shape[1] differs for module %s with encoding %s' % (lib, encoding)
+        assert data_read.dtype == np.float64, 'read in data are not doubles for module %s with encoding %s' % (lib, encoding)
         n = min([len(data_write), len(data_read)])
         max_error = np.max(np.abs(data_write[:n] - data_read[:n]))
         print('maximum error = %g' % max_error)
-        assert_less(max_error, 0.05, 'values differ for module %s with encoding %s by up to %g' % (lib, encoding, max_error))
+        assert max_error < 0.05, 'values differ for module %s with encoding %s by up to %g' % (lib, encoding, max_error)
         
     am.enable_module()
     # generate data:
@@ -141,8 +137,8 @@ def test_dimensions():
         if lib == 'pydub':
             am.select_module('audioread')
         data_read, samplerate_read = al.load_audio(filename)
-        assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
-        assert_equal(data_read.shape[1], 1, 'read in data must be a 2-D array with one column')
+        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
+        assert data_read.shape[1] == 1, 'read in data must be a 2-D array with one column'
 
     print('2-D data one channel')
     filename = 'test.wav'
@@ -161,9 +157,9 @@ def test_dimensions():
         if lib == 'pydub':
             am.select_module('audioread')
         data_read, samplerate_read = al.load_audio(filename)
-        assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
-        assert_equal(data_read.shape[1], 1, 'read in data must be a 2-D array with one column')
-        assert_equal(data_read.shape, data.shape, 'input and output data must have same shape')
+        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
+        assert data_read.shape[1] == 1, 'read in data must be a 2-D array with one column'
+        assert data_read.shape == data.shape, 'input and output data must have same shape'
 
     print('2-D data two channel')
     filename = 'test.wav'
@@ -182,9 +178,9 @@ def test_dimensions():
         if lib == 'pydub':
             am.select_module('audioread')
         data_read, samplerate_read = al.load_audio(filename)
-        assert_equal(len(data_read.shape), 2, 'read in data must be a 2-D array')
-        assert_equal(data_read.shape[1], 2, 'read in data must be a 2-D array with two columns')
-        assert_equal(data_read.shape, data.shape, 'input and output data must have same shape')
+        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
+        assert data_read.shape[1] == 2, 'read in data must be a 2-D array with two columns'
+        assert data_read.shape == data.shape, 'input and output data must have same shape'
     am.enable_module()
 
 
@@ -201,35 +197,42 @@ def test_write_read_modules():
     for lib, write_func in aw.audio_writer_funcs:
         if not am.select_module(lib):
             continue
-        assert_raises(ValueError, write_func, '', data, samplerate)
-        assert_raises(ValueError, write_func, filename, data, samplerate, format='xxx')
+        with pytest.raises(ValueError):
+            write_func('', data, samplerate)
+        with pytest.raises(ValueError):
+            write_func(filename, data, samplerate, format='xxx')
         write_func(filename, data, samplerate, format='')
         os.remove(filename)
-        assert_raises(ValueError, write_func, filename, data, samplerate, encoding='xxx')
+        with pytest.raises(ValueError):
+            write_func(filename, data, samplerate, encoding='xxx')
         write_func(filename, data, samplerate, encoding='')
         os.remove(filename)
         am.enable_module()
-    assert_raises(ValueError, aw.write_audio, '', data, samplerate)
-    assert_raises(IOError, aw.write_audio, filename, data, samplerate, format='xxx')
+    with pytest.raises(ValueError):
+        aw.write_audio('', data, samplerate)
+    with pytest.raises(IOError):
+        aw.write_audio(filename, data, samplerate, format='xxx')
     aw.write_audio(filename, data, samplerate, format='')
     os.remove(filename)
-    assert_raises(IOError, aw.write_audio, filename, data, samplerate, encoding='xxx')
+    with pytest.raises(IOError):
+        aw.write_audio(filename, data, samplerate, encoding='xxx')
     aw.write_audio(filename, data, samplerate, encoding='')
     os.remove(filename)
     # test for not available modules:
     for lib, write_func in aw.audio_writer_funcs:
         am.disable_module(lib)
-        assert_raises(ImportError, write_func, filename, data, samplerate)
+        with pytest.raises(ImportError):
+            write_func(filename, data, samplerate)
         am.enable_module(lib)
     for lib, encodings_func in aw.audio_encodings_funcs:
         am.disable_module(lib)
         enc = encodings_func(format)
-        assert_equal(len(enc), 0, 'no encoding should be returned for disabled module %s' % lib)
+        assert len(enc) == 0, 'no encoding should be returned for disabled module %s' % lib
         am.enable_module(lib)
     for lib, formats_func in aw.audio_formats_funcs:
         am.disable_module(lib)
         formats = formats_func()
-        assert_equal(len(formats), 0, 'no format should be returned for disabled module %s' % lib)
+        assert len(formats) == 0, 'no format should be returned for disabled module %s' % lib
         am.enable_module(lib)
 
 
@@ -249,7 +252,7 @@ def test_write_metadata():
         write_func(filename, data, samplerate, md)
         mmd = al.metadata(filename)
         os.remove(filename)
-        assert_equal(md, mmd, 'metadata for wavefiles')
+        assert md == mmd, 'metadata for wavefiles'
         am.enable_module()
     # test storage of metadata in ogg files:
     filename = 'test.ogg'
@@ -263,7 +266,7 @@ def test_write_metadata():
         write_func(filename, data, samplerate, md, encoding='VORBIS')
         mmd = al.metadata(filename)
         os.remove(filename)
-        assert_equal(len(mmd), 0, 'metadata for ogg files')
+        assert len(mmd) == 0, 'metadata for ogg files'
         am.enable_module()
     # test storage of metadata in mp3 files:
     if am.audio_modules['pydub']:
@@ -271,25 +274,25 @@ def test_write_metadata():
         aw.write_pydub(filename, data, samplerate, md)
         mmd = al.metadata(filename)
         os.remove(filename)
-        assert_equal(len(mmd), 0, 'metadata for mp3 files')
+        assert len(mmd) == 0, 'metadata for mp3 files'
         am.enable_module()
 
         
 def test_extensions():
     f = aw.format_from_extension(None)
-    assert_true(f is None, 'None filepath')
+    assert f is None, 'None filepath'
     f = aw.format_from_extension('file')
-    assert_true(f is None, 'filepath withouth extension')
+    assert f is None, 'filepath withouth extension'
     f = aw.format_from_extension('file.')
-    assert_true(f is None, 'filepath withouth extension')
+    assert f is None, 'filepath withouth extension'
     f = aw.format_from_extension('file.wave')
-    assert_equal(f, 'WAV', 'filepath with wave')
+    assert f == 'WAV', 'filepath with wave'
     f = aw.format_from_extension('file.wav')
-    assert_equal(f, 'WAV', 'filepath with wav')
+    assert f == 'WAV', 'filepath with wav'
     f = aw.format_from_extension('file.ogg')
-    assert_equal(f, 'OGG', 'filepath with wav')
+    assert f == 'OGG', 'filepath with wav'
     f = aw.format_from_extension('file.mpeg4')
-    assert_equal(f, 'MP4', 'filepath with wav')
+    assert f == 'MP4', 'filepath with wav'
 
 
 def test_demo():

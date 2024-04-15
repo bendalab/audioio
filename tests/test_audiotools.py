@@ -1,4 +1,4 @@
-from nose.tools import assert_true, assert_false, assert_equal
+import pytest
 import numpy as np
 import audioio.audiotools as at
 
@@ -15,10 +15,10 @@ def test_despike():
     
     sdata = data[:]
     at.despike(sdata, 0.5)
-    assert_equal(len(sdata), len(t), 'despike keeps frames')
-    assert_equal(sdata.ndim, 1, 'despike keeps single dimension')
-    assert_true(np.max(sdata) <= 1.0, 'despike does not expand beyond +1')
-    assert_true(np.min(sdata) >= -1.0, 'despike does not expand below -1')
+    assert len(sdata) == len(t), 'despike keeps frames'
+    assert sdata.ndim == 1, 'despike keeps single dimension'
+    assert np.max(sdata) <= 1.0, 'despike does not expand beyond +1'
+    assert np.min(sdata) >= -1.0, 'despike does not expand below -1'
 
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
@@ -26,17 +26,17 @@ def test_despike():
 
     cdata = data.copy()
     at.despike(cdata, 0.5)
-    assert_equal(len(cdata), len(t), 'despike keeps frames')
-    assert_equal(cdata.shape[1], channels, 'despike keeps channels')
-    assert_true(np.max(cdata) <= 1.0, 'despike does not expand beyond +1')
-    assert_true(np.min(cdata) >= -1.0, 'despike does not expand below -1')
+    assert len(cdata) == len(t), 'despike keeps frames'
+    assert cdata.shape[1] == channels, 'despike keeps channels'
+    assert np.max(cdata) <= 1.0, 'despike does not expand beyond +1'
+    assert np.min(cdata) >= -1.0, 'despike does not expand below -1'
 
     at.has_numba = False
     at.despike(data, 0.5)
-    assert_equal(len(data), len(t), 'despike keeps frames')
-    assert_equal(data.shape[1], channels, 'despike keeps channels')
-    assert_true(np.max(data) <= 1.0, 'despike does not expand beyond +1')
-    assert_true(np.min(data) >= -1.0, 'despike does not expand below -1')
+    assert len(data) == len(t), 'despike keeps frames'
+    assert data.shape[1] == channels, 'despike keeps channels'
+    assert np.max(data) <= 1.0, 'despike does not expand beyond +1'
+    assert np.min(data) >= -1.0, 'despike does not expand below -1'
     at.has_numba = True
 
 
@@ -54,10 +54,10 @@ def test_despike2():
     
     sdata = data[:]
     at.despike(sdata, 0.5, 2)
-    assert_equal(len(sdata), len(t), 'despike keeps frames')
-    assert_equal(sdata.ndim, 1, 'despike keeps single dimension')
-    assert_true(np.max(sdata) <= 1.0, 'despike does not expand beyond +1')
-    assert_true(np.min(sdata) >= -1.0, 'despike does not expand below -1')
+    assert len(sdata) == len(t), 'despike keeps frames'
+    assert sdata.ndim == 1, 'despike keeps single dimension'
+    assert np.max(sdata) <= 1.0, 'despike does not expand beyond +1'
+    assert np.min(sdata) >= -1.0, 'despike does not expand below -1'
 
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
@@ -65,17 +65,17 @@ def test_despike2():
 
     cdata = data.copy()
     at.despike(cdata, 0.5, 2)
-    assert_equal(len(cdata), len(t), 'despike keeps frames')
-    assert_equal(cdata.shape[1], channels, 'despike keeps channels')
-    assert_true(np.max(cdata) <= 1.0, 'despike does not expand beyond +1')
-    assert_true(np.min(cdata) >= -1.0, 'despike does not expand below -1')
+    assert len(cdata) == len(t), 'despike keeps frames'
+    assert cdata.shape[1] == channels, 'despike keeps channels'
+    assert np.max(cdata) <= 1.0, 'despike does not expand beyond +1'
+    assert np.min(cdata) >= -1.0, 'despike does not expand below -1'
 
     at.has_numba = False
     at.despike(data, 0.5, 2)
-    assert_equal(len(data), len(t), 'despike keeps frames')
-    assert_equal(data.shape[1], channels, 'despike keeps channels')
-    assert_true(np.max(data) <= 1.0, 'despike does not expand beyond +1')
-    assert_true(np.min(data) >= -1.0, 'despike does not expand below -1')
+    assert len(data) == len(t), 'despike keeps frames'
+    assert data.shape[1] == channels, 'despike keeps channels'
+    assert np.max(data) <= 1.0, 'despike does not expand beyond +1'
+    assert np.min(data) >= -1.0, 'despike does not expand below -1'
     at.has_numba = True
 
 
@@ -89,17 +89,17 @@ def test_unwrap():
     
     sdata = data.copy()
     at.unwrap(sdata)
-    assert_equal(len(sdata), len(t), 'unwrap keeps frames')
-    assert_equal(sdata.ndim, 1, 'unwrap keeps single dimension')
-    assert_true(np.max(sdata) > 1.4, 'unwrap expands beyond +1')
-    assert_true(np.min(sdata) < -1.4, 'unwrap expands below -1')
+    assert len(sdata) == len(t), 'unwrap keeps frames'
+    assert sdata.ndim == 1, 'unwrap keeps single dimension'
+    assert np.max(sdata) > 1.4, 'unwrap expands beyond +1'
+    assert np.min(sdata) < -1.4, 'unwrap expands below -1'
     
     sdata = data * 120
     at.unwrap(sdata, 1.5, 120)
-    assert_equal(len(sdata), len(t), 'unwrap keeps frames')
-    assert_equal(sdata.ndim, 1, 'unwrap keeps single dimension')
-    assert_true(np.max(sdata) > 1.4*120, 'unwrap expands beyond +1')
-    assert_true(np.min(sdata) < -1.4*120, 'unwrap expands below -1')
+    assert len(sdata) == len(t), 'unwrap keeps frames'
+    assert sdata.ndim == 1, 'unwrap keeps single dimension'
+    assert np.max(sdata) > 1.4*120, 'unwrap expands beyond +1'
+    assert np.min(sdata) < -1.4*120, 'unwrap expands below -1'
 
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
@@ -107,14 +107,14 @@ def test_unwrap():
 
     cdata = data.copy()
     at.unwrap(cdata)
-    assert_equal(len(cdata), len(t), 'unwrap keeps frames')
-    assert_equal(cdata.shape[1], channels, 'unwrap keeps channels')
-    assert_true(np.max(cdata) > 1.4, 'unwrap expands beyond +1')
-    assert_true(np.min(cdata) < -1.4, 'unwrap expands below -1')
+    assert len(cdata) == len(t), 'unwrap keeps frames'
+    assert cdata.shape[1] == channels, 'unwrap keeps channels'
+    assert np.max(cdata) > 1.4, 'unwrap expands beyond +1'
+    assert np.min(cdata) < -1.4, 'unwrap expands below -1'
 
     at.has_numba = False
     did = id(data)
     at.unwrap(data)
-    assert_equal(did, id(data), 'without numba unwrap does not touch the array')
+    assert did == id(data), 'without numba unwrap does not touch the array'
     at.has_numba = True
 
