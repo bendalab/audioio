@@ -1,3 +1,46 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "audioio"
+dynamic = ["version"]
+dependencies = [
+  "numpy",
+  "scipy"
+]
+requires-python = ">=3"
+authors = [
+  {name = "Jan Benda", email = "jan.benda@uni-tuebingen.de"},
+]
+maintainers = [
+  {name = "Jan Benda", email = "jan.benda@uni-tuebingen.de"},
+]
+description = "Platform independent interfacing of numpy arrays of floats with audio files and devices for scientific data analysis."
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Conversion",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository    = "https://github.com/bendalab/audioio"
+Documentation = "https://bendalab.github.io/audioio"
+
+[project.scripts]
+audioconverter = "audioio.audioconverter:main"
+audiometadata  = "audioio.audiometadata:main"
+audiomodules   = "audioio.audiomodules:main"

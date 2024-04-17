@@ -1,5 +1,6 @@
 """
-Platform independent interfacing of numpy arrays with audio files and devices.
+Platform independent interfacing of numpy arrays of floats with audio
+files and devices for scientific data analysis.
 """
 
 import sys
