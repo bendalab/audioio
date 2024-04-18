@@ -1,9 +1,5 @@
-from setuptools import setup, find_packages
-
-exec(open('audioio/version.py').read())
+from setuptools import setup
 
 setup(
-    version = __version__,
     packages = ['audioio']
-    #packages = find_packages(exclude = ['docs', 'tests', 'site'])
 )
