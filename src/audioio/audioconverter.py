@@ -381,8 +381,10 @@ def main(*cargs):
                 samplingrate = sf.samplerate
                 md = sf.metadata()
                 locs, labels = sf.markers()
-                pre_history = bext_history_str(sf.encoding, sf.samplerate,
-                                               sf.channels, sf.filepath)
+                pre_history = bext_history_str(sf.encoding,
+                                               sf.samplerate,
+                                               sf.channels,
+                                               sf.filepath)
                 if sf.encoding is not None and args.encoding is None:
                     args.encoding = sf.encoding
         except FileNotFoundError:
