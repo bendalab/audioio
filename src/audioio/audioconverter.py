@@ -374,20 +374,28 @@ def main(*cargs):
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
         # read in audio:
-        pre_history = None 
-        with AudioLoader(infile) as sf:
-            data = sf[:,:]
-            samplingrate = sf.samplerate
-            md = sf.metadata()
-            locs, labels = sf.markers()
-            pre_history = bext_history_str(sf.encoding, sf.samplerate,
-                                           sf.channels, sf.filepath)
-            if sf.encoding is not None and args.encoding is None:
-                args.encoding = sf.encoding
+        pre_history = None
+        try:
+            with AudioLoader(infile) as sf:
+                data = sf[:,:]
+                samplingrate = sf.samplerate
+                md = sf.metadata()
+                locs, labels = sf.markers()
+                pre_history = bext_history_str(sf.encoding, sf.samplerate,
+                                               sf.channels, sf.filepath)
+                if sf.encoding is not None and args.encoding is None:
+                    args.encoding = sf.encoding
+        except FileNotFoundError:
+            print(f'file "{infile}" not found!')
+            sys.exit(-1)
         if args.verbose > 1:
             print(f'loaded audio file "{infile}"')
         for infile in args.file[i0+1:i0+nmerge]:
-            xdata, xrate = load_audio(infile)
+            try:
+                xdata, xrate = load_audio(infile)
+            except FileNotFoundError:
+                print(f'file "{infile}" not found!')
+                sys.exit(-1)
             if abs(samplingrate - xrate) > 1:
                 print('! cannot merge files with different sampling rates !')
                 print(f'    file "{args.file[i0]}" has {samplingrate:.0f}Hz')
@@ -422,9 +430,13 @@ def main(*cargs):
                                    data.shape[1], outfile)
         add_history(md, history, hkey, pre_history)
         # write out audio:
-        write_audio(outfile, data, samplingrate,
-                    md, locs, labels,
-                    format=data_format, encoding=args.encoding)
+        try:
+            write_audio(outfile, data, samplingrate,
+                        md, locs, labels,
+                        format=data_format, encoding=args.encoding)
+        except PermissionError:
+            print(f'failed to write "{outfile}": permission denied!')
+            sys.exit(-1)
         # message:
         if args.verbose > 1:
             print(f'wrote "{outfile}"')
