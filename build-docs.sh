@@ -9,6 +9,7 @@ for cmd in mkdocs pdoc3; do
 done
 
 PACKAGE="audioio"
+PACKAGESRC="src/$PACKAGE"
 PACKAGEROOT="$(dirname "$(realpath "$0")")"
 BUILDROOT="$PACKAGEROOT/site"
 
@@ -58,7 +59,7 @@ if command -v pdoc3 >/dev/null; then
     echo
 
     cd "$PACKAGEROOT"
-    pdoc3 --html --config latex_math=True --config sort_identifiers=False --output-dir "$BUILDROOT/api-tmp" $PACKAGE
+    pdoc3 --html --config latex_math=True --config sort_identifiers=False --output-dir "$BUILDROOT/api-tmp" $PACKAGESRC
     mv "$BUILDROOT/api-tmp/$PACKAGE" "$BUILDROOT/api"
     rmdir "$BUILDROOT/api-tmp"
     cd - > /dev/null

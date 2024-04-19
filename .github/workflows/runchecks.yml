@@ -35,7 +35,7 @@ jobs:
         shell: bash
 
       - name: Run tests
-        run: python3 -m pytest -v --cov-report xml --cov-report html:cover --cov-report term --cov audioio tests/
+        run: pytest -v --cov-report xml --cov-report html:cover --cov-report term --cov audioio tests/
         shell: bash
 
       - name: Build documentation

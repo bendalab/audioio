@@ -47,3 +47,6 @@ audiomodules   = "audioio.audiomodules:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "audioio.version.__version__"}
+
+[tool.pytest.ini_options]
+pythonpath = "src"
