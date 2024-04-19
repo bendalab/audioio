@@ -18,7 +18,7 @@ further instructions.
 
 For a demo run the module as:
 ```
-python -m audioio.audioloader audiofile.wav
+python -m src.audioio.audioloader audiofile.wav
 ```
 """
  
@@ -288,10 +288,10 @@ audio_loader_funcs = (
     ('scipy.io.wavfile', load_wavfile),
     ('audioread', load_audioread),
     )
-"""List of implemented load functions.
+"""List of implemented load() functions.
 
 Each element of the list is a tuple with the module's name and its
-load function.
+load() function.
 
 """    
 
@@ -378,7 +378,7 @@ def load_audio(filepath, verbose=0):
 
 
 def metadata(filepath, store_empty=False):
-    """ Read metadata of an audio file.
+    """Read metadata of an audio file.
 
     Parameters
     ----------
@@ -391,14 +391,13 @@ def metadata(filepath, store_empty=False):
     -------
     meta_data: nested dict
         Meta data contained in the audio file.  Keys of the nested
-        dictionaries are always strings.  If the corresponding
-        values are dictionaries, then the key is the section name
-        of the metadata contained in the dictionary. All other
-        types of values are values for the respective key. In
-        particular they are strings. But other
-        simple types like ints or floats are also allowed.
-        See `audioio.audiometadata` module for available functions
-        to work with such metadata.
+        dictionaries are always strings.  If the corresponding values
+        are dictionaries, then the key is the section name of the
+        metadata contained in the dictionary. All other types of
+        values are values for the respective key. In particular they
+        are strings. But other types like for example ints or floats
+        are also allowed.  See `audioio.audiometadata` module for
+        available functions to work with such metadata.
 
     Examples
     --------
@@ -407,6 +406,7 @@ def metadata(filepath, store_empty=False):
     md = metadata('data.wav')
     print_metadata(md)
     ```
+
     """
     try:
         return metadata_riff(filepath, store_empty)
@@ -839,7 +839,7 @@ class AudioLoader(BufferArray):
     Reading sequentially through the file is always possible. Some
     modules, however, (e.g. audioread, needed for mp3 files) can only
     read forward. If previous data are requested, then the file is read
-    from the beginning. This slows down access to previous data
+    from the beginning again. This slows down access to previous data
     considerably. Use the `backsize` argument of the open function to
     make sure some data are loaded into the buffer before the requested
     frame. Then a subsequent access to the data within backsize `seconds`
@@ -1065,15 +1065,17 @@ class AudioLoader(BufferArray):
         Returns
         -------
         meta_data: nested dict
+
             Meta data contained in the audio file.  Keys of the nested
             dictionaries are always strings.  If the corresponding
             values are dictionaries, then the key is the section name
             of the metadata contained in the dictionary. All other
             types of values are values for the respective key. In
-            particular they are strings. But other
-            simple types like ints or floats are also allowed.
-            See `audioio.audiometadata` module for available functions
-            to work with such metadata.
+            particular they are strings. But other types like for
+            example ints or floats are also allowed.  See
+            `audioio.audiometadata` module for available functions to
+            work with such metadata.
+
         """
         if self._metadata is None:
             if self._load_metadata is None:
@@ -1809,7 +1811,7 @@ def main(*args):
     if help:
         print('')
         print('Usage:')
-        print('  python -m audioio.audioloader [-m <module>] [-p] <audio/file.wav>')
+        print('  python -m src.audioio.audioloader [-m <module>] [-p] <audio/file.wav>')
         print('  -m: audio module to be used')
         print('  -p: plot loaded data')
         return

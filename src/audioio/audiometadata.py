@@ -3,7 +3,7 @@
 To interface the various ways metadata are stored in audio files, the
 `audioio` package uses nested dictionaries.  The keys are always
 strings. Values are strings, integers, floats, datetimes, or other
-simple types. Value strings can also be numbers followed by a unit,
+types. Value strings can also be numbers followed by a unit,
 e.g. "4.2mV". For defining subsections of key-value pairs, values can
 be dictionaries. The dictionaries can be nested to arbitrary depth.
 
@@ -121,7 +121,7 @@ Lists of standard keys:
 - `default_history_keys`: keys of strings describing coding history.
 
 
-## Script
+## Command line script
 
 The module can be run as a script from the command line to display the
 metadata and markers contained in an audio file:
@@ -152,7 +152,7 @@ metadata:
 
 Alternatively, the script can be run from the module as:
 ```
-python -m audioio.metadata audiofile.wav
+python -m src.audioio.metadata audiofile.wav
 ```
 
 Running
@@ -1301,7 +1301,7 @@ def strlist_to_dict(mds):
     md_dict: dict
         Flat dictionary with key-value pairs.
         Keys may contain section names.
-        Values are strings, simple types or dictionaries.
+        Values are strings, other types or dictionaries.
     """
     if mds is None:
         return {}
@@ -1329,7 +1329,7 @@ def set_metadata(metadata, mds, sep='.'):
         Metadata.
     mds: dict or str or list of str
         - Flat dictionary with key-value pairs for updating the metadata.
-          Values can be strings or other simple types or dictionaries.
+          Values can be strings, other types or dictionaries.
         - String with key and value separated by '='.
         - List of strings with key and value separated by '='.
         Keys may contain section names separated by `sep`.
@@ -1378,7 +1378,7 @@ def add_metadata(metadata, mds, sep='.'):
         Metadata.
     mds: dict or str or list of str
         - Flat dictionary with key-value pairs for updating the metadata.
-          Values can be strings or other simple types or dictionaries.
+          Values can be strings, other types or dictionaries.
         - String with key and value separated by '='.
         - List of strings with key and value separated by '='.
         Keys may contain section names separated by `sep`.

@@ -1,4 +1,4 @@
-"""Writing numpy arrays of floats to audio files.
+"""Write numpy arrays of floats to audio files.
 
 - `write_audio()`: write audio data to file.
 - `available_formats()`: audio file formats supported by any of the installed audio modules.
@@ -15,7 +15,7 @@ for further instructions.
 
 For a demo, run the script as:
 ```
-python -m audioio.audiowriter
+python -m src.audioio.audiowriter
 ```
 
 """
@@ -795,9 +795,9 @@ audio_formats_funcs = (
     ('scipy.io.wavfile', formats_wavfile),
     ('pydub', formats_pydub)
     )
-""" List of implemented formats functions.
+""" List of implemented formats() functions.
 
-Each element of the list is a tuple with the module's name and the formats function.
+Each element of the list is a tuple with the module's name and the formats() function.
 """
 
 
@@ -832,9 +832,9 @@ audio_encodings_funcs = (
     ('scipy.io.wavfile', encodings_wavfile),
     ('pydub', encodings_pydub)
     )
-""" List of implemented encodings functions.
+""" List of implemented encodings() functions.
 
-Each element of the list is a tuple with the module's name and the encodings function.
+Each element of the list is a tuple with the module's name and the encodings() function.
 """
 
 
@@ -875,9 +875,9 @@ audio_writer_funcs = (
     ('scipy.io.wavfile', write_wavfile),
     ('pydub', write_pydub)
     )
-""" List of implemented write functions.
+""" List of implemented write() functions.
 
-Each element of the list is a tuple with the module's name and the write function.
+Each element of the list is a tuple with the module's name and the write() function.
 """
 
 
@@ -1035,7 +1035,7 @@ def main(*args):
     if help:
         print('')
         print('Usage:')
-        print('  python -m audioio.audiowriter [-m module] [-n channels] [<filename>] [<encoding>]')
+        print('  python -m src.audioio.audiowriter [-m module] [-n channels] [<filename>] [<encoding>]')
         return
 
     demo(file_path, channels=channels, encoding=encoding)

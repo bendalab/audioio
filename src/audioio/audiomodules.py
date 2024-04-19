@@ -34,11 +34,11 @@ modules are not available on your system.
 - `main()`: command line program for listing installation status of audio modules.
 
 
-## Script
+## Command line script
 
 Run this module as a script
 ```sh
-> python -m audioio.auidomodules
+> python -m src.audioio.auidomodules
 ```
 or, when the audioio package is installed on your system, simply run
 ```sh
@@ -771,7 +771,7 @@ def main(*args):
 
     Run this module as a script
     ```
-    > python -m audioio.auidomodules
+    > python -m src.audioio.auidomodules
     ```
     or, when the audioio package is installed on your system, simply run
     ```sh

@@ -5,9 +5,9 @@ audioconverter -o test.wav test.mp3
 ```
 converts 'test.mp3' to 'test.wav'.
 
-The script reads all input files with `audioloader.load_audio()`,
+The script reads all input files with `audioio.audioloader.load_audio()`,
 combines the audio and marker data and writes them along with the
-metadata to an output file using `audiowriter.write_audio()`.
+metadata to an output file using `audioio.audiowriter.write_audio()`.
 
 Thus, all formats supported by these functions and the installed
 python audio modules are available. This implies that MP3 files can be

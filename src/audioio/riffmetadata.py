@@ -1970,7 +1970,7 @@ def main(*args):
     if len(args) > 0 and (args[0] == '-h' or args[0] == '--help'):
         print()
         print('Usage:')
-        print('  python -m audioio.riffmetadata [--help] <audio/file.wav>')
+        print('  python -m src.audioio.riffmetadata [--help] <audio/file.wav>')
         print()
         return
 

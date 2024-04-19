@@ -22,7 +22,7 @@ except ImportError:
 def despike(data, thresh=1.0, n=1):
     """Remove spikes. 
 
-    If single data points stick out by more than a threshold, they are
+    If `n` data points stick out by more than a threshold, they are
     replaced by the mean of the two directly preceeding and succeeding
     data points.
 

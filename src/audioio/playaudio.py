@@ -36,7 +36,7 @@ for further instructions.
 
 For a demo, run the script as:
 ```
-python -m audioio.playaudio
+python -m src.audioio.playaudio
 ```
 
 """
@@ -1314,7 +1314,7 @@ def main(*args):
     if help:
         print('')
         print('Usage:')
-        print('  python -m audioio.playaudio [-m <module>]')
+        print('  python -m src.audioio.playaudio [-m <module>]')
         print('  -m: audio module to be used')
         return
         
