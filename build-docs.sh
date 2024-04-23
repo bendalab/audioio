@@ -35,8 +35,10 @@ if command -v mkdocs >/dev/null; then
     if $HAS_COVER; then
 	echo "    - Coverage: 'cover/index.html'" >> mkdocs-tmp.yml
     fi
+    mkdir docs
     sed -e 's|docs/||; /\[Documentation\]/d; /\[API Reference\]/d' README.md > docs/index.md
     mkdocs build --config-file mkdocs-tmp.yml --site-dir "$BUILDROOT"
+    rm mkdocs-tmp.yml
     cd - > /dev/null
 fi
 
