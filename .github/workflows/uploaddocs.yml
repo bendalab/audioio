@@ -26,6 +26,7 @@ jobs:
           pip install sounddevice
           pip install soundcard
           pip install pytest pytest-cov
+          pip install build
           pip install pdoc3
           pip install mkdocs
           pip install genbadge[coverage]
