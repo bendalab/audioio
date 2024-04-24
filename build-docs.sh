@@ -38,7 +38,7 @@ if command -v mkdocs >/dev/null; then
     mkdir docs
     sed -e 's|docs/||; /\[Documentation\]/d; /\[API Reference\]/d' README.md > docs/index.md
     mkdocs build --config-file mkdocs-tmp.yml --site-dir "$BUILDROOT"
-    rm mkdocs-tmp.yml
+    rm mkdocs-tmp.yml docs/index.md
     cd - > /dev/null
 fi
 

@@ -35,6 +35,14 @@ jobs:
         run: pytest -v --cov-report xml --cov-report html:cover --cov-report term --cov audioio tests/
         shell: bash
 
+      - name: Build
+        run: python -m build
+        shell: bash
+
+      - name: Install
+        run: pip install .
+        shell: bash
+
       - name: Build documentation
         run: ./build-docs.sh
         shell: bash
