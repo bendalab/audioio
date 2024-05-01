@@ -539,7 +539,7 @@ class BufferArray(object):
 
     In the constructor or some kind of opening function, you need to
     set the following member variables, followed by a call to
-    `_init_buffer()`:
+    `init_buffer()` or `allocate_buffer()`:
 
     ```
     self.samplerate      # number of frames per second
@@ -550,7 +550,7 @@ class BufferArray(object):
     self.size            # total number of samples: frames times channels
     self.buffersize      # number of frames the buffer should hold
     self.backsize        # number of frames kept for moving back
-    self._init_buffer()
+    self.init_buffer()
     ```
 
     or provide all this information via the constructor.
@@ -632,15 +632,15 @@ class BufferArray(object):
         self.size = self.frames * self.channels
         self.ampl_min = ampl_min
         self.ampl_max = ampl_max
-        self.buffersize = buffersize
-        self.backsize = backsize
+        self.buffersize = buffersize if buffersize <= frames else frames
+        self.backsize = backsize if backsize <= frames//2 else frames//2
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
         self.unwrap_ampl = 1.0
         self.unwrap_downscale = True
         self.verbose = verbose
-        self._init_buffer()
+        self.init_buffer()
 
     def __enter__(self):
         return self
@@ -714,10 +714,19 @@ class BufferArray(object):
         else:
             return self.buffer[newindex]
 
-    def _init_buffer(self):
+    def init_buffer(self):
         """Allocate a buffer with zero frames but all the channels."""
         self.buffer = np.empty((0, self.channels))
         self.offset = 0
+
+        
+    def allocate_buffer(self, size=None):
+        """Reallocate the buffer to have the right size."""
+        if size is None:
+            size = self.buffersize
+        if size != self.buffer.shape[0]:
+            self.buffer = np.empty((size, self.channels))
+
 
     def reload_buffer(self):
         """Reload the current buffer.
@@ -823,11 +832,6 @@ class BufferArray(object):
         r_size: int
            Number of frames to be read from file.
         """
-        def allocate_buffer(size):
-            """Make sure the buffer has the right size."""
-            if size != self.buffer.shape[0]:
-                self.buffer = np.empty((size, self.channels))
-
         r_offset = offset
         r_size = size
         if ( offset >= self.offset and
@@ -838,7 +842,7 @@ class BufferArray(object):
                 n = size
             m = self.buffer.shape[0]
             buffer = self.buffer[-i:m-i+n,:]
-            allocate_buffer(size)
+            self.allocate_buffer(size)
             self.buffer[:n,:] = buffer
             r_offset += n
             r_size -= n
@@ -849,13 +853,13 @@ class BufferArray(object):
             n = offset + size - self.offset
             m = self.buffer.shape[0]
             buffer = self.buffer[:n,:]
-            allocate_buffer(size)
+            self.allocate_buffer(size)
             self.buffer[-n:,:] = buffer
             r_size -= n
             if self.verbose > 2:
                 print(f'  recycle {n:6d} frames from {self.offset}-{self.offset+n} of the old {m}-sized buffer to the end at {offset+size-n}-{offset+size} ({size-n}-{size} in buffer)')
         else:
-            allocate_buffer(size)
+            self.allocate_buffer(size)
         return r_offset, r_size
 
     
@@ -1246,7 +1250,7 @@ class AudioLoader(BufferArray):
         self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.init_buffer()
         self.close = self._close_wave
         self.load_buffer = self._load_buffer_wave
         # read 1 frame to determine the unit of the position values:
@@ -1327,7 +1331,7 @@ class AudioLoader(BufferArray):
         self.encoding = self.numpy_encodings[self.sf.dtype]
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.init_buffer()
         self.close = self._close_ewave
         self.load_buffer = self._load_buffer_ewave
         return self
@@ -1405,7 +1409,7 @@ class AudioLoader(BufferArray):
         self.encoding = self.sf.subtype
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.init_buffer()
         self.close = self._close_soundfile
         self.load_buffer = self._load_buffer_soundfile
         return self
@@ -1485,7 +1489,7 @@ class AudioLoader(BufferArray):
         # init buffer:
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.init_buffer()
         self.close = self._close_wavefile
         self.load_buffer = self._load_buffer_wavefile
         return self
@@ -1559,7 +1563,7 @@ class AudioLoader(BufferArray):
         self.size = self.frames * self.channels
         self.buffersize = int(buffersize*self.samplerate)
         self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.init_buffer()
         self.read_buffer = np.zeros((0,0))
         self.read_offset = 0
         self.close = self._close_audioread
