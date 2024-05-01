@@ -8,7 +8,7 @@
 - `blocks()`: generator for blockwise processing of array data.
 
 The read in data are always numpy arrays of floats ranging between -1 and 1.
-The arrays are 2-D arrays with first axis time and second axis channel,
+The arrays are 2-D ndarrays with first axis time and second axis channel,
 even for single channel data.
 
 If an audio file cannot be loaded, you might need to install
@@ -41,13 +41,13 @@ def load_wave(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel
     rate: float
         The sampling rate of the data in Hertz.
 
@@ -86,13 +86,13 @@ def load_ewave(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel.
     rate: float
         The sampling rate of the data in Hertz.
 
@@ -127,13 +127,13 @@ def load_wavfile(filepath):
     
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel.
     rate: float
         The sampling rate of the data in Hertz.
 
@@ -171,13 +171,13 @@ def load_soundfile(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel.
     rate: float
         The sampling rate of the data in Hertz.
 
@@ -208,13 +208,13 @@ def load_wavefile(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel.
     rate: float
         The sampling rate of the data in Hertz.
 
@@ -241,13 +241,13 @@ def load_audioread(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, first dimension is time, second is channel.
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel.
     rate: float
         The sampling rate of the data in Hertz.
 
@@ -303,15 +303,15 @@ def load_audio(filepath, verbose=0):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         The full path and name of the file to load.
     verbose: int
         If larger than zero show detailed error/warning messages.
 
     Returns
     -------
-    data: array
-        All data traces as an 2-D numpy array, even for single channel data.
+    data: ndarray
+        All data traces as an 2-D ndarray, even for single channel data.
         First dimension is time, second is channel.
         Data values range maximally between -1 and 1.
     rate: float
@@ -382,7 +382,7 @@ def metadata(filepath, store_empty=False):
 
     Parameters
     ----------
-    filepath: string or file handle
+    filepath: str or file handle
         The audio file from which to read metadata.
     store_empty: bool
         If `False` do not return meta data with empty values.
@@ -422,15 +422,15 @@ def markers(filepath):
 
     Parameters
     ----------
-    filepath: string or file handle
+    filepath: str or file handle
         The audio file.
 
     Returns
     -------
-    locs: 2-D array of ints
+    locs: 2-D ndarray of int
         Marker positions (first column) and spans (second column)
         for each marker (rows).
-    labels: 2-D array of string objects
+    labels: 2-D ndarray of string objects
         Labels (first column) and texts (second column)
         for each marker (rows).
 
@@ -453,7 +453,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
 
     Parameters
     ----------
-    data: array
+    data: ndarray
         Data to loop over. First dimension is time.
     block_size: int
         Len of data blocks to be returned.
@@ -466,7 +466,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
 
     Yields
     ------
-    data: array
+    data: ndarray
         Successive slices of the input data.
 
     Raises
@@ -532,14 +532,15 @@ class BufferArray(object):
 
     Classes inheriting BufferArray just need to implement
     ```
-    self.load_buffer(offset, size, buffer)
+    self.load_buffer(offset, nframes, buffer)
     ```
-    This function needs to load the supplied 2-D `buffer` with `size`
-    frames of data starting at `offset`.
+    This function needs to load the supplied 2-D `buffer` with
+    `nframes` frames of data starting at frame `offset`.
 
     In the constructor or some kind of opening function, you need to
     set the following member variables, followed by a call to
     `_init_buffer()`:
+
     ```
     self.samplerate      # number of frames per second
     self.channels        # number of channels per frame
@@ -551,9 +552,26 @@ class BufferArray(object):
     self.backsize        # number of frames kept for moving back
     self._init_buffer()
     ```
+
+    or provide all this information via the constructor.
     
     Parameters
     ----------
+    samplerate: float
+        The sampling rate of the data in seconds.
+    channels: int
+        The number of channels.
+    frames: int
+        The number of frames. Same as `len()`.
+    ampl_min: float
+        Minimum amplitude the data supports.
+    ampl_max: float
+        Maximum amplitude the data supports.
+    buffersize: int
+        Number of samples the curent data buffer holds.
+    backsize: int
+        Number of samples the curent data buffer should keep
+        before requested data ranges.
     verbose: int
         If larger than zero show detailed error/warning messages.
 
@@ -573,12 +591,17 @@ class BufferArray(object):
         Total number of samples: frames times channels.
     offset: int
         Index of first frame in the current buffer.
-    buffer: array of floats
+    buffer: ndarray of floats
         The curently available data.
     ampl_min: float
         Minimum amplitude the data supports.
     ampl_max: float
         Maximum amplitude the data supports.
+    buffersize: int
+        Number of samples the curent data buffer holds.
+    backsize: int
+        Number of samples the curent data buffer should keep
+        before requested data ranges.
 
     Methods
     -------
@@ -599,25 +622,25 @@ class BufferArray(object):
 
     """
     
-    def __init__(self, verbose=0):
-        self.samplerate = 0.0
-        self.channels = 0
-        self.frames = 0
-        self.shape = (0, 0)
+    def __init__(self, rate=0, channels=0, frames=0, ampl_min=-1.0,
+                 ampl_max=+1.0, buffersize=0, backsize=0, verbose=0):
+        self.samplerate = rate
+        self.channels = channels
+        self.frames = frames
+        self.shape = (self.frames, self.channels)
         self.ndim = 2
-        self.size = 0
-        self.ampl_min = -1.0
-        self.ampl_max = +1.0
-        self.offset = 0
-        self.buffersize = 0
-        self.backsize = 0
-        self.buffer = np.zeros((0, 0))
+        self.size = self.frames * self.channels
+        self.ampl_min = ampl_min
+        self.ampl_max = ampl_max
+        self.buffersize = buffersize
+        self.backsize = backsize
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
         self.unwrap_ampl = 1.0
         self.unwrap_downscale = True
         self.verbose = verbose
+        self._init_buffer()
 
     def __enter__(self):
         return self
@@ -696,6 +719,22 @@ class BufferArray(object):
         self.buffer = np.empty((0, self.channels))
         self.offset = 0
 
+    def reload_buffer(self):
+        """Reload the current buffer.
+        """
+        self.load_buffer(self.offset, len(self.buffer)//self.channels,
+                         self.buffer)
+        if self.unwrap:
+            # TODO: handle edge effects!
+            unwrap(self.buffer, self.unwrap_thresh, self.unwrap_ampl)
+            if self.unwrap_clips:
+                self.buffer[self.buffer > self.ampl_max] = self.ampl_max
+                self.buffer[self.buffer < self.ampl_min] = self.ampl_min
+            elif self.unwrap_down_scale:
+                self.buffer *= 0.5
+        if self.verbose > 1:
+            print(f'  reloaded {self.buffer.shape[0]} frames from {self.offset} up to {self.offset+self.buffer.shape[0]}')
+
     def update_buffer(self, start, stop):
         """Make sure that the buffer contains data between start and stop.
 
@@ -711,8 +750,8 @@ class BufferArray(object):
             r_offset, r_size = self._recycle_buffer(offset, size)
             self.offset = offset
             # load buffer content from file, this is backend specific:
-            data = self.buffer[r_offset-self.offset:
-                               r_offset-self.offset+r_size,:]
+            data = self.buffer[r_offset - self.offset:
+                               r_offset - self.offset + r_size, :]
             self.load_buffer(r_offset, r_size, data)
             if self.unwrap:
                 # TODO: handle edge effects!
@@ -818,7 +857,8 @@ class BufferArray(object):
         else:
             allocate_buffer(size)
         return r_offset, r_size
-            
+
+    
 class AudioLoader(BufferArray):
     """Buffered reading of audio data for random access of the data in the file.
     
@@ -898,7 +938,7 @@ class AudioLoader(BufferArray):
     
     Parameters
     ----------
-    filepath: string
+    filepath: str
         Name of the file.
     buffersize: float
         Size of internal buffer in seconds.
@@ -927,7 +967,7 @@ class AudioLoader(BufferArray):
         Frames and channels of the data.
     offset: int
         Index of first frame in the current buffer.
-    buffer: array of floats
+    buffer: ndarray of floats
         The curently available data from the file.
     ampl_min: float
         Minimum amplitude the file format supports.
@@ -1010,7 +1050,7 @@ class AudioLoader(BufferArray):
 
         Yields
         ------
-        data: array
+        data: ndarray
             Successive slices of the data managed by AudioLoader.
 
         Raises
@@ -1093,10 +1133,10 @@ class AudioLoader(BufferArray):
 
         Returns
         -------
-        locs: 2-D array of ints
+        locs: 2-D ndarray of int
             Marker positions (first column) and spans (second column)
             for each marker (rows).
-        labels: 2-D array of string objects
+        labels: 2-D ndarray of str objects
             Labels (first column) and texts (second column)
             for each marker (rows).
         """
@@ -1161,7 +1201,7 @@ class AudioLoader(BufferArray):
 
         Parameters
         ----------
-        filepath: string
+        filepath: str
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1249,7 +1289,7 @@ class AudioLoader(BufferArray):
 
         Parameters
         ----------
-        filepath: string
+        filepath: str
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1322,7 +1362,7 @@ class AudioLoader(BufferArray):
 
         Parameters
         ----------
-        filepath: string
+        filepath: str
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1398,7 +1438,7 @@ class AudioLoader(BufferArray):
 
         Parameters
         ----------
-        filepath: string
+        filepath: str
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1483,7 +1523,7 @@ class AudioLoader(BufferArray):
 
         Parameters
         ----------
-        filepath: string
+        filepath: str
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1638,7 +1678,7 @@ class AudioLoader(BufferArray):
 
         Parameters
         ----------
-        filepath: string
+        filepath: str
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1713,7 +1753,7 @@ def demo(file_path, plot):
 
     Parameters
     ----------
-    file_path: string
+    file_path: str
         File path of an audio file.
     plot: bool
         If True also plot the loaded data.
@@ -1782,7 +1822,7 @@ def main(*args):
 
     Parameters
     ----------
-    args: list of strings
+    args: list of str
         Command line arguments as provided by sys.argv[1:]
     """
     print("Checking audioloader module ...")
