@@ -632,8 +632,8 @@ class BufferArray(object):
         self.size = self.frames * self.channels
         self.ampl_min = ampl_min
         self.ampl_max = ampl_max
-        self.buffersize = buffersize if buffersize <= frames else frames
-        self.backsize = backsize if backsize <= frames//2 else frames//2
+        self.buffersize = buffersize
+        self.backsize = backsize
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
@@ -716,12 +716,20 @@ class BufferArray(object):
 
     def init_buffer(self):
         """Allocate a buffer with zero frames but all the channels."""
+        if self.buffersize > self.frames:
+            self.buffersize = self.frames
+        if self.backsize > self.frames//2:
+            self.backsize = self.frames//2
         self.buffer = np.empty((0, self.channels))
         self.offset = 0
 
         
     def allocate_buffer(self, size=None):
         """Reallocate the buffer to have the right size."""
+        if self.buffersize > self.frames:
+            self.buffersize = self.frames
+        if self.backsize > self.frames//2:
+            self.backsize = self.frames//2
         if size is None:
             size = self.buffersize
         if size != self.buffer.shape[0]:
