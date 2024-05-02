@@ -3,7 +3,7 @@
 - `load_audio()`: load a whole audio file at once.
 - `metadata()`: read metadata of an audio file.
 - `markers()`: read markers of an audio file.
-- `BufferedArray()`: random access to 2D data of which only a part is held in memory.
+- `BufferedArray()`: random access to time-series data of which only a part is held in memory.
 - `AudioLoader`: read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 
@@ -521,20 +521,23 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
 
 
 class BufferedArray(object):
-    """Random access to 2D data of which only a part is held in memory.
+    """Random access to time-series data of which only a part is held in memory.
     
     This is a base class for accessing large audio recordings either
-    from a file (class AudioLoader) or by computing its contents.  The
-    BufferedArray behaves like a single big ndarray with first dimension
-    indexing the frames and second dimension indexing the channels of
-    the audio data. Internally it only holds a part of the data in
+    from a file (class AudioLoader) or by computing its contents
+    (e.g. filtered data, envelopes or spectrograms).  The
+    BufferedArray behaves like a single big ndarray with first
+    dimension indexing the frames and second dimension indexing the
+    channels of the data. Higher dimensions are also supported.
+    For example, a third dimension for frequencies needed for
+    spectrograms. Internally it only holds a part of the data in
     memory.
 
     Classes inheriting BufferedArray just need to implement
     ```
-    self.load_buffer(offset, nsamples, buffer)
+    self.load_buffer(offset, nsamples, pbuffer)
     ```
-    This function needs to load the supplied 2-D `buffer` with
+    This function needs to load the supplied `pbuffer` with
     `nframes` frames of data starting at frame `offset`.
 
     In the constructor or some kind of opening function, you need to
@@ -546,10 +549,10 @@ class BufferedArray(object):
     self.channels        # number of channels per frame
     self.frames          # total number of frames
     self.shape = (self.frames, self.channels)        
-    self.ndim            # number of dimensions: always 2 (frames and channels)
+    self.ndim            # number of dimensions: 2 (frames and channels) or higher
     self.size            # total number of samples: frames times channels
-    self.bufferframes      # number of frames the buffer should hold
-    self.backframes        # number of frames kept for moving back
+    self.bufferframes    # number of frames the buffer should hold
+    self.backframes      # number of frames kept for moving back
     self.init_buffer()
     ```
 
@@ -562,7 +565,7 @@ class BufferedArray(object):
     channels: int
         The number of channels.
     frames: int
-        The number of frames. Same as `len()`.
+        The number of frames.
     ampl_min: float
         Minimum amplitude the data supports.
     ampl_max: float
@@ -584,15 +587,16 @@ class BufferedArray(object):
     frames: int
         The number of frames. Same as `len()`.
     shape: tuple
-        Frames and channels of the data.
+        Frames and channels of the data. Optional higher dimensions.
     ndim: int
-        Number of dimensions: always 2 (frames and channels).
+        Number of dimensions: 2 (frames and channels) or higher.
     size: int
         Total number of samples: frames times channels.
     offset: int
         Index of first frame in the current buffer.
     buffer: ndarray of floats
         The curently available data. First dimension is time, second channels.
+        Optional higher dimensions according to `ndim` and `shape`.
     ampl_min: float
         Minimum amplitude the data supports.
     ampl_max: float
@@ -608,8 +612,9 @@ class BufferedArray(object):
     - `len()`: Number of frames.
     - `__getitem__`: Access data.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
-    - `update_buffer()`: Update the buffer for a range of frames.
-    - `load_buffer()`: Load a range of samples into a buffer.
+    - `update_buffer()`: update the buffer for a range of frames.
+    - `reload_buffer()`: reload the current buffer.
+    - `load_buffer()`: load a range of samples into a buffer.
 
     Notes
     -----
@@ -625,6 +630,8 @@ class BufferedArray(object):
     
     def __init__(self, rate=0, channels=0, frames=0, ampl_min=-1.0,
                  ampl_max=+1.0, bufferframes=0, backframes=0, verbose=0):
+        """ Construtor for initializing 2D arrays (times x channels).
+        """
         self.samplerate = rate
         self.channels = channels
         self.frames = frames
@@ -635,11 +642,6 @@ class BufferedArray(object):
         self.ampl_max = ampl_max
         self.bufferframes = bufferframes   # number of frames the buffer can hold
         self.backframes = backframes       # number of frames kept before
-        self.unwrap = False
-        self.unwrap_thresh = 0.0
-        self.unwrap_clips = False
-        self.unwrap_ampl = 1.0
-        self.unwrap_downscale = True
         self.verbose = verbose
         self.offset = 0     # index of first frame in buffer
         self.init_buffer()
@@ -788,15 +790,6 @@ class BufferedArray(object):
         """Reload the current buffer.
         """
         self.load_buffer(self.offset, len(self.buffer), self.buffer)
-        if self.unwrap:
-            # TODO: move this to AudioLoader!!!
-            # TODO: handle edge effects!
-            unwrap(self.buffer, self.unwrap_thresh, self.unwrap_ampl)
-            if self.unwrap_clips:
-                self.buffer[self.buffer > self.ampl_max] = self.ampl_max
-                self.buffer[self.buffer < self.ampl_min] = self.ampl_min
-            elif self.unwrap_down_scale:
-                self.buffer *= 0.5
         if self.verbose > 1:
             print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
@@ -815,20 +808,11 @@ class BufferedArray(object):
             r_offset, r_nframes = self._recycle_buffer(offset, nframes)
             self.offset = offset
             # load buffer content, this is backend specific:
-            data = self.buffer[r_offset - self.offset:
-                               r_offset - self.offset + r_nframes]
-            self.load_buffer(r_offset, r_nframes, data)
-            if self.unwrap:
-                # TODO: move this to AudioLoader!!!
-                # TODO: handle edge effects!
-                unwrap(data, self.unwrap_thresh, self.unwrap_ampl)
-                if self.unwrap_clips:
-                    data[data > self.ampl_max] = self.ampl_max
-                    data[data < self.ampl_min] = self.ampl_min
-                elif self.unwrap_down_scale:
-                    data *= 0.5
+            pbuffer = self.buffer[r_offset - self.offset:
+                                  r_offset - self.offset + r_nframes]
+            self.load_buffer(r_offset, r_nframes, pbuffer)
             if self.verbose > 1:
-                print(f'  loaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
+                print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
 
     def _read_indices(self, start, stop):
         """Compute position and size for next read from file.
@@ -932,7 +916,7 @@ class AudioLoader(BufferedArray):
     ```
     The first index specifies the frame, the second one the channel.
 
-    Behind the scenes AudioLoader tries to open the audio file with
+    Behind the scenes, `AudioLoader` tries to open the audio file with
     all available audio modules until it succeeds (first line). It
     then reads data from the file as necessary for the requested data
     (second line).
@@ -996,6 +980,16 @@ class AudioLoader(BufferedArray):
     data.open(filepath, 60.0)
     ...
     ```
+
+    Classes inheriting AudioLoader just need to implement
+    ```
+    self.load_audio_buffer(offset, nsamples, pbuffer)
+    ```
+    This function needs to load the supplied `pbuffer` with
+    `nframes` frames of data starting at frame `offset`.
+
+    In the constructor or some kind of opening function, you need to
+    set some member variables, as described for `BufferedArray`.
     
     Parameters
     ----------
@@ -1026,6 +1020,8 @@ class AudioLoader(BufferedArray):
         Encoding/subtype of the audio file.
     shape: tuple
         Frames and channels of the data.
+    ndim: int
+        Number of dimensions: always 2 (frames and channels).
     offset: int
         Index of first frame in the current buffer.
     buffer: ndarray of floats
@@ -1044,7 +1040,6 @@ class AudioLoader(BufferedArray):
     - `open_*()`: Open an audio file with the respective audio module.
     - `__getitem__`: Access data of the audio file.
     - `update_buffer()`: Update the internal buffer for a range of frames.
-    - `load_buffer()`: Load a range of frames into a buffer.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
     - `format_dict()`: technical infos about how the data are stored.
     - `metadata()`: Metadata stored along with the audio data.
@@ -1078,6 +1073,12 @@ class AudioLoader(BufferedArray):
         self.filepath = None
         self.sf = None
         self.close = self._close
+        self.load_buffer = self._load_buffer_unwrap
+        self.unwrap = False
+        self.unwrap_thresh = 0.0
+        self.unwrap_clips = False
+        self.unwrap_ampl = 1.0
+        self.unwrap_downscale = True
         if filepath is not None:
             self.open(filepath, buffersize, backsize, verbose)
             
@@ -1214,6 +1215,28 @@ class AudioLoader(BufferedArray):
                            self.unwrap_thresh*self.unwrap_ampl,
                            0.0, unit)
 
+    def _load_buffer_unwrap(self, r_offset, r_size, pbuffer):
+        """Load new data and unwrap it.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        pbuffer: ndarray
+           Buffer where to store the loaded data.
+        """
+        self.load_audio_buffer(r_offset, r_size, pbuffer)
+        if self.unwrap:
+            # TODO: handle edge effects!
+            unwrap(pbuffer, self.unwrap_thresh, self.unwrap_ampl)
+            if self.unwrap_clips:
+                pbuffer[pbuffer > self.ampl_max] = self.ampl_max
+                pbuffer[pbuffer < self.ampl_min] = self.ampl_min
+            elif self.unwrap_down_scale:
+                pbuffer *= 0.5
+                
                 
     # wave interface:        
     def open_wave(self, filepath, buffersize=10.0, backsize=0.0,
@@ -1271,7 +1294,7 @@ class AudioLoader(BufferedArray):
         self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_wave
-        self.load_buffer = self._load_buffer_wave
+        self.load_audio_buffer = self._load_buffer_wave
         # read 1 frame to determine the unit of the position values:
         self.p0 = self.sf.tell()
         self.sf.readframes(1)
@@ -1353,7 +1376,7 @@ class AudioLoader(BufferedArray):
         self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_ewave
-        self.load_buffer = self._load_buffer_ewave
+        self.load_audio_buffer = self._load_buffer_ewave
         return self
 
     def _close_ewave(self):
@@ -1433,7 +1456,7 @@ class AudioLoader(BufferedArray):
         self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_soundfile
-        self.load_buffer = self._load_buffer_soundfile
+        self.load_audio_buffer = self._load_buffer_soundfile
         return self
 
     def _close_soundfile(self):
@@ -1514,7 +1537,7 @@ class AudioLoader(BufferedArray):
         self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_wavefile
-        self.load_buffer = self._load_buffer_wavefile
+        self.load_audio_buffer = self._load_buffer_wavefile
         return self
 
     def _close_wavefile(self):
@@ -1591,7 +1614,7 @@ class AudioLoader(BufferedArray):
         self.read_buffer = np.zeros((0,0))
         self.read_offset = 0
         self.close = self._close_audioread
-        self.load_buffer = self._load_buffer_audioread
+        self.load_audio_buffer = self._load_buffer_audioread
         self.filepath = filepath
         self.sf_iter = self.sf.__iter__()
         return self
