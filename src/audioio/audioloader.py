@@ -532,7 +532,7 @@ class BufferArray(object):
 
     Classes inheriting BufferArray just need to implement
     ```
-    self.load_buffer(offset, nframes, buffer)
+    self.load_buffer(offset, nsamples, buffer)
     ```
     This function needs to load the supplied 2-D `buffer` with
     `nframes` frames of data starting at frame `offset`.
@@ -608,7 +608,7 @@ class BufferArray(object):
     - `len()`: Number of frames.
     - `__getitem__`: Access data.
     - `update_buffer()`: Update the buffer for a range of frames.
-    - `load_buffer()`: Load a range of frames into a buffer.
+    - `load_buffer()`: Load a range of samples into a buffer.
 
     Notes
     -----
@@ -718,8 +718,7 @@ class BufferArray(object):
         """Allocate a buffer with zero frames but all the channels."""
         if self.buffersize > self.frames:
             self.buffersize = self.frames
-        if self.backsize > self.frames//2:
-            self.backsize = self.frames//2
+            self.backsize = 0
         self.buffer = np.empty((0, self.channels))
         self.offset = 0
 
@@ -728,8 +727,7 @@ class BufferArray(object):
         """Reallocate the buffer to have the right size."""
         if self.buffersize > self.frames:
             self.buffersize = self.frames
-        if self.backsize > self.frames//2:
-            self.backsize = self.frames//2
+            self.backsize = 0
         if size is None:
             size = self.buffersize
         if size != self.buffer.shape[0]:
@@ -739,8 +737,7 @@ class BufferArray(object):
     def reload_buffer(self):
         """Reload the current buffer.
         """
-        self.load_buffer(self.offset, len(self.buffer)//self.channels,
-                         self.buffer)
+        self.load_buffer(self.offset, len(self.buffer), self.buffer)
         if self.unwrap:
             # TODO: handle edge effects!
             unwrap(self.buffer, self.unwrap_thresh, self.unwrap_ampl)
