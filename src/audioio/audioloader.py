@@ -757,7 +757,7 @@ class BufferedArray(object):
         self.buffer = np.empty(shape)
         self.offset = 0
         
-    def allocate_buffer(self, nframes=None):
+    def allocate_buffer(self, nframes=None, force=False):
         """Reallocate the buffer to have the right size.
 
         Parameters
@@ -765,13 +765,15 @@ class BufferedArray(object):
         nframes: int or None
             Number of frames the buffer should hold.
             If None, use `self.bufferframes`.
+        force: bool
+            If True, reallocate buffer even if it has the same size as before.
         """
         if self.bufferframes > self.frames:
             self.bufferframes = self.frames
             self.backframes = 0
         if nframes is None:
             nframes = self.bufferframes
-        if nframes != self.buffer.shape[0]:
+        if force or nframes != len(self.buffer):
             shape = list(self.shape)
             shape[0] = nframes
             self.buffer = np.empty(shape)
