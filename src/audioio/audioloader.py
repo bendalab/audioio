@@ -3,7 +3,7 @@
 - `load_audio()`: load a whole audio file at once.
 - `metadata()`: read metadata of an audio file.
 - `markers()`: read markers of an audio file.
-- `BufferArray()`: random access to 2D data of which only a part is held in memory.
+- `BufferedArray()`: random access to 2D data of which only a part is held in memory.
 - `AudioLoader`: read data from audio files in chunks.
 - `blocks()`: generator for blockwise processing of array data.
 
@@ -510,27 +510,27 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
     if stop is None:
         stop = len(data)
     m = block_size - noverlap
-    n = (stop-start-noverlap)//m
+    n = (stop - start - noverlap)//m
     if n == 0:
         yield data[start:stop]
     else:
         for k in range(n):
-            yield data[start+k*m:start+k*m+block_size]
-        if stop - start - (k*m+block_size) > 0:
-            yield data[start+(k+1)*m:]
+            yield data[start + k*m:start + k*m + block_size]
+        if stop - start - (k*m + block_size) > 0:
+            yield data[start + (k + 1)*m:]
 
 
-class BufferArray(object):
+class BufferedArray(object):
     """Random access to 2D data of which only a part is held in memory.
     
     This is a base class for accessing large audio recordings either
     from a file (class AudioLoader) or by computing its contents.  The
-    BufferArray behaves like a single big ndarray with first dimension
+    BufferedArray behaves like a single big ndarray with first dimension
     indexing the frames and second dimension indexing the channels of
     the audio data. Internally it only holds a part of the data in
     memory.
 
-    Classes inheriting BufferArray just need to implement
+    Classes inheriting BufferedArray just need to implement
     ```
     self.load_buffer(offset, nsamples, buffer)
     ```
@@ -592,7 +592,7 @@ class BufferArray(object):
     offset: int
         Index of first frame in the current buffer.
     buffer: ndarray of floats
-        The curently available data.
+        The curently available data. First dimension is time, second channels.
     ampl_min: float
         Minimum amplitude the data supports.
     ampl_max: float
@@ -664,7 +664,7 @@ class BufferArray(object):
             raise StopIteration
         else:
             self.update_buffer(self.iter_counter, self.iter_counter + 1)
-            return self.buffer[self.iter_counter - self.offset,:]
+            return self.buffer[self.iter_counter - self.offset]
 
     def __getitem__(self, key):
         """Access data of the audio file."""
@@ -677,7 +677,7 @@ class BufferArray(object):
             stop = index.stop
             step = index.step
             if start is None:
-                start=0
+                start = 0
             else:
                 start = int(start)
             if start < 0:
@@ -695,21 +695,21 @@ class BufferArray(object):
             else:
                 step = int(step)
             self.update_buffer(start, stop)
-            newindex = slice(start-self.offset, stop-self.offset, step)
+            newindex = slice(start - self.offset, stop - self.offset, step)
         elif hasattr(index, '__len__'):
-            index = [inx if inx >= 0 else inx+len(self) for inx in index]
+            index = [inx if inx >= 0 else inx + len(self) for inx in index]
             start = min(index)
             stop = max(index)
-            self.update_buffer(start, stop+1)
-            newindex = [inx-self.offset for inx in index]
+            self.update_buffer(start, stop + 1)
+            newindex = [inx - self.offset for inx in index]
         else:
             if index > self.frames:
                 raise IndexError
             index = int(index)
             if index < 0:
                 index += len(self)
-            self.update_buffer(index, index+1)
-            newindex = index-self.offset
+            self.update_buffer(index, index + 1)
+            newindex = index - self.offset
         if type(key) is tuple:
             newkey = (newindex,) + key[1:]
             return self.buffer[newkey]
@@ -745,7 +745,7 @@ class BufferArray(object):
         Use it for processing long audio data, like computing a spectrogram with overlap:
         ```
         from scipy.signal import spectrogram
-        from audioio import AudioLoader  # AudioLoader is a BufferArray
+        from audioio import AudioLoader  # AudioLoader is a BufferedArray
         nfft = 2048
         with AudioLoader('some/audio.wav') as data:
             for x in data.blocks(100*nfft, nfft//2):
@@ -785,7 +785,7 @@ class BufferArray(object):
     def reload_buffer(self):
         """Reload the current buffer.
         """
-        self.load_buffer(self.offset, len(self.buffer), self.buffer[:, :])
+        self.load_buffer(self.offset, len(self.buffer), self.buffer)
         if self.unwrap:
             # TODO: handle edge effects!
             unwrap(self.buffer, self.unwrap_thresh, self.unwrap_ampl)
@@ -919,7 +919,7 @@ class BufferArray(object):
         return r_offset, r_nframes
 
     
-class AudioLoader(BufferArray):
+class AudioLoader(BufferedArray):
     """Buffered reading of audio data for random access of the data in the file.
     
     The class allows for reading very large audio files that do not
