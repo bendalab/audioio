@@ -760,9 +760,10 @@ class BufferedArray(object):
         if self.bufferframes > self.frames:
             self.bufferframes = self.frames
             self.backframes = 0
-        self.buffer = np.empty((0, self.channels))
+        shape = list(self.shape)
+        shape[0] = 0
+        self.buffer = np.empty(shape)
         self.offset = 0
-
         
     def allocate_buffer(self, nframes=None):
         """Reallocate the buffer to have the right size.
@@ -779,14 +780,16 @@ class BufferedArray(object):
         if nframes is None:
             nframes = self.bufferframes
         if nframes != self.buffer.shape[0]:
-            self.buffer = np.empty((nframes, self.channels))
-
+            shape = list(self.shape)
+            shape[0] = nframes
+            self.buffer = np.empty(shape)
 
     def reload_buffer(self):
         """Reload the current buffer.
         """
         self.load_buffer(self.offset, len(self.buffer), self.buffer)
         if self.unwrap:
+            # TODO: move this to AudioLoader!!!
             # TODO: handle edge effects!
             unwrap(self.buffer, self.unwrap_thresh, self.unwrap_ampl)
             if self.unwrap_clips:
@@ -795,9 +798,8 @@ class BufferedArray(object):
             elif self.unwrap_down_scale:
                 self.buffer *= 0.5
         if self.verbose > 1:
-            print(f'  reloaded {self.buffer.shape[0]} frames from {self.offset} up to {self.offset+self.buffer.shape[0]}')
+            print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
-            
     def update_buffer(self, start, stop):
         """Make sure that the buffer contains data between start and stop.
 
@@ -808,15 +810,16 @@ class BufferedArray(object):
         stop: int
             Index of the last frame for the buffer.
         """
-        if start < self.offset or stop > self.offset + self.buffer.shape[0]:
+        if start < self.offset or stop > self.offset + len(self.buffer):
             offset, nframes = self._read_indices(start, stop)
             r_offset, r_nframes = self._recycle_buffer(offset, nframes)
             self.offset = offset
-            # load buffer content from file, this is backend specific:
+            # load buffer content, this is backend specific:
             data = self.buffer[r_offset - self.offset:
-                               r_offset - self.offset + r_nframes, :]
+                               r_offset - self.offset + r_nframes]
             self.load_buffer(r_offset, r_nframes, data)
             if self.unwrap:
+                # TODO: move this to AudioLoader!!!
                 # TODO: handle edge effects!
                 unwrap(data, self.unwrap_thresh, self.unwrap_ampl)
                 if self.unwrap_clips:
@@ -825,9 +828,8 @@ class BufferedArray(object):
                 elif self.unwrap_down_scale:
                     data *= 0.5
             if self.verbose > 1:
-                print(f'  loaded {self.buffer.shape[0]} frames from {self.offset} up to {self.offset+self.buffer.shape[0]}')
+                print(f'  loaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
-                
     def _read_indices(self, start, stop):
         """Compute position and size for next read from file.
 
@@ -866,7 +868,6 @@ class BufferedArray(object):
             print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
         return offset, nframes
 
-    
     def _recycle_buffer(self, offset, nframes):
         """Recycle buffer contents and return indices for data to be loaded from file.
 
@@ -891,29 +892,29 @@ class BufferedArray(object):
         r_offset = offset
         r_nframes = nframes
         if ( offset >= self.offset and
-             offset < self.offset + self.buffer.shape[0] ):
-            i = self.offset + self.buffer.shape[0] - offset
+             offset < self.offset + len(self.buffer)):
+            i = self.offset + len(self.buffer) - offset
             n = i
             if n > nframes:
                 n = nframes
-            m = self.buffer.shape[0]
-            buffer = self.buffer[-i:m-i+n,:]
+            m = len(self.buffer)
+            tmp_buffer = self.buffer[-i:m - i + n]
             self.allocate_buffer(nframes)
-            self.buffer[:n,:] = buffer
+            self.buffer[:n] = tmp_buffer
             r_offset += n
             r_nframes -= n
             if self.verbose > 2:
-                print(f'  recycle {n:6d} frames from {self.offset+m-i}-{self.offset+m-i+n} of the old {m}-sized buffer to the front at {offset}-{offset+n} ({0}-{n} in buffer)')
+                print(f'  recycle {n:6d} frames from {self.offset + m - i} - {self.offset + m - i + n} of the old {m}-sized buffer to the front at {offset} - {offset + n} ({0} - {n} in buffer)')
         elif ( offset + nframes > self.offset and
-            offset + nframes <= self.offset + self.buffer.shape[0] ):
+               offset + nframes <= self.offset + len(self.buffer)):
             n = offset + nframes - self.offset
-            m = self.buffer.shape[0]
-            buffer = self.buffer[:n,:]
+            m = len(self.buffer)
+            tmp_buffer = self.buffer[:n]
             self.allocate_buffer(nframes)
-            self.buffer[-n:,:] = buffer
+            self.buffer[-n:] = tmp_buffer
             r_nframes -= n
             if self.verbose > 2:
-                print(f'  recycle {n:6d} frames from {self.offset}-{self.offset+n} of the old {m}-sized buffer to the end at {offset+nframes-n}-{offset+nframes} ({nframes-n}-{nframes} in buffer)')
+                print(f'  recycle {n:6d} frames from {self.offset} - {self.offset + n} of the old {m}-sized buffer to the end at {offset + nframes - n} - {offset + nframes} ({nframes - n} - {nframes} in buffer)')
         else:
             self.allocate_buffer(nframes)
         return r_offset, r_nframes
@@ -1378,7 +1379,8 @@ class AudioLoader(BufferedArray):
         if len(fbuffer.shape) == 1:
             fbuffer = np.reshape(fbuffer,(-1, 1))
         buffer[:,:] = fbuffer
-            
+
+        
     # soundfile interface:        
     def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0,
                        verbose=0):
