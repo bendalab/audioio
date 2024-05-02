@@ -566,10 +566,6 @@ class BufferedArray(object):
         The number of channels.
     frames: int
         The number of frames.
-    ampl_min: float
-        Minimum amplitude the data supports.
-    ampl_max: float
-        Maximum amplitude the data supports.
     bufferframes: int
         Number of frames the curent data buffer holds.
     backframes: int
@@ -597,10 +593,6 @@ class BufferedArray(object):
     buffer: ndarray of floats
         The curently available data. First dimension is time, second channels.
         Optional higher dimensions according to `ndim` and `shape`.
-    ampl_min: float
-        Minimum amplitude the data supports.
-    ampl_max: float
-        Maximum amplitude the data supports.
     bufferframes: int
         Number of samples the curent data buffer holds.
     backframes: int
@@ -628,8 +620,8 @@ class BufferedArray(object):
 
     """
     
-    def __init__(self, rate=0, channels=0, frames=0, ampl_min=-1.0,
-                 ampl_max=+1.0, bufferframes=0, backframes=0, verbose=0):
+    def __init__(self, rate=0, channels=0, frames=0, bufferframes=0,
+                 backframes=0, verbose=0):
         """ Construtor for initializing 2D arrays (times x channels).
         """
         self.samplerate = rate
@@ -638,8 +630,6 @@ class BufferedArray(object):
         self.shape = (self.frames, self.channels)
         self.ndim = 2
         self.size = self.frames * self.channels
-        self.ampl_min = ampl_min
-        self.ampl_max = ampl_max
         self.bufferframes = bufferframes   # number of frames the buffer can hold
         self.backframes = backframes       # number of frames kept before
         self.verbose = verbose
@@ -1074,6 +1064,8 @@ class AudioLoader(BufferedArray):
         self.sf = None
         self.close = self._close
         self.load_buffer = self._load_buffer_unwrap
+        self.ampl_min = -1.0
+        self.ampl_max = +1.0
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
