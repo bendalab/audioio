@@ -607,6 +607,7 @@ class BufferArray(object):
     -------
     - `len()`: Number of frames.
     - `__getitem__`: Access data.
+    - `blocks()`: Generator for blockwise processing of AudioLoader data.
     - `update_buffer()`: Update the buffer for a range of frames.
     - `load_buffer()`: Load a range of samples into a buffer.
 
@@ -715,6 +716,45 @@ class BufferArray(object):
         else:
             return self.buffer[newindex]
 
+    def blocks(self, block_size, noverlap=0, start=0, stop=None):
+        """Generator for blockwise processing of AudioLoader data.
+
+        Parameters
+        ----------
+        block_size: int
+            Len of data blocks to be returned.
+        noverlap: int
+            Number of indices successive data points should overlap.
+        start: int
+            Optional first index from which on to return blocks of data.
+        stop: int
+            Optional last index until which to return blocks of data.
+
+        Yields
+        ------
+        data: ndarray
+            Successive slices of the data managed by AudioLoader.
+
+        Raises
+        ------
+        ValueError
+            `noverlap` larger or equal to `block_size`.
+
+        Examples
+        --------
+        Use it for processing long audio data, like computing a spectrogram with overlap:
+        ```
+        from scipy.signal import spectrogram
+        from audioio import AudioLoader  # AudioLoader is a BufferArray
+        nfft = 2048
+        with AudioLoader('some/audio.wav') as data:
+            for x in data.blocks(100*nfft, nfft//2):
+                f, t, Sxx = spectrogram(x, fs=data.samplerate,
+                                        nperseg=nfft, noverlap=nfft//2)
+        ```
+        """
+        return blocks(self, block_size, noverlap, start, stop)
+
     def init_buffer(self):
         """Allocate a buffer with zero frames but all the channels."""
         if self.bufferframes > self.frames:
@@ -745,7 +785,7 @@ class BufferArray(object):
     def reload_buffer(self):
         """Reload the current buffer.
         """
-        self.load_buffer(self.offset, len(self.buffer), self.buffer)
+        self.load_buffer(self.offset, len(self.buffer), self.buffer[:, :])
         if self.unwrap:
             # TODO: handle edge effects!
             unwrap(self.buffer, self.unwrap_thresh, self.unwrap_ampl)
@@ -1053,45 +1093,6 @@ class AudioLoader(BufferArray):
 
     def __del__(self):
         self.close()
-
-    def blocks(self, block_size, noverlap=0, start=0, stop=None):
-        """Generator for blockwise processing of AudioLoader data.
-
-        Parameters
-        ----------
-        block_size: int
-            Len of data blocks to be returned.
-        noverlap: int
-            Number of indices successive data points should overlap.
-        start: int
-            Optional first index from which on to return blocks of data.
-        stop: int
-            Optional last index until which to return blocks of data.
-
-        Yields
-        ------
-        data: ndarray
-            Successive slices of the data managed by AudioLoader.
-
-        Raises
-        ------
-        ValueError
-            `noverlap` larger or equal to `block_size`.
-
-        Examples
-        --------
-        Use it for processing long audio data, like computing a spectrogram with overlap:
-        ```
-        from scipy.signal import spectrogram
-        from audioio import AudioLoader, blocks
-        nfft = 2048
-        with AudioLoader('some/audio.wav') as data:
-            for x in data.blocks(100*nfft, nfft//2):
-                f, t, Sxx = spectrogram(x, fs=data.samplerate,
-                                        nperseg=nfft, noverlap=nfft//2)
-        ```
-        """
-        return blocks(self, block_size, noverlap, start, stop)
 
     def format_dict(self):
         """ Technical infos about how the data are stored in the file.
