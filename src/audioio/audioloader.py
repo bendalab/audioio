@@ -548,8 +548,8 @@ class BufferArray(object):
     self.shape = (self.frames, self.channels)        
     self.ndim            # number of dimensions: always 2 (frames and channels)
     self.size            # total number of samples: frames times channels
-    self.buffersize      # number of frames the buffer should hold
-    self.backsize        # number of frames kept for moving back
+    self.bufferframes      # number of frames the buffer should hold
+    self.backframes        # number of frames kept for moving back
     self.init_buffer()
     ```
 
@@ -567,10 +567,10 @@ class BufferArray(object):
         Minimum amplitude the data supports.
     ampl_max: float
         Maximum amplitude the data supports.
-    buffersize: int
-        Number of samples the curent data buffer holds.
-    backsize: int
-        Number of samples the curent data buffer should keep
+    bufferframes: int
+        Number of frames the curent data buffer holds.
+    backframes: int
+        Number of frames the curent data buffer should keep
         before requested data ranges.
     verbose: int
         If larger than zero show detailed error/warning messages.
@@ -597,9 +597,9 @@ class BufferArray(object):
         Minimum amplitude the data supports.
     ampl_max: float
         Maximum amplitude the data supports.
-    buffersize: int
+    bufferframes: int
         Number of samples the curent data buffer holds.
-    backsize: int
+    backframes: int
         Number of samples the curent data buffer should keep
         before requested data ranges.
 
@@ -623,7 +623,7 @@ class BufferArray(object):
     """
     
     def __init__(self, rate=0, channels=0, frames=0, ampl_min=-1.0,
-                 ampl_max=+1.0, buffersize=0, backsize=0, verbose=0):
+                 ampl_max=+1.0, bufferframes=0, backframes=0, verbose=0):
         self.samplerate = rate
         self.channels = channels
         self.frames = frames
@@ -632,14 +632,15 @@ class BufferArray(object):
         self.size = self.frames * self.channels
         self.ampl_min = ampl_min
         self.ampl_max = ampl_max
-        self.buffersize = buffersize
-        self.backsize = backsize
+        self.bufferframes = bufferframes   # number of frames the buffer can hold
+        self.backframes = backframes       # number of frames kept before
         self.unwrap = False
         self.unwrap_thresh = 0.0
         self.unwrap_clips = False
         self.unwrap_ampl = 1.0
         self.unwrap_downscale = True
         self.verbose = verbose
+        self.offset = 0     # index of first frame in buffer
         self.init_buffer()
 
     def __enter__(self):
@@ -716,22 +717,29 @@ class BufferArray(object):
 
     def init_buffer(self):
         """Allocate a buffer with zero frames but all the channels."""
-        if self.buffersize > self.frames:
-            self.buffersize = self.frames
-            self.backsize = 0
+        if self.bufferframes > self.frames:
+            self.bufferframes = self.frames
+            self.backframes = 0
         self.buffer = np.empty((0, self.channels))
         self.offset = 0
 
         
-    def allocate_buffer(self, size=None):
-        """Reallocate the buffer to have the right size."""
-        if self.buffersize > self.frames:
-            self.buffersize = self.frames
-            self.backsize = 0
-        if size is None:
-            size = self.buffersize
-        if size != self.buffer.shape[0]:
-            self.buffer = np.empty((size, self.channels))
+    def allocate_buffer(self, nframes=None):
+        """Reallocate the buffer to have the right size.
+
+        Parameters
+        ----------
+        nframes: int or None
+            Number of frames the buffer should hold.
+            If None, use `self.bufferframes`.
+        """
+        if self.bufferframes > self.frames:
+            self.bufferframes = self.frames
+            self.backframes = 0
+        if nframes is None:
+            nframes = self.bufferframes
+        if nframes != self.buffer.shape[0]:
+            self.buffer = np.empty((nframes, self.channels))
 
 
     def reload_buffer(self):
@@ -749,6 +757,7 @@ class BufferArray(object):
         if self.verbose > 1:
             print(f'  reloaded {self.buffer.shape[0]} frames from {self.offset} up to {self.offset+self.buffer.shape[0]}')
 
+            
     def update_buffer(self, start, stop):
         """Make sure that the buffer contains data between start and stop.
 
@@ -760,13 +769,13 @@ class BufferArray(object):
             Index of the last frame for the buffer.
         """
         if start < self.offset or stop > self.offset + self.buffer.shape[0]:
-            offset, size = self._read_indices(start, stop)
-            r_offset, r_size = self._recycle_buffer(offset, size)
+            offset, nframes = self._read_indices(start, stop)
+            r_offset, r_nframes = self._recycle_buffer(offset, nframes)
             self.offset = offset
             # load buffer content from file, this is backend specific:
             data = self.buffer[r_offset - self.offset:
-                               r_offset - self.offset + r_size, :]
-            self.load_buffer(r_offset, r_size, data)
+                               r_offset - self.offset + r_nframes, :]
+            self.load_buffer(r_offset, r_nframes, data)
             if self.unwrap:
                 # TODO: handle edge effects!
                 unwrap(data, self.unwrap_thresh, self.unwrap_ampl)
@@ -778,10 +787,11 @@ class BufferArray(object):
             if self.verbose > 1:
                 print(f'  loaded {self.buffer.shape[0]} frames from {self.offset} up to {self.offset+self.buffer.shape[0]}')
 
+                
     def _read_indices(self, start, stop):
         """Compute position and size for next read from file.
 
-        This takes buffersize and backsize into account.
+        This takes bufferframes and backframes into account.
 
         Parameters
         ----------
@@ -794,29 +804,30 @@ class BufferArray(object):
         -------
         offset: int
            Frame index for the first frame in the buffer.
-        size: int
+        nframes: int
            Number of frames the buffer should hold.
         """
         offset = start
-        size = stop - start
-        if size < self.buffersize:
-            back = self.backsize
-            if self.buffersize - size < back:
-                back = self.buffersize - size
+        nframes = stop - start
+        if nframes < self.bufferframes:
+            back = self.backframes
+            if self.bufferframes - nframes < back:
+                back = self.bufferframes - nframes
             offset -= back
-            size = self.buffersize
+            nframes = self.bufferframes
             if offset < 0:
                 offset = 0
-            if offset + size > self.frames:
-                offset = self.frames - size
+            if offset + nframes > self.frames:
+                offset = self.frames - nframes
                 if offset < 0:
                     offset = 0
-                    size = self.frames - offset
+                    nframes = self.frames - offset
         if self.verbose > 2:
-            print(f'  request {size:6d} frames at {offset}-{offset+size}')
-        return offset, size
+            print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
+        return offset, nframes
 
-    def _recycle_buffer(self, offset, size):
+    
+    def _recycle_buffer(self, offset, nframes):
         """Recycle buffer contents and return indices for data to be loaded from file.
 
         Move already existing parts of the buffer to their new position (as
@@ -827,45 +838,45 @@ class BufferArray(object):
         ----------
         offset: int
            Frame index for the first frame in the buffer.
-        size: int
+        nframes: int
            Number of frames the buffer should hold.
 
         Returns
         -------
         r_offset: int
            First frame to be read from file.
-        r_size: int
+        r_nframes: int
            Number of frames to be read from file.
         """
         r_offset = offset
-        r_size = size
+        r_nframes = nframes
         if ( offset >= self.offset and
              offset < self.offset + self.buffer.shape[0] ):
             i = self.offset + self.buffer.shape[0] - offset
             n = i
-            if n > size:
-                n = size
+            if n > nframes:
+                n = nframes
             m = self.buffer.shape[0]
             buffer = self.buffer[-i:m-i+n,:]
-            self.allocate_buffer(size)
+            self.allocate_buffer(nframes)
             self.buffer[:n,:] = buffer
             r_offset += n
-            r_size -= n
+            r_nframes -= n
             if self.verbose > 2:
                 print(f'  recycle {n:6d} frames from {self.offset+m-i}-{self.offset+m-i+n} of the old {m}-sized buffer to the front at {offset}-{offset+n} ({0}-{n} in buffer)')
-        elif ( offset + size > self.offset and
-            offset + size <= self.offset + self.buffer.shape[0] ):
-            n = offset + size - self.offset
+        elif ( offset + nframes > self.offset and
+            offset + nframes <= self.offset + self.buffer.shape[0] ):
+            n = offset + nframes - self.offset
             m = self.buffer.shape[0]
             buffer = self.buffer[:n,:]
-            self.allocate_buffer(size)
+            self.allocate_buffer(nframes)
             self.buffer[-n:,:] = buffer
-            r_size -= n
+            r_nframes -= n
             if self.verbose > 2:
-                print(f'  recycle {n:6d} frames from {self.offset}-{self.offset+n} of the old {m}-sized buffer to the end at {offset+size-n}-{offset+size} ({size-n}-{size} in buffer)')
+                print(f'  recycle {n:6d} frames from {self.offset}-{self.offset+n} of the old {m}-sized buffer to the end at {offset+nframes-n}-{offset+nframes} ({nframes-n}-{nframes} in buffer)')
         else:
-            self.allocate_buffer(size)
-        return r_offset, r_size
+            self.allocate_buffer(nframes)
+        return r_offset, r_nframes
 
     
 class AudioLoader(BufferArray):
@@ -891,7 +902,7 @@ class AudioLoader(BufferArray):
     from the beginning again. This slows down access to previous data
     considerably. Use the `backsize` argument of the open function to
     make sure some data are loaded into the buffer before the requested
-    frame. Then a subsequent access to the data within backsize `seconds`
+    frame. Then a subsequent access to the data within `backsize` seconds
     before that frame can still be handled without the need to reread
     the file from the beginning.
 
@@ -1203,7 +1214,8 @@ class AudioLoader(BufferArray):
 
                 
     # wave interface:        
-    def open_wave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    def open_wave(self, filepath, buffersize=10.0, backsize=0.0,
+                  verbose=0):
         """Open audio file for reading using the wave module.
 
         Note: we assume that setpos() and tell() use integer numbers!
@@ -1253,8 +1265,8 @@ class AudioLoader(BufferArray):
         self.frames = self.sf.getnframes()
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_wave
         self.load_buffer = self._load_buffer_wave
@@ -1293,7 +1305,8 @@ class AudioLoader(BufferArray):
 
 
     # ewave interface:        
-    def open_ewave(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    def open_ewave(self, filepath, buffersize=10.0, backsize=0.0,
+                   verbose=0):
         """Open audio file for reading using the ewave module.
 
         Parameters
@@ -1334,8 +1347,8 @@ class AudioLoader(BufferArray):
         self.size = self.frames * self.channels
         self.format = 'WAV' # or WAVEX?
         self.encoding = self.numpy_encodings[self.sf.dtype]
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_ewave
         self.load_buffer = self._load_buffer_ewave
@@ -1366,14 +1379,15 @@ class AudioLoader(BufferArray):
         buffer[:,:] = fbuffer
             
     # soundfile interface:        
-    def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    def open_soundfile(self, filepath, buffersize=10.0, backsize=0.0,
+                       verbose=0):
         """Open audio file for reading using the SoundFile module.
 
         Parameters
         ----------
         filepath: str
             Name of the file.
-        buffersize: float
+        bufferframes: float
             Size of internal buffer in seconds.
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
@@ -1412,8 +1426,8 @@ class AudioLoader(BufferArray):
         self.size = self.frames * self.channels
         self.format = self.sf.format
         self.encoding = self.sf.subtype
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_soundfile
         self.load_buffer = self._load_buffer_soundfile
@@ -1442,14 +1456,15 @@ class AudioLoader(BufferArray):
 
         
     # wavefile interface:        
-    def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    def open_wavefile(self, filepath, buffersize=10.0, backsize=0.0,
+                      verbose=0):
         """Open audio file for reading using the wavefile module.
 
         Parameters
         ----------
         filepath: str
             Name of the file.
-        buffersize: float
+        bufferframes: float
             Size of internal buffer in seconds.
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
@@ -1492,8 +1507,8 @@ class AudioLoader(BufferArray):
                    (self.sf.format & wavefile.Format.SUBMASK) == v:
                     self.encoding = attr
         # init buffer:
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.close = self._close_wavefile
         self.load_buffer = self._load_buffer_wavefile
@@ -1524,7 +1539,8 @@ class AudioLoader(BufferArray):
 
             
     # audioread interface:        
-    def open_audioread(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
+    def open_audioread(self, filepath, buffersize=10.0, backsize=0.0,
+                       verbose=0):
         """Open audio file for reading using the audioread module.
 
         Note, that audioread can only read forward, therefore random and
@@ -1534,7 +1550,7 @@ class AudioLoader(BufferArray):
         ----------
         filepath: str
             Name of the file.
-        buffersize: float
+        bufferframes: float
             Size of internal buffer in seconds.
         backsize: float
             Part of the buffer to be loaded before the requested start index in seconds.
@@ -1566,8 +1582,8 @@ class AudioLoader(BufferArray):
         self.frames = int(np.ceil(self.samplerate*self.sf.duration))
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
         self.init_buffer()
         self.read_buffer = np.zeros((0,0))
         self.read_offset = 0
