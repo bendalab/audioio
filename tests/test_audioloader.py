@@ -2,6 +2,7 @@ import pytest
 import os
 import numpy as np
 import audioio.audiowriter as aw
+import audioio.bufferedarray as ba
 import audioio.audioloader as al
 import audioio.audiomodules as am
 
@@ -270,7 +271,7 @@ def test_blocks():
     for n in [5000, len(full_data)+100]:
         read_data = []
         with al.AudioLoader(filename) as data:
-            for x in al.blocks(data, n, 10):
+            for x in ba.blocks(data, n, 10):
                 read_data.append(x[:-10].copy())
         read_data = np.vstack(read_data)
         assert full_data.shape[0]-10 == read_data.shape[0], 'len of blocked data differ from input data'
@@ -286,7 +287,7 @@ def test_blocks():
         assert not np.any(np.abs(full_data[:-10] - read_data) > tolerance), 'blocks() failed'
 
     with pytest.raises(ValueError):
-        for x in al.blocks(full_data, 10, 20):
+        for x in ba.blocks(full_data, 10, 20):
             pass
 
 

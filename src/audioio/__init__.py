@@ -26,8 +26,8 @@ if len(sys.argv) > 0 and sys.argv[0] != '-m':
     from .audiomodules import disable_module, enable_module, select_module
     from .audiomodules import missing_modules, missing_modules_instructions
     from .audiomodules import installation_instruction
-    from .audioloader import BufferedArray
-    from .audioloader import load_audio, AudioLoader, blocks
+    from .bufferedarray import blocks, BufferedArray
+    from .audioloader import load_audio, AudioLoader
     from .audioloader import metadata, markers
     from .audiotools import despike, unwrap
     from .audiometadata import flatten_metadata, unflatten_metadata
