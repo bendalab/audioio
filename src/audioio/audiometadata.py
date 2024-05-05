@@ -1649,7 +1649,7 @@ default_timeref_keys = ['TimeReference']
 Used by `update_starttime()` function.
 """
 
-def update_starttime(metadata, deltat, samplerate,
+def update_starttime(metadata, deltat, rate,
                      time_keys=default_starttime_keys,
                      ref_keys=default_timeref_keys):
     """Update start-of-recording times in metadata.
@@ -1662,7 +1662,7 @@ def update_starttime(metadata, deltat, samplerate,
         Metadata to be updated.
     deltat: float
         Time in seconds to be added to start times.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     time_keys: tuple of str or list of tuple of str
         Keys to fields denoting calender times, i.e. dates and times.
@@ -1757,7 +1757,7 @@ def update_starttime(metadata, deltat, samplerate,
         if k in m and not isinstance(m[k], dict):
             is_int = isinstance(m[k], int)
             tref = int(m[k])
-            tref += int(np.round(deltat.total_seconds()*samplerate))
+            tref += int(np.round(deltat.total_seconds()*rate))
             m[k] = tref if is_int else f'{tref}'
             success = True
     return success

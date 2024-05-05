@@ -8,14 +8,14 @@ import audioio.audiomarkers as am
 
 def generate_data():
     duration=2.0
-    samplerate = 44100.0
+    rate = 44100.0
     channels = 2
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
-    return data, samplerate
+    return data, rate
 
     
 def test_markers():

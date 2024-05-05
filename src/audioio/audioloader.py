@@ -501,7 +501,7 @@ class AudioLoader(BufferedArray):
     nfft = 2048
     with aio.AudioLoader('some/audio.wav') as data:
         for x in data.blocks(100*nfft, nfft//2):
-            f, t, Sxx = spectrogram(x, fs=data.samplerate,
+            f, t, Sxx = spectrogram(x, fs=data.rate,
                                     nperseg=nfft, noverlap=nfft//2)
     ```
 
@@ -553,7 +553,7 @@ class AudioLoader(BufferedArray):
     ----------
     filepath: str
         Path and name of the file.
-    samplerate: float
+    rate: float
         The sampling rate of the data in seconds.
     channels: int
         The number of channels.
@@ -658,10 +658,10 @@ class AudioLoader(BufferedArray):
             fmt['format'] = self.format
         if self.encoding is not None:
             fmt['encoding'] = self.encoding
-        fmt.update(dict(samplingrate=f'{self.samplerate:.0f}Hz',
+        fmt.update(dict(samplingrate=f'{self.rate:.0f}Hz',
                         channels=self.channels,
                         frames=self.frames,
-                        duration=f'{self.frames/self.samplerate:.3f}s'))
+                        duration=f'{self.frames/self.rate:.3f}s'))
         return fmt
         
     def metadata(self):
@@ -812,7 +812,7 @@ class AudioLoader(BufferedArray):
         if self.verbose > 0:
             print(f'open_wave(filepath) with filepath={filepath}')
         if not audio_modules['wave']:
-            self.samplerate = 0.0
+            self.rate = 0.0
             self.channels = 0
             self.frames = 0
             self.size = 0
@@ -823,7 +823,7 @@ class AudioLoader(BufferedArray):
             self._close_wave()
         self.sf = wave.open(filepath, 'r')
         self.filepath = filepath
-        self.samplerate = float(self.sf.getframerate())
+        self.rate = float(self.sf.getframerate())
         self.format = 'WAV'
         sampwidth = self.sf.getsampwidth()
         if sampwidth == 1:
@@ -837,8 +837,8 @@ class AudioLoader(BufferedArray):
         self.frames = self.sf.getnframes()
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.close = self._close_wave
         self.load_audio_buffer = self._load_buffer_wave
@@ -901,7 +901,7 @@ class AudioLoader(BufferedArray):
         if self.verbose > 0:
             print(f'open_ewave(filepath) with filepath={filepath}')
         if not audio_modules['ewave']:
-            self.samplerate = 0.0
+            self.rate = 0.0
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
@@ -912,15 +912,15 @@ class AudioLoader(BufferedArray):
             self._close_ewave()
         self.sf = ewave.open(filepath, 'r')
         self.filepath = filepath
-        self.samplerate = float(self.sf.sampling_rate)
+        self.rate = float(self.sf.sampling_rate)
         self.channels = self.sf.nchannels
         self.frames = self.sf.nframes
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
         self.format = 'WAV' # or WAVEX?
         self.encoding = self.numpy_encodings[self.sf.dtype]
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.close = self._close_ewave
         self.load_audio_buffer = self._load_buffer_ewave
@@ -976,7 +976,7 @@ class AudioLoader(BufferedArray):
         if self.verbose > 0:
             print(f'open_soundfile(filepath) with filepath={filepath}')
         if not audio_modules['soundfile']:
-            self.samplerate = 0.0
+            self.rate = 0.0
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
@@ -987,7 +987,7 @@ class AudioLoader(BufferedArray):
             self._close_soundfile()
         self.sf = soundfile.SoundFile(filepath, 'r')
         self.filepath = filepath
-        self.samplerate = float(self.sf.samplerate)
+        self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = 0
         self.size = 0
@@ -999,8 +999,8 @@ class AudioLoader(BufferedArray):
         self.size = self.frames * self.channels
         self.format = self.sf.format
         self.encoding = self.sf.subtype
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.close = self._close_soundfile
         self.load_audio_buffer = self._load_buffer_soundfile
@@ -1053,7 +1053,7 @@ class AudioLoader(BufferedArray):
         if self.verbose > 0:
             print(f'open_wavefile(filepath) with filepath={filepath}')
         if not audio_modules['wavefile']:
-            self.samplerate = 0.0
+            self.rate = 0.0
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
@@ -1064,7 +1064,7 @@ class AudioLoader(BufferedArray):
             self._close_wavefile()
         self.sf = wavefile.WaveReader(filepath)
         self.filepath = filepath
-        self.samplerate = float(self.sf.samplerate)
+        self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = self.sf.frames
         self.shape = (self.frames, self.channels)
@@ -1080,8 +1080,8 @@ class AudioLoader(BufferedArray):
                    (self.sf.format & wavefile.Format.SUBMASK) == v:
                     self.encoding = attr
         # init buffer:
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.close = self._close_wavefile
         self.load_audio_buffer = self._load_buffer_wavefile
@@ -1139,7 +1139,7 @@ class AudioLoader(BufferedArray):
         if self.verbose > 0:
             print(f'open_audioread(filepath) with filepath={filepath}')
         if not audio_modules['audioread']:
-            self.samplerate = 0.0
+            self.rate = 0.0
             self.channels = 0
             self.frames = 0
             self.shape = (0, 0)
@@ -1150,13 +1150,13 @@ class AudioLoader(BufferedArray):
             self._close_audioread()
         self.sf = audioread.audio_open(filepath)
         self.filepath = filepath
-        self.samplerate = float(self.sf.samplerate)
+        self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
-        self.frames = int(np.ceil(self.samplerate*self.sf.duration))
+        self.frames = int(np.ceil(self.rate*self.sf.duration))
         self.shape = (self.frames, self.channels)
         self.size = self.frames * self.channels
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.read_buffer = np.zeros((0,0))
         self.read_offset = 0
@@ -1297,7 +1297,7 @@ class AudioLoader(BufferedArray):
             Failed to load data.
         """
         self.buffer = np.array([])
-        self.samplerate = 0.0
+        self.rate = 0.0
         if not filepath:
             raise ValueError('input argument filepath is empty string!')
         if not os.path.isfile(filepath):
@@ -1331,7 +1331,7 @@ class AudioLoader(BufferedArray):
                                 print(f'  format       : {self.format}')
                             if self.encoding is not None:
                                 print(f'  encoding     : {self.encoding}')
-                            print(f'  sampling rate: {self.samplerate} Hz')
+                            print(f'  sampling rate: {self.rate} Hz')
                             print(f'  channels     : {self.channels}')
                             print(f'  frames       : {self.frames}')
                     return self
@@ -1378,10 +1378,10 @@ def demo(file_path, plot):
     print('')
     print("try AudioLoader:")
     with AudioLoader(file_path, 4.0, 1.0, 1) as data:
-        print(f'samplerate: {data.samplerate:0f}Hz')
+        print(f'samplerate: {data.rate:0f}Hz')
         print(f'channels: {data.channels} {data.shape[1]}')
         print(f'frames: {len(data)} {data.shape[0]}')
-        nframes = int(1.5*data.samplerate)
+        nframes = int(1.5*data.rate)
         # check access:
         print('check random single frame access')
         for inx in np.random.randint(0, len(data), 1000):

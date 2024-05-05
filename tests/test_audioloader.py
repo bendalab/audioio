@@ -8,15 +8,15 @@ import audioio.audiomodules as am
 
 
 def write_audio_file(filename, duration=20.0):
-    samplerate = 44100.0
+    rate = 44100.0
     channels = 2
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
     encoding = 'PCM_16'
-    aw.write_wave(filename, data, samplerate, encoding=encoding)
+    aw.write_wave(filename, data, rate, encoding=encoding)
 
 
 def test_single_frame():
@@ -67,7 +67,7 @@ def test_slice():
             for n in range(1, 5):
                 assert not np.any(np.abs(data[:50:n]-full_data[:50:n]) > tolerance), 'step slice with step=%d does not match' % n
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
-                nframes = int(time*data.samplerate)
+                nframes = int(time*data.rate)
                 failed = -1
                 for inx in np.random.randint(0, len(data)-nframes, ntests):
                     if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
@@ -93,7 +93,7 @@ def test_forward():
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
-                nframes = int(time*data.samplerate)
+                nframes = int(time*data.rate)
                 step = int(len(data)/nsteps)
                 failed = -1
                 for inx in range(0, len(data)-nframes, step):
@@ -120,7 +120,7 @@ def test_backward():
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
-                nframes = int(time*data.samplerate)
+                nframes = int(time*data.rate)
                 step = int(len(data)/nsteps)
                 failed = -1
                 print('  check backward slice access...')
@@ -148,7 +148,7 @@ def test_negative():
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0]:
-                nframes = int(time*data.samplerate)
+                nframes = int(time*data.rate)
                 step = int(len(data)/nsteps)
                 failed = -1
                 for inx in range(0, len(data)-nframes, step):
@@ -175,7 +175,7 @@ def test_multiple():
         full_data, rate = al.load_audio(filename, verbose=4)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             for time in [0.1, 1.5, 2.0, 5.5, 8.0, 20.0]:
-                nframes = int(time*data.samplerate)
+                nframes = int(time*data.rate)
                 if nframes > 0.9*len(data):
                     nframes = len(data)
                 for n in [1, 2, 4, 8, 16]:     # number of indices
@@ -293,14 +293,14 @@ def test_blocks():
 
 def test_unwrap():
     duration = 0.1
-    samplerate = 44100.0
+    rate = 44100.0
     channels = 4
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = 1.5*np.sin(2.0*np.pi*880.0*t) * 2**15
     data = data.astype(dtype=np.int16).astype(dtype=float)/2**15
     data = data.astype(dtype=float)
     filename = 'test.wav'
-    aw.write_wave(filename, data, samplerate, metadata={'Gain': '20mV'},
+    aw.write_wave(filename, data, rate, metadata={'Gain': '20mV'},
                   encoding='PCM_16')
 
     with al.AudioLoader(filename) as sf:

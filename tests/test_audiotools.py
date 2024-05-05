@@ -5,9 +5,9 @@ import audioio.audiotools as at
 
 def test_despike():
     duration = 0.1
-    samplerate = 44100.0
+    rate = 44100.0
     channels = 4
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = 0.9*np.sin(2.0*np.pi*880.0*t)
     idx = np.random.randint(1, len(t)//10-20, 20)*10
     data[idx] += 1
@@ -42,9 +42,9 @@ def test_despike():
 
 def test_despike2():
     duration = 0.1
-    samplerate = 44100.0
+    rate = 44100.0
     channels = 4
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = 0.9*np.sin(2.0*np.pi*880.0*t)
     idx = np.random.randint(1, len(t)//10-20, 20)*10
     data[idx] += 1
@@ -81,9 +81,9 @@ def test_despike2():
 
 def test_unwrap():
     duration = 0.1
-    samplerate = 44100.0
+    rate = 44100.0
     channels = 4
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = 1.5*np.sin(2.0*np.pi*880.0*t) * 2**15
     data = data.astype(dtype=np.int16).astype(dtype=float)/2**15
     

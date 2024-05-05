@@ -60,7 +60,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
     nfft = 2048
     with AudioLoader('some/audio.wav') as data:
         for x in blocks(data, 100*nfft, nfft//2):
-            f, t, Sxx = spectrogram(x, fs=data.samplerate,
+            f, t, Sxx = spectrogram(x, fs=data.rate,
                                     nperseg=nfft, noverlap=nfft//2)
     ```
 
@@ -88,10 +88,12 @@ class BufferedArray(object):
     (e.g. filtered data, envelopes or spectrograms).  The
     BufferedArray behaves like a single big ndarray with first
     dimension indexing the frames and second dimension indexing the
-    channels of the data. Higher dimensions are also supported.
-    For example, a third dimension for frequencies needed for
+    channels of the data. Higher dimensions are also supported.  For
+    example, a third dimension for frequencies needed for
     spectrograms. Internally it only holds a part of the data in
-    memory.
+    memory. The size of this buffer is set to `bufferframes`
+    frames. If more data are requested, the buffer is enlarged
+    accordingly.
 
     Classes inheriting BufferedArray just need to implement
     ```
@@ -105,7 +107,7 @@ class BufferedArray(object):
     `init_buffer()` or `allocate_buffer()`:
 
     ```
-    self.samplerate      # number of frames per second
+    self.rate            # number of frames per second
     self.channels        # number of channels per frame
     self.frames          # total number of frames
     self.shape = (self.frames, self.channels)        
@@ -120,7 +122,7 @@ class BufferedArray(object):
     
     Parameters
     ----------
-    samplerate: float
+    rate: float
         The sampling rate of the data in seconds.
     channels: int
         The number of channels.
@@ -136,7 +138,7 @@ class BufferedArray(object):
 
     Attributes
     ----------
-    samplerate: float
+    rate: float
         The sampling rate of the data in seconds.
     channels: int
         The number of channels.
@@ -184,7 +186,7 @@ class BufferedArray(object):
                  backframes=0, verbose=0):
         """ Construtor for initializing 2D arrays (times x channels).
         """
-        self.samplerate = rate
+        self.rate = rate
         self.channels = channels
         self.frames = frames
         self.shape = (self.frames, self.channels)
@@ -301,7 +303,7 @@ class BufferedArray(object):
         nfft = 2048
         with AudioLoader('some/audio.wav') as data:
             for x in data.blocks(100*nfft, nfft//2):
-                f, t, Sxx = spectrogram(x, fs=data.samplerate,
+                f, t, Sxx = spectrogram(x, fs=data.rate,
                                         nperseg=nfft, noverlap=nfft//2)
         ```
         """
@@ -427,8 +429,8 @@ class BufferedArray(object):
         """
         r_offset = offset
         r_nframes = nframes
-        if ( offset >= self.offset and
-             offset < self.offset + len(self.buffer)):
+        if (offset >= self.offset and
+            offset < self.offset + len(self.buffer)):
             i = self.offset + len(self.buffer) - offset
             n = i
             if n > nframes:
@@ -441,8 +443,8 @@ class BufferedArray(object):
             r_nframes -= n
             if self.verbose > 2:
                 print(f'  recycle {n:6d} frames from {self.offset + m - i} - {self.offset + m - i + n} of the old {m}-sized buffer to the front at {offset} - {offset + n} ({0} - {n} in buffer)')
-        elif ( offset + nframes > self.offset and
-               offset + nframes <= self.offset + len(self.buffer)):
+        elif (offset + nframes > self.offset and
+              offset + nframes <= self.offset + len(self.buffer)):
             n = offset + nframes - self.offset
             m = len(self.buffer)
             tmp_buffer = self.buffer[:n]

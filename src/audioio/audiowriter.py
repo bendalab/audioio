@@ -93,8 +93,9 @@ def encodings_wave(format):
         return ['PCM_32', 'PCM_16', 'PCM_U8']
 
 
-def write_wave(filepath, data, samplerate, metadata=None, locs=None,
-               labels=None, format=None, encoding=None, marker_hint='cue'):
+def write_wave(filepath, data, rate, metadata=None, locs=None,
+               labels=None, format=None, encoding=None,
+               marker_hint='cue'):
     """Write audio data using the wave module from pythons standard libray.
     
     Documentation
@@ -108,7 +109,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -164,7 +165,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         channels = data.shape[1]
     wf.setnchannels(channels)
     wf.setnframes(len(data))
-    wf.setframerate(int(samplerate))
+    wf.setframerate(int(rate))
     wf.setsampwidth(sampwidth)
     factor = 2**(sampwidth*8-1)
     if sampwidth == 1:
@@ -175,7 +176,7 @@ def write_wave(filepath, data, samplerate, metadata=None, locs=None,
         buffer[data >= 1.0] = factor - 1
     wf.writeframes(buffer.tobytes())
     wf.close()
-    append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
+    append_riff(filepath, metadata, locs, labels, rate, marker_hint)
 
 
 def formats_ewave():
@@ -213,8 +214,9 @@ def encodings_ewave(format):
         return ['PCM_64', 'PCM_32', 'PCM_16', 'FLOAT', 'DOUBLE']
 
 
-def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
-                labels=None, format=None, encoding=None, marker_hint='cue'):
+def write_ewave(filepath, data, rate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None,
+                marker_hint='cue'):
     """Write audio data using the ewave module from pythons standard libray.
 
     Documentation
@@ -228,7 +230,7 @@ def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -282,10 +284,10 @@ def write_ewave(filepath, data, samplerate, metadata=None, locs=None,
     if len(data.shape) > 1:
         channels = data.shape[1]
 
-    with ewave.open(filepath, 'w', sampling_rate=int(samplerate),
+    with ewave.open(filepath, 'w', sampling_rate=int(rate),
                     dtype=ewave_encodings[encoding], nchannels=channels) as wf:
         wf.write(data, scale=True)
-    append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
+    append_riff(filepath, metadata, locs, labels, rate, marker_hint)
 
 
 def formats_wavfile():
@@ -323,8 +325,8 @@ def encodings_wavfile(format):
         return ['PCM_U8', 'PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE']
 
 
-def write_wavfile(filepath, data, samplerate, metadata=None,
-                  locs=None, labels=None, format=None, encoding=None,
+def write_wavfile(filepath, data, rate, metadata=None, locs=None,
+                  labels=None, format=None, encoding=None,
                   marker_hint='cue'):
     """Write audio data using the scipy.io.wavfile module.
     
@@ -339,7 +341,7 @@ def write_wavfile(filepath, data, samplerate, metadata=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -401,8 +403,8 @@ def write_wavfile(filepath, data, samplerate, metadata=None,
         buffer[data >= 1.0] = factor - 1
     else:
         buffer = data.astype(dtype, copy=False)
-    wavfile.write(filepath, int(samplerate), buffer)
-    append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
+    wavfile.write(filepath, int(rate), buffer)
+    append_riff(filepath, metadata, locs, labels, rate, marker_hint)
 
 
 def formats_soundfile():
@@ -438,8 +440,8 @@ def encodings_soundfile(format):
         return sorted(list(soundfile.available_subtypes(format)))
 
 
-def write_soundfile(filepath, data, samplerate, metadata=None,
-                    locs=None, labels=None, format=None, encoding=None,
+def write_soundfile(filepath, data, rate, metadata=None, locs=None,
+                    labels=None, format=None, encoding=None,
                     marker_hint='cue'):
     """Write audio data using the SoundFile module (based on libsndfile).
     
@@ -454,7 +456,7 @@ def write_soundfile(filepath, data, samplerate, metadata=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -495,10 +497,10 @@ def write_soundfile(filepath, data, samplerate, metadata=None,
         encoding = 'PCM_16'
     encoding = encoding.upper()
     
-    soundfile.write(filepath, data, int(samplerate), format=format,
+    soundfile.write(filepath, data, int(rate), format=format,
                     subtype=encoding)
     try:
-        append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
+        append_riff(filepath, metadata, locs, labels, rate, marker_hint)
     except ValueError:
         pass
 
@@ -550,8 +552,8 @@ def encodings_wavefile(format):
     return sorted(encodings)
 
     
-def write_wavefile(filepath, data, samplerate, metadata=None,
-                   locs=None, labels=None, format=None, encoding=None,
+def write_wavefile(filepath, data, rate, metadata=None, locs=None,
+                   labels=None, format=None, encoding=None,
                    marker_hint='cue'):
     """Write audio data using the wavefile module (based on libsndfile).
     
@@ -566,7 +568,7 @@ def write_wavefile(filepath, data, samplerate, metadata=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -625,11 +627,11 @@ def write_wavefile(filepath, data, samplerate, metadata=None,
     else:
         data = data.reshape((-1, 1))
     with wavefile.WaveWriter(filepath, channels=channels,
-                             samplerate=int(samplerate),
+                             samplerate=int(rate),
                              format=format_value|encoding_value) as w:
         w.write(data.T)
     try:
-        append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
+        append_riff(filepath, metadata, locs, labels, rate, marker_hint)
     except ValueError:
         pass
 
@@ -704,8 +706,9 @@ def encodings_pydub(format):
                 encodings.append(encoding.upper())
     return encodings
 
-def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
-                labels=None, format=None, encoding=None, marker_hint='cue'):
+def write_pydub(filepath, data, rate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None,
+                marker_hint='cue'):
     """Write audio data using the Pydub module.
     
     Documentation
@@ -719,7 +722,7 @@ def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -779,10 +782,10 @@ def write_pydub(filepath, data, samplerate, metadata=None, locs=None,
         channels = data.shape[1]
     int_data = (data*(2**31-1)).astype(np.int32)
     sound = pydub.AudioSegment(int_data.ravel(), sample_width=4,
-                               frame_rate=samplerate, channels=channels)
+                               frame_rate=rate, channels=channels)
     sound.export(filepath, format=format.lower(), codec=encoding)
     try:
-        append_riff(filepath, metadata, locs, labels, samplerate, marker_hint)
+        append_riff(filepath, metadata, locs, labels, rate, marker_hint)
     except ValueError:
         pass
     
@@ -881,9 +884,9 @@ Each element of the list is a tuple with the module's name and the write() funct
 """
 
 
-def write_audio(filepath, data, samplerate, metadata=None, locs=None,
-                labels=None, format=None, encoding=None, marker_hint='cue',
-                verbose=0):
+def write_audio(filepath, data, rate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None,
+                marker_hint='cue', verbose=0):
     """Write audio data, metadata, and marker to file.
 
     Parameters
@@ -893,7 +896,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
         values within -1.0 and 1.0).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -929,13 +932,13 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
     import numpy as np
     from audioio import write_audio
     
-    samplerate = 28000.0
+    rate = 28000.0
     freq = 800.0
-    time = np.arange(0.0, 1.0, 1/samplerate) # one second
+    time = np.arange(0.0, 1.0, 1/rate) # one second
     data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
     md = dict(Artist='underscore_')          # metadata
 
-    write_audio('audio/file.wav', data, samplerate, md)
+    write_audio('audio/file.wav', data, rate, md)
     ```
     """
     if not filepath:
@@ -946,7 +949,7 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
         format = format_from_extension(filepath)
     if format == 'WAV' and (metadata is not None or locs is not None):
         try:
-            audioio_write_wave(filepath, data, samplerate, metadata,
+            audioio_write_wave(filepath, data, rate, metadata,
                                locs, labels, encoding, marker_hint)
             return
         except ValueError:
@@ -957,14 +960,14 @@ def write_audio(filepath, data, samplerate, metadata=None, locs=None,
         if not audio_modules[lib]:
             continue
         try:
-            write_file(filepath, data, samplerate, metadata, locs,
+            write_file(filepath, data, rate, metadata, locs,
                        labels, format, encoding, marker_hint)
             success = True
             if verbose > 0:
                 print('wrote data to file "%s" using %s module' %
                       (filepath, lib))
                 if verbose > 1:
-                    print('  sampling rate: %g Hz' % samplerate)
+                    print('  sampling rate: %g Hz' % rate)
                     print('  channels     : %d' % (data.shape[1] if len(data.shape) > 1 else 1))
                     print('  frames       : %d' % len(data))
             return
@@ -984,14 +987,14 @@ def demo(file_path, channels=2, encoding=''):
         Encoding to be used.
     """
     print('generate data ...')
-    samplerate = 44100.0
-    t = np.arange(0.0, 1.0, 1.0/samplerate)
+    rate = 44100.0
+    t = np.arange(0.0, 1.0, 1.0/rate)
     data = np.zeros((len(t), channels))
     for c in range(channels):
         data[:,c] = np.sin(2.0*np.pi*(440.0+c*8.0)*t)
         
     print("write_audio(%s) ..." % file_path)
-    write_audio(file_path, data, samplerate, encoding=encoding, verbose=2)
+    write_audio(file_path, data, rate, encoding=encoding, verbose=2)
 
     print('done.')
     
