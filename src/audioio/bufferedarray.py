@@ -69,15 +69,15 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
         raise ValueError(f'noverlap={noverlap} larger than block_size={block_size}')
     if stop is None:
         stop = len(data)
-    m = block_size - noverlap
-    n = (stop - start - noverlap)//m
+    step = block_size - noverlap
+    n = (stop - start - noverlap)//step
     if n == 0:
         yield data[start:stop]
     else:
         for k in range(n):
-            yield data[start + k*m:start + k*m + block_size]
-        if stop - start - (k*m + block_size) > 0:
-            yield data[start + (k + 1)*m:]
+            yield data[start + k*step:start + k*step + block_size]
+        if stop - start - (k*step + block_size) > 0:
+            yield data[start + (k + 1)*step:stop]
 
 
 class BufferedArray(object):
@@ -166,7 +166,8 @@ class BufferedArray(object):
     - `len()`: Number of frames.
     - `__getitem__`: Access data.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
-    - `update_buffer()`: update the buffer for a range of frames.
+    - `update_buffer()`: make sure that the buffer contains data of a range of indices.
+    - `update_time()`: make sure that the buffer contains data of a given time range.
     - `reload_buffer()`: reload the current buffer.
     - `load_buffer()`: load a range of samples into a buffer.
 
@@ -348,7 +349,7 @@ class BufferedArray(object):
             print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
     def update_buffer(self, start, stop):
-        """Make sure that the buffer contains data between start and stop.
+        """Make sure that the buffer contains data of a range of indices.
 
         Parameters
         ----------
@@ -357,6 +358,10 @@ class BufferedArray(object):
         stop: int
             Index of the last frame for the buffer.
         """
+        if start < 0:
+            start = 0
+        if stop > self.frames:
+            stop = self.frames
         if start < self.offset or stop > self.offset + len(self.buffer):
             offset, nframes = self._read_indices(start, stop)
             r_offset, r_nframes = self._recycle_buffer(offset, nframes)
@@ -367,6 +372,18 @@ class BufferedArray(object):
             self.load_buffer(r_offset, r_nframes, pbuffer)
             if self.verbose > 1:
                 print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
+
+    def update_time(self, start, stop):
+        """Make sure that the buffer contains data of a given time range.
+
+        Parameters
+        ----------
+        start: float
+            Time point of first requested frame.
+        stop: int
+            Time point of last requested frame.
+        """
+        self.update_buffer(int(start*self.rate), int(stop*self.rate))
 
     def _read_indices(self, start, stop):
         """Compute position and size for next read from file.
