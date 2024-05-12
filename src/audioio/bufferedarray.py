@@ -160,6 +160,9 @@ class BufferedArray(object):
     backframes: int
         Number of samples the curent data buffer should keep
         before requested data ranges.
+    buffer_changed: ndarray of bool
+        For each channel a flag, whether the buffer content has been changed.
+        Set to `True`, whenever `load_buffer()` was called.
 
     Methods
     -------
@@ -319,6 +322,7 @@ class BufferedArray(object):
         shape[0] = 0
         self.buffer = np.empty(shape)
         self.offset = 0
+        self.buffer_changed = np.zeros(self.channels, dtype=bool)
         
     def allocate_buffer(self, nframes=None, force=False):
         """Reallocate the buffer to have the right size.
@@ -370,6 +374,7 @@ class BufferedArray(object):
             pbuffer = self.buffer[r_offset - self.offset:
                                   r_offset - self.offset + r_nframes]
             self.load_buffer(r_offset, r_nframes, pbuffer)
+            self.buffer_changed[:] = True
             if self.verbose > 1:
                 print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
 
