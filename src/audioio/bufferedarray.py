@@ -349,6 +349,7 @@ class BufferedArray(object):
         """Reload the current buffer.
         """
         self.load_buffer(self.offset, len(self.buffer), self.buffer)
+        self.buffer_changed[:] = True
         if self.verbose > 1:
             print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
