@@ -110,15 +110,13 @@ class BufferedArray(object):
     self.rate            # number of frames per second
     self.channels        # number of channels per frame
     self.frames          # total number of frames
-    self.shape = (self.frames, self.channels)        
-    self.ndim            # number of dimensions: 2 (frames and channels) or higher
-    self.size            # total number of samples: frames times channels
+    self.shape = (self.frames, self.channels, ...)        
     self.bufferframes    # number of frames the buffer should hold
     self.backframes      # number of frames kept for moving back
     self.init_buffer()
     ```
 
-    or provide all this information via the constructor.
+    or provide all this information via the constructor:
     
     Parameters
     ----------
@@ -202,20 +200,25 @@ class BufferedArray(object):
         self.offset = 0     # index of first frame in buffer
         self.init_buffer()
 
+        
     def __enter__(self):
         return self
-        
+
+    
     def __exit__(self, ex_type, ex_value, tb):
         self.__del__()
         return (ex_value is None)
-        
+
+    
     def __len__(self):
         return self.frames
 
+    
     def __iter__(self):
         self.iter_counter = -1
         return self
 
+    
     def __next__(self):
         self.iter_counter += 1
         if self.iter_counter >= self.frames:
@@ -224,6 +227,7 @@ class BufferedArray(object):
             self.update_buffer(self.iter_counter, self.iter_counter + 1)
             return self.buffer[self.iter_counter - self.offset]
 
+        
     def __getitem__(self, key):
         """Access data of the audio file."""
         if type(key) is tuple:
@@ -274,6 +278,7 @@ class BufferedArray(object):
         else:
             return self.buffer[newindex]
 
+        
     def blocks(self, block_size, noverlap=0, start=0, stop=None):
         """Generator for blockwise processing of AudioLoader data.
 
@@ -313,8 +318,11 @@ class BufferedArray(object):
         """
         return blocks(self, block_size, noverlap, start, stop)
 
+    
     def init_buffer(self):
         """Allocate a buffer with zero frames but all the channels."""
+        self.ndim = len(self.shape)
+        self.size = self.frames * self.channels
         if self.bufferframes > self.frames:
             self.bufferframes = self.frames
             self.backframes = 0
@@ -323,6 +331,7 @@ class BufferedArray(object):
         self.buffer = np.empty(shape)
         self.offset = 0
         self.buffer_changed = np.zeros(self.channels, dtype=bool)
+
         
     def allocate_buffer(self, nframes=None, force=False):
         """Reallocate the buffer to have the right size.
@@ -345,6 +354,7 @@ class BufferedArray(object):
             shape[0] = nframes
             self.buffer = np.empty(shape)
 
+            
     def reload_buffer(self):
         """Reload the current buffer.
         """
@@ -353,32 +363,35 @@ class BufferedArray(object):
         if self.verbose > 1:
             print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
+            
     def update_buffer(self, start, stop):
         """Make sure that the buffer contains data of a range of indices.
 
         Parameters
         ----------
         start: int
-            Index of the first frame for the buffer.
+            Index of the first requested frame.
         stop: int
-            Index of the last frame for the buffer.
+            Index of the last requested frame.
         """
         if start < 0:
             start = 0
         if stop > self.frames:
             stop = self.frames
         if start < self.offset or stop > self.offset + len(self.buffer):
-            offset, nframes = self._read_indices(start, stop)
+            offset, nframes = self._buffer_position(start, stop)
             r_offset, r_nframes = self._recycle_buffer(offset, nframes)
             self.offset = offset
-            # load buffer content, this is backend specific:
-            pbuffer = self.buffer[r_offset - self.offset:
-                                  r_offset - self.offset + r_nframes]
-            self.load_buffer(r_offset, r_nframes, pbuffer)
+            if r_nframes > 0:
+                # load buffer content, this is backend specific:
+                pbuffer = self.buffer[r_offset - self.offset:
+                                      r_offset - self.offset + r_nframes]
+                self.load_buffer(r_offset, r_nframes, pbuffer)
             self.buffer_changed[:] = True
             if self.verbose > 1:
                 print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
 
+                
     def update_time(self, start, stop):
         """Make sure that the buffer contains data of a given time range.
 
@@ -391,10 +404,13 @@ class BufferedArray(object):
         """
         self.update_buffer(int(start*self.rate), int(stop*self.rate))
 
-    def _read_indices(self, start, stop):
-        """Compute position and size for next read from file.
+        
+    def _buffer_position(self, start, stop):
+        """Compute position and size of buffer.
 
-        This takes bufferframes and backframes into account.
+        Either `start` is before the current buffer offset or
+        `stop` is behind the current buffer.
+        Takes `bufferframes` and `backframes` into account.
 
         Parameters
         ----------
@@ -406,16 +422,17 @@ class BufferedArray(object):
         Returns
         -------
         offset: int
-           Frame index for the first frame in the buffer.
+           Frame index for the first frame in the new buffer.
         nframes: int
-           Number of frames the buffer should hold.
+           Number of frames the new buffer should hold.
         """
         offset = start
         nframes = stop - start
         if nframes < self.bufferframes:
+            # find optimal new position of buffer that accomodates start:stop
             back = self.backframes
-            if self.bufferframes - nframes < back:
-                back = self.bufferframes - nframes
+            if self.bufferframes - nframes < 2*back:
+                back = (self.bufferframes - nframes)//2
             offset -= back
             nframes = self.bufferframes
             if offset < 0:
@@ -429,19 +446,20 @@ class BufferedArray(object):
             print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
         return offset, nframes
 
+    
     def _recycle_buffer(self, offset, nframes):
         """Recycle buffer contents and return indices for data to be loaded from file.
 
         Move already existing parts of the buffer to their new position (as
-        returned by _read_indices() ) and return position and size of
+        returned by `_buffer_position()`) and return position and size of
         data chunk that still needs to be loaded from file.
 
         Parameters
         ----------
         offset: int
-           Frame index for the first frame in the buffer.
+           Frame index of the new first frame in the buffer.
         nframes: int
-           Number of frames the buffer should hold.
+           Number of frames the new buffer should hold.
 
         Returns
         -------
@@ -454,18 +472,17 @@ class BufferedArray(object):
         r_nframes = nframes
         if (offset >= self.offset and
             offset < self.offset + len(self.buffer)):
-            i = self.offset + len(self.buffer) - offset
-            n = i
+            i = offset - self.offset
+            n = len(self.buffer) - i
             if n > nframes:
                 n = nframes
-            m = len(self.buffer)
-            tmp_buffer = self.buffer[-i:m - i + n]
+            tmp_buffer = self.buffer[i:i + n]
             self.allocate_buffer(nframes)
             self.buffer[:n] = tmp_buffer
             r_offset += n
             r_nframes -= n
             if self.verbose > 2:
-                print(f'  recycle {n:6d} frames from {self.offset + m - i} - {self.offset + m - i + n} of the old {m}-sized buffer to the front at {offset} - {offset + n} ({0} - {n} in buffer)')
+                print(f'  recycle {n:6d} frames from {self.offset + i} - {self.offset + i + n} of the old to the front at {offset} - {offset + n} ({0} - {n} in buffer)')
         elif (offset + nframes > self.offset and
               offset + nframes <= self.offset + len(self.buffer)):
             n = offset + nframes - self.offset
@@ -477,6 +494,7 @@ class BufferedArray(object):
             if self.verbose > 2:
                 print(f'  recycle {n:6d} frames from {self.offset} - {self.offset + n} of the old {m}-sized buffer to the end at {offset + nframes - n} - {offset + nframes} ({nframes - n} - {nframes} in buffer)')
         else:
+            # new buffer is somewhere else or larger than current buffer:
             self.allocate_buffer(nframes)
         return r_offset, r_nframes
 
