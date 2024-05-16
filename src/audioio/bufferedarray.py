@@ -1,7 +1,7 @@
 """Buffered time-series data.
 
 - `blocks()`: generator for blockwise processing of array data.
-- `BufferedArray()`: random access to time-series data of which only a part is held in memory.
+- class `BufferedArray()`: random access to time-series data of which only a part is held in memory.
 """
 
 
@@ -84,18 +84,18 @@ class BufferedArray(object):
     """Random access to time-series data of which only a part is held in memory.
     
     This is a base class for accessing large audio recordings either
-    from a file (class AudioLoader) or by computing its contents
-    (e.g. filtered data, envelopes or spectrograms).  The
-    BufferedArray behaves like a single big ndarray with first
+    from a file (class ` AudioLoader`) or by computing its contents on
+    the fly (e.g. filtered data, envelopes or spectrograms).  The
+    `BufferedArray` behaves like a single big ndarray with first
     dimension indexing the frames and second dimension indexing the
     channels of the data. Higher dimensions are also supported.  For
     example, a third dimension for frequencies needed for
-    spectrograms. Internally it only holds a part of the data in
-    memory. The size of this buffer is set to `bufferframes`
+    spectrograms. Internally the class holds only a part of the data
+    in memory. The size of this buffer is set to `bufferframes`
     frames. If more data are requested, the buffer is enlarged
     accordingly.
 
-    Classes inheriting BufferedArray just need to implement
+    Classes inheriting `BufferedArray` just need to implement
     ```
     self.load_buffer(offset, nsamples, pbuffer)
     ```
@@ -104,7 +104,7 @@ class BufferedArray(object):
 
     In the constructor or some kind of opening function, you need to
     set the following member variables, followed by a call to
-    `init_buffer()` or `allocate_buffer()`:
+    `init_buffer()`:
 
     ```
     self.rate            # number of frames per second
@@ -320,7 +320,12 @@ class BufferedArray(object):
 
     
     def init_buffer(self):
-        """Allocate a buffer with zero frames but all the channels."""
+        """Allocate a buffer with zero frames but all the channels.
+
+        Fix `bufferframes` and `backframes` to not exceed the total
+        number of frames.
+
+        """
         self.ndim = len(self.shape)
         self.size = self.frames * self.channels
         if self.bufferframes > self.frames:

@@ -3,7 +3,7 @@
 - `load_audio()`: load a whole audio file at once.
 - `metadata()`: read metadata of an audio file.
 - `markers()`: read markers of an audio file.
-- `AudioLoader`: read data from audio files in chunks.
+- class `AudioLoader`: read data from audio files in chunks.
 
 The read in data are always numpy arrays of floats ranging between -1 and 1.
 The arrays are 2-D ndarrays with first axis time and second axis channel,
