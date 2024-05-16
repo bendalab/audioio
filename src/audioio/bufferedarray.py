@@ -363,10 +363,11 @@ class BufferedArray(object):
     def reload_buffer(self):
         """Reload the current buffer.
         """
-        self.load_buffer(self.offset, len(self.buffer), self.buffer)
-        self.buffer_changed[:] = True
-        if self.verbose > 1:
-            print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
+        if len(self.buffer) > 0:
+            self.load_buffer(self.offset, len(self.buffer), self.buffer)
+            self.buffer_changed[:] = True
+            if self.verbose > 1:
+                print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
 
             
     def update_buffer(self, start, stop):
