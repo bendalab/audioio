@@ -113,6 +113,7 @@ class BufferedArray(object):
     self.shape = (self.frames, self.channels, ...)        
     self.bufferframes    # number of frames the buffer should hold
     self.backframes      # number of frames kept for moving back
+    self.follow          # True if buffer position should follow requests
     self.init_buffer()
     ```
 
@@ -131,6 +132,10 @@ class BufferedArray(object):
     backframes: int
         Number of frames the curent data buffer should keep
         before requested data ranges.
+    follow: bool
+        True if buffer position should follow requested data ranges
+        even if completely contained in the buffer. This results in
+        more frequent but smaller buffer updates.
     verbose: int
         If larger than zero show detailed error/warning messages.
 
@@ -158,6 +163,10 @@ class BufferedArray(object):
     backframes: int
         Number of samples the curent data buffer should keep
         before requested data ranges.
+    follow: bool
+        True if buffer position should follow requested data ranges
+        even if completely contained in the buffer. This results in
+        more frequent but smaller buffer updates.
     buffer_changed: ndarray of bool
         For each channel a flag, whether the buffer content has been changed.
         Set to `True`, whenever `load_buffer()` was called.
@@ -188,7 +197,7 @@ class BufferedArray(object):
     """
     
     def __init__(self, rate=0, channels=0, frames=0, bufferframes=0,
-                 backframes=0, verbose=0):
+                 backframes=0, follow=False, verbose=0):
         """ Construtor for initializing 2D arrays (times x channels).
         """
         self.rate = rate
@@ -199,6 +208,7 @@ class BufferedArray(object):
         self.size = self.frames * self.channels
         self.bufferframes = bufferframes   # number of frames the buffer can hold
         self.backframes = backframes       # number of frames kept before
+        self.follow = follow
         self.verbose = verbose
         self.offset = 0     # index of first frame in buffer
         self.init_buffer()
@@ -383,13 +393,8 @@ class BufferedArray(object):
         stop: int
             Index of the last requested frame.
         """
-        if start < 0:
-            start = 0
-        if stop > self.frames:
-            stop = self.frames
-        if start < self.offset or stop > self.offset + len(self.buffer):
-            offset, nframes = self.buffer_position(start, stop)
-            self.move_buffer(offset, nframes)
+        offset, nframes = self.buffer_position(start, stop)
+        self.move_buffer(offset, nframes)
 
                 
     def update_time(self, start, stop):
@@ -457,25 +462,36 @@ class BufferedArray(object):
            Number of frames the new buffer should hold.
 
         """
-        offset = start
-        nframes = stop - start
-        if nframes < self.bufferframes:
-            # find optimal new position of buffer that accomodates start:stop
-            back = self.backframes
-            if self.bufferframes - nframes < 2*back:
-                back = (self.bufferframes - nframes)//2
-            offset -= back
-            nframes = self.bufferframes
-            if offset < 0:
-                offset = 0
-            if offset + nframes > self.frames:
-                offset = self.frames - nframes
+        if start < 0:
+            start = 0
+        if stop > self.frames:
+            stop = self.frames
+        if start < self.offset or stop > self.offset + len(self.buffer):
+            # we need to move the buffer:
+            offset = start
+            nframes = stop - start
+            if nframes < self.bufferframes:
+                # find optimal new position of buffer that accomodates start:stop
+                back = self.backframes
+                if self.bufferframes - nframes < 2*back:
+                    back = (self.bufferframes - nframes)//2
+                offset -= back
+                nframes = self.bufferframes
                 if offset < 0:
                     offset = 0
-                    nframes = self.frames - offset
-        if self.verbose > 2:
-            print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
-        return offset, nframes
+                if offset + nframes > self.frames:
+                    offset = self.frames - nframes
+                    if offset < 0:
+                        offset = 0
+                        nframes = self.frames - offset
+            if self.verbose > 2:
+                print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
+            return offset, nframes
+        else:
+            if self.follow:
+                # TODO: compute new buffer position and update DataLoader constructor
+                pass
+            return self.offset, len(self.buffer)
 
     
     def recycle_buffer(self, offset, nframes):

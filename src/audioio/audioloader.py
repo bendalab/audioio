@@ -1377,7 +1377,7 @@ def demo(file_path, plot):
     
     print('')
     print("try AudioLoader:")
-    with AudioLoader(file_path, 4.0, 1.0, 1) as data:
+    with AudioLoader(file_path, 4.0, 1.0, verbose=1) as data:
         print(f'samplerate: {data.rate:0f}Hz')
         print(f'channels: {data.channels} {data.shape[1]}')
         print(f'frames: {len(data)} {data.shape[0]}')
