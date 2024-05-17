@@ -171,6 +171,9 @@ class BufferedArray(object):
     - `update_time()`: make sure that the buffer contains data of a given time range.
     - `reload_buffer()`: reload the current buffer.
     - `load_buffer()`: load a range of samples into a buffer.
+    - `move_buffer()`: move and resize buffer.
+    - `buffer_position()`: compute position and size of buffer.
+    - `recycle_buffer()`: move buffer to new position and recycle content if possible.
 
     Notes
     -----
@@ -385,17 +388,8 @@ class BufferedArray(object):
         if stop > self.frames:
             stop = self.frames
         if start < self.offset or stop > self.offset + len(self.buffer):
-            offset, nframes = self._buffer_position(start, stop)
-            r_offset, r_nframes = self._recycle_buffer(offset, nframes)
-            self.offset = offset
-            if r_nframes > 0:
-                # load buffer content, this is backend specific:
-                pbuffer = self.buffer[r_offset - self.offset:
-                                      r_offset - self.offset + r_nframes]
-                self.load_buffer(r_offset, r_nframes, pbuffer)
-            self.buffer_changed[:] = True
-            if self.verbose > 1:
-                print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
+            offset, nframes = self.buffer_position(start, stop)
+            self.move_buffer(offset, nframes)
 
                 
     def update_time(self, start, stop):
@@ -408,15 +402,45 @@ class BufferedArray(object):
         stop: int
             Time point of last requested frame.
         """
-        self.update_buffer(int(start*self.rate), int(stop*self.rate))
+        self.update_buffer(int(start*self.rate), int(stop*self.rate) + 1)
+
+            
+    def move_buffer(self, offset, nframes):
+        """Move and resize buffer.
+
+        Parameters
+        ----------
+        offset: int
+           Frame index of the first frame in the new buffer.
+        nframes: int
+           Number of frames the new buffer should hold.
+        """
+        if offset < 0:
+            offset = 0
+        if offset + nframes > self.frames:
+            nframes = self.frames - offset
+        if offset != self.offset or nframes != len(self.buffer):
+            r_offset, r_nframes = self.recycle_buffer(offset, nframes)
+            self.offset = offset
+            if r_nframes > 0:
+                # load buffer content, this is backend specific:
+                pbuffer = self.buffer[r_offset - self.offset:
+                                      r_offset - self.offset + r_nframes]
+                self.load_buffer(r_offset, r_nframes, pbuffer)
+            self.buffer_changed[:] = True
+            if self.verbose > 1:
+                print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
 
         
-    def _buffer_position(self, start, stop):
+    def buffer_position(self, start, stop):
         """Compute position and size of buffer.
 
-        Either `start` is before the current buffer offset or
-        `stop` is behind the current buffer.
-        Takes `bufferframes` and `backframes` into account.
+        You usually should not need to call this function
+        directly. This is handled by `update_buffer()`.
+
+        Assumes either `start` to be before the current buffer offset
+        or `stop` to be behind the current buffer.  Takes
+        `bufferframes` and `backframes` into account.
 
         Parameters
         ----------
@@ -428,9 +452,10 @@ class BufferedArray(object):
         Returns
         -------
         offset: int
-           Frame index for the first frame in the new buffer.
+           Frame index of the first frame in the new buffer.
         nframes: int
            Number of frames the new buffer should hold.
+
         """
         offset = start
         nframes = stop - start
@@ -453,11 +478,14 @@ class BufferedArray(object):
         return offset, nframes
 
     
-    def _recycle_buffer(self, offset, nframes):
-        """Recycle buffer contents and return indices for data to be loaded from file.
+    def recycle_buffer(self, offset, nframes):
+        """Move buffer to new position and recycle content if possible.
+
+        You usually should not need to call this function
+        directly. This is handled by `update_buffer()`.
 
         Move already existing parts of the buffer to their new position (as
-        returned by `_buffer_position()`) and return position and size of
+        returned by `buffer_position()`) and return position and size of
         data chunk that still needs to be loaded from file.
 
         Parameters
@@ -473,6 +501,7 @@ class BufferedArray(object):
            First frame to be read from file.
         r_nframes: int
            Number of frames to be read from file.
+
         """
         r_offset = offset
         r_nframes = nframes
