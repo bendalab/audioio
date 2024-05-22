@@ -368,7 +368,8 @@ class BufferedArray(object):
             nframes = self.bufferframes
         if nframes == 0:
             return
-        if force or nframes != len(self.buffer):
+        if force or nframes != len(self.buffer) or \
+           self.shape[1:] != self.buffer.shape[1:]:
             shape = list(self.shape)
             shape[0] = nframes
             self.buffer = np.empty(shape)
