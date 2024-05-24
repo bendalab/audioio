@@ -434,7 +434,7 @@ class BufferedArray(object):
                 pbuffer = self.buffer[r_offset - self.offset:
                                       r_offset - self.offset + r_nframes]
                 self.load_buffer(r_offset, r_nframes, pbuffer)
-            self.buffer_changed[:] = True
+                self.buffer_changed[:] = True
             if self.verbose > 1:
                 print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
 
