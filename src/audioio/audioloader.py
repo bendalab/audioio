@@ -633,7 +633,9 @@ class AudioLoader(BufferedArray):
                        np.dtype(np.int32): 'PCM_32',
                        np.dtype(np.int16): 'PCM_16',
                        np.dtype(np.single): 'FLOAT',
-                       np.dtype(np.double): 'DOUBLE'}
+                       np.dtype(np.double): 'DOUBLE',
+                       np.dtype('>f4'): 'FLOAT',
+                       np.dtype('>f8'): 'DOUBLE'}
     """ Map numpy dtypes to encodings.
     """
 
