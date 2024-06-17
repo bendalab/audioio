@@ -445,9 +445,7 @@ class BufferedArray(object):
         You usually should not need to call this function
         directly. This is handled by `update_buffer()`.
 
-        Assumes either `start` to be before the current buffer offset
-        or `stop` to be behind the current buffer.  Takes
-        `bufferframes` and `backframes` into account.
+        Takes `bufferframes` and `backframes` into account.
 
         Parameters
         ----------
@@ -486,6 +484,12 @@ class BufferedArray(object):
                     if offset < 0:
                         offset = 0
                         nframes = self.frames - offset
+                # expand buffer to accomodate nearby beginning or end:
+                elif self.frames - offset - nframes < self.bufferframes//2:
+                    nframes = self.frames - offset
+                elif offset < self.bufferframes//2:
+                    nframes += offset
+                    offset = 0
             if self.verbose > 2:
                 print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
             return offset, nframes
@@ -501,6 +505,12 @@ class BufferedArray(object):
                 if offset < 0:
                     offset = 0
                     nframes = self.frames - offset
+            # expand buffer to accomodate nearby beginning or end:
+            elif self.frames - offset - nframes < self.bufferframes//2:
+                nframes = self.frames - offset
+            elif offset < self.bufferframes//2:
+                nframes += offset
+                offset = 0
             if start < offset:
                 print('invalid buffer start', start, offset)
             if stop > offset + nframes:
