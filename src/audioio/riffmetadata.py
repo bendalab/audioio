@@ -1198,15 +1198,18 @@ def write_info_chunk(df, metadata):
         Keys written to the INFO chunk.
 
     """
+    print("WRITE_INFO_CHUNK")
     if not metadata:
         return 0, []
     is_info = False
     if 'INFO' in metadata:
         metadata = metadata['INFO']
         is_info = True
+    print("DO WRITE_INFO_CHUNK")
     tags = {v: k for k, v in info_tags.items()}
     n = 0
     for k in metadata:
+        print(k)
         kn = tags.get(k, k)
         if len(kn) > 4:
             if is_info:
@@ -1218,11 +1221,14 @@ def write_info_chunk(df, metadata):
             return 0, []
         v = str(metadata[k])
         n += 8 + len(v) + len(v) % 2
+    print("LIST")
     df.write(b'LIST')
     df.write(struct.pack('<I', n + 4))
     df.write(b'INFO')
     keys_written = []
+    print(metadata)
     for k in metadata:
+        print(k)
         kn = tags.get(k, k)
         df.write(f'{kn:<4s}'.encode('latin-1'))
         v = str(metadata[k])
@@ -1230,6 +1236,7 @@ def write_info_chunk(df, metadata):
         df.write(struct.pack('<I', ns))
         df.write(f'{v:<{ns}s}'.encode('latin-1'))
         keys_written.append(k)
+    print("DONE")
     return 12 + n, ['INFO'] if is_info else keys_written
 
 
@@ -1647,17 +1654,23 @@ def append_metadata_riff(df, metadata):
     tags: list of str
         Tag names of chunks written to audio file.
     """
+    print("APPEND THE METADATA")
+    print(metadata)
     if not metadata:
         return 0, []
+    print("METADATA NOT EMPTY")
     n = 0
     tags = []
     # metadata INFO chunk:
+    print("WRITE INFO CHUNK")
     nc, kw = write_info_chunk(df, metadata)
+    print('write_info_chunk', nc, kw)
     if nc > 0:
         tags.append('LIST-INFO')
     n += nc
     # metadata BEXT chunk:
     nc, bkw = write_bext_chunk(df, metadata)
+    print('write_bext_chunk', nc, bkw)
     if nc > 0:
         tags.append('BEXT')
     n += nc
@@ -1670,6 +1683,7 @@ def append_metadata_riff(df, metadata):
     kw.extend(xkw)
     # write remaining metadata to GUANO chunk:
     nc, _ = write_guano_chunk(df, metadata, kw)
+    print('write_guano_chunk', nc)
     if nc > 0:
         tags.append('GUAN')
     n += nc
@@ -1838,6 +1852,7 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
         else:
             write_format_chunk(df, data.shape[1], data.shape[0],
                                rate, bits)
+        print("APPEND METADATA")
         append_metadata_riff(df, metadata)
         write_data_chunk(df, data, bits)
         append_markers_riff(df, locs, labels, rate, marker_hint)

@@ -37,9 +37,10 @@ def test_write():
         n, t = rm.write_info_chunk(df, None)
         assert n == 0, 'no info chunk'
         assert len(t) == 0, 'no info chunk'
-        n, t = rm.write_info_chunk(df, dict(INFO=dict(IART='John Doe', TITLX='TLDR')))
-        assert n == 0, 'no info chunk'
-        assert len(t) == 0, 'no info chunk'
+        with pytest.warns((UserWarning,)):
+            n, t = rm.write_info_chunk(df, dict(INFO=dict(IART='John Doe', TITLX='TLDR')))
+            assert n == 0, 'no info chunk'
+            assert len(t) == 0, 'no info chunk'
         n, t = rm.write_bext_chunk(df, None)
         assert n == 0, 'no bext chunk'
         assert len(t) == 0, 'no bext chunk'
@@ -163,14 +164,16 @@ def test_metadata():
     assert len(mdd['Production']) == 0, 'Empty Production value'
 
     # INFO:
-    imd['SUBI'] = bmd
-    md = dict(INFO=imd)
-    rm.write_wave(filename, data, rate, md)
+    with pytest.warns((UserWarning,)):
+        imd['SUBI'] = bmd
+        md = dict(INFO=imd)
+        rm.write_wave(filename, data, rate, md)
 
     # BEXT:
-    bmd['xxx'] = 'no bext'
-    md = dict(BEXT=bmd)
-    rm.write_wave(filename, data, rate, md)
+    with pytest.warns((UserWarning,)):
+        bmd['xxx'] = 'no bext'
+        md = dict(BEXT=bmd)
+        rm.write_wave(filename, data, rate, md)
     
     rm.metadata_riff(filename, True)
     os.remove(filename)
