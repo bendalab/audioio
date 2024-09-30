@@ -1064,7 +1064,7 @@ def write_riff_chunk(df, filesize=0, tag='WAVE'):
         filesize = 8
     df.write(b'RIFF')
     df.write(struct.pack('<I', filesize - 8))
-    df.write(tag.encode('ascii'))
+    df.write(tag.encode('ascii', errors='strict'))
     return 12
 
 
@@ -1112,7 +1112,7 @@ def write_chunk_name(df, pos, tag):
     if len(tag) != 4:
         raise ValueError(f'file tag "{tag}" must be exactly 4 characters long')
     df.seek(pos, os.SEEK_SET)
-    df.write(tag.encode('ascii'))
+    df.write(tag.encode('ascii', errors='strict'))
 
 
 def write_format_chunk(df, channels, frames, rate, bits=16):
@@ -1198,18 +1198,15 @@ def write_info_chunk(df, metadata):
         Keys written to the INFO chunk.
 
     """
-    print("WRITE_INFO_CHUNK")
     if not metadata:
         return 0, []
     is_info = False
     if 'INFO' in metadata:
         metadata = metadata['INFO']
         is_info = True
-    print("DO WRITE_INFO_CHUNK")
     tags = {v: k for k, v in info_tags.items()}
     n = 0
     for k in metadata:
-        print(k)
         kn = tags.get(k, k)
         if len(kn) > 4:
             if is_info:
@@ -1219,24 +1216,28 @@ def write_info_chunk(df, metadata):
             if is_info:
                 warnings.warn(f'value of key "{k}" in INFO chunk cannot be a dictionary.')
             return 0, []
-        v = str(metadata[k])
+        try:
+            v = str(metadata[k]).encode('latin-1')
+        except UnicodeEncodeError:
+            v = str(metadata[k]).encode('windows-1252')
         n += 8 + len(v) + len(v) % 2
-    print("LIST")
     df.write(b'LIST')
     df.write(struct.pack('<I', n + 4))
     df.write(b'INFO')
     keys_written = []
-    print(metadata)
     for k in metadata:
-        print(k)
         kn = tags.get(k, k)
         df.write(f'{kn:<4s}'.encode('latin-1'))
-        v = str(metadata[k])
+        try:
+            v = str(metadata[k]).encode('latin-1')
+        except UnicodeEncodeError:
+            v = str(metadata[k]).encode('windows-1252')
         ns = len(v) + len(v) % 2
+        if ns > len(v):
+            v += b' ';
         df.write(struct.pack('<I', ns))
-        df.write(f'{v:<{ns}s}'.encode('latin-1'))
+        df.write(v)
         keys_written.append(k)
-    print("DONE")
     return 12 + n, ['INFO'] if is_info else keys_written
 
 
@@ -1276,7 +1277,7 @@ def write_bext_chunk(df, metadata):
     n = 0
     for k in bext_tags:
         n += bext_tags[k]
-    ch = metadata.get('CodingHistory', '').encode('ascii')
+    ch = metadata.get('CodingHistory', '').encode('ascii', errors='replace')
     if len(ch) >= 2 and ch[-2:] != '\r\n':
         ch += b'\r\n'
     nch = len(ch) + len(ch) % 2
@@ -1295,7 +1296,7 @@ def write_bext_chunk(df, metadata):
             df.write(ch)
             df.write(bytes(nch - len(ch)))
         else:
-            v = metadata.get(k, '').encode('ascii')
+            v = metadata.get(k, '').encode('ascii', errors='replace')
             df.write(v[:bn] + bytes(bn - len(v)))
     return 8 + n, ['BEXT']
 
@@ -1541,7 +1542,7 @@ def write_adtl_chunks(df, locs, labels):
                 n += n % 2
                 df.write(b'labl')
                 df.write(struct.pack('<II', 4 + n, i))
-                df.write(f'{l:<{n}s}'.encode('latin-1'))
+                df.write(f'{l:<{n}s}'.encode('latin-1', errors='replace'))
         # ltxt sub-chunk:
         if labels.shape[1] > 1:
             t = labels[i,1]
@@ -1553,7 +1554,7 @@ def write_adtl_chunks(df, locs, labels):
                     df.write(b'ltxt')
                     df.write(struct.pack('<III', 20 + n, i, span))
                     df.write(struct.pack('<IHHHH', 0, 0, 0, 0, 0))
-                    df.write(f'{t:<{n}s}'.encode('latin-1'))
+                    df.write(f'{t:<{n}s}'.encode('latin-1', errors='replace'))
     return 8 + size
 
 
@@ -1626,9 +1627,9 @@ def write_lbl_chunk(df, locs, labels, rate):
             ts = labels[k,1]
             if ts == 0:
                 ts = ''
-        df.write(struct.pack('<14sc', f'{t0:e}'.encode('ascii'), b'\t'))
-        df.write(struct.pack('<14sc', f'{t1:e}'.encode('ascii'), b'\t'))
-        bs = f'{ts:31s}\t{ls}\r\n'.encode('ascii')
+        df.write(struct.pack('<14sc', f'{t0:e}'.encode('ascii', errors='replace'), b'\t'))
+        df.write(struct.pack('<14sc', f'{t1:e}'.encode('ascii', errors='replace'), b'\t'))
+        bs = f'{ts:31s}\t{ls}\r\n'.encode('ascii', errors='replace')
         df.write(bs)
     return 8 + size
 
@@ -1654,23 +1655,17 @@ def append_metadata_riff(df, metadata):
     tags: list of str
         Tag names of chunks written to audio file.
     """
-    print("APPEND THE METADATA")
-    print(metadata)
     if not metadata:
         return 0, []
-    print("METADATA NOT EMPTY")
     n = 0
     tags = []
     # metadata INFO chunk:
-    print("WRITE INFO CHUNK")
     nc, kw = write_info_chunk(df, metadata)
-    print('write_info_chunk', nc, kw)
     if nc > 0:
         tags.append('LIST-INFO')
     n += nc
     # metadata BEXT chunk:
     nc, bkw = write_bext_chunk(df, metadata)
-    print('write_bext_chunk', nc, bkw)
     if nc > 0:
         tags.append('BEXT')
     n += nc
@@ -1683,7 +1678,6 @@ def append_metadata_riff(df, metadata):
     kw.extend(xkw)
     # write remaining metadata to GUANO chunk:
     nc, _ = write_guano_chunk(df, metadata, kw)
-    print('write_guano_chunk', nc)
     if nc > 0:
         tags.append('GUAN')
     n += nc
@@ -1852,7 +1846,6 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
         else:
             write_format_chunk(df, data.shape[1], data.shape[0],
                                rate, bits)
-        print("APPEND METADATA")
         append_metadata_riff(df, metadata)
         write_data_chunk(df, data, bits)
         append_markers_riff(df, locs, labels, rate, marker_hint)
