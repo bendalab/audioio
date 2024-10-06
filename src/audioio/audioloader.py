@@ -606,7 +606,7 @@ class AudioLoader(BufferedArray):
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
                  verbose=0, **meta_kwargs):
-        super().__init__(verbose)
+        super().__init__(verbose=verbose)
         self.format = None
         self.encoding = None
         self._metadata = None
