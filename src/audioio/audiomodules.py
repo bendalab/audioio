@@ -808,17 +808,8 @@ def main(*args):
             print('')
             print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
             return
-    print('')
-    print('Status of audio packages on this machine:')
-    print('-'*41)
-    print('')
-    list_modules('all', False)
-    print('')
-    print('F: file I/O, D: audio device')
-    print('')
-    missing_modules_instructions()
-    print('')
 
+    print('')
     if len(args) > 0 :
         mod = args[0]
         if mod in audio_modules:
@@ -826,6 +817,16 @@ def main(*args):
             print('-'*(42+len(mod)))
             print(installation_instruction(mod))
             print('')
+    else:
+        print('Status of audio packages on this machine:')
+        print('-'*41)
+        print('')
+        list_modules('all', False)
+        print('')
+        print('F: file I/O, D: audio device')
+        print('')
+        missing_modules_instructions()
+        print('')
 
 
 if __name__ == "__main__":
