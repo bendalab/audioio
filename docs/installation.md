@@ -29,9 +29,12 @@ and ffmpeg (https://ffmpeg.org/) via
 [audioread](https://github.com/beetbox/audioread) for reading
 and [Pydub](https://github.com/jiaaro/pydub) for writing.
 
-For playing sounds [simpleaudio](https://simpleaudio.readthedocs.io)
-provides direct support of the native sound systems.
-
+For playing sounds, use the
+[sounddevice](https://python-sounddevice.readthedocs.io) package, that
+is based on [portaudio](http://www.portaudio.com).
+Unfortunately, the simple but powerful
+[simpleaudio](https://simpleaudio.readthedocs.io) package is no longer
+maintained.
 
 ## Debian-based Linux
 
@@ -39,7 +42,8 @@ provides direct support of the native sound systems.
 sudo apt install libsndfile1 libsndfile1-dev libffi-dev
 sudo pip install SoundFile
 sudo apt install ffmpeg python3-audioread python3-pydub
-sudo pip install simpleaudio
+sudo apt install libportaudio2 portaudio19-dev python3-cffi
+sudo pip install sounddevice
 ```
 
 ## Fedora-based Linux
@@ -48,12 +52,13 @@ sudo pip install simpleaudio
 dnf install libsndfile libsndfile-devel libffi-devel
 pip install SoundFile
 dnf install ffmpeg ffmpeg-devel python3-audioread python3-pydub
-pip install simpleaudio
+dnf install libportaudio portaudio-devel python3-cffi
+pip install sounddevie
 ```
 
 ## Windows
 
 ```sh
 pip install SoundFile
-pip install simpleaudio
+pip install sounddevice
 ```

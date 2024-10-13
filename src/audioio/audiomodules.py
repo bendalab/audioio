@@ -316,6 +316,7 @@ audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
 audio_required_rpm_packages['pyaudio'] = ['libportaudio', 'portaudio-devel']
 audio_required_brew_packages['pyaudio'] = ['portaudio']
 audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library (http://www.portaudio.com).
+This is an alternative to the sounddevice package with similar properties.
 For documentation see https://people.csail.mit.edu/hubert/pyaudio."""
 audio_instructions_windows['pyaudio'] = """Download an appropriate (latest version, 32 or 64 bit) wheel from
 <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio>.  Install this file with pip,
@@ -338,7 +339,6 @@ audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'portaudio19-dev'
 audio_required_rpm_packages['sounddevice'] = ['libportaudio', 'portaudio-devel', 'python3-cffi']
 audio_required_brew_packages['sounddevice'] = ['portaudio']
 audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
-If you have trouble with pyaudio, try this as an alternative.
 For documentation see https://python-sounddevice.readthedocs.io"""
         
 audio_device.append('simpleaudio')
@@ -354,6 +354,7 @@ audio_required_deb_packages['simpleaudio'] = ['python3-dev', 'libasound2-dev']
 audio_required_rpm_packages['simpleaudio'] = ['python3-devel', 'alsa-lib', 'alsa-lib-devel']
 audio_infos['simpleaudio'] = """The simpleaudio package is a lightweight package
 for cross-platform audio playback.
+Unfortunately, this package is no longer maintained.
 For documentation see https://simpleaudio.readthedocs.io"""
         
 audio_device.append('soundcard')
@@ -639,9 +640,8 @@ def missing_modules(func='all'):
             mods.append('pydub')
     if func in ['all', 'device']:
         if 'pyaudio' not in audio_installed and \
-           'sounddevice' not in audio_installed and \
-           'simpleaudio' not in audio_installed:
-            mods.append('simpleaudio')
+           'sounddevice' not in audio_installed:
+            mods.append('sounddevice')
     return mods
 
 
