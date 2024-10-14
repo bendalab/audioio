@@ -1,38 +1,55 @@
 """Play numpy arrays as audio.
 
-- `play()`: playback audio data.
-- `beep()`: playback a tone.
-- `close()`: close the global PlayAudio instance.
-- `PlayAudio()`: audio playback.
-- `fade_in()`: fade in a signal in place.
-- `fade_out()`: fade out a signal in place.
-- `fade()`: fade in and out a signal in place.
-- `note2freq()`: convert textual note to corresponding frequency.
-
 Accepted data for playback are 1-D or 2-D (frames, channels) numpy
 arrays with values ranging from -1 to 1.
 If necessary data are downsampled automatically to match supported
 sampling rates.
 
-The globally defined functions `play()` and `beep()` use the global
-instance `handle` of the `PlayAudio` class to play a sound on the
-default audio output device.
+## Class
 
-Alternatively you may use the `PlayAudio` class directly, like this:
+Use the `PlayAudio` class for audio output to a speaker:
+
 ```
 with PlayAudio() as audio:
     audio.beep()
 ```
+
 or without context management:
+
 ```
 audio = PlayAudio()
 audio.beep(1.0, 'a4')
 audio.close()
 ```
 
+## Functions
+
+Alternatively, the globally defined functions `play()` and `beep()`
+use the global instance `handle` of the `PlayAudio` class to play a
+sound on the default audio output device.
+
+- `play()`: playback audio data.
+- `beep()`: playback a tone.
+- `close()`: close the global PlayAudio instance.
+
+
+## Helper functions
+
+- `speaker_devices()`: query available output devices.
+- `fade_in()`: fade in a signal in place.
+- `fade_out()`: fade out a signal in place.
+- `fade()`: fade in and out a signal in place.
+- `note2freq()`: convert textual note to corresponding frequency.
+
+
+## Installation
+
 You might need to install additional packages for better audio output.
 See [installation](https://bendalab.github.io/audioio/installation)
 for further instructions.
+
+
+## Demo
 
 For a demo, run the script as:
 ```
@@ -217,8 +234,11 @@ class PlayAudio(object):
     device_index: int or None
         Index of the playback device to be used.
         If None take the default device.
+        Use the speaker_devices() function to query available devices.
     verbose: int
         Verbosity level.
+    library: str or None
+        If specified, open a specific sound library.
 
 
     Attributes
@@ -252,14 +272,14 @@ class PlayAudio(object):
     ```
     """
     
-    def __init__(self, device_index=None, verbose=0):
+    def __init__(self, device_index=None, verbose=0, library=None):
         self.verbose = verbose
         self.handle = None
         self._do_play = self._play
         self.close = self._close
         self.stop = self._stop
         self.lib = None
-        self.open(device_index)
+        self.open(device_index, library)
 
     def _close(self):
         """Terminate PlayAudio class for playing audio."""
@@ -423,7 +443,7 @@ class PlayAudio(object):
         self.__del__()
         return value
 
-            
+        
     def open_pyaudio(self, device_index=None):
         """Initialize audio output via PyAudio module.
 
@@ -1227,7 +1247,7 @@ class PlayAudio(object):
         self._close()
 
 
-    def open(self, device_index=None):
+    def open(self, device_index=None, library=None):
         """Initialize the PlayAudio class with the best module available.
 
         Parameters
@@ -1235,6 +1255,8 @@ class PlayAudio(object):
         device_index: int or None
             Index of the playback device to be used.
             If None take the default device.
+        library: str or None
+            If specified, open a specific sound library.
         """
         # list of implemented play functions:
         audio_open = [
@@ -1251,6 +1273,8 @@ class PlayAudio(object):
         # open audio device by trying various modules:
         success = False
         for lib, open_device in audio_open:
+            if library and library != lib:
+                continue
             if not audio_modules[lib]:
                 if self.verbose > 0:
                     print(f'module {lib} not available')
@@ -1348,22 +1372,143 @@ def close():
         handle = None
 
 
-def demo():
+def speaker_devices_pyaudio():
+    """Query available output devices of the pyaudio module.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    """
+    if not audio_modules['pyaudio']:
+        raise ImportError
+    oldstderr = os.dup(2)
+    os.close(2)
+    tmpfile = 'tmpfile.tmp'
+    os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
+    pa = pyaudio.PyAudio()
+    os.close(2)
+    os.dup(oldstderr)
+    os.close(oldstderr)
+    os.remove(tmpfile)
+    indices = []
+    devices = []
+    for i in range(pa.get_device_count()):
+        info = pa.get_device_info_by_index(i)
+        if info['maxOutputChannels'] > 0:
+            host = sounddevice.query_hostapis(info['hostApi'])['name']
+            device = f'{info['name']}, {host} ({info['maxInputChannels']} in, {info['maxOutputChannels']} out)'
+            indices.append(info['index'])
+            devices.append(device)
+    return indices, devices
+
+def speaker_devices_sounddevice():
+    """Query available output devices of the sounddevice module.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    """
+    if not audio_modules['sounddevice']:
+        raise ImportError
+    indices = []
+    devices = []
+    infos = sounddevice.query_devices()
+    for info in infos:
+        if info['max_output_channels'] > 0:
+            host = sounddevice.query_hostapis(info['hostapi'])['name']
+            device = f'{info['name']}, {host} ({info['max_input_channels']} in, {info['max_output_channels']} out)'
+            indices.append(info['index'])
+            devices.append(device)
+    return indices, devices
+
+def speaker_devices_soundcard():
+    """Query available output devices of the soundcard module.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    """
+    if not audio_modules['soundcard']:
+        raise ImportError
+    indices = []
+    devices = []
+    infos = soundcard.all_speakers()
+    for i, info in enumerate(infos):
+        indices.append(i)
+        devices.append(str(info).lstrip('<').rstrip('>'))
+    return indices, devices
+
+def speaker_devices(library=None, verbose=0):
+    """Query available output devices.
+
+    Parameters
+    ----------
+    library: str or None
+        If specified, use specific sound library.
+    verbose: int
+        Verbosity level.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    """
+    # list of implemented list functions:
+    audio_devices = [
+        ['sounddevice', speaker_devices_sounddevice],
+        ['pyaudio', speaker_devices_pyaudio],
+        ['simpleaudio', None],
+        ['soundcard', speaker_devices_soundcard],
+        ['ossaudiodev', None],
+        ['winsound', None]
+        ]
+    if platform[0:3] == "win":
+        sa = audio_open.pop(2)
+        audio_open.insert(0, sa)
+    # query audio devices by trying various modules:
+    success = False
+    for lib, devices in audio_devices:
+        if library and library != lib:
+            continue
+        if not audio_modules[lib]:
+            if verbose > 0:
+                print(f'module {lib} not available')
+            continue
+        if devices is None:
+            return [0], ['default output device']
+        else:
+            return devices()
+    warnings.warn('no library for audio output available for devices')
+    return [], []
+
+
+def demo(device_index):
     """ Demonstrate the playaudio module."""
     print('play mono beep 1')
-    audio = PlayAudio(verbose=2)
+    audio = PlayAudio(device_index, verbose=2)
     audio.beep(1.0, 440.0)
     audio.close()
     
     print('play mono beep 2')
-    with PlayAudio() as audio:
+    with PlayAudio(device_index) as audio:
         audio.beep(1.0, 'b4', 0.75, blocking=False)
         print('  done')
         sleep(0.3)
     sleep(0.5)
 
     print('play mono beep 3')
-    beep(1.0, 'c5', 0.25, blocking=False)
+    beep(1.0, 'c5', 0.25, blocking=False, device_index=device_index)
     print('  done')
     sleep(0.5)
             
@@ -1375,7 +1520,7 @@ def demo():
     data[:,0] = np.sin(2.0*np.pi*note2freq('a4')*t)
     data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq('e5')*t)
     fade(data, rate, 0.1)
-    play(data, rate, verbose=2)
+    play(data, rate, verbose=2, device_index=device_index)
 
 
 def main(*args):
@@ -1388,28 +1533,47 @@ def main(*args):
     """
     help = False
     mod = False
+    dev = False
+    ldev = False
+    device_index = None
     for arg in args:
         if mod:
             if not select_module(arg):
                 print(f'module {arg} not installed. Exit!')
                 return
             mod = False
+        elif dev:
+            device_index = int(arg)
+            dev = False
         elif arg == '-h':
             help = True
             break
+        elif arg == '-l':
+            ldev = True
+            break
         elif arg == '-m':
             mod = True
+        elif arg == '-d':
+            dev = True
         else:
             break
 
     if help:
-        print('')
+        print()
         print('Usage:')
-        print('  python -m src.audioio.playaudio [-m <module>]')
+        print('  python -m src.audioio.playaudio [-m <module>] [-l] [-d <device index>]')
         print('  -m: audio module to be used')
+        print('  -l: list available audio output devices')
+        print('  -d: set audio output device to be used')
+        return
+
+    if ldev:
+        indices, devices = speaker_devices()
+        for i, d in zip(indices, devices):
+            print(f'{i:2d}: {d}')
         return
         
-    demo()
+    demo(device_index)
 
             
 if __name__ == "__main__":

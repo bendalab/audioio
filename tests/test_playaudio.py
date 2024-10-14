@@ -101,6 +101,20 @@ def test_downsample():
         am.enable_module()
 
 
+def test_speaker_devices():
+    am.enable_module()
+    print()
+    print('speaker_devices with default module...')
+    am.list_modules('device', True)
+    indices, devices = ap.speaker_devices()
+    assert len(indices) == len(devices), "speaker_devices()"
+    for lib in am.installed_modules('device'):
+        print()
+        print(f'speaker_devices with {lib} module...')
+        indices, devices = ap.speaker_devices(lib)
+        assert len(indices) == len(devices), f"speaker_devices({lib})"
+
+
 def test_note2freq():
     fa = 460.0
     assert np.abs(ap.note2freq('a4', fa)-fa) < 1e-6, 'wrong a4 frequency'
