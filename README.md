@@ -320,6 +320,16 @@ Playing sounds:
 - [ossaudiodev](https://docs.python.org/3.8/library/ossaudiodev.html): playback via the outdated OSS interface of the python standard library.
 - [winsound](https://docs.python.org/3.6/library/winsound.html): native windows audio playback of the python standard library, asynchronous playback only with wave files.
 
+Not yet supported by audioio:
+
+- [playsound](https://github.com/TaylorSMarks/playsound): pure Python,
+  cross platform, single function module with no dependencies for
+  playing sounds. Plays sounds from files only.
+- [PreferredSoundPlayer](https://github.com/garydavenport73/PreferredSoundPlayer):
+  Platfrom independt playing of sound files.
+- [AudioPlayer](https://github.com/mjbrusso/audioplayer): cross
+  platform Python 3 package for playing sounds (mp3, wav, ...).
+
 Scientific audio software:
 
 - [diapason](https://github.com/Soundphy/diapason): musical notes like
