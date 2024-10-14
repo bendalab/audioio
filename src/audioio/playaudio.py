@@ -214,10 +214,19 @@ class PlayAudio(object):
 
     Parameters
     ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
     verbose: int
         Verbosity level.
+
+
+    Attributes
+    ----------
     lib: string
         The library used for playback.
+    verbose: int
+        Verbosity level.
 
     Methods
     -------
@@ -243,14 +252,14 @@ class PlayAudio(object):
     ```
     """
     
-    def __init__(self, verbose=0):
+    def __init__(self, device_index=None, verbose=0):
         self.verbose = verbose
         self.handle = None
         self._do_play = self._play
         self.close = self._close
         self.stop = self._stop
         self.lib = None
-        self.open()
+        self.open(device_index)
 
     def _close(self):
         """Terminate PlayAudio class for playing audio."""
@@ -268,7 +277,7 @@ class PlayAudio(object):
         """Default implementation of playing a sound: does nothing."""
         pass
 
-    def play(self, data, rate, scale=None, blocking=True):
+    def play(self, data, rate, scale=None, blocking=True, device_index=None):
         """Playback audio data.
 
         Parameters
@@ -284,6 +293,10 @@ class PlayAudio(object):
             If `None` scale it to the maximum value, if 1.0 do not scale.
         blocking: boolean
             If False do not block. 
+        device_index: int or None
+            Index of the playback device to be used,
+            if not already openend via the constructor.
+            If None take the default device.
 
         Raises
         ------
@@ -293,7 +306,7 @@ class PlayAudio(object):
             No audio device for playback.
         """
         if self.handle is None:
-            self.open()
+            self.open(device_index)
         else:
             self.stop()
         self.rate = rate
@@ -310,7 +323,7 @@ class PlayAudio(object):
         self._do_play(blocking)
 
     def beep(self, duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
-             fadetime=0.05, blocking=True):
+             fadetime=0.05, blocking=True, device_index=None):
         """Playback a pure tone.
 
         Parameters
@@ -329,6 +342,10 @@ class PlayAudio(object):
             Time for fading in and out in seconds.
         blocking: boolean
             If False do not block.
+        device_index: int or None
+            Index of the playback device to be used,
+            if not already openend via the constructor.
+            If None take the default device.
 
         Raises
         ------
@@ -353,7 +370,8 @@ class PlayAudio(object):
         # # final click for testing (mono only):
         # data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
         # play:
-        self.play(data, rate, scale=1.0, blocking=blocking)
+        self.play(data, rate, scale=1.0, blocking=blocking,
+                  device_index=device_index)
 
     def _down_sample(self, channels, scale=1):
         """Sample the data down and adapt maximum channel number."""
@@ -406,8 +424,14 @@ class PlayAudio(object):
         return value
 
             
-    def open_pyaudio(self):
+    def open_pyaudio(self, device_index=None):
         """Initialize audio output via PyAudio module.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
 
         Raises
         ------
@@ -448,12 +472,17 @@ class PlayAudio(object):
         os.close(oldstderr)
         os.remove(tmpfile)
         try:
-            info = self.handle.get_default_output_device_info()
+            if device_index is None:
+                info = self.handle.get_default_output_device_info()
+            else:
+                info = self.handle.get_device_info_by_index(device_index)
             self.max_channels = info['maxOutputChannels']
             self.default_rate = info['defaultSampleRate']
             self.device_index = info['index']
-            self.handle.is_format_supported(48000, output_device=self.device_index,
-                                            output_channels=1, output_format=pyaudio.paInt16)
+            self.handle.is_format_supported(self.default_rate,
+                                            output_device=self.device_index,
+                                            output_channels=1,
+                                            output_format=pyaudio.paInt16)
         except Exception as e:
             if self.verbose > 0:
                 print(str(e))
@@ -601,8 +630,14 @@ class PlayAudio(object):
         self._close()
 
 
-    def open_sounddevice(self):
+    def open_sounddevice(self, device_index=None):
         """Initialize audio output via sounddevice module.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
 
         Raises
         ------
@@ -629,7 +664,17 @@ class PlayAudio(object):
         self.data = None
         self.stream = None
         try:
-            info = sounddevice.query_devices(kind='output')
+            if device_index is None:
+                info_in = sounddevice.query_devices(kind='input')
+                info_out = sounddevice.query_devices(kind='output')
+                if info_in['index'] == info_out['index']:
+                    info = info_out
+                else:
+                    info = info_out
+                    if info_in['max_output_channels'] > info_out['max_output_channels']:
+                        info = info_in
+            else:
+                info = sounddevice.query_devices(device_index)
             self.device_index = info['index']
             self.max_channels = info['max_output_channels']
             self.default_rate = info['default_samplerate']
@@ -777,8 +822,15 @@ class PlayAudio(object):
         self._close()
 
         
-    def open_simpleaudio(self):
+    def open_simpleaudio(self, device_index=None):
         """Initialize audio output via simpleaudio package.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+            Not supported by simpleaudio.
 
         Raises
         ------
@@ -854,8 +906,14 @@ class PlayAudio(object):
         self._close()
 
         
-    def open_soundcard(self):
+    def open_soundcard(self, device_index=None):
         """Initialize audio output via soundcard package.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
 
         Raises
         ------
@@ -871,7 +929,10 @@ class PlayAudio(object):
         if not audio_modules['soundcard']:
             raise ImportError
         try:
-            self.handle = soundcard.default_speaker()
+            if device_index is None:
+                self.handle = soundcard.default_speaker()
+            else:
+                self.handle = soundcard.all_speakers()[device_index]
         except IndexError:
             raise FileNotFoundError('No audio device found')
         except Exception as e:
@@ -937,10 +998,17 @@ class PlayAudio(object):
         self._close()
 
                 
-    def open_ossaudiodev(self):
+    def open_ossaudiodev(self, device_index=None):
         """Initialize audio output via ossaudiodev module.
 
         The OSS audio module is part of the python standard library.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+            There is only a single OSS audio device.
 
         Raises
         ------
@@ -1061,10 +1129,17 @@ class PlayAudio(object):
         self._close()
 
         
-    def open_winsound(self):
+    def open_winsound(self, device_index=None):
         """Initialize audio output via winsound module.
 
         The winsound module is part of the python standard library.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+            Device selection is not supported by the winsound module.
 
         Raises
         ------
@@ -1152,8 +1227,15 @@ class PlayAudio(object):
         self._close()
 
 
-    def open(self):
-        """Initialize the PlayAudio class with the best module available."""
+    def open(self, device_index=None):
+        """Initialize the PlayAudio class with the best module available.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+        """
         # list of implemented play functions:
         audio_open = [
             ['sounddevice', self.open_sounddevice],
@@ -1174,7 +1256,7 @@ class PlayAudio(object):
                     print(f'module {lib} not available')
                 continue
             try:
-                open_device()
+                open_device(device_index)
                 success = True
                 if self.verbose > 0:
                     print(f'successfully opened {lib} module for playing')
@@ -1188,7 +1270,7 @@ class PlayAudio(object):
         return self
 
 
-def play(data, rate, scale=None, blocking=True, verbose=0):
+def play(data, rate, scale=None, blocking=True, device_index=None, verbose=0):
     """Playback audio data.
 
     Create a `PlayAudio` instance on the global variable `handle`.
@@ -1206,18 +1288,22 @@ def play(data, rate, scale=None, blocking=True, verbose=0):
         If `None` scale it to the maximum value, if 1.0 do not scale.
     blocking: boolean
         If False do not block. 
+    device_index: int or None
+        Index of the playback device to be used,
+        if not already openend.
+        If None take the default device.
     verbose: int
         Verbosity level. 
     """
     global handle
     if handle is None:
-        handle = PlayAudio(verbose)
+        handle = PlayAudio(device_index, verbose)
     handle.verbose = verbose
-    handle.play(data, rate, scale, blocking)
+    handle.play(data, rate, scale, blocking, device_index)
 
     
 def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
-         fadetime=0.05, blocking=True, verbose=0):
+         fadetime=0.05, blocking=True, device_index=None, verbose=0):
     """Playback a tone.
 
     Create a `PlayAudio` instance on the global variable `handle`.
@@ -1238,14 +1324,19 @@ def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
         Time for fading in and out in seconds.
     blocking: boolean
         If False do not block.
+    device_index: int or None
+        Index of the playback device to be used,
+        if not already openend.
+        If None take the default device.
     verbose: int
         Verbosity level. 
     """
     global handle
     if handle is None:
-        handle = PlayAudio(verbose)
+        handle = PlayAudio(device_index, verbose)
     handle.verbose = verbose
-    handle.beep(duration, frequency, amplitude, rate, fadetime, blocking)
+    handle.beep(duration, frequency, amplitude, rate, fadetime, blocking,
+                device_index)
 
 
 def close():
