@@ -1493,7 +1493,7 @@ def speaker_devices(library=None, verbose=0):
     return [], []
 
 
-def demo(device_index):
+def demo(device_index=None):
     """ Demonstrate the playaudio module."""
     print('play mono beep 1')
     audio = PlayAudio(device_index, verbose=2)
