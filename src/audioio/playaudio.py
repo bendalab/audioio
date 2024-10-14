@@ -629,8 +629,8 @@ class PlayAudio(object):
         self.data = None
         self.stream = None
         try:
-            self.device_index = sounddevice.default.device[1]
-            info = sounddevice.query_devices(self.device_index)
+            info = sounddevice.query_devices(kind='output')
+            self.device_index = info['index']
             self.max_channels = info['max_output_channels']
             self.default_rate = info['default_samplerate']
             sounddevice.check_output_settings(device=self.device_index,
