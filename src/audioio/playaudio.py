@@ -1381,6 +1381,8 @@ def speaker_devices_pyaudio():
         Device indices.
     devices: list of str
         Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
     """
     if not audio_modules['pyaudio']:
         raise ImportError
@@ -1402,7 +1404,8 @@ def speaker_devices_pyaudio():
             device = f'{info["name"]}, {host} ({info["maxInputChannels"]} in, {info["maxOutputChannels"]} out)'
             indices.append(info['index'])
             devices.append(device)
-    return indices, devices
+    default_device = pa.get_default_output_device_info()['index']
+    return indices, devices, default_device
 
 def speaker_devices_sounddevice():
     """Query available output devices of the sounddevice module.
@@ -1413,6 +1416,8 @@ def speaker_devices_sounddevice():
         Device indices.
     devices: list of str
         Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
     """
     if not audio_modules['sounddevice']:
         raise ImportError
@@ -1425,7 +1430,12 @@ def speaker_devices_sounddevice():
             device = f'{info["name"]}, {host} ({info["max_input_channels"]} in, {info["max_output_channels"]} out)'
             indices.append(info['index'])
             devices.append(device)
-    return indices, devices
+    info_in = sounddevice.query_devices(kind='input')
+    info_out = sounddevice.query_devices(kind='output')
+    if info_in['index'] != info_out['index'] and \
+       info_in['max_output_channels'] > info_out['max_output_channels']:
+            info_out = info_in
+    return indices, devices, info_out['index']
 
 def speaker_devices_soundcard():
     """Query available output devices of the soundcard module.
@@ -1436,16 +1446,22 @@ def speaker_devices_soundcard():
         Device indices.
     devices: list of str
         Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
     """
     if not audio_modules['soundcard']:
         raise ImportError
     indices = []
     devices = []
     infos = soundcard.all_speakers()
+    def_speaker = str(soundcard.default_speaker())
+    default_device = 0
     for i, info in enumerate(infos):
+        if str(info) == def_speaker:
+            default_device = i
         indices.append(i)
         devices.append(str(info).lstrip('<').rstrip('>'))
-    return indices, devices
+    return indices, devices, default_device
 
 def speaker_devices(library=None, verbose=0):
     """Query available output devices.
@@ -1463,6 +1479,8 @@ def speaker_devices(library=None, verbose=0):
         Device indices.
     devices: list of str
         Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
     """
     # list of implemented list functions:
     audio_devices = [
@@ -1486,11 +1504,11 @@ def speaker_devices(library=None, verbose=0):
                 print(f'module {lib} not available')
             continue
         if devices is None:
-            return [0], ['default output device']
+            return [0], ['default output device'], 0
         else:
             return devices()
     warnings.warn('no library for audio output available for devices')
-    return [], []
+    return [], [], 0
 
 
 def demo(device_index=None):
@@ -1568,9 +1586,12 @@ def main(*args):
         return
 
     if ldev:
-        indices, devices = speaker_devices()
+        indices, devices, default_device = speaker_devices()
         for i, d in zip(indices, devices):
-            print(f'{i:2d}: {d}')
+            if i == default_device:
+                print(f'* {i:2d}: {d}')
+            else:
+                print(f'  {i:2d}: {d}')
         return
         
     demo(device_index)

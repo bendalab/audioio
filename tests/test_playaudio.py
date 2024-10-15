@@ -106,12 +106,12 @@ def test_speaker_devices():
     print()
     print('speaker_devices with default module...')
     am.list_modules('device', True)
-    indices, devices = ap.speaker_devices()
+    indices, devices, default_device = ap.speaker_devices()
     assert len(indices) == len(devices), "speaker_devices()"
     for lib in am.installed_modules('device'):
         print()
         print(f'speaker_devices with {lib} module...')
-        indices, devices = ap.speaker_devices(lib)
+        indices, devices, default_device = ap.speaker_devices(lib)
         assert len(indices) == len(devices), f"speaker_devices({lib})"
 
 
