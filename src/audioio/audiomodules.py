@@ -100,7 +100,7 @@ sudo apt install python3-soundfile
 
 Running
 ```sh
-audioconverter --help
+audiomodules --help
 ```
 prints
 ```text
@@ -113,7 +113,7 @@ optional arguments:
   --version   show version number and exit
   PACKAGE     show installation instructions for PACKAGE
 
-version 2.0.0 by Benda-Lab (2015-2024)
+version 2.2.0 by Benda-Lab (2015-2024)
 ```
 
 ## Links
