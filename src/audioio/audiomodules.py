@@ -586,13 +586,13 @@ def list_modules(module='all', availability=True):
             if module in audio_device:
                 audio_type += 'D'
             if len(audio_type) > 0:
-                audio_type = ' (%s)' % audio_type
+                audio_type = f' ({audio_type})'
         if module in audio_installed:
-            print('%s%-17s is  installed%s' % (audio_avail, module, audio_type))
+            print(f'{audio_avail}{module:<17s} is  installed{audio_type}')
         elif module in missing:
-            print('%s%-17s NOT installed%s' % (audio_avail, module, audio_type))
+            print(f'{audio_avail}{module:<17s} NOT installed{audio_type}')
         else:
-            print('%s%-17s not installed%s' % (audio_avail, module, audio_type))
+            print(f'{audio_avail}{module:<17s} not installed{audio_type}')
 
     missing = missing_modules()
     if module not in ['all', 'fileio', 'device']:
@@ -659,8 +659,8 @@ def missing_modules_instructions(func='all'):
     if len(mods) > 0 :
         print('For better performance you should install the following modules:')
         for mod in mods:
-            print('')
-            print('%s:' % mod)
+            print()
+            print(f'{mod}:')
             print('-'*(len(mod)+1))
             print(installation_instruction(mod))
     else:
@@ -740,18 +740,18 @@ def installation_instruction(module):
     
     pip_inst = None
     if pip_package is not None:
-        pip_inst = 'Install the %s module with pip:\n\n%s %s' % (module, install_pip, pip_package)
+        pip_inst = f'Install the {module} module with pip:\n\n{install_pip} {pip_package}'
         
     dist_inst = None
     if package is not None:
         if pip_inst is None:
-            dist_inst = 'Install module from your distribution\'s package:\n\n%s %s' % (install_package, package)
+            dist_inst = f'Install module from your distribution\'s package:\n\n{install_package} {package}'
         else:
-            dist_inst = 'or alternatively from your distribution\'s package:\n\n%s %s' % (install_package, package)
+            dist_inst = f'or alternatively from your distribution\'s package:\n\n{install_package} {package}'
 
     conda_inst = None
     if conda and conda_package is not None:
-        conda_inst = 'Install the %s module with conda:\n\n%s %s' % (module, install_conda, conda_package)
+        conda_inst = f'Install the {module} module with conda:\n\n{install_package} {package}'
         req_inst = pip_inst = dist_inst = instruction = None
 
     info = audio_infos.get(module, None)
@@ -794,7 +794,7 @@ def main(*args):
         args = sys.argv[1:]
     if len(args) > 0:
         if args[0] == '--version':
-            print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
+            print(f'version {__version__} by Benda-Lab (2015-{__year__})')
             sys.exit(0)
         if args[0] == '--help' or args[0] == '-h':
             print('usage: audiomodules [--version] [--help] [PACKAGE]')
@@ -806,14 +806,14 @@ def main(*args):
             print('  --version   show version number and exit')
             print('  PACKAGE     show installation instructions for PACKAGE')
             print('')
-            print('version', __version__, 'by Benda-Lab (2015-%s)' % __year__)
+            print(f'version {__version__} by Benda-Lab (2015-{__year__})')
             return
 
     print('')
     if len(args) > 0 :
         mod = args[0]
         if mod in audio_modules:
-            print('Installation instructions for the %s module:' % mod )
+            print(f'Installation instructions for the {mod} module:')
             print('-'*(42+len(mod)))
             print(installation_instruction(mod))
             print('')

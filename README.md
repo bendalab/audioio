@@ -252,8 +252,8 @@ wavefile          not installed (F)
 audioread         is  installed (F)
 pydub             is  installed (F)
 pyaudio           not installed (D)
-sounddevice       not installed (D)
-simpleaudio       NOT installed (D)
+sounddevice       NOT installed (D)
+simpleaudio       not installed (D)
 soundcard         not installed (D)
 ossaudiodev       is  installed (D)
 winsound          not installed (D)
@@ -262,20 +262,21 @@ F: file I/O, D: audio device
 
 For better performance you should install the following modules:
 
-simpleaudio:
+sounddevice:
 ------------
-The simpleaudio package is a lightweight package
-for cross-platform audio playback.
-For documentation see https://simpleaudio.readthedocs.io
+The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
+For documentation see https://python-sounddevice.readthedocs.io
 
 First, install the following packages:
 
-sudo apt install python3-dev libasound2-dev
+sudo apt install libportaudio2 portaudio19-dev python3-cffi
 
-Install the simpleaudio module with pip:
+Install the sounddevice module with pip:
 
-sudo pip install simpleaudio
+sudo pip install sounddevice
+
 ```
+
 Use this to see which audio modules you have already installed on your system,
 which ones are recommended to install, and how to install them.
 

@@ -15,7 +15,7 @@ which ones are recommended to install, and how to install them. By
 calling the script with the name of an audio module as an argument you
 get platform specific installation instructions for this module. E.g.
 ```sh
-> audiomodules audioread
+> audiomodules soundfile
 ```
 
 ## Recommendations
@@ -35,6 +35,17 @@ is based on [portaudio](http://www.portaudio.com).
 Unfortunately, the simple but powerful
 [simpleaudio](https://simpleaudio.readthedocs.io) package is no longer
 maintained.
+
+For details, call
+
+````
+audiomodules soundfile
+audiomodules audioread
+audiomodules pydub
+audiomodules sounddevice
+````
+
+Here is how to install all these packages at once:
 
 ## Debian-based Linux
 
