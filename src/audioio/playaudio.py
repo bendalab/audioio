@@ -1399,7 +1399,7 @@ def speaker_devices_pyaudio():
         info = pa.get_device_info_by_index(i)
         if info['maxOutputChannels'] > 0:
             host = sounddevice.query_hostapis(info['hostApi'])['name']
-            device = f'{info['name']}, {host} ({info['maxInputChannels']} in, {info['maxOutputChannels']} out)'
+            device = f'{info["name"]}, {host} ({info["maxInputChannels"]} in, {info["maxOutputChannels"]} out)'
             indices.append(info['index'])
             devices.append(device)
     return indices, devices
@@ -1422,7 +1422,7 @@ def speaker_devices_sounddevice():
     for info in infos:
         if info['max_output_channels'] > 0:
             host = sounddevice.query_hostapis(info['hostapi'])['name']
-            device = f'{info['name']}, {host} ({info['max_input_channels']} in, {info['max_output_channels']} out)'
+            device = f'{info["name"]}, {host} ({info["max_input_channels"]} in, {info["max_output_channels"]} out)'
             indices.append(info['index'])
             devices.append(device)
     return indices, devices
