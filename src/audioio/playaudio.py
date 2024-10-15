@@ -1384,6 +1384,7 @@ def speaker_devices_pyaudio():
         Devices corresponding to `indices`.
     default_device: int
         Index of default device.
+        -1 if no default output device is available.
     """
     if not audio_modules['pyaudio']:
         raise ImportError
@@ -1405,7 +1406,10 @@ def speaker_devices_pyaudio():
             device = f'{info["name"]}, {host} ({info["maxInputChannels"]} in, {info["maxOutputChannels"]} out)'
             indices.append(info['index'])
             devices.append(device)
-    default_device = pa.get_default_output_device_info()['index']
+    try:
+        default_device = pa.get_default_output_device_info()['index']
+    except OSError:
+        default_device = -1
     return indices, devices, default_device
 
 def speaker_devices_sounddevice():
@@ -1434,7 +1438,7 @@ def speaker_devices_sounddevice():
     try:
         info_out = sounddevice.query_devices(kind='output')
     except sounddevice.PortAudioError:
-        return [], [], -1
+        return indices, devices, -1
     try:
         info_in = sounddevice.query_devices(kind='input')
         if info_in['index'] != info_out['index'] and \
