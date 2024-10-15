@@ -1466,7 +1466,7 @@ def speaker_devices_soundcard():
     devices = []
     infos = soundcard.all_speakers()
     def_speaker = str(soundcard.default_speaker())
-    default_device = 0
+    default_device = -1
     for i, info in enumerate(infos):
         if str(info) == def_speaker:
             default_device = i
