@@ -36,6 +36,7 @@ sound on the default audio output device.
 ## Helper functions
 
 - `speaker_devices()`: query available output devices.
+- `print_speaker_devices()`: print available output devices.
 - `fade_in()`: fade in a signal in place.
 - `fade_out()`: fade out a signal in place.
 - `fade()`: fade in and out a signal in place.
@@ -1430,11 +1431,17 @@ def speaker_devices_sounddevice():
             device = f'{info["name"]}, {host} ({info["max_input_channels"]} in, {info["max_output_channels"]} out)'
             indices.append(info['index'])
             devices.append(device)
-    info_in = sounddevice.query_devices(kind='input')
-    info_out = sounddevice.query_devices(kind='output')
-    if info_in['index'] != info_out['index'] and \
-       info_in['max_output_channels'] > info_out['max_output_channels']:
+    try:
+        info_out = sounddevice.query_devices(kind='output')
+    except sounddevice.PortAudioError:
+        return [], [], -1
+    try:
+        info_in = sounddevice.query_devices(kind='input')
+        if info_in['index'] != info_out['index'] and \
+           info_in['max_output_channels'] > info_out['max_output_channels']:
             info_out = info_in
+    except sounddevice.PortAudioError:
+        pass
     return indices, devices, info_out['index']
 
 def speaker_devices_soundcard():
@@ -1508,9 +1515,25 @@ def speaker_devices(library=None, verbose=0):
         else:
             return devices()
     warnings.warn('no library for audio output available for devices')
-    return [], [], 0
+    return [], [], -1
 
 
+def print_speaker_devices(library=None):
+    """Print available output devices.
+
+    Parameters
+    ----------
+    library: str or None
+        If specified, use specific sound library.
+    """
+    indices, devices, default_device = speaker_devices()
+    for i, d in zip(indices, devices):
+        if i == default_device:
+            print(f'* {i:2d}: {d}')
+        else:
+            print(f'  {i:2d}: {d}')
+
+    
 def demo(device_index=None):
     """ Demonstrate the playaudio module."""
     print('play mono beep 1')
@@ -1586,12 +1609,7 @@ def main(*args):
         return
 
     if ldev:
-        indices, devices, default_device = speaker_devices()
-        for i, d in zip(indices, devices):
-            if i == default_device:
-                print(f'* {i:2d}: {d}')
-            else:
-                print(f'  {i:2d}: {d}')
+        print_speaker_devices()
         return
         
     demo(device_index)
