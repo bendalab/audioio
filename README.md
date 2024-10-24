@@ -323,6 +323,7 @@ Playing sounds:
 
 Not yet supported by audioio:
 
+- [mutagen](https://github.com/quodlibet/mutagen): handles audio metadata of many audio file formats.
 - [playsound](https://github.com/TaylorSMarks/playsound): pure Python,
   cross platform, single function module with no dependencies for
   playing sounds. Plays sounds from files only.
