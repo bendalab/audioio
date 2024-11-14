@@ -229,7 +229,7 @@ info_tags = dict(AGES='Rated',
                  VMIN='VegasVersionMinor',
                  YEAR='Year',
                  # extensions from
-                 # [TeeGrid](https://github.com/janscience/TeeGrid/):
+                 # [TeeRec](https://github.com/janscience/TeeRec/):
                  BITS='Bits',
                  PINS='Pins',
                  AVRG='Averaging',
@@ -240,7 +240,8 @@ info_tags = dict(AGES='Rated',
                  UWRP='UnwrapThreshold',
                  UWPC='UnwrapClippedAmplitude',
                  IBRD='uCBoard',
-                 IMAC='MACAdress')
+                 IMAC='MACAdress',
+                 CPUF='CPU frequency')
 """Dictionary with known tags of the INFO chunk as keys and their description as value.
 
 See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
