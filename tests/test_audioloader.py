@@ -1,5 +1,6 @@
 import pytest
 import os
+import glob
 import numpy as np
 import audioio.audiowriter as aw
 import audioio.bufferedarray as ba
@@ -17,6 +18,22 @@ def write_audio_file(filename, duration=20.0):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
     encoding = 'PCM_16'
     aw.write_wave(filename, data, rate, encoding=encoding)
+
+
+def write_audio_files(filename, duration=60.0, nfiles=4):
+    rate = 44100.0
+    channels = 2
+    t = np.arange(0.0, duration, 1.0/rate)
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    data = data.reshape((-1, 1))
+    for k in range(data.shape[1], channels):
+        data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
+    encoding = 'PCM_16'
+    n = len(data) // nfiles
+    for k in range(nfiles):
+        fdata = data[k*n:(k+1)*n,:]
+        aw.write_wave(filename.format(k + 1), fdata, rate, encoding=encoding)
+    return data[:n*nfiles], rate
 
 
 def test_single_frame():
@@ -191,6 +208,47 @@ def test_multiple():
                     assert failed == -1, ('multiple random frame access failed with %s module at indices ' % lib) + str(inx)
     os.remove(filename)
     am.enable_module()
+
+
+def test_multi_files():
+    am.enable_module()
+    filename = 'test{}.wav'
+    full_data, rate = write_audio_files(filename, 60.0, 4)
+    tolerance = 2.0**(-15)
+    ntests = 100
+    print('')
+    print('access for multiple files')
+    with al.AudioLoader(sorted(glob.glob(filename.replace('{}', '*'))),
+                        5.0, 2.0, verbose=4) as data:
+        assert len(data) == len(full_data), f'number of data elements differ: {len(data)} != {len(full_data)}'
+        assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
+        # single frames:
+        assert not np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with multiple files'
+        assert not np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with multiple files'
+        for n in range(10):
+            with pytest.raises(IndexError):
+                x = data[len(data)+n]
+        failed = -1
+        for inx in np.random.randint(0, len(data), ntests):
+            if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
+                failed = inx
+                break
+        assert failed < 0, 'single random frame access failed at index %d with multiple files' % failed
+        # slices:
+        for n in range(0, 5, 10):
+            assert not np.any(np.abs(data[:n]-full_data[:n]) > tolerance), 'zero slice up to %d does not match' % n
+        for n in range(1, 5):
+            assert not np.any(np.abs(data[:50:n]-full_data[:50:n]) > tolerance), 'step slice with step=%d does not match' % n
+        for time in [0.1, 1.5, 2.0, 5.5, 8.0, 14.0, 20.0, 30.0]:
+            nframes = int(time*data.rate)
+            failed = -1
+            for inx in np.random.randint(0, len(data)-nframes, ntests):
+                if np.any(np.abs(full_data[inx:inx+nframes] - data[inx:inx+nframes]) > tolerance):
+                    failed = inx
+                    break
+            assert failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
+    for k in range(4):
+        os.remove(filename.format(k+1))
 
 
 def test_modules():

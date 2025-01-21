@@ -1294,6 +1294,7 @@ class AudioLoader(BufferedArray):
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
         self.audio_files = []
+        self.start_indices = []
         for filepath in filepaths:
             try:
                 a = AudioLoader(filepath, buffersize, backsize, verbose)
@@ -1302,8 +1303,76 @@ class AudioLoader(BufferedArray):
                 pass
         if len(self.audio_files) == 0:
             raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
-        # check contingency...
-        # setup infrastructure ...
+        # check contingency and set start indices:
+        self.filepath = self.audio_files[0].filepath
+        self.format = self.audio_files[0].format
+        self.encoding = self.audio_files[0].encoding
+        self.rate = self.audio_files[0].rate
+        self.channels = self.audio_files[0].channels
+        self.frames = 0
+        self.start_indices = []
+        self.end_indices = []
+        for a in self.audio_files:
+            if a.channels != self.channels:
+                raise ValueError(f'number of channels differs: '
+                                 f'{a.channels} in {a.filepath} versus '
+                                 f'{self.channels} in {self.filepath}')
+            if a.rate != self.audio_files[0].rate:
+                raise ValueError(f'sampling rates differ: '
+                                 f'{a.rate} in {a.filepath} versus '
+                                 f'{self.rate} in {self.filepath}')
+            # TODO: check recording times
+            self.start_indices.append(self.frames)
+            self.frames += a.frames
+            self.end_indices.append(self.frames)
+        self.start_indices = np.array(self.start_indices)
+        self.end_indices = np.array(self.end_indices)
+        # setup infrastructure:
+        self.shape = (self.frames, self.channels)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
+        self.init_buffer()
+        self.close = self._close_multiple
+        self.load_audio_buffer = self._load_buffer_multiple
+        return self
+
+    def _close_multiple(self):
+        """Close all the audio files. """
+        for a in self.audio_files:
+            a.close()
+        self.audio_files = []
+        self.start_indices = []
+        self.end_indices = []
+
+    def _load_buffer_multiple(self, r_offset, r_size, buffer):
+        """Load new data from the underlying files.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
+        """
+        offs = r_offset
+        size = r_size
+        boffs = 0
+        ai = np.searchsorted(self.end_indices, offs, side='right')
+        while size > 0:
+            ai0 = offs - self.start_indices[ai]
+            ai1 = offs + size
+            if ai1 > self.end_indices[ai]:
+                ai1 = self.end_indices[ai]
+            ai1 -= self.start_indices[ai]
+            n = ai1 - ai0
+            self.audio_files[ai].load_audio_buffer(ai0, n,
+                                                   buffer[boffs:boffs + n,:])
+            boffs += n
+            offs += n
+            size -= n
+            ai += 1
 
                                 
     def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
