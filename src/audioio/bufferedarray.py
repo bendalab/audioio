@@ -18,7 +18,7 @@ def blocks(data, block_size, noverlap=0, start=0, stop=None):
     block_size: int
         Len of data blocks to be returned.
     noverlap: int
-        Number of indices successive data points should overlap.
+        Number of indices successive data blocks should overlap.
     start: int
         Optional first index from which on to return blocks of data.
     stop: int
@@ -298,7 +298,7 @@ class BufferedArray(object):
         block_size: int
             Len of data blocks to be returned.
         noverlap: int
-            Number of indices successive data points should overlap.
+            Number of indices successive data blocks should overlap.
         start: int
             Optional first index from which on to return blocks of data.
         stop: int
