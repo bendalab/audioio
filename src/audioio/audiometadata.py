@@ -1423,6 +1423,9 @@ def add_metadata(metadata, mds, sep='.'):
     md_dict = strlist_to_dict(mds)
     for k in md_dict:
         mm, kk = find_key(metadata, k, sep)
+        if not mm:
+            mm = metadata
+            kk = k
         mm, kk = add_sections(mm, kk, True, sep)
         mm[kk] = md_dict[k]
 

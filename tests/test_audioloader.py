@@ -2,6 +2,7 @@ import pytest
 import os
 import glob
 import numpy as np
+from datetime import datetime, timedelta
 import audioio.audiowriter as aw
 import audioio.bufferedarray as ba
 import audioio.audioloader as al
@@ -29,11 +30,22 @@ def write_audio_files(filename, duration=60.0, nfiles=4):
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
     encoding = 'PCM_16'
+    m = 1000
+    locs = np.zeros((m, 2), dtype=int)
+    locs[:, 0] = np.sort(np.random.randint(0, len(data), m))
+    locs[:, 1] = np.random.randint(0, 100, m)
+    start_time = datetime.now()
     n = len(data) // nfiles
     for k in range(nfiles):
-        fdata = data[k*n:(k+1)*n,:]
-        aw.write_wave(filename.format(k + 1), fdata, rate, encoding=encoding)
-    return data[:n*nfiles], rate
+        i0 = k*n
+        i1 = (k+1)*n
+        md = dict(DateTimeOriginal=start_time.isoformat())
+        mlocs = locs[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
+        mlocs[:,0] -= i0
+        aw.write_wave(filename.format(k + 1), data[i0:i1,:], rate,
+                      encoding=encoding, metadata=md, locs=mlocs)
+        start_time += timedelta(seconds=n/rate)
+    return data[:n*nfiles], rate, locs
 
 
 def test_single_frame():
@@ -213,13 +225,16 @@ def test_multiple():
 def test_multi_files():
     am.enable_module()
     filename = 'test{}.wav'
-    full_data, rate = write_audio_files(filename, 60.0, 4)
+    full_data, rate, full_locs = write_audio_files(filename, 60.0, 4)
     tolerance = 2.0**(-15)
     ntests = 100
     print('')
     print('access for multiple files')
     with al.AudioLoader(sorted(glob.glob(filename.replace('{}', '*'))),
                         5.0, 2.0, verbose=4) as data:
+        locs, labels = data.markers()
+        assert len(locs) == len(full_locs), 'number of markers differ'
+        assert np.all(locs == full_locs), 'marker locations differ'
         assert len(data) == len(full_data), f'number of data elements differ: {len(data)} != {len(full_data)}'
         assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
         # single frames:

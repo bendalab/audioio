@@ -24,10 +24,12 @@ import sys
 import warnings
 import os.path
 import numpy as np
+from datetime import timedelta
 from .audiomodules import *
 from .bufferedarray import BufferedArray
 from .riffmetadata import metadata_riff, markers_riff
-from .audiometadata import update_gain, add_unwrap
+from .audiometadata import update_gain, add_unwrap, get_datetime
+from .audiometadata import flatten_metadata, add_metadata, set_starttime
 from .audiotools import unwrap
 
 
@@ -535,6 +537,12 @@ class AudioLoader(BufferedArray):
 
     In the constructor or some kind of opening function, you need to
     set some member variables, as described for `BufferedArray`.
+
+    For loading metadata and markers, implement the functions
+    ```
+    self._load_metadata(filepath, **kwargs)
+    self._load_markers(filepath)
+    ```
     
     Parameters
     ----------
@@ -1312,6 +1320,11 @@ class AudioLoader(BufferedArray):
         self.frames = 0
         self.start_indices = []
         self.end_indices = []
+        md = self.audio_files[0].metadata()
+        start_time = get_datetime(md)
+        self._metadata = {}
+        self._locs = np.zeros((0, 2), dtype=int)
+        self._labels = np.zeros((0, 2), dtype=object)
         for a in self.audio_files:
             if a.channels != self.channels:
                 raise ValueError(f'number of channels differs: '
@@ -1321,12 +1334,32 @@ class AudioLoader(BufferedArray):
                 raise ValueError(f'sampling rates differ: '
                                  f'{a.rate} in {a.filepath} versus '
                                  f'{self.rate} in {self.filepath}')
-            # TODO: check recording times
+            # metadata:
+            md = a.metadata()
+            fmd = flatten_metadata(md, True)
+            add_metadata(self._metadata, fmd)
+            # check start time of recording:
+            stime = get_datetime(md)
+            if start_time is not None and stime is not None and \
+               start_time != stime:
+                raise ValueError(f'start time does not indicate continues recording: '
+                                 f'{stime} in {a.filepath} versus '
+                                 f'{start_time} in {self.filepath}')
+            # markers:
+            locs, labels = a.markers()
+            locs[:,0] += self.frames
+            self._locs = np.vstack((self._locs, locs))
+            self._labels = np.vstack((self._labels, labels))
+            # indices:
             self.start_indices.append(self.frames)
             self.frames += a.frames
             self.end_indices.append(self.frames)
+            start_time += timedelta(seconds=a.frames/a.rate)
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
+        # set startime from first file:
+        start_time = get_datetime(self.audio_files[0].metadata())
+        set_starttime(self._metadata, start_time)
         # setup infrastructure:
         self.shape = (self.frames, self.channels)
         self.bufferframes = int(buffersize*self.rate)
