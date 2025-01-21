@@ -727,7 +727,7 @@ class AudioLoader(BufferedArray):
             minimum and maximum data range
             (self.ampl_min and self.ampl_max).
         down_scale: bool
-            If not `clip`, then downscale the signal by a factor of two,
+            If not `clips`, then downscale the signal by a factor of two,
             in order to keep the range between -1 and 1.
         unit: str
             Unit of the data.
@@ -1262,14 +1262,58 @@ class AudioLoader(BufferedArray):
                 r_offset += n
                 r_size -= n
 
+
+    # open multiple audio files as one:
+    def open_multiple(self, filepaths, buffersize=10.0, backsize=0.0,
+                      verbose=0):
+        """Open multiple audio files as a single concatenated array.
+
+        Parameters
+        ----------
+        filepaths: list of str
+            List of file names of audio files.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If larger than zero show detailed error/warning messages.
+
+        Raises
+        ------
+        TypeError
+            `filepaths` must be a sequence.
+        ValueError
+            Empty `filepaths`.
+        FileNotFoundError
+            `filepaths` does not contain a single valid file.
+
+        """
+        if not isinstance(filepaths, (list, tuple, np.ndarray)):
+            raise TypeError('input argument filepaths is not a sequence!')
+        if len(filepaths) == 0:
+            raise ValueError('input argument filepaths is empy sequence!')
+        self.audio_files = []
+        for filepath in filepaths:
+            try:
+                a = AudioLoader(filepath, buffersize, backsize, verbose)
+                self.audio_files. append(a)
+            except:
+                pass
+        if len(self.audio_files) == 0:
+            raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
+        # check contingency...
+        # setup infrastructure ...
+
                                 
     def open(self, filepath, buffersize=10.0, backsize=0.0, verbose=0):
         """Open audio file for reading.
 
         Parameters
         ----------
-        filepath: str
-            Name of the file.
+        filepath: str or list of str
+            Name of the file or list of many file names that should be
+            made accessible as a single array.
         buffersize: float
             Size of internal buffer in seconds.
         backsize: float
@@ -1287,11 +1331,14 @@ class AudioLoader(BufferedArray):
             File size of `filepath` is zero.
         IOError
             Failed to load data.
+
         """
         self.buffer = np.array([])
         self.rate = 0.0
         if not filepath:
             raise ValueError('input argument filepath is empty string!')
+        if isinstance(filepath, (list, tuple, np.ndarray)):
+            return self.open_multiple(filepath, buffersize, backsize, verbose)
         if not os.path.isfile(filepath):
             raise FileNotFoundError(f'file "{filepath}" not found')
         if os.path.getsize(filepath) <= 0:
