@@ -434,6 +434,38 @@ def test_get_datetime():
     assert v == None, 'get None from None metadata'
 
 
+def test_set_starttime():
+    md = dict(DateTimeOriginal='2023-04-15T22:10:00',
+              OtherTime='2023-05-16T23:20:10',
+              BEXT=dict(OriginationDate='2024-03-02',
+                        OriginationTime='10:42:24',
+                        TimeReference='123456'))
+    r = amd.set_starttime(None, '2024-06-17T22:10:05')
+    assert not r, 'set_starttime() without metadata'
+    r = amd.set_starttime(md, '2024-06-17T22:10:05',
+                          time_keys=[['xxx'], ['yyy', 'zzzz'], ['OriginationDate', 'zzzz']] + amd.default_starttime_keys)
+    assert r, 'set_starttime() with metadata'
+    assert md['DateTimeOriginal'] == '2024-06-17T22:10:05', 'set_starttime() with metadata'
+    assert md['BEXT']['OriginationDate'] == '2024-06-17', 'set_starttime() with metadata'
+    assert md['BEXT']['OriginationTime'] == '22:10:05', 'set_starttime() with metadata'
+    assert md['OtherTime'] == '2023-05-16T23:20:10', 'set_starttime() with metadata'
+    r = amd.set_starttime(md, '2024-06-18T20:00:17', time_keys=['DateTimeOriginal'])
+    assert r, 'set_starttime() with metadata'
+    assert md['DateTimeOriginal'] == '2024-06-18T20:00:17', 'set_starttime() with metadata'
+
+    md = dict(DateTimeOriginal=dt.datetime.fromisoformat('2023-04-15T22:10:00'),
+              OtherTime=dt.datetime.fromisoformat('2023-05-16T23:20:10'),
+              BEXT=dict(OriginationDate=dt.date.fromisoformat('2024-03-02'),
+                        OriginationTime=dt.time.fromisoformat('10:42:24'),
+                        TimeReference=123456))
+    r = amd.set_starttime(md, '2024-06-17T22:10:05')
+    assert r, 'set_starttime() with metadata'
+    assert md['DateTimeOriginal'] == dt.datetime.fromisoformat('2024-06-17T22:10:05'), 'set_starttime() with metadata'
+    assert md['BEXT']['OriginationDate'] == dt.date.fromisoformat('2024-06-17'), 'set_starttime() with metadata'
+    assert md['BEXT']['OriginationTime'] == dt.time.fromisoformat('22:10:05'), 'set_starttime() with metadata'
+    assert md['OtherTime'] == dt.datetime.fromisoformat('2023-05-16T23:20:10'), 'set_starttime() with metadata'
+    
+
 def test_update_starttime():
     md = dict(DateTimeOriginal='2023-04-15T22:10:00',
               OtherTime='2023-05-16T23:20:10',
@@ -468,7 +500,6 @@ def test_update_starttime():
     assert md['BEXT']['OriginationTime'] == dt.time.fromisoformat('10:42:28.200'), 'update_starttime() with metadata'
     assert md['BEXT']['TimeReference'] == 123456 + int(4.2*48000), 'update_starttime() with metadata'
     assert md['OtherTime'] == dt.datetime.fromisoformat('2023-05-16T23:20:10'), 'update_starttime() with metadata'
-    
 
     
 def test_get_str():

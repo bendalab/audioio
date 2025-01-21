@@ -7,7 +7,7 @@ types. Value strings can also be numbers followed by a unit,
 e.g. "4.2mV". For defining subsections of key-value pairs, values can
 be dictionaries. The dictionaries can be nested to arbitrary depth.
 
-```txt
+```py
 >>> from audioio import print_metadata
 >>> md = dict(Recording=dict(Experimenter='John Doe',
                              DateTimeOriginal='2023-10-01T14:10:02',
@@ -16,6 +16,9 @@ be dictionaries. The dictionaries can be nested to arbitrary depth.
                              Highpass='10Hz',
                              Gain='120mV'))
 >>> print_metadata(md)
+```
+results in
+```txt
 Recording:
     Experimenter    : John Doe
     DateTimeOriginal: 2023-10-01T14:10:02
@@ -87,7 +90,7 @@ Find keys and get their values parsed and converted to various types:
 - `get_number()`: find a key in metadata and return its value in a given unit.
 - `get_int()`: find a key in metadata and return its integer value.
 - `get_bool()`: find a key in metadata and return its boolean value.
-- `get_datetime()`: find keys in metadata and return a datatime.
+- `get_datetime()`: find keys in metadata and return a datetime.
 - `get_str()`: find a key in metadata and return its string value.
 
 ### Organize metadata
@@ -108,6 +111,7 @@ Retrieve and set specific metadata:
 
 - `get_gain()`: get gain and unit from metadata.
 - `update_gain()`: update gain setting in metadata.
+- `set_starttime()`: set all start-of-recording times in metadata.
 - `update_starttime()`: update start-of-recording times in metadata.
 - `bext_history_str()`: assemble a string for the BEXT CodingHistory field.
 - `add_history()`: add a string describing coding history to metadata.
@@ -1033,7 +1037,7 @@ Used by `get_datetime()` and `update_starttime()` functions.
 
 def get_datetime(metadata, keys=default_starttime_keys,
                  sep='.', default=None, remove=False):
-    """Find keys in metadata and return a datatime.
+    """Find keys in metadata and return a datetime.
 
     Parameters
     ----------
@@ -1042,11 +1046,12 @@ def get_datetime(metadata, keys=default_starttime_keys,
     keys: tuple of str or list of tuple of str
         Datetimes can be stored in metadata as two separate key-value pairs,
         one for the date and one for the time. Or by a single key-value pair
-        for a date-time values. This is why the keys need to be specified in
-        tuples with one or tow keys.
-        Value of the first tuple of keys found is returned.
+        for a date-time value. This is why the keys need to be specified in
+        tuples with one or two keys.
+        The value of the first tuple of keys found is returned.
         Keys may contain section names separated by `sep`. 
         See `audiometadata.find_key()` for details.
+        The default values for the `keys` find the start time of a recording.
         You can modify the default keys via the `default_starttime_keys` list
         of the `audiometadata` module.
     sep: str
@@ -1378,7 +1383,7 @@ def add_metadata(metadata, mds, sep='.'):
         Metadata.
     mds: dict or str or list of str
         - Flat dictionary with key-value pairs for updating the metadata.
-          Values can be strings, other types or dictionaries.
+          Values can be strings or other types.
         - String with key and value separated by '='.
         - List of strings with key and value separated by '='.
         Keys may contain section names separated by `sep`.
@@ -1648,6 +1653,87 @@ default_timeref_keys = ['TimeReference']
 """Default keys of integer time references in metadata.
 Used by `update_starttime()` function.
 """
+
+def set_starttime(metadata, datetime_value,
+                  time_keys=default_starttime_keys):
+    """Set all start-of-recording times in metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    datetime_value: datetime
+        Start date and time of the recording.
+    time_keys: tuple of str or list of tuple of str
+        Keys to fields denoting calender times, i.e. dates and times.
+        Datetimes can be stored in metadata as two separate key-value pairs,
+        one for the date and one for the time. Or by a single key-value pair
+        for a date-time values. This is why the keys need to be specified in
+        tuples with one or two keys.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default time keys via the `default_starttime_keys`
+        list of the `audiometadata` module.
+
+    Returns
+    -------
+    success: bool
+        True if at least one time has been set.
+
+    Example
+    -------
+    ```
+    >>> from audioio import print_metadata, set_starttime
+    >>> md = dict(DateTimeOriginal='2023-04-15T22:10:00',
+                  OtherTime='2023-05-16T23:20:10',
+                  BEXT=dict(OriginationDate='2024-03-02',
+                            OriginationTime='10:42:24'))
+    >>> set_starttime(md, '2024-06-17T22:10:05')
+    >>> print_metadata(md)
+    DateTimeOriginal: 2024-06-17T22:10:05
+    OtherTime       : 2024-06-17T22:10:05
+    BEXT:
+        OriginationDate: 2024-06-17
+        OriginationTime: 22:10:05
+    ```
+
+    """
+    if not metadata:
+        return False
+    if isinstance(datetime_value, str):
+        datetime_value = dt.datetime.fromisoformat(datetime_value)
+    success = False
+    if len(time_keys) > 0 and isinstance(time_keys[0], str):
+        time_keys = (time_keys,)
+    for key in time_keys:
+        if len(key) == 1:
+            # datetime:
+            m, k = find_key(metadata, key[0])
+            if k in m and not isinstance(m[k], dict):
+                if isinstance(m[k], dt.datetime):
+                    m[k] = datetime_value
+                else:
+                    m[k] = datetime_value.isoformat(timespec='seconds')
+                success = True
+        else:
+            # separate date and time:
+            md, kd = find_key(metadata, key[0])
+            if not kd in md or isinstance(md[kd], dict):
+                continue
+            if isinstance(md[kd], dt.date):
+                md[kd] = datetime_value.date()
+            else:
+                md[kd] = datetime_value.date().isoformat()
+            mt, kt = find_key(metadata, key[1])
+            if not kt in mt or isinstance(mt[kt], dict):
+                continue
+            if isinstance(mt[kt], dt.time):
+                mt[kt] = datetime_value.time()
+            else:
+                mt[kt] = datetime_value.time().isoformat(timespec='seconds')
+            success = True
+    return success
+
 
 def update_starttime(metadata, deltat, rate,
                      time_keys=default_starttime_keys,
