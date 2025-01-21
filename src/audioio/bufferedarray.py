@@ -170,10 +170,12 @@ class BufferedArray(object):
     - `update_buffer()`: make sure that the buffer contains data of a range of indices.
     - `update_time()`: make sure that the buffer contains data of a given time range.
     - `reload_buffer()`: reload the current buffer.
-    - `load_buffer()`: load a range of samples into a buffer.
-    - `move_buffer()`: move and resize buffer.
-    - `buffer_position()`: compute position and size of buffer.
-    - `recycle_buffer()`: move buffer to new position and recycle content if possible.
+    - `move_buffer()`: move and resize buffer (called by update_buffer()).
+    - `load_buffer()`: load a range of samples into a buffer (called by reload_buffer() and move_buffer()).
+    - `_buffer_position()`: compute position and size of buffer (used by update_buffer()).
+    - `_recycle_buffer()`: move buffer to new position and recycle content if possible (called by move_buffer()).
+    - `_allocate_buffer()`: reallocate the buffer to have the right size (called by _recycle_buffer()).
+    
 
     Notes
     -----
@@ -340,41 +342,6 @@ class BufferedArray(object):
         self.offset = 0
         self.buffer_changed = np.zeros(self.channels, dtype=bool)
 
-        
-    def allocate_buffer(self, nframes=None, force=False):
-        """Reallocate the buffer to have the right size.
-
-        Parameters
-        ----------
-        nframes: int or None
-            Number of frames the buffer should hold.
-            If None, use `self.bufferframes`.
-        force: bool
-            If True, reallocate buffer even if it has the same size as before.
-        """
-        if self.bufferframes > self.frames:
-            self.bufferframes = self.frames
-            self.backframes = 0
-        if nframes is None:
-            nframes = self.bufferframes
-        if nframes == 0:
-            return
-        if force or nframes != len(self.buffer) or \
-           self.shape[1:] != self.buffer.shape[1:]:
-            shape = list(self.shape)
-            shape[0] = nframes
-            self.buffer = np.empty(shape)
-
-            
-    def reload_buffer(self):
-        """Reload the current buffer.
-        """
-        if len(self.buffer) > 0:
-            self.load_buffer(self.offset, len(self.buffer), self.buffer)
-            self.buffer_changed[:] = True
-            if self.verbose > 1:
-                print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
-
             
     def update_buffer(self, start, stop):
         """Make sure that the buffer contains data of a range of indices.
@@ -386,7 +353,7 @@ class BufferedArray(object):
         stop: int
             Index of the last requested frame.
         """
-        offset, nframes = self.buffer_position(start, stop)
+        offset, nframes = self._buffer_position(start, stop)
         self.move_buffer(offset, nframes)
 
                 
@@ -403,8 +370,20 @@ class BufferedArray(object):
         self.update_buffer(int(start*self.rate), int(stop*self.rate) + 1)
 
             
+    def reload_buffer(self):
+        """Reload the current buffer.
+        """
+        if len(self.buffer) > 0:
+            self.load_buffer(self.offset, len(self.buffer), self.buffer)
+            self.buffer_changed[:] = True
+            if self.verbose > 1:
+                print(f'  reloaded {len(self.buffer)} frames from {self.offset} up to {self.offset + len(self.buffer)}')
+
+            
     def move_buffer(self, offset, nframes):
         """Move and resize buffer.
+
+        Called by update_buffer().
 
         Parameters
         ----------
@@ -418,7 +397,7 @@ class BufferedArray(object):
         if offset + nframes > self.frames:
             nframes = self.frames - offset
         if offset != self.offset or nframes != len(self.buffer):
-            r_offset, r_nframes = self.recycle_buffer(offset, nframes)
+            r_offset, r_nframes = self._recycle_buffer(offset, nframes)
             self.offset = offset
             if r_nframes > 0:
                 # load buffer content, this is backend specific:
@@ -430,7 +409,7 @@ class BufferedArray(object):
                 print(f'  loaded {len(pbuffer)} frames from {r_offset} up to {r_offset + r_nframes}')
 
         
-    def buffer_position(self, start, stop):
+    def _buffer_position(self, start, stop):
         """Compute position and size of buffer.
 
         You usually should not need to call this function
@@ -488,14 +467,14 @@ class BufferedArray(object):
         return self.offset, len(self.buffer)
 
     
-    def recycle_buffer(self, offset, nframes):
+    def _recycle_buffer(self, offset, nframes):
         """Move buffer to new position and recycle content if possible.
 
         You usually should not need to call this function
-        directly. This is handled by `update_buffer()`.
+        directly. This is handled by `update_buffer()` via move_buffer().
 
         Move already existing parts of the buffer to their new position (as
-        returned by `buffer_position()`) and return position and size of
+        returned by `_buffer_position()`) and return position and size of
         data chunk that still needs to be loaded from file.
 
         Parameters
@@ -522,7 +501,7 @@ class BufferedArray(object):
             if n > nframes:
                 n = nframes
             tmp_buffer = self.buffer[i:i + n]
-            self.allocate_buffer(nframes)
+            self._allocate_buffer(nframes)
             self.buffer[:n] = tmp_buffer
             r_offset += n
             r_nframes -= n
@@ -533,13 +512,40 @@ class BufferedArray(object):
             n = offset + nframes - self.offset
             m = len(self.buffer)
             tmp_buffer = self.buffer[:n]
-            self.allocate_buffer(nframes)
+            self._allocate_buffer(nframes)
             self.buffer[-n:] = tmp_buffer
             r_nframes -= n
             if self.verbose > 2:
                 print(f'  recycle {n:6d} frames from {self.offset} - {self.offset + n} of the old {m}-sized buffer to the end at {offset + nframes - n} - {offset + nframes} ({nframes - n} - {nframes} in buffer)')
         else:
             # new buffer is somewhere else or larger than current buffer:
-            self.allocate_buffer(nframes)
+            self._allocate_buffer(nframes)
         return r_offset, r_nframes
+
+        
+    def _allocate_buffer(self, nframes=None, force=False):
+        """Reallocate the buffer to have the right size.
+
+        Called by _recycle_buffer().
+
+        Parameters
+        ----------
+        nframes: int or None
+            Number of frames the buffer should hold.
+            If None, use `self.bufferframes`.
+        force: bool
+            If True, reallocate buffer even if it has the same size as before.
+        """
+        if self.bufferframes > self.frames:
+            self.bufferframes = self.frames
+            self.backframes = 0
+        if nframes is None:
+            nframes = self.bufferframes
+        if nframes == 0:
+            return
+        if force or nframes != len(self.buffer) or \
+           self.shape[1:] != self.buffer.shape[1:]:
+            shape = list(self.shape)
+            shape[0] = nframes
+            self.buffer = np.empty(shape)
 

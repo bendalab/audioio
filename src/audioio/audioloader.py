@@ -592,16 +592,6 @@ class AudioLoader(BufferedArray):
     - `set_unwrap()`: Set parameters for unwrapping clipped data.
     - `close()`: Close the file.
 
-    Notes
-    -----
-    Access via `__getitem__` or `__next__` is slow!
-    Even worse, using numpy functions on this class first converts
-    it to a numpy array - that is something we actually do not want!
-    We should subclass directly from numpy.ndarray .
-    For details see http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
-    When subclassing, there is an offset argument, that might help to
-    speed up `__getitem__` .
-
     """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
