@@ -158,13 +158,6 @@ class BufferedArray(object):
     backframes: int
         Number of samples the curent data buffer should keep
         before requested data ranges.
-    follow: int
-        If zero (default), move buffer position only for requests outside
-        the current buffer.
-        If larger than zero then buffer position follows requested data ranges
-        if buffer can be moved by more than `follow`frames.
-        This results in more frequent but smaller buffer updates.
-        Set it after calling the constructor or `init_buffer()`.
     buffer_changed: ndarray of bool
         For each channel a flag, whether the buffer content has been changed.
         Set to `True`, whenever `load_buffer()` was called.
@@ -173,7 +166,7 @@ class BufferedArray(object):
     -------
     - `len()`: Number of frames.
     - `__getitem__`: Access data.
-    - `blocks()`: Generator for blockwise processing of AudioLoader data.
+    - `blocks()`: Generator for blockwise processing of the data.
     - `update_buffer()`: make sure that the buffer contains data of a range of indices.
     - `update_time()`: make sure that the buffer contains data of a given time range.
     - `reload_buffer()`: reload the current buffer.
@@ -206,7 +199,6 @@ class BufferedArray(object):
         self.size = self.frames * self.channels
         self.bufferframes = bufferframes   # number of frames the buffer can hold
         self.backframes = backframes       # number of frames kept before
-        self.follow = 0
         self.verbose = verbose
         self.offset = 0     # index of first frame in buffer
         self.init_buffer()
@@ -291,7 +283,7 @@ class BufferedArray(object):
 
         
     def blocks(self, block_size, noverlap=0, start=0, stop=None):
-        """Generator for blockwise processing of AudioLoader data.
+        """Generator for blockwise processing of data.
 
         Parameters
         ----------
@@ -307,7 +299,7 @@ class BufferedArray(object):
         Yields
         ------
         data: ndarray
-            Successive slices of the data managed by AudioLoader.
+            Successive slices of the data.
 
         Raises
         ------
@@ -346,7 +338,6 @@ class BufferedArray(object):
         shape[0] = 0
         self.buffer = np.empty(shape)
         self.offset = 0
-        self.follow = 0
         self.buffer_changed = np.zeros(self.channels, dtype=bool)
 
         
@@ -490,31 +481,6 @@ class BufferedArray(object):
                 elif offset < self.bufferframes//2:
                     nframes += offset
                     offset = 0
-            if self.verbose > 2:
-                print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
-            return offset, nframes
-        elif self.follow > 0 and \
-             nframes < len(self.buffer) and \
-             abs(start - self.offset - self.backframes) >= self.follow:
-            offset = start - self.backframes
-            nframes = len(self.buffer)
-            if offset < 0:
-                offset = 0
-            if offset + nframes > self.frames:
-                offset = self.frames - nframes
-                if offset < 0:
-                    offset = 0
-                    nframes = self.frames - offset
-            # expand buffer to accomodate nearby beginning or end:
-            elif self.frames - offset - nframes < self.bufferframes//2:
-                nframes = self.frames - offset
-            elif offset < self.bufferframes//2:
-                nframes += offset
-                offset = 0
-            if start < offset:
-                print('invalid buffer start', start, offset)
-            if stop > offset + nframes:
-                print('invalid buffer end', stop, offset + nframes)
             if self.verbose > 2:
                 print(f'  request {nframes:6d} frames at {offset}-{offset+nframes}')
             return offset, nframes
