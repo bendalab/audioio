@@ -1342,10 +1342,10 @@ class AudioLoader(BufferedArray):
             # check start time of recording:
             stime = get_datetime(md)
             if start_time is not None and stime is not None and \
-               start_time != stime:
-                raise ValueError(f'start time does not indicate continues recording: '
-                                 f'{stime} in {a.filepath} versus '
-                                 f'{start_time} in {self.filepath}')
+               abs(start_time - stime) > timedelta(seconds=1):
+                raise ValueError(f'start time does not indicate continuous recording: '
+                                 f'expected {start_time} instead of '
+                                 f'{stime} in {a.filepath}')
             # markers:
             locs, labels = a.markers()
             locs[:,0] += self.frames

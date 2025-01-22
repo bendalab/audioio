@@ -692,7 +692,7 @@ def find_key(metadata, key, sep='.'):
         # nothing found:
         return False, metadata, sep.join(keys)
 
-    if not metadata:
+    if metadata is None:
         return {}, None
     ks = key.strip().split(sep)
     found, mm, kk = find_keys(metadata, ks)
@@ -1423,12 +1423,8 @@ def add_metadata(metadata, mds, sep='.'):
     md_dict = strlist_to_dict(mds)
     for k in md_dict:
         mm, kk = find_key(metadata, k, sep)
-        if not mm:
-            mm = metadata
-            kk = k
         mm, kk = add_sections(mm, kk, True, sep)
         mm[kk] = md_dict[k]
-
 
 
 def move_metadata(src_md, dest_md, keys, new_key=None, sep='.'):
