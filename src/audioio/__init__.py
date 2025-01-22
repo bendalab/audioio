@@ -37,7 +37,7 @@ if len(sys.argv) > 0 and sys.argv[0] != '-m':
     from .audiometadata import remove_metadata, cleanup_metadata
     from .audiometadata import parse_number, change_unit, get_number
     from .audiometadata import get_number_unit, get_int, get_bool
-    from .audiometadata import get_datetime, update_starttime, get_str
+    from .audiometadata import get_datetime, set_starttime, update_starttime, get_str
     from .audiometadata import get_gain, update_gain, add_unwrap
     from .audiometadata import bext_history_str, add_history
     from .audiometadata import default_starttime_keys, default_timeref_keys

@@ -1312,15 +1312,16 @@ class AudioLoader(BufferedArray):
         if len(self.audio_files) == 0:
             raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
         # check contingency and set start indices:
-        self.filepath = self.audio_files[0].filepath
-        self.format = self.audio_files[0].format
-        self.encoding = self.audio_files[0].encoding
-        self.rate = self.audio_files[0].rate
-        self.channels = self.audio_files[0].channels
+        a0 = self.audio_files[0]
+        self.filepath = a0.filepath
+        self.format = a0.format
+        self.encoding = a0.encoding
+        self.rate = a0.rate
+        self.channels = a0.channels
         self.frames = 0
         self.start_indices = []
         self.end_indices = []
-        md = self.audio_files[0].metadata()
+        md = a0.metadata()
         start_time = get_datetime(md)
         self._metadata = {}
         self._locs = np.zeros((0, 2), dtype=int)
@@ -1330,7 +1331,7 @@ class AudioLoader(BufferedArray):
                 raise ValueError(f'number of channels differs: '
                                  f'{a.channels} in {a.filepath} versus '
                                  f'{self.channels} in {self.filepath}')
-            if a.rate != self.audio_files[0].rate:
+            if a.rate != self.rate:
                 raise ValueError(f'sampling rates differ: '
                                  f'{a.rate} in {a.filepath} versus '
                                  f'{self.rate} in {self.filepath}')
@@ -1358,7 +1359,7 @@ class AudioLoader(BufferedArray):
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
         # set startime from first file:
-        start_time = get_datetime(self.audio_files[0].metadata())
+        start_time = get_datetime(a0.metadata())
         set_starttime(self._metadata, start_time)
         # setup infrastructure:
         self.shape = (self.frames, self.channels)
@@ -1367,6 +1368,8 @@ class AudioLoader(BufferedArray):
         self.init_buffer()
         self.close = self._close_multiple
         self.load_audio_buffer = self._load_buffer_multiple
+        self._load_metadata = None
+        self._load_markers = None
         return self
 
     def _close_multiple(self):
