@@ -174,7 +174,7 @@ class BufferedArray(object):
     - `load_buffer()`: load a range of samples into a buffer (called by reload_buffer() and move_buffer()).
     - `_buffer_position()`: compute position and size of buffer (used by update_buffer()).
     - `_recycle_buffer()`: move buffer to new position and recycle content if possible (called by move_buffer()).
-    - `_allocate_buffer()`: reallocate the buffer to have the right size (called by _recycle_buffer()).
+    - `allocate_buffer()`: reallocate the buffer to have the right size (called by _recycle_buffer()).
     
 
     Notes
@@ -501,7 +501,7 @@ class BufferedArray(object):
             if n > nframes:
                 n = nframes
             tmp_buffer = self.buffer[i:i + n]
-            self._allocate_buffer(nframes)
+            self.allocate_buffer(nframes)
             self.buffer[:n] = tmp_buffer
             r_offset += n
             r_nframes -= n
@@ -512,18 +512,18 @@ class BufferedArray(object):
             n = offset + nframes - self.offset
             m = len(self.buffer)
             tmp_buffer = self.buffer[:n]
-            self._allocate_buffer(nframes)
+            self.allocate_buffer(nframes)
             self.buffer[-n:] = tmp_buffer
             r_nframes -= n
             if self.verbose > 2:
                 print(f'  recycle {n:6d} frames from {self.offset} - {self.offset + n} of the old {m}-sized buffer to the end at {offset + nframes - n} - {offset + nframes} ({nframes - n} - {nframes} in buffer)')
         else:
             # new buffer is somewhere else or larger than current buffer:
-            self._allocate_buffer(nframes)
+            self.allocate_buffer(nframes)
         return r_offset, r_nframes
 
         
-    def _allocate_buffer(self, nframes=None, force=False):
+    def allocate_buffer(self, nframes=None, force=False):
         """Reallocate the buffer to have the right size.
 
         Called by _recycle_buffer().
