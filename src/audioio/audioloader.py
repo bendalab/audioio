@@ -452,8 +452,8 @@ def markers(filepath):
 class AudioLoader(BufferedArray):
     """Buffered reading of audio data for random access of the data in the file.
     
-    The class allows for reading very large audio files that do not
-    fit into memory.
+    The class allows for reading very large audio files or many
+    sequential audio files that do not fit into memory.
     An AudioLoader instance can be used like a huge read-only numpy array, i.e.
     ```
     data = AudioLoader('path/to/audio/file.wav')
@@ -547,7 +547,8 @@ class AudioLoader(BufferedArray):
     Parameters
     ----------
     filepath: str
-        Name of the file.
+        Name of the file or list of many file names that should be
+        made accessible as a single array.
     buffersize: float
         Size of internal buffer in seconds.
     backsize: float
@@ -559,8 +560,9 @@ class AudioLoader(BufferedArray):
 
     Attributes
     ----------
-    filepath: str
-        Path and name of the file.
+    filepath: str or list of str
+        Name and path of the opened file, or list of many file names
+        that are made accessible as a single array.
     rate: float
         The sampling rate of the data in seconds.
     channels: int
