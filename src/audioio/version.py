@@ -4,7 +4,7 @@
 __version__ = '2.3.0'
 """ Current version of the audioio package as string 'x.y.z'. """
 
-__year__ = '2024'
+__year__ = '2025'
 """ Year of the current audioio version as string. """
 
 __pdoc__ = {}
