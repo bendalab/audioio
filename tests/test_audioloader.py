@@ -67,6 +67,9 @@ def test_get_file_index():
         print('check file index for module %s ...' % lib)
         am.select_module(lib)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
+            times = data.file_start_times()
+            assert len(times) == 1, 'len of file_start_times()'
+            assert times[0] == 0.0, 'value of file_start_times()'
             with pytest.raises(ValueError):
                 data.get_file_index(-1)
             with pytest.raises(ValueError):
@@ -272,6 +275,10 @@ def test_multi_files():
         assert len(data) == len(full_data), f'number of data elements differ: {len(data)} != {len(full_data)}'
         assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
         # get file index:
+        times = data.file_start_times()
+        assert len(times) == 4, 'len of file_start_times()'
+        for i in range(4):
+            assert times[i] == i*frames/data.rate, 'value of file_start_times()'
         with pytest.raises(ValueError):
             data.get_file_index(-1)
         with pytest.raises(ValueError):

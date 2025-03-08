@@ -595,6 +595,7 @@ class AudioLoader(BufferedArray):
     Methods
     -------
     - `len()`: Number of frames.
+    - `file_start_times()`: time of first frame of each file in seconds.
     - `get_file_index()`: file path and index of frame contained by this file.
     - `open()`: Open an audio file by trying available audio modules.
     - `open_*()`: Open an audio file with the respective audio module.
@@ -651,6 +652,20 @@ class AudioLoader(BufferedArray):
 
     def __del__(self):
         self.close()
+
+    def file_start_times(self):
+        """ Time of first frame of each file in seconds.
+        
+        Returns
+        -------
+        times: list of float
+            Time of the first frame of each file relative to buffer start
+            in seconds.
+        """
+        times = []
+        for idx in self.file_indices:
+            times.append(idx/self.rate)
+        return times
 
     def get_file_index(self, frame):
         """ File path and index of frame contained by this file.
