@@ -546,7 +546,7 @@ class AudioLoader(BufferedArray):
     
     Parameters
     ----------
-    filepath: str
+    filepath: str or list of str
         Name of the file or list of many file names that should be
         made accessible as a single array.
     buffersize: float
@@ -560,9 +560,13 @@ class AudioLoader(BufferedArray):
 
     Attributes
     ----------
-    filepath: str or list of str
-        Name and path of the opened file, or list of many file names
-        that are made accessible as a single array.
+    filepath: str
+        Name and path of the opened file. In case of many files, the first one.
+    file_paths: list of str
+        List of pathes of the opened files that are made accessible
+        as a single array.
+    file_indices: list of int
+        For each file the index of its first sample.
     rate: float
         The sampling rate of the data in seconds.
     channels: int
@@ -591,6 +595,7 @@ class AudioLoader(BufferedArray):
     Methods
     -------
     - `len()`: Number of frames.
+    - `get_file_index()`: file path and index of frame contained by this file.
     - `open()`: Open an audio file by trying available audio modules.
     - `open_*()`: Open an audio file with the respective audio module.
     - `__getitem__`: Access data of the audio file.
@@ -616,6 +621,8 @@ class AudioLoader(BufferedArray):
         self._load_markers = markers
         self._metadata_kwargs = meta_kwargs
         self.filepath = None
+        self.file_paths = None
+        self.file_indices = []
         self.sf = None
         self.close = self._close
         self.load_buffer = self._load_buffer_unwrap
@@ -644,6 +651,33 @@ class AudioLoader(BufferedArray):
 
     def __del__(self):
         self.close()
+
+    def get_file_index(self, frame):
+        """ File path and index of frame contained by this file.
+
+        Parameters
+        ----------
+        frame: int
+            Index of frame.
+        
+        Returns
+        -------
+        filepath: str
+            Path of file that contains the frame.
+        index: int
+            Index of the frame relative to the first frame
+            in the containing file.
+        """
+        if frame < 0 or frame >= self.frames:
+            raise ValueError('invalid frame')
+        fname = self.file_paths[0]
+        index = self.file_indices[0]
+        for i in reversed(range(len(self.file_indices))):
+            if self.file_indices[i] <= frame:
+                fname = self.file_paths[i]
+                index = self.file_indices[i]
+                break
+        return fname, frame - index
 
     def format_dict(self):
         """ Technical infos about how the data are stored in the file.
@@ -825,6 +859,8 @@ class AudioLoader(BufferedArray):
             self._close_wave()
         self.sf = wave.open(filepath, 'r')
         self.filepath = filepath
+        self.file_paths = [filepath]
+        self.file_indices = [0]
         self.rate = float(self.sf.getframerate())
         self.format = 'WAV'
         sampwidth = self.sf.getsampwidth()
@@ -914,6 +950,8 @@ class AudioLoader(BufferedArray):
             self._close_ewave()
         self.sf = ewave.open(filepath, 'r')
         self.filepath = filepath
+        self.file_paths = [filepath]
+        self.file_indices = [0]
         self.rate = float(self.sf.sampling_rate)
         self.channels = self.sf.nchannels
         self.frames = self.sf.nframes
@@ -989,6 +1027,8 @@ class AudioLoader(BufferedArray):
             self._close_soundfile()
         self.sf = soundfile.SoundFile(filepath, 'r')
         self.filepath = filepath
+        self.file_paths = [filepath]
+        self.file_indices = [0]
         self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = 0
@@ -1066,6 +1106,8 @@ class AudioLoader(BufferedArray):
             self._close_wavefile()
         self.sf = wavefile.WaveReader(filepath)
         self.filepath = filepath
+        self.file_paths = [filepath]
+        self.file_indices = [0]
         self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = self.sf.frames
@@ -1152,6 +1194,8 @@ class AudioLoader(BufferedArray):
             self._close_audioread()
         self.sf = audioread.audio_open(filepath)
         self.filepath = filepath
+        self.file_paths = [filepath]
+        self.file_indices = [0]
         self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
         self.frames = int(np.ceil(self.rate*self.sf.duration))
@@ -1303,12 +1347,14 @@ class AudioLoader(BufferedArray):
             raise TypeError('input argument filepaths is not a sequence!')
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
+        self.file_paths = []
         self.audio_files = []
         self.start_indices = []
         for filepath in filepaths:
             try:
                 a = AudioLoader(filepath, buffersize, backsize, verbose)
-                self.audio_files. append(a)
+                self.audio_files.append(a)
+                self.file_paths.append(filepath)
             except Exception as e:
                 if verbose > 0:
                     print(e)
@@ -1359,6 +1405,7 @@ class AudioLoader(BufferedArray):
             self.frames += a.frames
             self.end_indices.append(self.frames)
             start_time += timedelta(seconds=a.frames/a.rate)
+        self.file_indices = self.start_indices
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
         # set startime from first file:

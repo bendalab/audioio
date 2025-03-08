@@ -51,7 +51,32 @@ def write_audio_files(filename, duration=60.0, nfiles=4):
                       encoding=encoding, metadata=md,
                       locs=mlocs, labels=mlabels)
         start_time += timedelta(seconds=n/rate)
-    return data[:n*nfiles], rate, locs, labels
+    return data[:n*nfiles], rate, locs, labels, n
+
+
+def test_get_file_index():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 20.0)
+    tolerance = 2.0**(-15)
+    ntests = 100
+    for lib in am.installed_modules('fileio'):
+        if lib in ['scipy.io.wavfile', 'pydub']:
+            continue
+        print('')
+        print('check file index for module %s ...' % lib)
+        am.select_module(lib)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
+            with pytest.raises(ValueError):
+                data.get_file_index(-1)
+            with pytest.raises(ValueError):
+                data.get_file_index(len(data))
+            for inx in np.random.randint(0, len(data), ntests):
+                fname, i = data.get_file_index(inx)
+                assert fname == filename, 'returned wrong file name'
+                assert i == inx, 'returned wrong index'
+    os.remove(filename)
+    am.enable_module()
 
 
 def test_single_frame():
@@ -231,7 +256,7 @@ def test_multiple():
 def test_multi_files():
     am.enable_module()
     filename = 'test{}.wav'
-    full_data, rate, full_locs, full_labels = \
+    full_data, rate, full_locs, full_labels, frames = \
         write_audio_files(filename, 60.0, 4)
     tolerance = 2.0**(-15)
     ntests = 100
@@ -246,6 +271,15 @@ def test_multi_files():
         assert np.all(labels == full_labels), 'marker labels differ'
         assert len(data) == len(full_data), f'number of data elements differ: {len(data)} != {len(full_data)}'
         assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
+        # get file index:
+        with pytest.raises(ValueError):
+            data.get_file_index(-1)
+        with pytest.raises(ValueError):
+            data.get_file_index(len(data))
+        for inx in np.random.randint(0, len(data), ntests):
+            fname, i = data.get_file_index(inx)
+            assert fname == filename.format(1 + inx//frames), 'returned wrong file name'
+            assert i == inx%frames, 'returned wrong index'
         # single frames:
         assert not np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with multiple files'
         assert not np.any(np.abs(full_data[-1] - data[-1]) > tolerance), 'last frame access failed with multiple files'
