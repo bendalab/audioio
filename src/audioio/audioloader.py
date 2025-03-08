@@ -658,14 +658,14 @@ class AudioLoader(BufferedArray):
         
         Returns
         -------
-        times: list of float
+        times: array of float
             Time of the first frame of each file relative to buffer start
             in seconds.
         """
         times = []
         for idx in self.file_indices:
             times.append(idx/self.rate)
-        return times
+        return np.array(times)
 
     def get_file_index(self, frame):
         """ File path and index of frame contained by this file.
