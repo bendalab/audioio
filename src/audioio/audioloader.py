@@ -920,6 +920,8 @@ class AudioLoader(BufferedArray):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if self.sf is None:
+            self.sf = wave.open(self.filepath, 'r')
         self.sf.setpos(r_offset*self.pfac + self.p0)
         fbuffer = self.sf.readframes(r_size)
         fbuffer = np.frombuffer(fbuffer, dtype=self.dtype).reshape((-1, self.channels))
@@ -999,6 +1001,8 @@ class AudioLoader(BufferedArray):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if self.sf is None:
+            self.sf = ewave.open(self.filepath, 'r')
         fbuffer = self.sf.read(frames=r_size, offset=r_offset, memmap='r')
         fbuffer = ewave.rescale(fbuffer, 'float')
         if len(fbuffer.shape) == 1:
@@ -1081,6 +1085,8 @@ class AudioLoader(BufferedArray):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if self.sf is None:
+            self.sf = soundfile.SoundFile(self.filepath, 'r')
         self.sf.seek(r_offset, soundfile.SEEK_SET)
         buffer[:, :] = self.sf.read(r_size, always_2d=True)
 
@@ -1164,6 +1170,8 @@ class AudioLoader(BufferedArray):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if self.sf is None:
+            self.sf = wavefile.WaveReader(self.filepath)
         self.sf.seek(r_offset, wavefile.Seek.SET)
         fbuffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
         self.sf.read(fbuffer)
@@ -1249,6 +1257,8 @@ class AudioLoader(BufferedArray):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if self.sf is None:
+            self.sf = audioread.audio_open(self.filepath)
         b_offset = 0
         if ( self.read_offset + self.read_buffer.shape[0] >= r_offset + r_size
              and self.read_offset < r_offset + r_size ):
@@ -1363,6 +1373,8 @@ class AudioLoader(BufferedArray):
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
         self.file_paths = []
+        self.max_open_files = 10
+        self.open_files = []
         self.audio_files = []
         self.start_indices = []
         for filepath in filepaths:
@@ -1370,6 +1382,10 @@ class AudioLoader(BufferedArray):
                 a = AudioLoader(filepath, buffersize, backsize, verbose)
                 self.audio_files.append(a)
                 self.file_paths.append(filepath)
+                if len(self.open_files) < self.max_open_files:
+                    self.open_files.append(a)
+                else:
+                    a.close()
             except Exception as e:
                 if verbose > 0:
                     print(e)
@@ -1470,6 +1486,11 @@ class AudioLoader(BufferedArray):
             n = ai1 - ai0
             self.audio_files[ai].load_audio_buffer(ai0, n,
                                                    buffer[boffs:boffs + n,:])
+            if self.audio_files[ai] in self.open_files:
+                self.open_files.pop(self.open_files.index(self.audio_files[ai]))
+            self.open_files.append(self.audio_files[ai])
+            if len(self.open_files) > self.max_open_files:
+                self.open_files.pop(0)
             boffs += n
             offs += n
             size -= n

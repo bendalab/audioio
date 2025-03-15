@@ -257,15 +257,16 @@ def test_multiple():
 
 
 def test_multi_files():
+    nfiles = 20
     am.enable_module()
-    filename = 'test{}.wav'
+    filename = 'test{:02d}.wav'
     full_data, rate, full_locs, full_labels, frames = \
-        write_audio_files(filename, 60.0, 4)
+        write_audio_files(filename, 600.0, nfiles)
     tolerance = 2.0**(-15)
     ntests = 100
     print('')
     print('access for multiple files')
-    with al.AudioLoader(sorted(glob.glob(filename.replace('{}', '*'))),
+    with al.AudioLoader(sorted(glob.glob(filename.replace('{:02d}', '??'))),
                         5.0, 2.0, verbose=4) as data:
         locs, labels = data.markers()
         assert len(locs) == len(full_locs), 'number of marker locs differ'
@@ -276,8 +277,8 @@ def test_multi_files():
         assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
         # get file index:
         times = data.file_start_times()
-        assert len(times) == 4, 'len of file_start_times()'
-        for i in range(4):
+        assert len(times) == nfiles, 'len of file_start_times()'
+        for i in range(nfiles):
             assert times[i] == i*frames/data.rate, 'value of file_start_times()'
         with pytest.raises(ValueError):
             data.get_file_index(-1)
@@ -312,7 +313,7 @@ def test_multi_files():
                     failed = inx
                     break
             assert failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
-    for k in range(4):
+    for k in range(nfiles):
         os.remove(filename.format(k+1))
 
 
