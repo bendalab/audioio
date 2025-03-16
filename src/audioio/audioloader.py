@@ -1409,8 +1409,8 @@ class AudioLoader(BufferedArray):
             self.file_paths = filepaths
             self.audio_files = [None] * len(filepaths)
             self.frames = end_indices[-1]
-            self.start_indices = np.array([0] + list(end_indices[:-1]))
-            self.end_indices = np.asarray(end_indices)
+            self.start_indices = [0] + list(end_indices[:-1])
+            self.end_indices = end_indices
             self.format = None
             self.encoding = None
             self.rate = rate
@@ -1481,10 +1481,10 @@ class AudioLoader(BufferedArray):
             # set startime from first file:
             if self.start_time is not None:
                 set_starttime(self._metadata, self.start_time)
-            # setup infrastructure:
-            self.file_indices = self.start_indices
-            self.start_indices = np.array(self.start_indices)
-            self.end_indices = np.array(self.end_indices)
+        # setup infrastructure:
+        self.file_indices = self.start_indices
+        self.start_indices = np.array(self.start_indices)
+        self.end_indices = np.array(self.end_indices)
         self.collect_counter = 0
         self.shape = (self.frames, self.channels)
         self.bufferframes = int(buffersize*self.rate)
@@ -1506,6 +1506,7 @@ class AudioLoader(BufferedArray):
         self.audio_files = []
         self.filepath = None
         self.file_paths = []
+        self.file_indices = []
         self.start_indices = []
         self.end_indices = []
 
@@ -1533,12 +1534,13 @@ class AudioLoader(BufferedArray):
                 self.open_loaders.append(a)
                 self.open_files.append(a)
                 if len(self.open_files) > AudioLoader.max_open_files:
-                    self.open_files.pop(0)
+                    a0 = self.open_files.pop(0)
+                    a0.close()
                 if len(self.open_loaders) > AudioLoader.max_open_loaders:
-                    a = self.open_loaders.pop(0)
-                    self.audio_files[self.audio_files.index(a)] = None
-                    a.close()
-                    del a
+                    a0 = self.open_loaders.pop(0)
+                    self.audio_files[self.audio_files.index(a0)] = None
+                    a0.close()
+                    del a0
                     self.collect_counter += 1
                     if self.collect_counter > AudioLoader.max_open_loaders//2:
                         gc.collect()
