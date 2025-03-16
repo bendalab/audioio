@@ -266,6 +266,8 @@ def test_multi_files():
     ntests = 100
     print('')
     print('access for multiple files')
+    al.AudioLoader.max_open_files = 4
+    al.AudioLoader.max_open_loaders = 8
     with al.AudioLoader(sorted(glob.glob(filename.replace('{:02d}', '??'))),
                         5.0, 2.0, verbose=4) as data:
         locs, labels = data.markers()
