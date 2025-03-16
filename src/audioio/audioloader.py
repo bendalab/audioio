@@ -1435,7 +1435,8 @@ class AudioLoader(BufferedArray):
                 self.start_indices.append(self.frames)
                 self.frames += a.frames
                 self.end_indices.append(self.frames)
-                start_time += timedelta(seconds=a.frames/a.rate)
+                if start_time is not None:
+                    start_time += timedelta(seconds=a.frames/a.rate)
                 # add file to lists:
                 self.file_paths.append(filepath)
                 if len(self.open_files) < AudioLoader.max_open_files:
@@ -1455,7 +1456,8 @@ class AudioLoader(BufferedArray):
         if len(self.audio_files) == 0:
             raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
         # set startime from first file:
-        set_starttime(self._metadata, self.start_time)
+        if self.start_time is not None:
+            set_starttime(self._metadata, self.start_time)
         # setup infrastructure:
         self.file_indices = self.start_indices
         self.start_indices = np.array(self.start_indices)
