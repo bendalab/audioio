@@ -610,6 +610,9 @@ class AudioLoader(BufferedArray):
 
     """
     
+    max_open_files = 5
+    """ Suggestion for maximum number of open file descriptors. """
+    
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
                  verbose=0, **meta_kwargs):
         super().__init__(verbose=verbose)
@@ -1373,7 +1376,6 @@ class AudioLoader(BufferedArray):
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
         self.file_paths = []
-        self.max_open_files = 10
         self.open_files = []
         self.audio_files = []
         self.start_indices = []
@@ -1382,7 +1384,7 @@ class AudioLoader(BufferedArray):
                 a = AudioLoader(filepath, buffersize, backsize, verbose)
                 self.audio_files.append(a)
                 self.file_paths.append(filepath)
-                if len(self.open_files) < self.max_open_files:
+                if len(self.open_files) < AudioLoader.max_open_files:
                     self.open_files.append(a)
                 else:
                     a.close()
@@ -1489,7 +1491,7 @@ class AudioLoader(BufferedArray):
             if self.audio_files[ai] in self.open_files:
                 self.open_files.pop(self.open_files.index(self.audio_files[ai]))
             self.open_files.append(self.audio_files[ai])
-            if len(self.open_files) > self.max_open_files:
+            if len(self.open_files) > AudioLoader.max_open_files:
                 self.open_files.pop(0)
             boffs += n
             offs += n
