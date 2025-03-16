@@ -268,13 +268,17 @@ def test_multi_files():
     print('access for multiple files')
     al.AudioLoader.max_open_files = 4
     al.AudioLoader.max_open_loaders = 8
-    with al.AudioLoader(sorted(glob.glob(filename.replace('{:02d}', '??'))),
-                        5.0, 2.0, verbose=4) as data:
-        locs, labels = data.markers()
-        assert len(locs) == len(full_locs), 'number of marker locs differ'
-        assert np.all(locs == full_locs), 'marker locations differ'
-        assert len(labels) == len(full_labels), 'number of marker labels differ'
-        assert np.all(labels == full_labels), 'marker labels differ'
+    data1 = al.AudioLoader(sorted(glob.glob(filename.replace('{:02d}', '??'))),
+                           5.0, 2.0, verbose=4)
+    locs, labels = data1.markers()
+    assert len(locs) == len(full_locs), 'number of marker locs differ'
+    assert np.all(locs == full_locs), 'marker locations differ'
+    assert len(labels) == len(full_labels), 'number of marker labels differ'
+    assert np.all(labels == full_labels), 'marker labels differ'
+    data2 = al.AudioLoader(data1.file_paths, 5.0, 2.0, verbose=4,
+                           rate=data1.rate, channels=data1.channels,
+                           end_indices=data1.end_indices)
+    for data in [data1, data2]:
         assert len(data) == len(full_data), f'number of data elements differ: {len(data)} != {len(full_data)}'
         assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
         # get file index:
@@ -315,6 +319,7 @@ def test_multi_files():
                     failed = inx
                     break
             assert failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
+        data.close()
     for k in range(nfiles):
         os.remove(filename.format(k+1))
 
