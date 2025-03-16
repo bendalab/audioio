@@ -19,7 +19,8 @@ For a demo run the module as:
 python -m src.audioio.audioloader audiofile.wav
 ```
 """
- 
+
+import gc
 import sys
 import warnings
 import os.path
@@ -1462,6 +1463,7 @@ class AudioLoader(BufferedArray):
         self.file_indices = self.start_indices
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
+        self.collect_counter = 0
         self.shape = (self.frames, self.channels)
         self.bufferframes = int(buffersize*self.rate)
         self.backframes = int(backsize*self.rate)
@@ -1515,6 +1517,10 @@ class AudioLoader(BufferedArray):
                     self.audio_files[self.audio_files.index(a)] = None
                     a.close()
                     del a
+                    self.collect_counter += 1
+                    if self.collect_counter > AudioLoader.max_open_loaders//2:
+                        gc.collect()
+                        self.collect_counter = 0
             else:
                 self.open_loaders.pop(self.open_loaders.index(self.audio_files[ai]))
                 self.open_loaders.append(self.audio_files[ai])
