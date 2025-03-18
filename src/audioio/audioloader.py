@@ -1444,7 +1444,7 @@ class AudioLoader(BufferedArray):
                                              f'{self.rate} in {self.filepath}')
                         # check start time of recording:
                         stime = get_datetime(md)
-                        if start_time is not None and stime is not None and \
+                        if start_time is None or stime is None or \
                            abs(start_time - stime) > timedelta(seconds=1):
                             raise ValueError(f'start time does not indicate continuous recording: '
                                              f'expected {start_time} instead of '
