@@ -1396,6 +1396,7 @@ class AudioLoader(BufferedArray):
         self.open_files = []
         self.open_loaders = []
         self.audio_files = []
+        self.collect_counter = 0
         self.frames = 0
         self.start_indices = []
         self.end_indices = []
@@ -1419,63 +1420,71 @@ class AudioLoader(BufferedArray):
             for filepath in filepaths:
                 try:
                     a = AudioLoader(filepath, buffersize, backsize, verbose)
-                    # collect metadata:
-                    md = a.metadata()
-                    fmd = flatten_metadata(md, True)
-                    add_metadata(self._metadata, fmd)
-                    if self.filepath is None:
-                        # first file:
-                        self.filepath = a.filepath
-                        self.format = a.format
-                        self.encoding = a.encoding
-                        self.rate = a.rate
-                        self.channels = a.channels
-                        self.start_time = get_datetime(md)
-                        start_time = self.start_time
-                    else:
-                        # check channels and rate:
-                        if a.channels != self.channels:
-                            raise ValueError(f'number of channels differs: '
-                                             f'{a.channels} in {a.filepath} versus '
-                                             f'{self.channels} in {self.filepath}')
-                        if a.rate != self.rate:
-                            raise ValueError(f'sampling rates differ: '
-                                             f'{a.rate} in {a.filepath} versus '
-                                             f'{self.rate} in {self.filepath}')
-                        # check start time of recording:
-                        stime = get_datetime(md)
-                        if start_time is None or stime is None or \
-                           abs(start_time - stime) > timedelta(seconds=1):
-                            raise ValueError(f'start time does not indicate continuous recording: '
-                                             f'expected {start_time} instead of '
-                                             f'{stime} in {a.filepath}')
-                    # markers:
-                    locs, labels = a.markers()
-                    locs[:,0] += self.frames
-                    self._locs = np.vstack((self._locs, locs))
-                    self._labels = np.vstack((self._labels, labels))
-                    # indices:
-                    self.start_indices.append(self.frames)
-                    self.frames += a.frames
-                    self.end_indices.append(self.frames)
-                    if start_time is not None:
-                        start_time += timedelta(seconds=a.frames/a.rate)
-                    # add file to lists:
-                    self.file_paths.append(filepath)
-                    if len(self.open_files) < AudioLoader.max_open_files:
-                        self.open_files.append(a)
-                    else:
-                        a.close()
-                    if len(self.open_loaders) < AudioLoader.max_open_loaders:
-                        self.audio_files.append(a)
-                        self.open_loaders.append(a)
-                    else:
-                        a.close()
-                        del a
-                        self.audio_files.append(None)
                 except Exception as e:
                     if verbose > 0:
                         print(e)
+                    continue
+                # collect metadata:
+                md = a.metadata()
+                fmd = flatten_metadata(md, True)
+                add_metadata(self._metadata, fmd)
+                if self.filepath is None:
+                    # first file:
+                    self.filepath = a.filepath
+                    self.format = a.format
+                    self.encoding = a.encoding
+                    self.rate = a.rate
+                    self.channels = a.channels
+                    self.start_time = get_datetime(md)
+                    start_time = self.start_time
+                else:
+                    # check channels and rate:
+                    error_str = None
+                    if a.channels != self.channels:
+                        error_str = f'number of channels differs: ' \
+                                         f'{a.channels} in {a.filepath} versus ' \
+                                         f'{self.channels} in {self.filepath}'
+                    if a.rate != self.rate:
+                        error_str = f'sampling rates differ: ' \
+                                         f'{a.rate} in {a.filepath} versus ' \
+                                         f'{self.rate} in {self.filepath}'
+                    # check start time of recording:
+                    stime = get_datetime(md)
+                    if start_time is None or stime is None or \
+                       abs(start_time - stime) > timedelta(seconds=1):
+                        error_str = f'start time does not indicate continuous recording: ' \
+                                         f'expected {start_time} instead of ' \
+                                         f'{stime} in {a.filepath}'
+                    if error_str is not None:
+                        if verbose > 0:
+                            print(error_str)
+                        a.close()
+                        del a
+                        break
+                # markers:
+                locs, labels = a.markers()
+                locs[:,0] += self.frames
+                self._locs = np.vstack((self._locs, locs))
+                self._labels = np.vstack((self._labels, labels))
+                # indices:
+                self.start_indices.append(self.frames)
+                self.frames += a.frames
+                self.end_indices.append(self.frames)
+                if start_time is not None:
+                    start_time += timedelta(seconds=a.frames/a.rate)
+                # add file to lists:
+                self.file_paths.append(filepath)
+                if len(self.open_files) < AudioLoader.max_open_files:
+                    self.open_files.append(a)
+                else:
+                    a.close()
+                if len(self.open_loaders) < AudioLoader.max_open_loaders:
+                    self.audio_files.append(a)
+                    self.open_loaders.append(a)
+                else:
+                    a.close()
+                    del a
+                    self.audio_files.append(None)
             if len(self.audio_files) == 0:
                 raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
             # set startime from first file:
@@ -1485,7 +1494,6 @@ class AudioLoader(BufferedArray):
         self.file_indices = self.start_indices
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
-        self.collect_counter = 0
         self.shape = (self.frames, self.channels)
         self.bufferframes = int(buffersize*self.rate)
         self.backframes = int(backsize*self.rate)
@@ -1500,15 +1508,21 @@ class AudioLoader(BufferedArray):
         """Close all the audio files. """
         self.open_files = []
         self.open_loaders = []
-        for a in self.audio_files:
-            if a is not None:
-                a.close()
+        if hasattr(self, 'audio_files'):
+            for a in self.audio_files:
+                if a is not None:
+                    a.close()
         self.audio_files = []
         self.filepath = None
         self.file_paths = []
         self.file_indices = []
         self.start_indices = []
         self.end_indices = []
+        del self.audio_files
+        del self.open_files
+        del self.open_loaders
+        del self.start_indices
+        del self.end_indices
 
     def _load_buffer_multiple(self, r_offset, r_size, buffer):
         """Load new data from the underlying files.
@@ -1604,7 +1618,11 @@ class AudioLoader(BufferedArray):
         if not filepath:
             raise ValueError('input argument filepath is empty string!')
         if isinstance(filepath, (list, tuple, np.ndarray)):
-            return self.open_multiple(filepath, buffersize, backsize, verbose)
+            self.open_multiple(filepath, buffersize, backsize, verbose)
+            if len(self.file_paths) > 1:
+                return self
+            filepath = self.file_paths[0]
+            self.close()
         if not os.path.isfile(filepath):
             raise FileNotFoundError(f'file "{filepath}" not found')
         if os.path.getsize(filepath) <= 0:
