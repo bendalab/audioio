@@ -1618,11 +1618,14 @@ class AudioLoader(BufferedArray):
         if not filepath:
             raise ValueError('input argument filepath is empty string!')
         if isinstance(filepath, (list, tuple, np.ndarray)):
-            self.open_multiple(filepath, buffersize, backsize, verbose)
-            if len(self.file_paths) > 1:
-                return self
-            filepath = self.file_paths[0]
-            self.close()
+            if len(filepath) > 1:
+                self.open_multiple(filepath, buffersize, backsize, verbose)
+                if len(self.file_paths) > 1:
+                    return self
+                filepath = self.file_paths[0]
+                self.close()
+            else:
+                filepath = filepath[0]
         if not os.path.isfile(filepath):
             raise FileNotFoundError(f'file "{filepath}" not found')
         if os.path.getsize(filepath) <= 0:
