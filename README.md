@@ -207,6 +207,43 @@ See documentation of the
 module for details.
 
 
+### Fixing time stamps
+
+AudioIO provides a command line script for fixing time stamps in the
+metadata and file names of audio files. This is useful in case the
+real-time clock of a recorder failed.
+
+Let's assume you have a continous recording spread over the following
+four file each covering 3 minutes of the recording:
+```txt
+logger-20190101T000015.wav
+logger-20190101T000315.wav
+logger-20190101T000615.wav
+logger-20190101T000915.wav
+```
+However, the recording was actually started at 2025-06-09T10:42:17.
+Obviously, the real-time clock failed, since all times in the file name
+and the time stamps in the metadata start in the year 2019.
+
+To fix this, run
+```sh
+> fixtimestamps -s '2025-06-09T10:42:17' logger-2019*.wav
+```
+
+Then the files are renamed:
+```txt
+logger-20190101T000015.wav -> logger-20250609T104217.wav
+logger-20190101T000315.wav -> logger-20250609T104517.wav
+logger-20190101T000615.wav -> logger-20250609T104817.wav
+logger-20190101T000915.wav -> logger-20250609T105117.wav
+```
+and the time stamps in the meta data are set accordingly.
+
+See documentation of the
+[`fixtimestamps`](https://bendalab.github.io/audioio/api/fixtimestamps.html)
+module for details.
+
+
 ### Playing sounds
 
 Fade in and out

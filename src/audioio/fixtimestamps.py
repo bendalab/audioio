@@ -1,6 +1,34 @@
 """Fix time stamps.
 
-Change time stamps in the metadata (of wave files) and file names without rewriting the entire file.
+Change time stamps in the metadata (of wave files) and file names
+without rewriting the entire file.  This is useful in case the
+real-time clock of a recorder failed.
+
+Let's assume you have a continous recording spread over the following
+four file each covering 3 minutes of the recording:
+```txt
+logger-20190101T000015.wav
+logger-20190101T000315.wav
+logger-20190101T000615.wav
+logger-20190101T000915.wav
+```
+However, the recording was actually started at 2025-06-09T10:42:17.
+Obviously, the real-time clock failed, since all times in the file name
+and the time stamps in the metadata start in the year 2019.
+
+To fix this, run
+```sh
+> fixtimestamps -s '2025-06-09T10:42:17' logger-2019*.wav
+```
+
+Then the files are renamed:
+```txt
+logger-20190101T000015.wav -> logger-20250609T104217.wav
+logger-20190101T000315.wav -> logger-20250609T104517.wav
+logger-20190101T000615.wav -> logger-20250609T104817.wav
+logger-20190101T000915.wav -> logger-20250609T105117.wav
+```
+and the time stamps in the meta data are set accordingly.
 
 
 ## Command line script
@@ -8,8 +36,14 @@ Change time stamps in the metadata (of wave files) and file names without rewrit
 The module can be run as a script from the command line:
 
 ```sh
-> fixtimestamps -s 20250701T173420 logger-*.wav
+> fixtimestamps -s 20250701T173420 *.wav
 ```
+
+## Functions
+
+- `parse_datetime()`: parse string for a date and a time.
+- `replace_datetime()`: replace in a string date and time.
+- `write_riff_datetime()`: modify time stamps in the metadata of a RIFF/WAVE file.
 
 """
 
@@ -27,145 +61,200 @@ from .riffmetadata import write_info_chunk, write_bext_chunk, write_ixml_chunk, 
 from .audiometadata import get_datetime, set_starttime
 
 
-def parse_starttime(string, name_pattern):
-    """Parse stem of a file path for a date time.
+def parse_datetime(string):
+    """Parse string for a date and a time.
 
     Parameters
     ----------
     string: str
-        String to be parsed
-    name_pattern: str or None
-        Pattern indicating where a datetime string is embedded into the stem of the file name.
-        Patterns indicating date and times are SDATETIME, DATETIME, SDATE, DATE, STIME, and TIME.
-        Text indicated by a wildcard '*' can be any text.
+        String to be parsed.
 
     Returns
     -------
-    dtime: datetime
+    dtime: datetime or None
         The date and time parsed from the string.
+        None if neither a date nor a time was found.
     """
-    name_pattern = name_pattern.replace('*', '.*')
-    if name_pattern is None:
-        name_pattern = '*-SDATETIME'
-    for pattern in ['SDATETIME', 'DATETIME']:
-        if pattern in name_pattern:
-            name_pattern = name_pattern.replace(pattern, f'(?P<{pattern}>\\w+)')
-            break
+    date = None
+    time = None
+    time_pos = 0
+    m = re.search('([123][0-9][0-9][0-9]-[01][0-9]-[0123][0-9])', string)
+    if m is not None:
+        date = dt.date.fromisoformat(m[0])
+        time_pos = m.end()
     else:
-        for pattern in ['SDATE', 'DATE']:
-            if pattern in name_pattern:
-                name_pattern = name_pattern.replace(pattern, f'(?P<{pattern}>\\w+)')
-                break
-        for pattern in ['STIME', 'TIME']:
-            if pattern in name_pattern:
-                name_pattern = name_pattern.replace(pattern, f'(?P<{pattern}>\\w+)')
-                break
-    m = re.fullmatch(name_pattern, string)
-    r = m.groupdict()
-    dtime = None
-    if 'SDATETIME' in r:
-        dts = r['SDATETIME']
-        dts = f'{dts[0:4]}-{dts[4:6]}-{dts[6:8]}T{dts[9:11]}:{dts[11:13]}:{dts[13:15]}'
-        dtime = dt.datetime.fromisoformat(dts)
-    elif 'DATETIME' in r:
-        dtime = dt.datetime.fromisoformat(r['DATETIME'])
-    if dtime is None:
-        date = None
-        if 'SDATE' in r:
-            dts = r['SDATE']
+        m = re.search('([123][0-9][0-9][0-9][01][0-9][0123][0-9])', string)
+        if m is not None:
+            dts = m[0]
             dts = f'{dts[0:4]}-{dts[4:6]}-{dts[6:8]}'
-            dtime = dt.date.fromisoformat(dts)
-        elif 'DATE' in r:
-            dtime = dt.date.fromisoformat(r['DATE'])
-        time = None
-        if 'STIME' in r:
-            dts = r['STIME']
-            dts = f'{dts[9:11]}:{dts[11:13]}:{dts[13:15]}'
-            dtime = dt.time.fromisoformat(dts)
-        elif 'TIME' in r:
-            dtime = dt.time.fromisoformat(r['TIME'])
-        dtime = dt.datetime.combine(date, time)
+            date = dt.date.fromisoformat(dts)
+            time_pos = m.end()
+    m = re.search('([012][0-9]:[0-5][0-9]:[0-5][0-9])', string[time_pos:])
+    if m is not None:
+        time = dt.time.fromisoformat(m[0])
+    else:
+        m = re.search('([012][0-9][0-5][0-9][0-5][0-9])', string[time_pos:])
+        if m is not None:
+            dts = m[0]
+            dts = f'{dts[0:2]}:{dts[2:4]}:{dts[4:6]}'
+            time = dt.time.fromisoformat(dts)
+    if date is None and time is None:
+        return None
+    if date is None:
+        date = dt.date(1, 1, 1)
+    if time is None:
+        time = dt.time(0, 0, 0)
+    dtime = dt.datetime.combine(date, time)
     return dtime
-    
 
-def demo(start_time, name_pattern, file_pathes):
+
+def replace_datetime(string, date_time):
+    """ Replace in a string date and time.
+
+    Parameters:
+    -----------
+    string: str
+        String in which date and time are replaced.
+    date_time: datetime
+        Date and time to write into the string.
+
+    Returns
+    -------
+    new_string: str
+        The `string` with date and time replaced by `date_time`.
+    """
+    if date_time is None:
+        return string
+    new_string = string
+    time_pos = 0
+    dts = date_time.date().isoformat()
+    pattern = re.compile('([123][0-9][0-9][0-9]-[01][0-9]-[0123][0-9])')
+    m = pattern.search(new_string)
+    if m is not None:
+        time_pos = m.end()
+        new_string = pattern.sub(dts, new_string)
+    else:
+        pattern = re.compile('([123][0-9][0-9][0-9][01][0-9][0123][0-9])')
+        m = pattern.search(new_string)
+        if m is not None:
+            time_pos = m.end()
+            new_string = pattern.sub(dts.replace('-', ''), new_string)
+    dts = date_time.time().isoformat()
+    pattern = re.compile('([012][0-9]:[0-5][0-9]:[0-5][0-9])')
+    m = pattern.search(new_string[time_pos:])
+    if m is not None:
+        new_string = new_string[:time_pos] + \
+            pattern.sub(dts, new_string[time_pos:])
+    else:
+        pattern = re.compile('([012][0-9][0-5][0-9][0-5][0-9])')
+        m = pattern.search(new_string[time_pos:])
+        if m is not None:
+            new_string = new_string[:time_pos] + \
+                pattern.sub(dts.replace(':', ''), new_string[time_pos:])
+    return new_string
+
+
+def write_riff_datetime(path, start_time, file_time=None):
+    """ Modify time stamps in the metadata of a RIFF/WAVE file.
+
+    Parameters:
+    -----------
+    path: str
+        Path to a wave file.
+    start_time: datetime
+        Date and time to which all time stamps should be set.
+    file_time: None or date_time
+        If provided check whether the time stamp in the metadata
+        matches.
+
+    Returns
+    -------
+    duration: timedelta
+        Total duration of the audio data in the file.
+    orig_time: date_time or None
+        The time stamp found in the metadata.
+    """
+    duration = dt.timedelta(seconds=0)
+    orig_time = None
+    store_empty = False
+    with open(path, 'r+b') as sf:
+        try:
+            fsize = read_riff_header(sf)
+        except ValueError:
+            raise ValueError(f'"{path}" is not a valid RIFF/WAVE file, time stamps cannot be modified.')
+        tags = read_chunk_tags(sf)
+        if 'FMT ' not in tags:
+            raise ValueError(f'missing FMT chunk in "{path}".')
+        sf.seek(tags['FMT '][0] - 4, os.SEEK_SET)
+        channels, rate, bits = read_format_chunk(sf)
+        bts = 1 + (bits - 1) // 8
+        if 'DATA' not in tags:
+            raise ValueError(f'missing DATA chunk in "{path}".')
+        dsize = tags['DATA'][1]
+        duration = dt.timedelta(seconds=(dsize//bts//channels)/rate)
+        for chunk in tags:
+            sf.seek(tags[chunk][0] - 4, os.SEEK_SET)
+            md = {}
+            if chunk == 'LIST-INFO':
+                md['INFO'] = read_info_chunks(sf, store_empty)
+                orig_time = get_datetime(md)
+                if file_time is not None and orig_time is not None and \
+                   abs(orig_time - file_time) > dt.timedelta(seconds=1):
+                    raise ValueError(f'"{path}" start time is {orig_time} but should be {file_time} for a continuous recording.')
+                if set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_info_chunk(sf, md, tags[chunk][1])
+            elif chunk == 'BEXT':
+                md['BEXT'] = read_bext_chunk(sf, store_empty)
+                orig_time = get_datetime(md)
+                if set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_bext_chunk(sf, md)
+            elif chunk == 'IXML':
+                md['IXML'] = read_ixml_chunk(sf, store_empty)
+                orig_time = get_datetime(md)
+                if set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_ixml_chunk(sf, md)
+            elif chunk == 'GUAN':
+                md['GUANO'] = read_guano_chunk(sf)
+                orig_time = get_datetime(md)
+                if set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_guano_chunk(sf, md['GUANO'])
+    return duration, orig_time
+
+
+def demo(start_time, file_pathes):
     """Modify time stamps of audio files.
 
     Parameters
     ----------
     start_time: str
         Time stamp of the first file.
-    name_pattern: str or None
-        Pattern indicating where a datetime string is embedded into the stem of the file name.
-        Patterns indicating date and times are SDATETIME, DATETIME, SDATE, DATE, STIME, and TIME.
-        Text indicated by a wildcard '*' is kept when renaming the file.
     file_pathes: list of str
         Pathes of audio files.
     """
-    if name_pattern is None:
-        name_pattern = '*-SDATETIME'
     file_time = None
     start_time = dt.datetime.fromisoformat(start_time)
-    store_empty = False
     for fp in file_pathes:
-        orig_time = None
-        duration = dt.timedelta(seconds=0)
-        """
-        with open(fp, 'r+b') as sf:
-            try:
-                fsize = read_riff_header(sf)
-            except ValueError:
-                raise ValueError(f'"{fp}" is not a valid RIFF/WAVE file, time stamps cannot be modified.')
-            tags = read_chunk_tags(sf)
-            if 'FMT ' not in tags:
-                raise ValueError(f'missing FMT chunk in "{fp}".')
-            sf.seek(tags['FMT '][0] - 4, os.SEEK_SET)
-            channels, rate, bits = read_format_chunk(sf)
-            if 'DATA' not in tags:
-                raise ValueError(f'missing DATA chunk in "{fp}".')
-            dsize = tags['DATA'][1]
-            duration = dt.timedelta(seconds=(dsize//channels)/rate)
-            for chunk in tags:
-                sf.seek(tags[chunk][0] - 4, os.SEEK_SET)
-                md = {}
-                if chunk == 'LIST-INFO':
-                    md['INFO'] = read_info_chunks(sf, store_empty)
-                    orig_time = get_datetime(md)
-                    if file_time is not None and orig_time is not None and abs(orig_time - file_time) > dt.timedelta(seconds=1):
-                        raise ValueError(f'"{fp}" start time is {orig_time} but should be {file_time} for a continuous recording.')
-                    if set_starttime(md, start_time):
-                        sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
-                        write_info_chunk(sf, md, tags[chunk][1])
-                elif chunk == 'BEXT':
-                    md['BEXT'] = read_bext_chunk(sf, store_empty)
-                    orig_time = get_datetime(md)
-                    if set_starttime(md, start_time):
-                        sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
-                        write_bext_chunk(sf, md)
-                elif chunk == 'IXML':
-                    md['IXML'] = read_ixml_chunk(sf, store_empty)
-                    orig_time = get_datetime(md)
-                    if set_starttime(md, start_time):
-                        sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
-                        write_ixml_chunk(sf, md)
-                elif chunk == 'GUAN':
-                    md['GUANO'] = read_guano_chunk(sf)
-                    orig_time = get_datetime(md)
-                    if set_starttime(md, start_time):
-                        sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
-                        write_guano_chunk(sf, md['GUANO'])
-        """
+        duration, orig_time = write_riff_datetime(fp, start_time, file_time)
+        name_time = parse_datetime(Path(fp).stem)
         if orig_time is None:
-            orig_time = parse_starttime(Path(fp).stem, name_pattern)
+            orig_time = name_time
         if file_time is None:
             file_time = orig_time
-        print(f'{fp}: {orig_time} -> {start_time}')
-        """
-        TODO: rename file
-        Path(fp).with_stem(stem & name_pattern:TRANSLATED WITH START_TIME)
+        if orig_time is None:
+            raise ValueError(f'"{fp}" does not contain any time in its metadata or name.')
+        if name_time is not None:
+            p = Path(fp)
+            np = p.with_stem(replace_datetime(p.stem, start_time))
+            os.rename(fp, np)
+            print(f'{fp} -> {np}')
+        else:
+            print(f'{fp}: {orig_time} -> {start_time}')
         start_time += duration
         file_time += duration
-        """
 
             
 def main(*cargs):
@@ -182,16 +271,14 @@ def main(*cargs):
         epilog=f'version {__version__} by Benda-Lab (2020-{__year__})')
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('-s', dest='starttime', default=None, type=str, required=True,
-                        help='start time of the first file')
-    parser.add_argument('-p', dest='pattern', default='*-SDATETIME', type=str,
-                        help='pattern of the file name, may contain SDATETIME, DATETIME, SDATE, DATE, STIME, and TIME to indicate date and time strings.')
+                        help='new start time of the first file')
     parser.add_argument('files', type=str, nargs='+',
                         help='audio files')
     if len(cargs) == 0:
         cargs = None
     args = parser.parse_args(cargs)
 
-    demo(args.starttime, args.pattern, args.files)
+    demo(args.starttime, args.files)
 
 
 if __name__ == "__main__":
