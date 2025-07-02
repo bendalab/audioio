@@ -44,6 +44,7 @@ Documentation = "https://bendalab.github.io/audioio"
 audioconverter = "audioio.audioconverter:main"
 audiometadata  = "audioio.audiometadata:main"
 audiomodules   = "audioio.audiomodules:main"
+fixtimestamps  = "audioio.fixtimestamps:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "audioio.version.__version__"}

@@ -441,7 +441,10 @@ def read_chunk_tags(filepath):
         corresponding file positions of the data of the chunk (after
         the tag and the chunk size field) and the size of the chunk
         data. The file position of the next chunk is thus the position
-        of the chunk plus the size of its data.
+        of the chunk plus the size of its data. Advance another 8 bytes 
+        to get to the data of the next chunk.
+        The total file size is the sum of the chunk sizes of each tag
+        incremented by eight plus another 12 bytes of the riff header.
 
     Raises
     ------
@@ -483,7 +486,7 @@ def read_format_chunk(sf):
     Parameters
     ----------
     sf: stream
-        File stream for reading FMT chunk.
+        File stream for reading FMT chunk at the position of the chunk's size field.
 
     Returns
     -------
@@ -513,7 +516,7 @@ def read_info_chunks(sf, store_empty):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -559,7 +562,7 @@ def read_bext_chunk(sf, store_empty=True):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -642,7 +645,7 @@ def read_ixml_chunk(sf, store_empty=True):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
     store_empty: bool
         If `False` do not add meta data with empty values.
 
@@ -688,7 +691,7 @@ def read_guano_chunk(sf):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
 
     Returns
     -------
@@ -714,7 +717,7 @@ def read_cue_chunk(sf):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
 
     Returns
     -------
@@ -743,7 +746,7 @@ def read_playlist_chunk(sf, locs):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
     locs: 2-D array of ints
         Markers as returned by the `read_cue_chunk()` function.
         Each row is a marker with unique identifier in the first column,
@@ -768,7 +771,7 @@ def read_adtl_chunks(sf, locs, labels):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
     locs: 2-D array of ints
         Markers as returned by the `read_cue_chunk()` function.
         Each row is a marker with unique identifier in the first column,
@@ -847,7 +850,7 @@ def read_lbl_chunk(sf, rate):
     Parameters
     ----------
     sf: stream
-        File stream of RIFF file.
+        File stream of RIFF file at the position of the chunk's size field..
     rate: float
         Sampling rate of the data in Hertz.
 
@@ -1170,7 +1173,7 @@ def write_data_chunk(df, data, bits=16):
     return 8 + n
 
 
-def write_info_chunk(df, metadata):
+def write_info_chunk(df, metadata, size=None):
     """Write metadata to LIST INFO chunk.
 
     If `metadata` contains an 'INFO' key, then write the flat
@@ -1190,6 +1193,8 @@ def write_info_chunk(df, metadata):
     metadata: nested dict
         Metadata as key-value pairs. Values can be strings, integers,
         or dictionaries.
+    size: int or None
+        If specified write this size into the list's size field.
 
     Returns
     -------
@@ -1223,7 +1228,7 @@ def write_info_chunk(df, metadata):
             v = str(metadata[k]).encode('windows-1252')
         n += 8 + len(v) + len(v) % 2
     df.write(b'LIST')
-    df.write(struct.pack('<I', n + 4))
+    df.write(struct.pack('<I', size if size is not None else n + 4))
     df.write(b'INFO')
     keys_written = []
     for k in metadata:

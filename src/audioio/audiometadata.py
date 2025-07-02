@@ -1648,11 +1648,6 @@ def update_gain(metadata, fac, gain_key=default_gain_keys, sep='.'):
     return False
 
 
-default_timeref_keys = ['TimeReference']
-"""Default keys of integer time references in metadata.
-Used by `update_starttime()` function.
-"""
-
 def set_starttime(metadata, datetime_value,
                   time_keys=default_starttime_keys):
     """Set all start-of-recording times in metadata.
@@ -1733,6 +1728,11 @@ def set_starttime(metadata, datetime_value,
             success = True
     return success
 
+
+default_timeref_keys = ['TimeReference']
+"""Default keys of integer time references in metadata.
+Used by `update_starttime()` function.
+"""
 
 def update_starttime(metadata, deltat, rate,
                      time_keys=default_starttime_keys,
