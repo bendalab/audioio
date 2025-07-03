@@ -154,7 +154,7 @@ def replace_datetime(string, date_time):
     return new_string
 
 
-def write_riff_datetime(path, start_time, file_time=None):
+def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
     """ Modify time stamps in the metadata of a RIFF/WAVE file.
 
     Parameters:
@@ -173,6 +173,8 @@ def write_riff_datetime(path, start_time, file_time=None):
         Total duration of the audio data in the file.
     orig_time: date_time or None
         The time stamp found in the metadata.
+    no_mod: bool
+        Do not modify the files, just report what would be done.    
     """
     duration = dt.timedelta(seconds=0)
     orig_time = None
@@ -201,31 +203,31 @@ def write_riff_datetime(path, start_time, file_time=None):
                 if file_time is not None and orig_time is not None and \
                    abs(orig_time - file_time) > dt.timedelta(seconds=1):
                     raise ValueError(f'"{path}" start time is {orig_time} but should be {file_time} for a continuous recording.')
-                if set_starttime(md, start_time):
+                if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_info_chunk(sf, md, tags[chunk][1])
             elif chunk == 'BEXT':
                 md['BEXT'] = read_bext_chunk(sf, store_empty)
                 orig_time = get_datetime(md)
-                if set_starttime(md, start_time):
+                if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_bext_chunk(sf, md)
             elif chunk == 'IXML':
                 md['IXML'] = read_ixml_chunk(sf, store_empty)
                 orig_time = get_datetime(md)
-                if set_starttime(md, start_time):
+                if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_ixml_chunk(sf, md)
             elif chunk == 'GUAN':
                 md['GUANO'] = read_guano_chunk(sf)
                 orig_time = get_datetime(md)
-                if set_starttime(md, start_time):
+                if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_guano_chunk(sf, md['GUANO'])
     return duration, orig_time
 
 
-def demo(start_time, file_pathes):
+def demo(start_time, file_pathes, no_mod=False):
     """Modify time stamps of audio files.
 
     Parameters
@@ -234,11 +236,14 @@ def demo(start_time, file_pathes):
         Time stamp of the first file.
     file_pathes: list of str
         Pathes of audio files.
+    no_mod: bool
+        Do not modify the files, just report what would be done.    
     """
     file_time = None
     start_time = dt.datetime.fromisoformat(start_time)
     for fp in file_pathes:
-        duration, orig_time = write_riff_datetime(fp, start_time, file_time)
+        duration, orig_time = write_riff_datetime(fp, start_time,
+                                                  file_time, no_mod)
         name_time = parse_datetime(Path(fp).stem)
         if orig_time is None:
             orig_time = name_time
@@ -249,7 +254,8 @@ def demo(start_time, file_pathes):
         if name_time is not None:
             p = Path(fp)
             np = p.with_stem(replace_datetime(p.stem, start_time))
-            os.rename(fp, np)
+            if not no_mod:
+                os.rename(fp, np)
             print(f'{fp} -> {np}')
         else:
             print(f'{fp}: {orig_time} -> {start_time}')
@@ -272,13 +278,15 @@ def main(*cargs):
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('-s', dest='starttime', default=None, type=str, required=True,
                         help='new start time of the first file')
+    parser.add_argument('-n', dest='nomod', action='store_true',
+                        help='do not modify the files, just report what would be done.')
     parser.add_argument('files', type=str, nargs='+',
                         help='audio files')
     if len(cargs) == 0:
         cargs = None
     args = parser.parse_args(cargs)
 
-    demo(args.starttime, args.files)
+    demo(args.starttime, args.files, args.nomod)
 
 
 if __name__ == "__main__":
