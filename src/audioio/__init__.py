@@ -46,3 +46,4 @@ if len(sys.argv) > 0 and sys.argv[0] != '-m':
     from .audiowriter import write_audio, available_formats, available_encodings
     from .playaudio import play, beep, PlayAudio
     from .playaudio import note2freq, fade_in, fade_out, fade
+    from .fixtimestamps import parse_datetime, replace_datetime, write_riff_datetime
