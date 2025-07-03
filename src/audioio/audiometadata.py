@@ -154,9 +154,9 @@ metadata:
 ```
 
 
-Alternatively, the script can be run from the module as:
+Alternatively, the script can be run from within the audioio source tree as:
 ```
-python -m src.audioio.metadata audiofile.wav
+python -m src.audioio.audiometadata audiofile.wav
 ```
 
 Running

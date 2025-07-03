@@ -214,7 +214,7 @@ metadata and file names of audio files. This is useful in case the
 real-time clock of a recorder failed.
 
 Let's assume you have a continous recording spread over the following
-four file each covering 3 minutes of the recording:
+four files each covering 3 minutes of the recording:
 ```txt
 logger-20190101T000015.wav
 logger-20190101T000315.wav

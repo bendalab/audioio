@@ -5,7 +5,7 @@ without rewriting the entire file.  This is useful in case the
 real-time clock of a recorder failed.
 
 Let's assume you have a continous recording spread over the following
-four file each covering 3 minutes of the recording:
+four files each covering 3 minutes of the recording:
 ```txt
 logger-20190101T000015.wav
 logger-20190101T000315.wav
@@ -37,6 +37,33 @@ The module can be run as a script from the command line:
 
 ```sh
 > fixtimestamps -s 20250701T173420 *.wav
+```
+
+Alternatively, the script can be run from within the audioio source tree as:
+```
+python -m src.audioio.fixtimestamps -s 20250701T173420 *.wav
+```
+
+Running
+```sh
+fixtimestamps --help
+```
+prints
+```text
+usage: fixtimestamps [-h] [--version] -s STARTTIME [-n] files [files ...]
+
+Fix time stamps.
+
+positional arguments:
+  files         audio files
+
+options:
+  -h, --help    show this help message and exit
+  --version     show program's version number and exit
+  -s STARTTIME  new start time of the first file
+  -n            do not modify the files, just report what would be done.
+
+version 2.5.0 by Benda-Lab (2020-2025)
 ```
 
 ## Functions

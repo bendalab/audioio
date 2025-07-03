@@ -36,11 +36,11 @@ modules are not available on your system.
 
 ## Command line script
 
-Run this module as a script
+Run this module as a script from within the audioio source tree
 ```sh
 > python -m src.audioio.auidomodules
 ```
-or, when the audioio package is installed on your system, simply run
+or, once the audioio package is installed on your system, simply run
 ```sh
 > audiomodules
 ```
