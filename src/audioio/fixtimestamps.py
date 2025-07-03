@@ -176,6 +176,12 @@ def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
     no_mod: bool
         Do not modify the files, just report what would be done.    
     """
+    def check_starttime(file_orig, time_time, path):
+        if file_time is not None and orig_time is not None and \
+           abs(orig_time - file_time) > dt.timedelta(seconds=1):
+            raise ValueError(f'"{path}" start time is {orig_time} but should be {file_time} for a continuous recording.')
+
+        
     duration = dt.timedelta(seconds=0)
     orig_time = None
     store_empty = False
@@ -200,27 +206,28 @@ def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
             if chunk == 'LIST-INFO':
                 md['INFO'] = read_info_chunks(sf, store_empty)
                 orig_time = get_datetime(md)
-                if file_time is not None and orig_time is not None and \
-                   abs(orig_time - file_time) > dt.timedelta(seconds=1):
-                    raise ValueError(f'"{path}" start time is {orig_time} but should be {file_time} for a continuous recording.')
+                check_starttime(orig_time, file_time, path)
                 if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_info_chunk(sf, md, tags[chunk][1])
             elif chunk == 'BEXT':
                 md['BEXT'] = read_bext_chunk(sf, store_empty)
                 orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
                 if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_bext_chunk(sf, md)
             elif chunk == 'IXML':
                 md['IXML'] = read_ixml_chunk(sf, store_empty)
                 orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
                 if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_ixml_chunk(sf, md)
             elif chunk == 'GUAN':
                 md['GUANO'] = read_guano_chunk(sf)
                 orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
                 if not no_mod and set_starttime(md, start_time):
                     sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
                     write_guano_chunk(sf, md['GUANO'])
