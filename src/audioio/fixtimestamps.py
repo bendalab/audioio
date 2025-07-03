@@ -1,8 +1,10 @@
 """Fix time stamps.
 
 Change time stamps in the metadata (of wave files) and file names
-without rewriting the entire file.  This is useful in case the
+*without rewriting* the entire file.  This is useful in case the
 real-time clock of a recorder failed.
+
+## Command line script
 
 Let's assume you have a continous recording spread over the following
 four files each covering 3 minutes of the recording:
@@ -30,13 +32,10 @@ logger-20190101T000915.wav -> logger-20250609T105117.wav
 ```
 and the time stamps in the meta data are set accordingly.
 
-
-## Command line script
-
-The module can be run as a script from the command line:
+Adding the `-n` flag runs the script in dry mode, i.e. it just reports what it would do without modifying the audio files:
 
 ```sh
-> fixtimestamps -s 20250701T173420 *.wav
+> fixtimestamps -n -s 20250701T173420 *.wav
 ```
 
 Alternatively, the script can be run from within the audioio source tree as:
@@ -138,8 +137,8 @@ def parse_datetime(string):
 def replace_datetime(string, date_time):
     """ Replace in a string date and time.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     string: str
         String in which date and time are replaced.
     date_time: datetime
@@ -184,8 +183,8 @@ def replace_datetime(string, date_time):
 def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
     """ Modify time stamps in the metadata of a RIFF/WAVE file.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     path: str
         Path to a wave file.
     start_time: datetime
