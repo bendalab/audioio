@@ -54,11 +54,28 @@ def write_audio_files(filename, duration=60.0, nfiles=4):
     return data[:n*nfiles], rate, locs, labels, n
 
 
+def test_basename():
+    am.enable_module()
+    filename = 'test.wav'
+    write_audio_file(filename, 20.0)
+    for lib in am.installed_modules('fileio'):
+        if lib in ['scipy.io.wavfile', 'pydub']:
+            continue
+        print('')
+        print('check basename for module %s ...' % lib)
+        am.select_module(lib)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
+            assert data.basename() == 'test', 'wrong name'
+            assert data.basename(data.filepath) == 'test', 'wrong name'
+            assert data.basename(data.file_paths[0]) == 'test', 'wrong name'
+    os.remove(filename)
+    am.enable_module()
+
+
 def test_get_file_index():
     am.enable_module()
     filename = 'test.wav'
     write_audio_file(filename, 20.0)
-    tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:

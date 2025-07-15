@@ -25,6 +25,7 @@ import sys
 import warnings
 import os.path
 import numpy as np
+from pathlib import Path
 from datetime import timedelta
 from .audiomodules import *
 from .bufferedarray import BufferedArray
@@ -603,6 +604,7 @@ class AudioLoader(BufferedArray):
     - `__getitem__`: Access data of the audio file.
     - `update_buffer()`: Update the internal buffer for a range of frames.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
+    - `basename()`: Base name of the audio data.
     - `format_dict()`: technical infos about how the data are stored.
     - `metadata()`: Metadata stored along with the audio data.
     - `markers()`: Markers stored along with the audio data.
@@ -701,6 +703,25 @@ class AudioLoader(BufferedArray):
                 break
         return fname, frame - index
 
+    def basename(self, path=None):
+        """ Base name of the audio data.
+
+        Parameters
+        ----------
+        path: str or None
+            Path of the audio file from which a base name is generated.
+            If `None`, use `self.filepath`.
+
+        Returns
+        -------
+        s: str
+            The name. Defaults to the stem of `path`.
+
+        """
+        if path is None:
+            path = self.filepath
+        return Path(path).stem
+
     def format_dict(self):
         """ Technical infos about how the data are stored in the file.
 
@@ -711,7 +732,7 @@ class AudioLoader(BufferedArray):
             channels, frames, and duration of the audio file as strings.
 
         """
-        fmt = dict(filepath=self.filepath)
+        fmt = dict(name=self.basename(), filepath=self.filepath)
         if self.format is not None:
             fmt['format'] = self.format
         if self.encoding is not None:
