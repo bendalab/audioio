@@ -185,7 +185,9 @@ version 2.0.0 by Benda-Lab (2020-2024)
 
 """
  
+import os
 import sys
+import glob
 import argparse
 import numpy as np
 import datetime as dt
@@ -2121,8 +2123,16 @@ def main(*cargs):
     if len(cargs) == 0:
         cargs = None
     args = parser.parse_args(cargs)
+    
+    # expand wildcard patterns:
+    files = []
+    if os.name == 'nt':
+        for fn in args.files:
+            files.extend(glob.glob(fn))
+    else:
+        files = args.files
 
-    demo(args.files, args.dataformat, args.metadata, args.cues, args.chunks)
+    demo(files, args.dataformat, args.metadata, args.cues, args.chunks)
 
 
 if __name__ == "__main__":
