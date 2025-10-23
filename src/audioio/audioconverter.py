@@ -126,7 +126,7 @@ def add_arguments(parser):
                         help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                          help='path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their values from the input file')
-    parser.add_argument('file', nargs='*', type=str,
+    parser.add_argument('files', nargs='*', type=str,
                         help='one or more input files to be combined into a single output file')
 
 
@@ -349,24 +349,32 @@ def main(*cargs):
     channels = parse_channels(args.channels)
     
     if args.list_formats:
-        if args.data_format is None and len(args.file) > 0:
-            args.data_format = args.file[0]
+        if args.data_format is None and len(args.files) > 0:
+            args.data_format = args.files[0]
         list_formats_encodings(args.data_format)
         return
 
-    if len(args.file) == 0 or len(args.file[0]) == 0:
+    if len(args.files) == 0 or len(args.files[0]) == 0:
         print('! need to specify at least one input file !')
         sys.exit(-1)
+        
+    # expand wildcard patterns:
+    files = []
+    if os.name == 'nt':
+        for fn in args.files:
+            files.extend(glob.glob(fn))
+    else:
+        files = args.files
 
     nmerge = args.nmerge
     if nmerge == 0:
-        nmerge = len(args.file)
+        nmerge = len(files)
 
-    for i0 in range(0, len(args.file), nmerge):
-        infile = args.file[i0]
+    for i0 in range(0, len(files), nmerge):
+        infile = files[i0]
         outfile, data_format = make_outfile(args.outpath, infile,
                                             args.data_format,
-                                            nmerge < len(args.file),
+                                            nmerge < len(files),
                                             format_from_extension)
         if not check_format(data_format):
             sys.exit(-1)
@@ -392,7 +400,7 @@ def main(*cargs):
             sys.exit(-1)
         if args.verbose > 1:
             print(f'loaded audio file "{infile}"')
-        for infile in args.file[i0+1:i0+nmerge]:
+        for infile in files[i0+1:i0+nmerge]:
             try:
                 xdata, xrate = load_audio(infile)
             except FileNotFoundError:
@@ -400,12 +408,12 @@ def main(*cargs):
                 sys.exit(-1)
             if abs(rate - xrate) > 1:
                 print('! cannot merge files with different sampling rates !')
-                print(f'    file "{args.file[i0]}" has {rate:.0f}Hz')
+                print(f'    file "{files[i0]}" has {rate:.0f}Hz')
                 print(f'    file "{infile}" has {xrate:.0f}Hz')
                 sys.exit(-1)
             if xdata.shape[1] != data.shape[1]:
                 print('! cannot merge files with different numbers of channels !')
-                print(f'    file "{args.file[i0]}" has {data.shape[1]} channels')
+                print(f'    file "{files[i0]}" has {data.shape[1]} channels')
                 print(f'    file "{infile}" has {xdata.shape[1]} channels')
                 sys.exit(-1)
             data = np.vstack((data, xdata))

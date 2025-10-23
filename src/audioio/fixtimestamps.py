@@ -77,6 +77,7 @@ version 2.5.0 by Benda-Lab (2020-2025)
 import re
 import os
 import sys
+import glob
 import argparse
 import datetime as dt
 from pathlib import Path
@@ -318,8 +319,16 @@ def main(*cargs):
     if len(cargs) == 0:
         cargs = None
     args = parser.parse_args(cargs)
+    
+    # expand wildcard patterns:
+    files = []
+    if os.name == 'nt':
+        for fn in args.files:
+            files.extend(glob.glob(fn))
+    else:
+        files = args.files
 
-    demo(args.starttime, args.files, args.nomod)
+    demo(args.starttime, files, args.nomod)
 
 
 if __name__ == "__main__":
