@@ -604,11 +604,14 @@ class AudioLoader(BufferedArray):
     - `__getitem__`: Access data of the audio file.
     - `update_buffer()`: Update the internal buffer for a range of frames.
     - `blocks()`: Generator for blockwise processing of AudioLoader data.
+    - `file_start_times()`: Time of first frame of each file in seconds.
+    - `get_file_index()`: File path and index of frame contained by this file.
     - `basename()`: Base name of the audio data.
     - `format_dict()`: technical infos about how the data are stored.
     - `metadata()`: Metadata stored along with the audio data.
     - `markers()`: Markers stored along with the audio data.
     - `set_unwrap()`: Set parameters for unwrapping clipped data.
+    - `set_time_delta()`: Set maximum allowed time difference between successive files.
     - `close()`: Close the file.
 
     """
@@ -633,6 +636,7 @@ class AudioLoader(BufferedArray):
         self.filepath = None
         self.file_paths = None
         self.file_indices = []
+        self._max_time_diff = 1
         self.sf = None
         self.close = self._close
         self.load_buffer = self._load_buffer_unwrap
@@ -863,6 +867,17 @@ class AudioLoader(BufferedArray):
             elif self.unwrap_down_scale:
                 pbuffer *= 0.5
                 
+    def set_time_delta(time_delta):
+        """ Set maximum allowed time difference between successive files.
+
+        Parameters
+        ----------
+        time_delta: int
+            Maximum number of seconds the start time of a recording file is allowed
+            to differ from the end of the previous file.
+            Default is one second.
+        """
+        self._max_time_diff = time_delta
                 
     # wave interface:        
     def open_wave(self, filepath, buffersize=10.0, backsize=0.0,
@@ -1458,6 +1473,7 @@ class AudioLoader(BufferedArray):
                     self.channels = a.channels
                     self.start_time = get_datetime(md)
                     start_time = self.start_time
+                    stime = self.start_time
                 else:
                     # check channels and rate:
                     error_str = None
@@ -1472,7 +1488,7 @@ class AudioLoader(BufferedArray):
                     # check start time of recording:
                     stime = get_datetime(md)
                     if start_time is None or stime is None or \
-                       abs(start_time - stime) > timedelta(seconds=1):
+                       abs(start_time - stime) > timedelta(seconds=self._max_time_diff):
                         error_str = f'start time does not indicate continuous recording: ' \
                                          f'expected {start_time} instead of ' \
                                          f'{stime} in {a.filepath}'
@@ -1491,8 +1507,8 @@ class AudioLoader(BufferedArray):
                 self.start_indices.append(self.frames)
                 self.frames += a.frames
                 self.end_indices.append(self.frames)
-                if start_time is not None:
-                    start_time += timedelta(seconds=a.frames/a.rate)
+                if stime is not None:
+                    start_time = stime + timedelta(seconds=a.frames/a.rate)
                 # add file to lists:
                 self.file_paths.append(filepath)
                 if len(self.open_files) < AudioLoader.max_open_files:
