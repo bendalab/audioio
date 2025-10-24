@@ -24,6 +24,7 @@ import os
 import sys
 import subprocess
 import numpy as np
+
 from .audiomodules import *
 from .riffmetadata import write_wave as audioio_write_wave
 from .riffmetadata import append_riff

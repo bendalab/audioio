@@ -59,14 +59,16 @@ python -m src.audioio.playaudio
 
 """
 
-from sys import platform
 import os
 import warnings
 import numpy as np
+
+from sys import platform
 from scipy.signal import decimate
 from time import sleep
 from io import BytesIO
 from multiprocessing import Process
+
 from .audiomodules import *
 
 

@@ -25,8 +25,10 @@ import sys
 import warnings
 import os.path
 import numpy as np
+
 from pathlib import Path
 from datetime import timedelta
+
 from .audiomodules import *
 from .bufferedarray import BufferedArray
 from .riffmetadata import metadata_riff, markers_riff

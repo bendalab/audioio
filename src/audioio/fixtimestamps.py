@@ -80,7 +80,9 @@ import sys
 import glob
 import argparse
 import datetime as dt
+
 from pathlib import Path
+
 from .version import __version__, __year__
 from .riffmetadata import read_riff_header, read_chunk_tags, read_format_chunk
 from .riffmetadata import read_info_chunks, read_bext_chunk, read_ixml_chunk, read_guano_chunk

@@ -138,6 +138,7 @@ import warnings
 import struct
 import numpy as np
 import xml.etree.ElementTree as ET
+
 from .audiometadata import flatten_metadata, unflatten_metadata, find_key
 
 

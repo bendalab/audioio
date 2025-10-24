@@ -74,7 +74,9 @@ import os
 import sys
 import argparse
 import numpy as np
+
 from scipy.signal import decimate
+
 from .version import __version__, __year__
 from .audioloader import load_audio, markers, AudioLoader
 from .audiometadata import flatten_metadata, unflatten_metadata
