@@ -313,7 +313,7 @@ audio_pip_packages['pyaudio'] = 'PyAudio'
 audio_conda_packages['pyaudio'] = 'pyaudio'
 audio_deb_packages['pyaudio'] = 'python3-pyaudio  # WARNING: broken on Ubuntu with python 3.10, use pip instead'
 audio_rpm_packages['pyaudio'] = 'python3-pyaudio'
-audio_required_deb_packages['pyaudio'] = ['libportaudio2', 'portaudio19-dev']
+audio_required_deb_packages['pyaudio'] = ['libportaudio2']
 audio_required_rpm_packages['pyaudio'] = ['libportaudio', 'portaudio-devel']
 audio_required_brew_packages['pyaudio'] = ['portaudio']
 audio_infos['pyaudio'] = """The pyaudio package is a wrapper of the portaudio library (http://www.portaudio.com).
@@ -336,7 +336,7 @@ except ImportError:
     audio_modules['sounddevice'] = False
 audio_pip_packages['sounddevice'] = 'sounddevice'
 audio_conda_packages['sounddevice'] = '-c conda-forge python-sounddevice'
-audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'portaudio19-dev', 'python3-cffi']
+audio_required_deb_packages['sounddevice'] = ['libportaudio2', 'python3-cffi']
 audio_required_rpm_packages['sounddevice'] = ['libportaudio', 'portaudio-devel', 'python3-cffi']
 audio_required_brew_packages['sounddevice'] = ['portaudio']
 audio_infos['sounddevice'] = """The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
