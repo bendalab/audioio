@@ -37,14 +37,15 @@ audioconverter --help
 ```
 prints
 ```text
-usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]] [-U [THRESH]]
-                      [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-r KEY] [-n NUM] [-o OUTPATH]
-                      [file ...]
+usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]]
+                      [-U [THRESH]] [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-r KEY] [-n NUM]
+                      [-o OUTPATH] [-i KWARGS]
+                      [files ...]
 
 Convert audio file formats.
 
 positional arguments:
-  file          one or more input files to be combined into a single output file
+  files         one or more input files to be combined into a single output file
 
 options:
   -h, --help    show this help message and exit
@@ -54,18 +55,20 @@ options:
   -f FORMAT     audio format of output file
   -e ENCODING   audio encoding of output file
   -s SCALE      scale the data by factor SCALE
-  -u [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and divide by
-                two
-  -U [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and clip
+  -u [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is
+                0.5) and divide by two
+  -U [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is
+                0.5) and clip
   -d FAC        downsample by integer factor
   -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
   -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "."
   -r KEY        remove keys from metadata. Keys can have section names separated by "."
   -n NUM        merge NUM input files into one output file
-  -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their
-                values from the input file
+  -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be
+                replaced by their values from the input file
+  -i KWARGS     key-word arguments for the data loader function
 
-version 2.0.0 by Benda-Lab (2020-2024)
+version 2.6.0 by Benda-Lab (2020-2025)
 ```
 
 """
