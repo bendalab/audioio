@@ -561,6 +561,9 @@ class AudioLoader(BufferedArray):
         If larger than zero show detailed error/warning messages.
     store_empty: bool
         If `False` do not return meta data with empty values.
+    **kwargs: dict
+        Further keyword arguments that are passed on to the 
+        specific open() functions.
 
     Attributes
     ----------
@@ -625,7 +628,7 @@ class AudioLoader(BufferedArray):
     """ Suggestion for maximum number of AudioLoaders when opening multiple files. """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
-                 verbose=0, **meta_kwargs):
+                 verbose=0, store_empty=False, **kwargs):
         super().__init__(verbose=verbose)
         self.format = None
         self.encoding = None
@@ -634,7 +637,7 @@ class AudioLoader(BufferedArray):
         self._labels = None
         self._load_metadata = metadata
         self._load_markers = markers
-        self._metadata_kwargs = meta_kwargs
+        self._metadata_kwargs = dict(store_empty=store_empty)
         self.filepath = None
         self.file_paths = None
         self.file_indices = []
@@ -650,7 +653,7 @@ class AudioLoader(BufferedArray):
         self.unwrap_ampl = 1.0
         self.unwrap_downscale = True
         if filepath is not None:
-            self.open(filepath, buffersize, backsize, verbose)
+            self.open(filepath, buffersize, backsize, verbose, **kwargs)
             
     numpy_encodings = {np.dtype(np.int64): 'PCM_64',
                        np.dtype(np.int32): 'PCM_32',
@@ -1658,7 +1661,8 @@ class AudioLoader(BufferedArray):
             raise ValueError('input argument filepath is empty string!')
         if isinstance(filepath, (list, tuple, np.ndarray)):
             if len(filepath) > 1:
-                self.open_multiple(filepath, buffersize, backsize, verbose)
+                self.open_multiple(filepath, buffersize, backsize,
+                                   verbose - 1, **kwargs)
                 if len(self.file_paths) > 1:
                     return self
                 filepath = self.file_paths[0]
@@ -1687,7 +1691,8 @@ class AudioLoader(BufferedArray):
                 not_installed.append(lib)
                 continue
             try:
-                open_file(filepath, buffersize, backsize, verbose-1, **kwargs)
+                open_file(filepath, buffersize, backsize,
+                          verbose - 1, **kwargs)
                 if self.frames > 0:
                     if verbose > 0:
                         print(f'opened audio file "{filepath}" using {lib}')
