@@ -128,6 +128,9 @@ def add_arguments(parser):
                         help='merge NUM input files into one output file')
     parser.add_argument('-o', dest='outpath', default=None, type=str,
                          help='path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their values from the input file')
+    parser.add_argument('-i', dest='load_kwargs', default=[],
+                        action='append', metavar='KWARGS',
+                        help='key-word arguments for the data loader function')
     parser.add_argument('files', nargs='*', type=str,
                         help='one or more input files to be combined into a single output file')
 
@@ -372,6 +375,14 @@ def main(*cargs):
     if nmerge == 0:
         nmerge = len(files)
 
+    # kwargs for audio loader:
+    load_kwargs = {}
+    for s in args.load_kwargs:
+        for kw in s.split(','):
+            kws = kw.split(':')
+            if len(kws) == 2:
+                load_kwargs[kws[0].strip()] = kws[1].strip()
+
     for i0 in range(0, len(files), nmerge):
         infile = files[i0]
         outfile, data_format = make_outfile(args.outpath, infile,
@@ -386,7 +397,7 @@ def main(*cargs):
         # read in audio:
         pre_history = None
         try:
-            with AudioLoader(infile) as sf:
+            with AudioLoader(infile, **load_kwargs) as sf:
                 data = sf[:,:]
                 rate = sf.rate
                 md = sf.metadata()

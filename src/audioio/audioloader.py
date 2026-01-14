@@ -561,6 +561,10 @@ class AudioLoader(BufferedArray):
         If larger than zero show detailed error/warning messages.
     store_empty: bool
         If `False` do not return meta data with empty values.
+    meta_kwargs: dict
+        Keyword arguments that are passed on to the _load_metadata()
+        function.  For audio data the only recognized key is
+        `store_empty` - see the metadata() function for more infos.
     **kwargs: dict
         Further keyword arguments that are passed on to the 
         specific open() functions.
@@ -628,7 +632,7 @@ class AudioLoader(BufferedArray):
     """ Suggestion for maximum number of AudioLoaders when opening multiple files. """
     
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
-                 verbose=0, store_empty=False, **kwargs):
+                 verbose=0, meta_kwargs={}, **kwargs):
         super().__init__(verbose=verbose)
         self.format = None
         self.encoding = None
@@ -637,7 +641,7 @@ class AudioLoader(BufferedArray):
         self._labels = None
         self._load_metadata = metadata
         self._load_markers = markers
-        self._metadata_kwargs = dict(store_empty=store_empty)
+        self._metadata_kwargs = meta_kwargs
         self.filepath = None
         self.file_paths = None
         self.file_indices = []
