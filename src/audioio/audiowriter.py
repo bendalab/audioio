@@ -25,6 +25,7 @@ import sys
 import subprocess
 import numpy as np
 
+from pathlib import Path
 from .audiomodules import *
 from .riffmetadata import write_wave as audioio_write_wave
 from .riffmetadata import append_riff
@@ -35,17 +36,18 @@ def format_from_extension(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path or None
         Name of the audio file.
 
     Returns
     -------
-    format: string
+    format: str
         Audio format deduced from file extension.
     """
-    if not filepath:
+    if filepath is None:
         return None
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix
     if not ext:
         return None
     if ext[0] == '.':
@@ -64,7 +66,7 @@ def formats_wave():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
     """
     if not audio_modules['wave']:
@@ -83,7 +85,7 @@ def encodings_wave(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
     """
     if not audio_modules['wave']:
@@ -105,7 +107,7 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -121,9 +123,9 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format, only 'WAV' is supported.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data: 'PCM_32', 'PCM_16', or 'PCM_U8'.
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -141,9 +143,6 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
     """
     if not audio_modules['wave']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
-
     if not format:
         format = format_from_extension(filepath)
     if format and format.upper() != 'WAV':
@@ -160,7 +159,7 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
     sampwidth = wave_encodings[encoding][0]
     dtype = wave_encodings[encoding][1]
 
-    wf = wave.open(filepath, 'w')   # 'with' is not supported by wave
+    wf = wave.open(os.fspath(filepath), 'w') # 'with' is not supported by wave
     channels = 1
     if len(data.shape) > 1:
         channels = data.shape[1]
@@ -185,7 +184,7 @@ def formats_ewave():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
     """
     if not audio_modules['ewave']:
@@ -204,7 +203,7 @@ def encodings_ewave(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
     """
     if not audio_modules['ewave']:
@@ -226,7 +225,7 @@ def write_ewave(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -242,9 +241,9 @@ def write_ewave(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format, only 'WAV' and 'WAVEX' are supported.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'FLOAT', 'DOUBLE'
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -262,8 +261,6 @@ def write_ewave(filepath, data, rate, metadata=None, locs=None,
     """
     if not audio_modules['ewave']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
 
     if not format:
         format = format_from_extension(filepath)
@@ -296,7 +293,7 @@ def formats_wavfile():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
     """
     if not audio_modules['scipy.io.wavfile']:
@@ -315,7 +312,7 @@ def encodings_wavfile(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
     """
     if not audio_modules['scipy.io.wavfile']:
@@ -337,7 +334,7 @@ def write_wavfile(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -353,9 +350,9 @@ def write_wavfile(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format, only 'WAV' is supported.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE'
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -373,8 +370,6 @@ def write_wavfile(filepath, data, rate, metadata=None, locs=None,
     """
     if not audio_modules['scipy.io.wavfile']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
 
     if not format:
         format = format_from_extension(filepath)
@@ -413,7 +408,7 @@ def formats_soundfile():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
     """
     if not audio_modules['soundfile']:
@@ -432,7 +427,7 @@ def encodings_soundfile(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
     """
     if not audio_modules['soundfile']:
@@ -452,7 +447,7 @@ def write_soundfile(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -468,9 +463,9 @@ def write_soundfile(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data.
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -486,8 +481,6 @@ def write_soundfile(filepath, data, rate, metadata=None, locs=None,
     """
     if not audio_modules['soundfile']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
 
     if not format:
         format = format_from_extension(filepath)
@@ -511,7 +504,7 @@ def formats_wavefile():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
     """
     if not audio_modules['wavefile']:
@@ -536,7 +529,7 @@ def encodings_wavefile(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
     """
     if not audio_modules['wavefile']:
@@ -564,7 +557,7 @@ def write_wavefile(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -580,9 +573,9 @@ def write_wavefile(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format as in wavefile.Format.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data as in wavefile.Format.
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -600,8 +593,6 @@ def write_wavefile(filepath, data, rate, metadata=None, locs=None,
     """
     if not audio_modules['wavefile']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
 
     if not format:
         format = format_from_extension(filepath)
@@ -627,7 +618,7 @@ def write_wavefile(filepath, data, rate, metadata=None, locs=None,
         channels = data.shape[1]
     else:
         data = data.reshape((-1, 1))
-    with wavefile.WaveWriter(filepath, channels=channels,
+    with wavefile.WaveWriter(os.fspath(filepath), channels=channels,
                              samplerate=int(rate),
                              format=format_value|encoding_value) as w:
         w.write(data.T)
@@ -642,7 +633,7 @@ def formats_pydub():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
     """
     if not audio_modules['pydub']:
@@ -674,7 +665,7 @@ def encodings_pydub(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
     """
     pydub_encodings = {'pcm_s16le': 'PCM_16',
@@ -718,7 +709,7 @@ def write_pydub(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -734,9 +725,9 @@ def write_pydub(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format, everything ffmpeg or avtools are supporting.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data.
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -754,8 +745,6 @@ def write_pydub(filepath, data, rate, metadata=None, locs=None,
     """
     if not audio_modules['pydub']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
 
     if not format:
         format = format_from_extension(filepath)
@@ -810,7 +799,7 @@ def available_formats():
 
     Returns
     -------
-    formats: list of strings
+    formats: list of str
         List of supported file formats as strings.
 
     Examples
@@ -852,7 +841,7 @@ def available_encodings(format):
 
     Returns
     -------
-    encodings: list of strings
+    encodings: list of str
         List of supported encodings as strings.
 
     Example
@@ -892,7 +881,7 @@ def write_audio(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -908,10 +897,10 @@ def write_audio(filepath, data, rate, metadata=None, locs=None,
     labels: None or 2-D array of string objects
         Labels (first column) and texts (optional second column)
         for each marker (rows).
-    format: string or None
+    format: str or None
         File format. If None deduce file format from filepath.
         See `available_formats()` for possible values.
-    encoding: string or None
+    encoding: str or None
         Encoding of the data. See `available_encodings()` for possible values.
         If None or empty string use 'PCM_16'.
     marker_hint: str
@@ -942,9 +931,6 @@ def write_audio(filepath, data, rate, metadata=None, locs=None,
     write_audio('audio/file.wav', data, rate, md)
     ```
     """
-    if not filepath:
-        raise ValueError('no file specified!')
-
     # write audio with metadata and markers:
     if not format:
         format = format_from_extension(filepath)
@@ -982,9 +968,9 @@ def demo(file_path, channels=2, encoding=''):
 
     Parameters
     ----------
-    file_path: string
+    file_path: str
         File path of an audio file.
-    encoding: string
+    encoding: str
         Encoding to be used.
     """
     print('generate data ...')
@@ -1005,7 +991,7 @@ def main(*args):
 
     Parameters
     ----------
-    args: list of strings
+    args: list of str
         Command line arguments as provided by sys.argv[1:]
     """
     help = False

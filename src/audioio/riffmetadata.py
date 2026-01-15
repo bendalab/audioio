@@ -430,7 +430,7 @@ def read_chunk_tags(filepath):
 
     Parameters
     ----------
-    filepath: string or file handle
+    filepath: string or Path or file handle
         The RIFF file.
 
     Returns
@@ -899,7 +899,7 @@ def metadata_riff(filepath, store_empty=False):
 
     Parameters
     ----------
-    filepath: string or file handle
+    filepath: string or Path or file handle
         The RIFF file.
     store_empty: bool
         If `False` do not add meta data with empty values.
@@ -973,7 +973,7 @@ def markers_riff(filepath):
 
     Parameters
     ----------
-    filepath: string or file handle
+    filepath: string or Path or file handle
         The RIFF file.
 
     Returns
@@ -1781,7 +1781,7 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: string or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel,
@@ -1830,8 +1830,6 @@ def write_wave(filepath, data, rate, metadata=None, locs=None,
     write_wave('audio/file.wav', data, rate, md)
     ```
     """
-    if not filepath:
-        raise ValueError('no file specified!')
     if not encoding:
         encoding = 'PCM_16'
     encoding = encoding.upper()
@@ -1865,7 +1863,7 @@ def append_riff(filepath, metadata=None, locs=None, labels=None,
 
     Parameters
     ----------
-    filepath: string
+    filepath: string or Path
         Full path and name of the file to write.
     metadata: None or nested dict
         Metadata as key-value pairs. Values can be strings, integers,
@@ -1903,8 +1901,6 @@ def append_riff(filepath, metadata=None, locs=None, labels=None,
     append_riff('audio/file.wav', md)  # append them to existing audio file
     ```
     """
-    if not filepath:
-        raise ValueError('no file specified!')
     if locs is not None and len(locs) > 0 and \
        labels is not None and len(labels) > 0 and len(labels) != len(locs):
         raise IndexError(f'locs and labels must have same number of elements.')
@@ -1938,7 +1934,7 @@ def demo(filepath):
 
     Parameters
     ----------
-    filepath: string
+    filepath: string or Path
         Path of a RIFF/WAVE file.
     """
     def print_meta_data(meta_data, level=0):

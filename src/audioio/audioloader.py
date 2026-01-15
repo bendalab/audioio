@@ -20,10 +20,10 @@ python -m src.audioio.audioloader audiofile.wav
 ```
 """
 
+import os
 import gc
 import sys
 import warnings
-import os.path
 import numpy as np
 
 from pathlib import Path
@@ -46,7 +46,7 @@ def load_wave(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
 
     Returns
@@ -66,7 +66,7 @@ def load_wave(filepath):
     if not audio_modules['wave']:
         raise ImportError
 
-    wf = wave.open(filepath, 'r')   # 'with' is not supported by wave
+    wf = wave.open(os.fspath(filepath), 'r')   # 'with' is not supported by wave
     (nchannels, sampwidth, rate, nframes, comptype, compname) = wf.getparams()
     buffer = wf.readframes(nframes)
     factor = 2.0**(sampwidth*8-1)
@@ -91,7 +91,7 @@ def load_ewave(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
 
     Returns
@@ -113,7 +113,7 @@ def load_ewave(filepath):
 
     data = np.array([])
     rate = 0.0
-    with ewave.open(filepath, 'r') as wf:
+    with ewave.open(os.fspath(filepath), 'r') as wf:
         rate = wf.sampling_rate
         buffer = wf.read()
         data = ewave.rescale(buffer, 'float')
@@ -132,7 +132,7 @@ def load_wavfile(filepath):
     
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
 
     Returns
@@ -176,7 +176,7 @@ def load_soundfile(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
 
     Returns
@@ -213,7 +213,7 @@ def load_wavefile(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
 
     Returns
@@ -233,7 +233,7 @@ def load_wavefile(filepath):
     if not audio_modules['wavefile']:
         raise ImportError
 
-    rate, data = wavefile.load(filepath)
+    rate, data = wavefile.load(os.fspath(filepath))
     return data.astype(np.float64, copy=False).T, float(rate)
 
 
@@ -246,7 +246,7 @@ def load_audioread(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
 
     Returns
@@ -308,7 +308,7 @@ def load_audio(filepath, verbose=0):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load.
     verbose: int
         If larger than zero show detailed error/warning messages.
@@ -324,8 +324,6 @@ def load_audio(filepath, verbose=0):
 
     Raises
     ------
-    ValueError
-        Empty `filepath`.
     FileNotFoundError
         `filepath` is not an existing file.
     EOFError
@@ -345,11 +343,10 @@ def load_audio(filepath, verbose=0):
     ```
     """
     # check values:
-    if filepath is None or Path(filepath) == Path():
-        raise ValueError('input argument filepath is empty!')
-    if not os.path.isfile(filepath):
+    filepath = Path(filepath)
+    if not filepath.is_file:
         raise FileNotFoundError(f'file "{filepath}" not found')
-    if os.path.getsize(filepath) <= 0:
+    if filepath.stat().st_size <= 0:
         raise EOFError(f'file "{filepath}" is empty (size=0)!')
 
     # load an audio file by trying various modules:
@@ -403,6 +400,11 @@ def metadata(filepath, store_empty=False):
         are strings. But other types like for example ints or floats
         are also allowed.  See `audioio.audiometadata` module for
         available functions to work with such metadata.
+    
+    Raises
+    ------
+    ValueError
+        Not a RIFF file.
 
     Examples
     --------
@@ -439,6 +441,11 @@ def markers(filepath):
         Labels (first column) and texts (second column)
         for each marker (rows).
 
+    Raises
+    ------
+    ValueError
+        Not a RIFF file.
+    
     Examples
     --------
     ```
@@ -550,7 +557,7 @@ class AudioLoader(BufferedArray):
     
     Parameters
     ----------
-    filepath: str or list of str
+    filepath: str or Path or list of str of list of Path
         Name of the file or list of many file names that should be
         made accessible as a single array.
     buffersize: float
@@ -571,9 +578,9 @@ class AudioLoader(BufferedArray):
 
     Attributes
     ----------
-    filepath: str
-        Name and path of the opened file. In case of many files, the first one.
-    file_paths: list of str
+    filepath: Path
+        Full path of the opened file. In case of many files, the first one.
+    file_paths: list of Path
         List of pathes of the opened files that are made accessible
         as a single array.
     file_indices: list of int
@@ -699,11 +706,16 @@ class AudioLoader(BufferedArray):
         
         Returns
         -------
-        filepath: str
+        filepath: Path
             Path of file that contains the frame.
         index: int
             Index of the frame relative to the first frame
             in the containing file.
+        
+        Raises
+        ------
+        ValueError
+            Invalid frame index.
         """
         if frame < 0 or frame >= self.frames:
             raise ValueError('invalid frame')
@@ -721,7 +733,7 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        path: str or None
+        path: str or Path or None
             Path of the audio file from which a base name is generated.
             If `None`, use `self.filepath`.
 
@@ -745,7 +757,7 @@ class AudioLoader(BufferedArray):
             channels, frames, and duration of the audio file as strings.
 
         """
-        fmt = dict(name=self.basename(), filepath=self.filepath)
+        fmt = dict(name=self.basename(), filepath=os.fsdecode(self.filepath))
         if self.format is not None:
             fmt['format'] = self.format
         if self.encoding is not None:
@@ -897,7 +909,7 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepath: str
+        filepath: str or Path
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -924,9 +936,9 @@ class AudioLoader(BufferedArray):
             raise ImportError
         if self.sf is not None:
             self._close_wave()
-        self.sf = wave.open(filepath, 'r')
-        self.filepath = filepath
-        self.file_paths = [filepath]
+        self.sf = wave.open(os.fspath(filepath), 'r')
+        self.filepath = Path(filepath)
+        self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.rate = float(self.sf.getframerate())
         self.format = 'WAV'
@@ -973,7 +985,7 @@ class AudioLoader(BufferedArray):
            Buffer where to store the loaded data.
         """
         if self.sf is None:
-            self.sf = wave.open(self.filepath, 'r')
+            self.sf = wave.open(os.fspath(self.filepath), 'r')
         self.sf.setpos(r_offset*self.pfac + self.p0)
         fbuffer = self.sf.readframes(r_size)
         fbuffer = np.frombuffer(fbuffer, dtype=self.dtype).reshape((-1, self.channels))
@@ -990,7 +1002,7 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepath: str
+        filepath: str or Path
             Name of the file.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1017,9 +1029,9 @@ class AudioLoader(BufferedArray):
             raise ImportError
         if self.sf is not None:
             self._close_ewave()
-        self.sf = ewave.open(filepath, 'r')
-        self.filepath = filepath
-        self.file_paths = [filepath]
+        self.sf = ewave.open(os.fspath(filepath), 'r')
+        self.filepath = Path(filepath)
+        self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.rate = float(self.sf.sampling_rate)
         self.channels = self.sf.nchannels
@@ -1054,7 +1066,7 @@ class AudioLoader(BufferedArray):
            Buffer where to store the loaded data.
         """
         if self.sf is None:
-            self.sf = ewave.open(self.filepath, 'r')
+            self.sf = ewave.open(os.fspath(self.filepath), 'r')
         fbuffer = self.sf.read(frames=r_size, offset=r_offset, memmap='r')
         fbuffer = ewave.rescale(fbuffer, 'float')
         if len(fbuffer.shape) == 1:
@@ -1069,7 +1081,7 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepath: str
+        filepath: str or Path
             Name of the file.
         bufferframes: float
             Size of internal buffer in seconds.
@@ -1097,8 +1109,8 @@ class AudioLoader(BufferedArray):
         if self.sf is not None:
             self._close_soundfile()
         self.sf = soundfile.SoundFile(filepath, 'r')
-        self.filepath = filepath
-        self.file_paths = [filepath]
+        self.filepath = Path(filepath)
+        self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
@@ -1150,7 +1162,7 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepath: str
+        filepath: str or Path
             Name of the file.
         bufferframes: float
             Size of internal buffer in seconds.
@@ -1177,9 +1189,9 @@ class AudioLoader(BufferedArray):
             raise ImportError
         if self.sf is not None:
             self._close_wavefile()
-        self.sf = wavefile.WaveReader(filepath)
-        self.filepath = filepath
-        self.file_paths = [filepath]
+        self.sf = wavefile.WaveReader(os.fspath(filepath))
+        self.filepath = Path(filepath)
+        self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
@@ -1223,7 +1235,7 @@ class AudioLoader(BufferedArray):
            Buffer where to store the loaded data.
         """
         if self.sf is None:
-            self.sf = wavefile.WaveReader(self.filepath)
+            self.sf = wavefile.WaveReader(os.fspath(self.filepath))
         self.sf.seek(r_offset, wavefile.Seek.SET)
         fbuffer = self.sf.buffer(r_size, dtype=self.buffer.dtype)
         self.sf.read(fbuffer)
@@ -1240,7 +1252,7 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepath: str
+        filepath: str or Path
             Name of the file.
         bufferframes: float
             Size of internal buffer in seconds.
@@ -1268,8 +1280,8 @@ class AudioLoader(BufferedArray):
         if self.sf is not None:
             self._close_audioread()
         self.sf = audioread.audio_open(filepath)
-        self.filepath = filepath
-        self.file_paths = [filepath]
+        self.filepath = Path(filepath)
+        self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.rate = float(self.sf.samplerate)
         self.channels = self.sf.channels
@@ -1283,7 +1295,6 @@ class AudioLoader(BufferedArray):
         self.read_offset = 0
         self.close = self._close_audioread
         self.load_audio_buffer = self._load_buffer_audioread
-        self.filepath = filepath
         self.sf_iter = self.sf.__iter__()
         return self
 
@@ -1401,8 +1412,8 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepaths: list of str
-            List of file names of audio files.
+        filepaths: list of str or Path
+            List of file paths of audio files.
         buffersize: float
             Size of internal buffer in seconds.
         backsize: float
@@ -1451,8 +1462,8 @@ class AudioLoader(BufferedArray):
         self._locs = np.zeros((0, 2), dtype=int)
         self._labels = np.zeros((0, 2), dtype=object)
         if end_indices is not None:
-            self.filepath = filepaths[0]
-            self.file_paths = filepaths
+            self.filepath = Path(filepaths[0])
+            self.file_paths = [Path(fp) for fp in filepaths]
             self.audio_files = [None] * len(filepaths)
             self.frames = end_indices[-1]
             self.start_indices = [0] + list(end_indices[:-1])
@@ -1519,7 +1530,7 @@ class AudioLoader(BufferedArray):
                 if stime is not None:
                     start_time = stime + timedelta(seconds=a.frames/a.rate)
                 # add file to lists:
-                self.file_paths.append(filepath)
+                self.file_paths.append(a.filepath)
                 if len(self.open_files) < AudioLoader.max_open_files:
                     self.open_files.append(a)
                 else:
@@ -1634,8 +1645,8 @@ class AudioLoader(BufferedArray):
 
         Parameters
         ----------
-        filepath: str or list of str
-            Name of the file or list of many file names that should be
+        filepath: str or Path or list of str or Path
+            Path of the file or list of many file paths that should be
             made accessible as a single array.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1649,8 +1660,6 @@ class AudioLoader(BufferedArray):
 
         Raises
         ------
-        ValueError
-            Empty `filepath`.
         FileNotFoundError
             `filepath` is not an existing file.
         EOFError
@@ -1661,8 +1670,6 @@ class AudioLoader(BufferedArray):
         """
         self.buffer = np.array([])
         self.rate = 0.0
-        if not filepath:
-            raise ValueError('input argument filepath is empty string!')
         if isinstance(filepath, (list, tuple, np.ndarray)):
             if len(filepath) > 1:
                 self.open_multiple(filepath, buffersize, backsize,
@@ -1673,9 +1680,10 @@ class AudioLoader(BufferedArray):
                 self.close()
             else:
                 filepath = filepath[0]
-        if not os.path.isfile(filepath):
+        filepath = Path(filepath)
+        if not filepath.is_file():
             raise FileNotFoundError(f'file "{filepath}" not found')
-        if os.path.getsize(filepath) <= 0:
+        if filepath.stat().st_size <= 0:
             raise EOFError(f'file "{filepath}" is empty (size=0)!')
         # list of implemented open functions:
         audio_open_funcs = (

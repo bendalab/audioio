@@ -89,6 +89,7 @@ import sys
 import argparse
 import numpy as np
 
+from pathlib import Path
 from scipy.signal import decimate
 
 from .version import __version__, __year__
@@ -262,8 +263,8 @@ def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
     ----------
     outpath: None or str
         Requested output path.
-    infile: str
-        Name of the input file.
+    infile: Path
+        Path of the input file.
     data_format: None or str
         Requested output file format.
     blocks: bool
@@ -274,27 +275,29 @@ def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
 
     Returns
     -------
-    outfile: str
-        Name of output file.
+    outfile: Path
+        Path of output file.
     data_format: str
         Format of output file.
     """
-    if blocks and outpath and \
+    outpath = Path('' if outpath is None else outpath)
+    if blocks and not data_format and \
        format_from_ext(outpath) is None and \
-       not os.path.exists(outpath):
-        os.mkdir(outpath)
-    if not outpath or os.path.isdir(outpath):
-        outfile = infile
-        if outpath:
-            outfile = os.path.join(outpath, outfile)
+       not outpath.exists():
+        outpath.mkdir()
+    if outpath == Path() or outpath.is_dir():
+        if outpath != Path():
+            outfile = outpath / infile
+        else:
+            outfile = infile
         if not data_format:
             print('! need to specify an audio format via -f or a file extension !')
             sys.exit(-1)
-        outfile = os.path.splitext(outfile)[0] + os.extsep + data_format.lower()
+        outfile = outfile.with_suffix('.' + data_format.lower())
     else:
         outfile = outpath
         if data_format:
-            outfile = os.path.splitext(outfile)[0] + os.extsep + data_format.lower()
+            outfile = outfile.with_suffix('.' + data_format.lower())
         else:
             data_format = format_from_ext(outfile)
     return outfile, data_format
@@ -364,20 +367,20 @@ def format_outfile(outfile, metadata):
 
     Parameters
     ----------
-    outfile: str
-        Name of output file. May contain metadata keys enclosed in curly braces.
+    outfile: Path
+        Path of output file. May contain metadata keys enclosed in curly braces.
     metadata: nested dict
         Metadata.
 
     Returns
     -------
-    outfile: str
-        Name of output file.
+    outfile: Path
+        Output path with formatted name.
     """
-    if len(metadata) > 0 and '{' in outfile and '}' in outfile:
+    if len(metadata) > 0 and '{' in outfile.stem and '}' in outfile.stem:
         fmd = flatten_metadata(metadata)
         fmd = {k:(fmd[k] if isinstance(fmd[k], (int, float)) else fmd[k].replace(' ', '_')) for k in fmd}
-        outfile = outfile.format(**fmd)
+        outfile = outfile.with_stem(outfile.stem.format(**fmd))
     return outfile
 
         
@@ -426,14 +429,14 @@ def main(*cargs):
     load_kwargs = parse_load_kwargs(args.load_kwargs)
 
     for i0 in range(0, len(files), nmerge):
-        infile = files[i0]
+        infile = Path(files[i0])
         outfile, data_format = make_outfile(args.outpath, infile,
                                             args.data_format,
                                             nmerge < len(files),
                                             format_from_extension)
         if not check_format(data_format):
             sys.exit(-1)
-        if os.path.realpath(infile) == os.path.realpath(outfile):
+        if infile.resolve() == outfile.resolve():
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
         # read in audio:
@@ -447,7 +450,7 @@ def main(*cargs):
                 pre_history = bext_history_str(sf.encoding,
                                                sf.rate,
                                                sf.channels,
-                                               sf.filepath)
+                                               os.fsdecode(sf.filepath))
                 if sf.encoding is not None and args.encoding is None:
                     args.encoding = sf.encoding
         except FileNotFoundError:
@@ -490,7 +493,7 @@ def main(*cargs):
         if 'BEXT' in md:
             hkey = 'BEXT.' + hkey
         history = bext_history_str(args.encoding, rate,
-                                   data.shape[1], outfile)
+                                   data.shape[1], os.fsdecode(outfile))
         add_history(md, history, hkey, pre_history)
         # write out audio:
         try:

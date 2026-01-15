@@ -1,8 +1,9 @@
 import pytest
-import os
-import glob
 import numpy as np
+
+from pathlib import Path
 from datetime import datetime, timedelta
+
 import audioio.audiowriter as aw
 import audioio.bufferedarray as ba
 import audioio.audioloader as al
@@ -39,6 +40,7 @@ def write_audio_files(filename, duration=60.0, nfiles=4):
         labels[i,0] = chr(ord('a') + i % 26)
         labels[i,1] = chr(ord('A') + i % 26)*5
     start_time = datetime.now()
+    file_paths = []
     n = len(data) // nfiles
     for k in range(nfiles):
         i0 = k*n
@@ -50,8 +52,9 @@ def write_audio_files(filename, duration=60.0, nfiles=4):
         aw.write_wave(filename.format(k + 1), data[i0:i1,:], rate,
                       encoding=encoding, metadata=md,
                       locs=mlocs, labels=mlabels)
+        file_paths.append(filename.format(k + 1))
         start_time += timedelta(seconds=n/rate)
-    return data[:n*nfiles], rate, locs, labels, n
+    return data[:n*nfiles], rate, locs, labels, n, file_paths
 
 
 def test_basename():
@@ -61,14 +64,14 @@ def test_basename():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('check basename for module %s ...' % lib)
         am.select_module(lib)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
             assert data.basename() == 'test', 'wrong name'
             assert data.basename(data.filepath) == 'test', 'wrong name'
             assert data.basename(data.file_paths[0]) == 'test', 'wrong name'
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -80,7 +83,7 @@ def test_get_file_index():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('check file index for module %s ...' % lib)
         am.select_module(lib)
         with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
@@ -93,9 +96,9 @@ def test_get_file_index():
                 data.get_file_index(len(data))
             for inx in np.random.randint(0, len(data), ntests):
                 fname, i = data.get_file_index(inx)
-                assert fname == filename, 'returned wrong file name'
+                assert fname == Path(filename), 'returned wrong file name'
                 assert i == inx, 'returned wrong index'
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -108,7 +111,7 @@ def test_single_frame():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('check single frame access for module %s ...' % lib)
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
@@ -124,7 +127,7 @@ def test_single_frame():
                     failed = inx
                     break
             assert failed < 0, 'single random frame access failed at index %d with %s module' % (failed, lib)
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -137,7 +140,7 @@ def test_slice():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('random frame slice access for module %s' % lib)
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
@@ -154,7 +157,27 @@ def test_slice():
                         failed = inx
                         break
                 assert failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
-    os.remove(filename)
+    Path(filename).unlink(True)
+    am.enable_module()
+
+
+def test_slice_pathlib():
+    am.enable_module()
+    filename = Path('test.wav')
+    write_audio_file(filename, 20.0)
+    tolerance = 2.0**(-15)
+    ntests = 100
+    for lib in am.installed_modules('fileio'):
+        if lib in ['scipy.io.wavfile', 'pydub']:
+            continue
+        print()
+        print('random frame slice access for module %s' % lib)
+        am.select_module(lib)
+        full_data, rate = al.load_audio(filename, verbose=4)
+        with al.AudioLoader(filename, 5.0, 2.0, verbose=4) as data:
+            for n in range(1, 5):
+                assert not np.any(np.abs(data[:50:n]-full_data[:50:n]) > tolerance), 'step slice with step=%d does not match' % n
+    filename.unlink(True)
     am.enable_module()
 
 
@@ -167,7 +190,7 @@ def test_forward():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('forward slice access for module %s' % lib)
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
@@ -181,7 +204,7 @@ def test_forward():
                         failed = inx
                         break
                 assert failed < 0, 'frame slice access forward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -194,7 +217,7 @@ def test_backward():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('backward slice access for module %s' % lib)
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
@@ -209,7 +232,7 @@ def test_backward():
                         failed = inx
                         break
                 assert failed < 0, 'frame slice access backward failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -222,7 +245,7 @@ def test_negative():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('negative slice access for module %s' % lib)
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
@@ -236,7 +259,7 @@ def test_negative():
                         failed = -inx
                         break
                 assert failed < 0, 'frame slice access backward with negative indices failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -249,7 +272,7 @@ def test_multiple():
     for lib in am.installed_modules('fileio'):
         if lib in ['scipy.io.wavfile', 'pydub']:
             continue
-        print('')
+        print()
         print('multiple indices access for module %s' % lib)
         am.select_module(lib)
         full_data, rate = al.load_audio(filename, verbose=4)
@@ -269,7 +292,7 @@ def test_multiple():
                             failed = 1
                             break
                     assert failed == -1, ('multiple random frame access failed with %s module at indices ' % lib) + str(inx)
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
 
@@ -277,16 +300,15 @@ def test_multi_files():
     nfiles = 20
     am.enable_module()
     filename = 'test{:02d}.wav'
-    full_data, rate, full_locs, full_labels, frames = \
+    full_data, rate, full_locs, full_labels, frames, file_paths = \
         write_audio_files(filename, 600.0, nfiles)
     tolerance = 2.0**(-15)
     ntests = 100
-    print('')
+    print()
     print('access for multiple files')
     al.AudioLoader.max_open_files = 4
     al.AudioLoader.max_open_loaders = 8
-    data1 = al.AudioLoader(sorted(glob.glob(filename.replace('{:02d}', '??'))),
-                           5.0, 2.0, verbose=4)
+    data1 = al.AudioLoader(file_paths, 5.0, 2.0, verbose=4)
     locs, labels = data1.markers()
     assert len(locs) == len(full_locs), 'number of marker locs differ'
     assert np.all(locs == full_locs), 'marker locations differ'
@@ -309,7 +331,7 @@ def test_multi_files():
             data.get_file_index(len(data))
         for inx in np.random.randint(0, len(data), ntests):
             fname, i = data.get_file_index(inx)
-            assert fname == filename.format(1 + inx//frames), 'returned wrong file name'
+            assert fname == Path(filename.format(1 + inx//frames)), 'returned wrong file name'
             assert i == inx%frames, 'returned wrong index'
         # single frames:
         assert not np.any(np.abs(full_data[0] - data[0]) > tolerance), 'first frame access failed with multiple files'
@@ -338,7 +360,7 @@ def test_multi_files():
             assert failed < 0, 'random frame slice access failed at index %d with nframes=%d and %s module' % (failed, nframes, lib)
         data.close()
     for k in range(nfiles):
-        os.remove(filename.format(k+1))
+        Path(filename.format(k+1)).unlink(True)
 
 
 def test_modules():
@@ -367,16 +389,12 @@ def test_modules():
             load_funcs[lib](filename)
             load_funcs[lib](filename)
             data.close()
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
         
 
 def test_audio_files():
     am.enable_module()
-    with pytest.raises(ValueError):
-        al.load_audio('')
-    with pytest.raises(ValueError):
-        al.AudioLoader('')
     with pytest.raises(FileNotFoundError):
         al.load_audio('xxx.wav')
     with pytest.raises(FileNotFoundError):
@@ -388,14 +406,14 @@ def test_audio_files():
         al.load_audio(filename)
     with pytest.raises(EOFError):
         al.AudioLoader(filename)
-    os.remove(filename)
+    Path(filename).unlink(True)
     write_audio_file(filename)
     am.disable_module()
     with pytest.raises(IOError):
         al.load_audio(filename)
     with pytest.raises(IOError):
         al.AudioLoader(filename)
-    os.remove(filename)
+    Path(filename).unlink(True)
     am.enable_module()
 
     
@@ -485,7 +503,7 @@ def test_unwrap():
     assert np.max(sdata) <= 1.0, 'AudioLoader with unwrap clips at +1'
     assert np.min(sdata) >= -1.0, 'AudioLoader with unwrap clips at -1'
     
-    os.remove(filename)
+    Path(filename).unlink(True)
 
 
 def test_demo():
@@ -493,7 +511,7 @@ def test_demo():
     filename = 'test.wav'
     write_audio_file(filename, duration=5.0)
     al.demo(filename, False)
-    os.remove(filename)
+    Path(filename).unlink(True)
 
 
 def test_main():
@@ -503,4 +521,4 @@ def test_main():
     al.main('-h')
     al.main(filename)
     al.main('-m', 'wave', filename)
-    os.remove(filename)
+    Path(filename).unlink(True)

@@ -1,6 +1,8 @@
 import pytest
-import os
 import numpy as np
+
+from pathlib import Path
+
 import audioio.audiowriter as aw
 import audioio.audioloader as al
 import audioio.audiometadata as amd
@@ -83,7 +85,7 @@ def test_write_read():
         for lib in am.installed_modules('fileio'):
             if lib in ['audioread', 'pydub']:
                 continue
-            print('')
+            print()
             print('%s module:' % lib)
             am.select_module(lib)
             for encoding in encodings:
@@ -104,7 +106,7 @@ def test_write_read():
         """ 
 
         am.enable_module()
-        print('')
+        print()
         print('audioio')
         for encoding in encodings:
             encoding = encoding.upper()
@@ -113,10 +115,8 @@ def test_write_read():
                 aw.write_audio(filename, data, rate, format=format, encoding=encoding)
                 data_read, rate_read = al.load_audio(filename, verbose=0)
                 check(rate, data, rate_read, data_read, 'audioio', encoding)
-    if os.path.isfile(filename):
-        os.remove(filename)
-    if os.path.isfile(mpeg_filename):
-        os.remove(mpeg_filename)
+    Path(filename).unlink(True)
+    Path(mpeg_filename).unlink(True)
 
     
 def test_dimensions():
@@ -183,6 +183,31 @@ def test_dimensions():
         assert data_read.shape == data.shape, 'input and output data must have same shape'
     am.enable_module()
 
+    
+def test_dimensions_pathlib():
+    am.enable_module()
+    print('2-D data two channel')
+    filename = Path('test.wav')
+    rate = 44100.0
+    duration = 10.0
+    t = np.arange(0.0, duration, 1.0/rate)
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    data = data.reshape((-1, 2))
+    for lib in am.installed_modules('fileio'):
+        if lib == 'audioread' or (lib == 'pydub' and
+                                  'audioread' not in am.installed_modules('fileio')):
+            continue
+        print('%s module...' % lib)
+        am.select_module(lib)
+        aw.write_audio(filename, data, rate)
+        if lib == 'pydub':
+            am.select_module('audioread')
+        data_read, rate_read = al.load_audio(filename)
+        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
+        assert data_read.shape[1] == 2, 'read in data must be a 2-D array with two columns'
+        assert data_read.shape == data.shape, 'input and output data must have same shape'
+    am.enable_module()
+
 
 def test_write_read_modules():
     am.enable_module()
@@ -198,26 +223,22 @@ def test_write_read_modules():
         if not am.select_module(lib):
             continue
         with pytest.raises(ValueError):
-            write_func('', data, rate)
-        with pytest.raises(ValueError):
             write_func(filename, data, rate, format='xxx')
         write_func(filename, data, rate, format='')
-        os.remove(filename)
+        Path(filename).unlink(True)
         with pytest.raises(ValueError):
             write_func(filename, data, rate, encoding='xxx')
         write_func(filename, data, rate, encoding='')
-        os.remove(filename)
+        Path(filename).unlink(True)
         am.enable_module()
-    with pytest.raises(ValueError):
-        aw.write_audio('', data, rate)
     with pytest.raises(IOError):
         aw.write_audio(filename, data, rate, format='xxx')
     aw.write_audio(filename, data, rate, format='')
-    os.remove(filename)
+    Path(filename).unlink(True)
     with pytest.raises(IOError):
         aw.write_audio(filename, data, rate, encoding='xxx')
     aw.write_audio(filename, data, rate, encoding='')
-    os.remove(filename)
+    Path(filename).unlink(True)
     # test for not available modules:
     for lib, write_func in aw.audio_writer_funcs:
         am.disable_module(lib)
@@ -251,7 +272,7 @@ def test_write_metadata():
             continue
         write_func(filename, data, rate, md)
         mmd = al.metadata(filename)
-        os.remove(filename)
+        Path(filename).unlink(True)
         assert md == mmd, 'metadata for wavefiles'
         am.enable_module()
     # test storage of metadata in ogg files:
@@ -265,7 +286,7 @@ def test_write_metadata():
             continue
         write_func(filename, data, rate, md, encoding='VORBIS')
         mmd = al.metadata(filename)
-        os.remove(filename)
+        Path(filename).unlink(True)
         assert len(mmd) == 0, 'metadata for ogg files'
         am.enable_module()
     # test storage of metadata in mp3 files:
@@ -273,7 +294,7 @@ def test_write_metadata():
         filename = 'test.mp3'
         aw.write_pydub(filename, data, rate, md)
         mmd = al.metadata(filename)
-        os.remove(filename)
+        Path(filename).unlink(True)
         assert len(mmd) == 0, 'metadata for mp3 files'
         am.enable_module()
 
@@ -301,7 +322,7 @@ def test_demo():
     aw.demo(filename)
     aw.demo(filename, channels=1)
     aw.demo(filename, channels=2, encoding='PCM_16')
-    os.remove(filename)
+    Path(filename).unlink(True)
 
 
 def test_main():
@@ -312,4 +333,4 @@ def test_main():
     aw.main('-m', 'wave', filename)
     aw.main('-m', 'wave', '-n', '1', filename)
     aw.main('-m', 'wave', filename, 'PCM_16')
-    os.remove(filename)
+    Path(filename).unlink(True)

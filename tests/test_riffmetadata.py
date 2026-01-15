@@ -1,6 +1,7 @@
 import pytest
 import os
 import numpy as np
+from pathlib import Path
 import audioio.riffmetadata as rm
 
 
@@ -21,7 +22,7 @@ def test_write():
     filename = 'test.wav'
     for encoding in ['PCM_16', 'PCM_32']:
         rm.write_wave(filename, data, rate, None, encoding=encoding)
-    with pytest.raises(ValueError):
+    with pytest.raises(FileNotFoundError):
         rm.write_wave('', data, rate, None, encoding=encoding)
     with pytest.raises(ValueError):
         rm.write_wave(filename, data, rate, None, encoding='XYZ')
@@ -54,16 +55,28 @@ def test_write():
         assert n == 0, 'no cue chunk'
         with pytest.raises(IndexError):
             rm.append_markers_riff(df, np.ones((4, 2)), np.zeros(3))
-    with pytest.raises(ValueError):
+    with pytest.raises(FileNotFoundError):
         rm.append_riff('')
     with pytest.raises(IndexError):
         rm.append_riff(filename, None, np.ones((4, 2)), np.zeros(3))
     md = dict(Artist='John Doe')
     rm.append_riff(filename, md, np.ones((4, 2), dtype=int), np.zeros(4))
     rm.append_riff(filename, md, np.ones((4, 2), dtype=int), np.zeros(4))
-    os.remove(filename)
+    Path(filename).unlink(True)
 
 
+def test_write_pathllib():
+    data, rate = generate_data()
+    filename = Path('test.wav')
+    for encoding in ['PCM_16', 'PCM_32']:
+        rm.write_wave(filename, data, rate, None, encoding=encoding)
+    with pytest.raises(ValueError):
+        rm.write_wave(filename, data, rate, None, encoding='XYZ')
+    with pytest.raises(IndexError):
+        rm.append_riff(filename, None, np.ones((4, 2)), np.zeros(3))
+    Path(filename).unlink(True)
+
+    
 def test_read():
     data, rate = generate_data()
     md = dict(Artist='John Doe')
@@ -83,7 +96,7 @@ def test_read():
     with open(filename, 'rb') as sf:
         chunks = rm.read_chunk_tags(sf)
         assert len(chunks) == 3, 'chunk tags'
-    os.remove(filename)
+    Path(filename).unlink(True)
 
     
 def test_metadata():
@@ -176,7 +189,7 @@ def test_metadata():
         rm.write_wave(filename, data, rate, md)
     
     rm.metadata_riff(filename, True)
-    os.remove(filename)
+    Path(filename).unlink(True)
 
     
 def test_markers():
@@ -248,7 +261,7 @@ def test_markers():
     assert len(llabels) == 0, 'no labels'
     assert np.all(locs == llocs), 'same locs'
 
-    os.remove(filename)
+    Path(filename).unlink(True)
 
     
 def test_main():
@@ -256,5 +269,6 @@ def test_main():
     rm.main()
     rm.main('test.wav')
     os.remove('test.wav')
+    Path('test.wav').unlink(True)
 
 
