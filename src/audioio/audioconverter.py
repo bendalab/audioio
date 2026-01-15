@@ -164,6 +164,40 @@ def parse_channels(cstr):
     return channels
 
 
+def parse_load_kwargs(load_strs):
+    """Parse additional arguments for loading data.
+
+    Parameters
+    ----------
+    load_strs: list of str
+        Strings with with comma separated key-value pairs as returned
+        by args.load_kwargs from `add_arguments()`.
+
+    Returns
+    -------
+    load_kwargs: dict
+        Key-word arguments for `load_audio()` and related functions.
+        Value strings containing integer or floating point numbers
+        are converted to `int` and `float`, respectively.
+    """
+    load_kwargs = {}
+    for s in load_strs:
+        for kw in s.split(','):
+            kws = kw.split(':')
+            if len(kws) == 2:
+                key = kws[0].strip()
+                value = kws[1].strip()
+                try:
+                    val = int(value)
+                except ValueError:
+                    try:
+                        val = float(value)
+                    except ValueError:
+                        val = value
+                load_kwargs[key] = val
+    return load_kwargs
+
+
 def check_format(format):
     """
     Check whether requested audio format is valid and supported.
@@ -380,12 +414,7 @@ def main(*cargs):
         nmerge = len(files)
 
     # kwargs for audio loader:
-    load_kwargs = {}
-    for s in args.load_kwargs:
-        for kw in s.split(','):
-            kws = kw.split(':')
-            if len(kws) == 2:
-                load_kwargs[kws[0].strip()] = kws[1].strip()
+    load_kwargs = parse_load_kwargs(args.load_kwargs)
 
     for i0 in range(0, len(files), nmerge):
         infile = files[i0]
