@@ -295,7 +295,8 @@ def modify_data(data, rate, metadata, channels, scale,
     # scale data:
     if scale != 1:
         data *= scale
-        update_gain(metadata, 1/scale)
+        if not update_gain(metadata, 1/scale):
+            metadata['gain'] = 1/scale
     # fix data:
     if unwrap_clip > 1e-3:
         unwrap(data, unwrap_clip, ampl_max)
