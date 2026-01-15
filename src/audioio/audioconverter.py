@@ -71,6 +71,17 @@ options:
 version 2.6.0 by Benda-Lab (2020-2025)
 ```
 
+## Functions
+
+- `add_arguments()`: add command line arguments to parser.
+- `parse_channels()`: parse channel selection string.
+- `parse_load_kwargs()`: parse additional arguments for loading data.
+- `check_format()`: check whether requested audio format is valid and supported.
+- `list_formats_encodings()`: list available formats or encodings.
+- `make_outfile()`: make name for output file.
+- `modify_data()`: modify audio data and add modifications to metadata.
+- `format_outfile()`: put metadata values into name of output file.
+- `main()`: command line script for converting, downsampling, renaming and merging audio files.
 """
 
 import os
@@ -92,7 +103,7 @@ from .audiowriter import format_from_extension, write_audio
 
 
 def add_arguments(parser):
-    """ Add command line arguments to parser.
+    """Add command line arguments to parser.
 
     Parameters
     ----------
@@ -139,7 +150,7 @@ def add_arguments(parser):
 
 
 def parse_channels(cstr):
-    """ Parse channel selection string.
+    """Parse channel selection string.
 
     Parameters
     ----------
@@ -199,8 +210,7 @@ def parse_load_kwargs(load_strs):
 
 
 def check_format(format):
-    """
-    Check whether requested audio format is valid and supported.
+    """Check whether requested audio format is valid and supported.
 
     If the format is not available print an error message on console.
 
@@ -225,7 +235,7 @@ def check_format(format):
 
 
 def list_formats_encodings(data_format):
-    """ List available formats or encodings.
+    """List available formats or encodings.
 
     Parameters
     ----------
@@ -246,7 +256,7 @@ def list_formats_encodings(data_format):
 
             
 def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
-    """ Make name for output file.
+    """Make name for output file.
 
     Parameters
     ----------
@@ -292,7 +302,7 @@ def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
 
 def modify_data(data, rate, metadata, channels, scale,
                 unwrap_clip, unwrap_thresh, ampl_max, unit, decimate_fac):
-    """ Modify audio data and add modifications to metadata.
+    """Modify audio data and add modifications to metadata.
 
     Parameters
     ----------
@@ -350,7 +360,7 @@ def modify_data(data, rate, metadata, channels, scale,
 
 
 def format_outfile(outfile, metadata):
-    """ Put metadata values into name of output file.
+    """Put metadata values into name of output file.
 
     Parameters
     ----------
@@ -372,8 +382,7 @@ def format_outfile(outfile, metadata):
 
         
 def main(*cargs):
-    """
-    Command line script for converting, downsampling, renaming and merging audio files.
+    """Command line script for converting, downsampling, renaming and merging audio files.
 
     Parameters
     ----------

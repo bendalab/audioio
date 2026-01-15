@@ -44,6 +44,10 @@ if len(sys.argv) > 0 and sys.argv[0] != '-m':
     from .audiometadata import default_gain_keys, default_history_keys
     from .audiomarkers import write_markers, print_markers
     from .audiowriter import write_audio, available_formats, available_encodings
+    from .audioconverter import add_arguments, parse_channels, parse_load_kwargs
+    from .audioconverter import check_format, list_formats_encodings
+    from .audioconverter import make_outfile, format_outfile
+    from .audioconverter import modify_data
     from .playaudio import play, beep, PlayAudio
     from .playaudio import note2freq, fade_in, fade_out, fade
     from .fixtimestamps import parse_datetime, replace_datetime, write_riff_datetime
