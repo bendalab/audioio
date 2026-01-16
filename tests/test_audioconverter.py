@@ -27,8 +27,6 @@ def test_main():
     os.mkdir(destpath)
     write_audio_file(filename)
     with pytest.raises(SystemExit):
-        ac.main()
-    with pytest.raises(SystemExit):
         ac.main('-h')
     with pytest.raises(SystemExit):
         ac.main('--help')

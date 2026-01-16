@@ -428,8 +428,34 @@ def main(*cargs):
     # kwargs for audio loader:
     load_kwargs = parse_load_kwargs(args.load_kwargs)
 
-    for i0 in range(0, len(files), nmerge):
-        infile = Path(files[i0])
+    # read in audio:
+    try:
+        data = AudioLoader(files, verbose=args.verbose - 1,
+                           **load_kwargs)
+    except FileNotFoundError:
+        print(f'file "{files[0]}" not found!')
+        sys.exit(-1)
+    if len(data.file_paths) < len(files):
+        print(f'file "{files[len(data.file_paths)]}" does not continue file "{data.file_paths[-1]}"!')
+        sys.exit(-1)
+    rate = data.rate
+    md = data.metadata()
+    add_metadata(md, args.md_list, '.')
+    if len(args.remove_keys) > 0:
+        remove_metadata(md, args.remove_keys, '.')
+        cleanup_metadata(md)
+    locs, labels = data.markers()
+    pre_history = bext_history_str(data.encoding,
+                                   data.rate,
+                                   data.channels,
+                                   os.fsdecode(data.filepath))
+    if args.verbose > 1:
+        print(f'loaded audio file "{data.filepath}"')
+        
+    if data.encoding is not None and args.encoding is None:
+        args.encoding = data.encoding
+    for i0 in range(0, len(data.file_paths), nmerge):
+        infile = data.file_paths[i0]
         outfile, data_format = make_outfile(args.outpath, infile,
                                             args.data_format,
                                             nmerge < len(files),
@@ -439,65 +465,36 @@ def main(*cargs):
         if infile.resolve() == outfile.resolve():
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
-        # read in audio:
-        pre_history = None
-        try:
-            with AudioLoader(infile, **load_kwargs) as sf:
-                data = sf[:,:]
-                rate = sf.rate
-                md = sf.metadata()
-                locs, labels = sf.markers()
-                pre_history = bext_history_str(sf.encoding,
-                                               sf.rate,
-                                               sf.channels,
-                                               os.fsdecode(sf.filepath))
-                if sf.encoding is not None and args.encoding is None:
-                    args.encoding = sf.encoding
-        except FileNotFoundError:
-            print(f'file "{infile}" not found!')
-            sys.exit(-1)
-        if args.verbose > 1:
-            print(f'loaded audio file "{infile}"')
-        for infile in files[i0+1:i0+nmerge]:
-            try:
-                xdata, xrate = load_audio(infile)
-            except FileNotFoundError:
-                print(f'file "{infile}" not found!')
-                sys.exit(-1)
-            if abs(rate - xrate) > 1:
-                print('! cannot merge files with different sampling rates !')
-                print(f'    file "{files[i0]}" has {rate:.0f}Hz')
-                print(f'    file "{infile}" has {xrate:.0f}Hz')
-                sys.exit(-1)
-            if xdata.shape[1] != data.shape[1]:
-                print('! cannot merge files with different numbers of channels !')
-                print(f'    file "{files[i0]}" has {data.shape[1]} channels')
-                print(f'    file "{infile}" has {xdata.shape[1]} channels')
-                sys.exit(-1)
-            data = np.vstack((data, xdata))
-            xlocs, xlabels = markers(infile)
-            locs = np.vstack((locs, xlocs))
-            labels = np.vstack((labels, xlabels))
-            if args.verbose > 1:
-                print(f'loaded audio file "{infile}"')
-        data, rate = modify_data(data, rate, md, channels, args.scale,
-                                 args.unwrap_clip, args.unwrap, 1.0,
-                                 '', args.decimate)
-        add_metadata(md, args.md_list, '.')
-        if len(args.remove_keys) > 0:
-            remove_metadata(md, args.remove_keys, '.')
-            cleanup_metadata(md)
+
+        if len(data.file_paths) > 1:
+            i1 = i0 + nmerge - 1
+            if i1 >= len(data.end_indices):
+                i1 = len(data.end_indices) - 1
+            si = data.start_indices[i0]
+            ei = data.end_indices[i1]
+        else:
+            si = 0
+            ei = data.frames
+        wdata, wrate = modify_data(data[si:ei], rate,
+                                   md, channels, args.scale,
+                                   args.unwrap_clip, args.unwrap, 1.0,
+                                   '', args.decimate)
+        mask = (locs[:, 0] >= si) & (locs[:, 0] < ei)
+        wlocs = locs[mask, :]
+        if len(wlocs) > 0:
+            wlocs[:, 0] -= si
+        wlabels = labels[mask, :]
         outfile = format_outfile(outfile, md)
         # history:
         hkey = 'CodingHistory'
         if 'BEXT' in md:
             hkey = 'BEXT.' + hkey
-        history = bext_history_str(args.encoding, rate,
+        history = bext_history_str(args.encoding, wrate,
                                    data.shape[1], os.fsdecode(outfile))
         add_history(md, history, hkey, pre_history)
         # write out audio:
         try:
-            write_audio(outfile, data, rate, md, locs, labels,
+            write_audio(outfile, wdata, wrate, md, wlocs, wlabels,
                         format=data_format, encoding=args.encoding)
         except PermissionError:
             print(f'failed to write "{outfile}": permission denied!')
