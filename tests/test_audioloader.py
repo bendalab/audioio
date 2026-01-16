@@ -71,6 +71,11 @@ def test_basename():
             assert data.basename() == 'test', 'wrong name'
             assert data.basename(data.filepath) == 'test', 'wrong name'
             assert data.basename(data.file_paths[0]) == 'test', 'wrong name'
+            assert isinstance(data.filepath, Path), 'filepath is not Path'
+            assert data.filepath.resolve() == Path(filename).resolve(), 'invalid filepath'
+            assert len(data.file_paths) == 1, 'invalid len of file_paths'
+            assert isinstance(data.file_paths[0], Path), 'file_paths[0] is not Path'
+            assert data.file_paths[0].resolve() == Path(filename).resolve(), 'invalid file_paths[0]'
     Path(filename).unlink(True)
     am.enable_module()
 
@@ -317,6 +322,12 @@ def test_multi_files():
     data2 = al.AudioLoader(data1.file_paths, 5.0, 2.0, verbose=4,
                            rate=data1.rate, channels=data1.channels,
                            end_indices=data1.end_indices)
+    assert isinstance(data2.filepath, Path), 'filepath is not Path'
+    assert data2.filepath.resolve() == Path(file_paths[0]).resolve(), 'invalid filepath'
+    assert len(data2.file_paths) == nfiles, 'invalid len of file_paths'
+    for k in range(nfiles):
+        assert isinstance(data2.file_paths[k], Path), f'file_paths[k] is not Path'
+        assert data2.file_paths[k].resolve() == Path(file_paths[k]).resolve(), f'invalid file_paths[{k}]'
     for data in [data1, data2]:
         assert len(data) == len(full_data), f'number of data elements differ: {len(data)} != {len(full_data)}'
         assert len(data) == len(full_data), f'number of data elements differ: {data.shape[0]} != {len(full_data)}'
