@@ -29,7 +29,7 @@ for a list of supported output file formats and
 ```sh
 audioconverter -f wav -l
 ```
-for a list of supported encodings for a given output format (`-f`option).
+for a list of supported encodings for a given output format (`-f` option).
 
 Running
 ```sh
