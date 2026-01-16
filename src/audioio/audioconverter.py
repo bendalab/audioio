@@ -438,7 +438,6 @@ def main(*cargs):
     if len(data.file_paths) < len(files):
         print(f'file "{files[len(data.file_paths)]}" does not continue file "{data.file_paths[-1]}"!')
         sys.exit(-1)
-    rate = data.rate
     md = data.metadata()
     add_metadata(md, args.md_list, '.')
     if len(args.remove_keys) > 0:
@@ -475,7 +474,7 @@ def main(*cargs):
         else:
             si = 0
             ei = data.frames
-        wdata, wrate = modify_data(data[si:ei], rate,
+        wdata, wrate = modify_data(data[si:ei], data.rate,
                                    md, channels, args.scale,
                                    args.unwrap_clip, args.unwrap, 1.0,
                                    '', args.decimate)
@@ -504,7 +503,8 @@ def main(*cargs):
             print(f'wrote "{outfile}"')
         elif args.verbose:
             print(f'converted audio file "{infile}" to "{outfile}"')
-
+    data.close()
+    
 
 if __name__ == '__main__':
     main(*sys.argv[1:])
