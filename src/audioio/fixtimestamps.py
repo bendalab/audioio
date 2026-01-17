@@ -32,13 +32,18 @@ logger-20190101T000915.wav -> logger-20250609T105117.wav
 ```
 and the time stamps in the meta data are set accordingly.
 
-Adding the `-n` flag runs the script in dry mode, i.e. it just reports what it would do without modifying the audio files:
+Supported date formats are "YYYY-MM-DD" or "YYYYMMDD".
+Supported time formats are "HH:MM:SS" or "HHMMSS".
+
+Adding the `-n` flag runs the script in dry mode, i.e. it just reports
+what it would do without modifying the audio files:
 
 ```sh
 > fixtimestamps -n -s 20250701T173420 *.wav
 ```
 
-Alternatively, the script can be run from within the audioio source tree as:
+Alternatively, the script can be run from within the audioio source
+tree as:
 ```
 python -m src.audioio.fixtimestamps -s 20250701T173420 *.wav
 ```
