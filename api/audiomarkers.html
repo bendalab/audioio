@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.audiomarkers API documentation</title>
+<meta name="description" content="Working with marker lists …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audiomarkers</code></h1>
+</header>
+<section id="section-intro">
+<p>Working with marker lists.</p>
+<p>Markers are used to mark specific positions or regions in the audio
+data.
+Each marker has a position (cue, event), a span, a label, and a
+text.
+Position, and span are handled with 1-D or 2-D arrays of ints,
+where each row is a marker and the columns are position and optional
+span. Labels and texts come in another 1-D or 2-D array of objects
+pointing to strings. Again, rows are the markers, first column are the
+labels, and second column the optional texts. Try to keep the labels
+short, and use text for longer descriptions.</p>
+<ul>
+<li><code><a title="audioio.audiomarkers.write_markers" href="#audioio.audiomarkers.write_markers">write_markers()</a></code>: write markers to a text file or stream.</li>
+<li><code><a title="audioio.audiomarkers.print_markers" href="#audioio.audiomarkers.print_markers">print_markers()</a></code>: write markers to standard output.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audiomarkers.write_markers"><code class="name flex">
+<span>def <span class="ident">write_markers</span></span>(<span>fh, locs, labels=None, sep=' ', prefix='')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_markers(fh, locs, labels=None, sep=&#39; &#39;, prefix=&#39;&#39;):
+    &#34;&#34;&#34;Write markers to a text file or stream.
+
+    Parameters
+    ----------
+    fh: filename or stream
+        If not a stream, the file with name `fh` is opened.
+        Otherwise `fh` is used as a stream for writing.
+    locs: 1-D or 2-D array of ints
+        Marker positions (first column) and optional spans (second column)
+        for each marker (rows).
+    labels: 1-D or 2-D array of string objects
+        Labels (first column) and optional texts (second column)
+        for each marker (rows).
+    sep: str
+        Column separator.
+    prefix: str
+        This string is written at the beginning of each line.
+    &#34;&#34;&#34;
+    if hasattr(fh, &#39;write&#39;):
+        own_file = False
+    else:
+        own_file = True
+        fh = open(fh, &#39;w&#39;)
+    # what do we have:
+    if locs.ndim == 1:
+        locs = locs.reshape(-1, 1)
+    has_span = locs.shape[1] &gt; 1
+    has_labels = False
+    has_text = False
+    if labels is not None and len(labels) &gt; 0:
+        has_labels = True
+        if labels.ndim == 1:
+            labels = labels.reshape(-1, 1)
+        has_text = labels.shape[1] &gt; 1
+    # table header:
+    fh.write(f&#39;{prefix}{&#34;position&#34;:10}&#39;)
+    if has_span:
+        fh.write(f&#39;{sep}{&#34;span&#34;:8}&#39;)
+    if has_labels:
+        fh.write(f&#39;{sep}{&#34;label&#34;:10}&#39;)
+    if has_text:
+        fh.write(f&#39;{sep}{&#34;text&#34;}&#39;)
+    fh.write(&#39;\n&#39;)
+    # table data:
+    for i in range(len(locs)):
+        fh.write(f&#39;{prefix}{locs[i,0]:10}&#39;)
+        if has_span:
+            fh.write(f&#39;{sep}{locs[i,1]:8}&#39;)
+        if has_labels:
+            fh.write(f&#39;{sep}{labels[i,0]:10}&#39;)
+        if has_text:
+            fh.write(f&#39;{sep}{labels[i,1]}&#39;)
+        fh.write(&#39;\n&#39;)
+    if own_file:
+        fh.close()</code></pre>
+</details>
+<div class="desc"><p>Write markers to a text file or stream.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>fh</code></strong> :&ensp;<code>filename</code> or <code>stream</code></dt>
+<dd>If not a stream, the file with name <code>fh</code> is opened.
+Otherwise <code>fh</code> is used as a stream for writing.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and optional spans (second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and optional texts (second column)
+for each marker (rows).</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>Column separator.</dd>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>This string is written at the beginning of each line.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiomarkers.print_markers"><code class="name flex">
+<span>def <span class="ident">print_markers</span></span>(<span>locs, labels=None, sep=' ', prefix='')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_markers(locs, labels=None, sep=&#39; &#39;, prefix=&#39;&#39;):
+    &#34;&#34;&#34;Write markers to standard output.
+
+    Parameters
+    ----------
+    locs: 1-D or 2-D array of ints
+        Marker positions (first column) and optional spans (second column)
+        for each marker (rows).
+    labels: 1-D or 2-D array of string objects
+        Labels (first column) and optional texts (second column)
+        for each marker (rows).
+    sep: str
+        Column separator.
+    prefix: str
+        This string is written at the beginning of each line.
+    &#34;&#34;&#34;
+    write_markers(sys.stdout, locs, labels, sep, prefix)</code></pre>
+</details>
+<div class="desc"><p>Write markers to standard output.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>locs</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and optional spans (second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and optional texts (second column)
+for each marker (rows).</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>Column separator.</dd>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>This string is written at the beginning of each line.</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.audiomarkers.write_markers" href="#audioio.audiomarkers.write_markers">write_markers</a></code></li>
+<li><code><a title="audioio.audiomarkers.print_markers" href="#audioio.audiomarkers.print_markers">print_markers</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

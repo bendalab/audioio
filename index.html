@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><meta name="author" content="Benda-Lab" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>audioio</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Home";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> audioio
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#features">Features</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#loading-audio-data">Loading audio data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#writing-audio-data">Writing audio data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#converting-audio-files">Converting audio files</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#display-metadata-and-markers">Display metadata and markers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixing-time-stamps">Fixing time stamps</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#playing-sounds">Playing sounds</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#managing-audio-modules">Managing audio modules</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#used-by">Used by</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#alternatives">Alternatives</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="" href="api/index.html">API reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="" href="cover/index.html">Coverage</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">audioio</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Home</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://github.com/janscience/audioio/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/pypi/l/audioio.svg" /></a>
+<a href="https://github.com/janscience/audioio/actions"><img alt="tests" src="https://github.com/janscience/audioio/workflows/tests/badge.svg?dummy=42" /></a>
+<a href="https://bendalab.github.io/audioio/cover"><img alt="codecov" src="https://bendalab.github.io/audioio/coverage.svg?dummy=42" /></a>
+<a href="https://pypi.python.org/pypi/audioio/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/audioio.svg" /></a>
+<img alt="downloads" src="https://img.shields.io/pypi/dm/audioio.svg" />
+<a href="https://github.com/bendalab/audioio/pulse"><img alt="commits" src="https://img.shields.io/github/commit-activity/m/bendalab/audioio" /></a></p>
+<!--
+![python](https://img.shields.io/pypi/pyversions/audioio.svg)
+![issues open](https://img.shields.io/github/issues/janscience/audioio.svg)
+![issues closed](https://img.shields.io/github/issues-closed/janscience/audioio.svg)
+![pullrequests open](https://img.shields.io/github/issues-pr/janscience/audioio.svg)
+![pullrequests closed](https://img.shields.io/github/issues-pr-closed/janscience/audioio.svg)
+-->
+
+<h1 id="audioio">AudioIO</h1>
+<p>Platform independent interfacing of numpy arrays of floats with audio
+files and devices for scientific data analysis.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Audio data are always numpy arrays of floats with values ranging between -1 and 1 independent of how the data are stored in an audio file.</li>
+<li><a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.load_audio"><code>load_audio()</code></a> function for loading data of a whole audio file at once.</li>
+<li>Blockwise, random-access loading of large or sequential audio files (<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader"><code>class AudioLoader</code></a> based on <a href="https://bendalab.github.io/audioio/api/bufferedarray.html#audioio.bufferedarray.BufferedArray"><code>class BufferedArray</code></a>).</li>
+<li>Read arbitrary <a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata"><code>metadata()</code></a> as nested dictionaries of key-value pairs. Supported RIFF chunks are <a href="https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file">INFO lists</a>, <a href="https://tech.ebu.ch/tech/tech3285.pdf">BEXT</a>, <a href="http://www.gallery.co.uk/ixml/">iXML</a>, and <a href="https://github.com/riggsd/guano-spec">GUANO</a>. </li>
+<li>Read <a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers"><code>markers()</code></a>, i.e. cue points with spans, labels, and descriptions.</li>
+<li><a href="https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio"><code>write_audio()</code></a> function for writing data, metadata, and markers to an audio file. </li>
+<li>Platform independent, synchronous (blocking) and asynchronous (non blocking) playback of numpy arrays  via <a href="https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play"><code>play()</code></a> with automatic resampling to match supported sampling rates.</li>
+<li>Full pathlib support.</li>
+<li>Detailed and platform specific installation instructions (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages (see <a href="https://bendalab.github.io/audioio/api/audiomodules.html">audiomodules</a>).</li>
+</ul>
+<p>The AudioIO modules try to use whatever audio packages are installed
+on your system to achieve their tasks. AudioIO, however, adds own code
+for handling metadata and marker lists.</p>
+<h2 id="installation">Installation</h2>
+<p>AudioIO is available at <a href="https://pypi.org/project/audioio/">PyPi</a>. Simply run:</p>
+<pre><code>pip install audioio
+</code></pre>
+<p>Then you can use already installed audio packages for reading and
+writing audio files and for playing audio data. However, audio file
+formats supported by the python standard library are limited to basic
+wave files and playback capabilities are poor. If you need support for
+additional audio file formats or proper sound output, you need to
+install additional packages.</p>
+<p>See <a href="https://bendalab.github.io/audioio/installation">installation</a>
+for further instructions and recommendations on additional audio
+packages.</p>
+<h2 id="usage">Usage</h2>
+<p>information.</p>
+<pre><code>import audioio as aio
+</code></pre>
+<h3 id="loading-audio-data">Loading audio data</h3>
+<p>Load an audio file into a numpy array using
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.load_audio"><code>load_audio()</code></a>:</p>
+<pre><code>data, samplingrate = aio.load_audio('audio/file.wav')
+</code></pre>
+<p>The read in data are always numpy arrays of floats ranging between -1 and 1.
+The arrays are always 2-D arrays with first axis time and second axis channel,
+even for single channel data.</p>
+<p>Plot the first channel:</p>
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+time = np.arange(len(data))/samplingrate
+plt.plot(time, data[:,0])
+plt.show()
+</code></pre>
+<p>Get a nested dictionary with key-value pairs of the file's metadata
+and print it using
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.metadata"><code>metadata()</code></a>
+and
+<a href="https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.print_metadata"><code>print_metadata()</code></a>:</p>
+<pre><code>md = aio.metadata('audio/file.wav')
+aio.print_metadata(md)
+</code></pre>
+<p>See the <a href="https://bendalab.github.io/audioio/api/audiometadata.html"><code>audiometadata module</code></a> for functions to read, write, and change metadata of various types.</p>
+<p>Get and print marker positions, spans, labels and texts using
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers"><code>markers()</code></a>
+and
+<a href="https://bendalab.github.io/audioio/api/audiomarkers.html#audioio.audiomarkers.print_markers"><code>print_markers()</code></a>:</p>
+<pre><code>locs, labels = aio.markers('audio/file.wav')
+aio.print_markers(locs, labels)
+</code></pre>
+<p>You can also randomly access chunks of data of an audio file, without
+loading the entire file into memory, by means of the <a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader"><code>AudioLoader</code>
+class</a>. This
+is really handy for analysing very long sound recordings:</p>
+<pre><code># open audio file with a buffer holding 60 seconds of data:
+with aio.AudioLoader('audio/file.wav', 60.0) as data:
+     block = 1000
+     rate = data.samplerate
+     for i in range(len(data)//block):
+         x = data[i*block:(i+1)*block]
+         # ... do something with x and rate
+</code></pre>
+<p>Instead of a single audio file it can also handle recordings that are
+split over many files. Just pass all these files as a list to the
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader"><code>AudioLoader</code>
+class</a>.</p>
+<p>Even simpler, iterate in blocks over the file with overlap using the
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader.blocks"><code>blocks()</code>
+generator</a>:</p>
+<pre><code>from scipy.signal import spectrogram
+nfft = 2048
+with aio.AudioLoader('some/audio.wav') as data:
+    for x in data.blocks(100*nfft, nfft//2):
+        f, t, Sxx = spectrogram(x, nperseg=nfft, noverlap=nfft//2)
+</code></pre>
+<p>Metadata and markers can be accessed by the
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader.metadata"><code>metadata()</code></a>
+and
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader.markers"><code>markers()</code></a>
+member functions of the
+<a href="https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.AudioLoader"><code>AudioLoader</code></a>
+object:</p>
+<pre><code>with aio.AudioLoader('audio/file.wav', 60.0) as data:
+     md = data.metadata()
+     locs, labels = data.markers()
+</code></pre>
+<p>See API documentation of the
+<a href="https://bendalab.github.io/audioio/api/audioloader.html"><code>audioloader</code></a>,
+<a href="https://bendalab.github.io/audioio/api/audiometadata.html"><code>audiometadata</code></a>, and
+<a href="https://bendalab.github.io/audioio/api/audiomarkers.html"><code>audiomarkers</code></a>
+modules for details.</p>
+<h3 id="writing-audio-data">Writing audio data</h3>
+<p>Write a 1-D or 2-D numpy array into an audio file (data values between
+-1 and 1) using the
+<a href="https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio"><code>write_audio()</code></a>
+function:</p>
+<pre><code>aio.write_audio('audio/file.wav', data, samplerate)
+</code></pre>
+<p>Again, in 2-D arrays the first axis (rows) is time and the second axis the channel (columns).</p>
+<p>Metadata in form of a nested dictionary with key-value pairs, marker
+positions and spans (<code>locs</code>) as well as associated labels and texts
+(<code>labels</code>) can also be passed on to the
+<a href="https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio"><code>write_audio()</code></a>
+function:</p>
+<pre><code>aio.write_audio('audio/file.wav', data, samplerate, md, locs, labels)
+</code></pre>
+<p>See API documentation of the
+<a href="https://bendalab.github.io/audioio/api/audiowriter.html"><code>audiowriter</code></a>
+module for details.</p>
+<h3 id="converting-audio-files">Converting audio files</h3>
+<p>AudioIO provides a command line script for converting, downsampling,
+renaming and merging audio files:</p>
+<pre><code class="language-sh">&gt; audioconverter -e float -o test.wav test.mp3
+</code></pre>
+<p>If possible, <code>audioconverter</code> tries to keep metadata and marker lists.</p>
+<p>See documentation of the
+<a href="https://bendalab.github.io/audioio/api/audioconverter.html"><code>audioconverter</code></a>
+module for details.</p>
+<h3 id="display-metadata-and-markers">Display metadata and markers</h3>
+<p>AudioIO provides a command line script that prints metadata and
+markers of audio files to the console:</p>
+<pre><code class="language-sh">&gt; audiometadata test.wav
+</code></pre>
+<p>See documentation of the
+<a href="https://bendalab.github.io/audioio/api/audiometadata.html#script"><code>audiometadata</code></a>
+module for details.</p>
+<h3 id="fixing-time-stamps">Fixing time stamps</h3>
+<p>AudioIO provides a command line script for fixing time stamps in the
+metadata and file names of audio files. This is useful in case the
+real-time clock of a recorder failed.</p>
+<p>Let's assume you have a continous recording spread over the following
+four files each covering 3 minutes of the recording:</p>
+<pre><code class="language-txt">logger-20190101T000015.wav
+logger-20190101T000315.wav
+logger-20190101T000615.wav
+logger-20190101T000915.wav
+</code></pre>
+<p>However, the recording was actually started at 2025-06-09T10:42:17.
+Obviously, the real-time clock failed, since all times in the file name
+and the time stamps in the metadata start in the year 2019.</p>
+<p>To fix this, run</p>
+<pre><code class="language-sh">&gt; fixtimestamps -s '2025-06-09T10:42:17' logger-2019*.wav
+</code></pre>
+<p>Then the files are renamed:</p>
+<pre><code class="language-txt">logger-20190101T000015.wav -&gt; logger-20250609T104217.wav
+logger-20190101T000315.wav -&gt; logger-20250609T104517.wav
+logger-20190101T000615.wav -&gt; logger-20250609T104817.wav
+logger-20190101T000915.wav -&gt; logger-20250609T105117.wav
+</code></pre>
+<p>and the time stamps in the meta data are set accordingly.</p>
+<p>See documentation of the
+<a href="https://bendalab.github.io/audioio/api/fixtimestamps.html"><code>fixtimestamps</code></a>
+module for details.</p>
+<h3 id="playing-sounds">Playing sounds</h3>
+<p>Fade in and out
+(<a href="https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.fade"><code>fade()</code></a>)
+and play
+(<a href="https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play"><code>play()</code></a>)
+a 1-D or 2-D numpy array as a sound (first axis is time and second
+axis the channel):</p>
+<pre><code>aio.fade(data, samplingrate, 0.2)
+aio.play(data, samplingrate)
+</code></pre>
+<p>Just <a href="https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.beep"><code>beep()</code></a></p>
+<pre><code>aio.beep()
+</code></pre>
+<p>Beep for half a second and 440 Hz:</p>
+<pre><code>aio.beep(0.5, 440.0)
+aio.beep(0.5, 'a4')
+</code></pre>
+<p>Musical notes are translated into frequency with the
+<a href="https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.note2freq"><code>note2freq()</code></a>
+function.</p>
+<p>See API documentation of the
+<a href="https://bendalab.github.io/audioio/api/playaudio.html"><code>playaudio</code></a>
+module for details.</p>
+<h3 id="managing-audio-modules">Managing audio modules</h3>
+<p>Simply run in your terminal</p>
+<pre><code class="language-sh">&gt; audiomodules
+</code></pre>
+<p>and you get something like</p>
+<pre><code>Status of audio packages on this machine:
+-----------------------------------------
+
+wave              is  installed (F)
+ewave             not installed (F)
+scipy.io.wavfile  is  installed (F)
+soundfile         is  installed (F)
+wavefile          not installed (F)
+audioread         is  installed (F)
+pydub             is  installed (F)
+pyaudio           not installed (D)
+sounddevice       NOT installed (D)
+simpleaudio       not installed (D)
+soundcard         not installed (D)
+ossaudiodev       is  installed (D)
+winsound          not installed (D)
+
+F: file I/O, D: audio device
+
+For better performance you should install the following modules:
+
+sounddevice:
+------------
+The sounddevice package is a wrapper of the portaudio library (http://www.portaudio.com). 
+For documentation see https://python-sounddevice.readthedocs.io
+
+First, install the following packages:
+
+sudo apt install libportaudio2 portaudio19-dev python3-cffi
+
+Install the sounddevice module with pip:
+
+sudo pip install sounddevice
+
+</code></pre>
+<p>Use this to see which audio modules you have already installed on your system,
+which ones are recommended to install, and how to install them.</p>
+<p>See API documentation of the
+<a href="https://bendalab.github.io/audioio/api/audiomodules.html"><code>audiomodules</code></a>
+module for details.</p>
+<h2 id="used-by">Used by</h2>
+<ul>
+<li><a href="https://github.com/bendalab/thunderlab">thunderlab</a>: Load and preprocess time series data.</li>
+<li><a href="https://github.com/bendalab/thunderfish">thunderfish</a>: Algorithms and programs for analysing electric field recordings of weakly electric fish.</li>
+<li><a href="https://github.com/bendalab/audian">audian</a>: Python-based GUI for viewing and analyzing recordings of animal vocalizations.</li>
+</ul>
+<h2 id="alternatives">Alternatives</h2>
+<p>All the audio modules AudioIO is using.</p>
+<p>Reading and writing audio files:</p>
+<ul>
+<li><a href="https://docs.python.org/3.8/library/wave.html">wave</a>: simple wave file interface of the python standard library.</li>
+<li><a href="https://github.com/melizalab/py-ewave">ewave</a>: extended wave files. </li>
+<li><a href="http://docs.scipy.org/doc/scipy/reference/io.html">scipy.io.wavfile</a>: simple scipy wave file interface.</li>
+<li><a href="http://python-soundfile.readthedocs.org">SoundFile</a>: support of many open source audio file formats via <a href="http://www.mega-nerd.com/libsndfile">libsndfile</a>.</li>
+<li><a href="https://github.com/vokimon/python-wavefile">wavefile</a>: support of many open source audio file formats via <a href="http://www.mega-nerd.com/libsndfile">libsndfile</a>.</li>
+<li><a href="https://github.com/beetbox/audioread">audioread</a>: mpeg file support.</li>
+<li><a href="https://github.com/jiaaro/pydub">Pydub</a>: mpeg support for reading and writing, playback via simlpeaudio or pyaudio.</li>
+<li><a href="http://cournape.github.io/audiolab">scikits.audiolab</a>: seems to be no longer active.</li>
+</ul>
+<p>Metadata:</p>
+<ul>
+<li><a href="https://github.com/riggsd/guano-spec">GUANO</a>: Grand Unified
+  Acoustic Notation Ontology, an extensible, open format for embedding
+  metadata within bat acoustic recordings.</li>
+</ul>
+<p>Playing sounds:</p>
+<ul>
+<li><a href="https://python-sounddevice.readthedocs.io">sounddevice</a>: wrapper for <a href="http://www.portaudio.com">portaudio</a>.</li>
+<li><a href="https://people.csail.mit.edu/hubert/pyaudio">PyAudio</a>: wrapper for <a href="http://www.portaudio.com">portaudio</a>.</li>
+<li><a href="https://simpleaudio.readthedocs.io">simpleaudio</a>: uses ALSA on Linux, runs well on windows.</li>
+<li><a href="https://github.com/bastibe/SoundCard">SoundCard</a>: playback via CFFI and the native audio libraries of Linux, Windows and macOS.</li>
+<li><a href="https://docs.python.org/3.8/library/ossaudiodev.html">ossaudiodev</a>: playback via the outdated OSS interface of the python standard library.</li>
+<li><a href="https://docs.python.org/3.6/library/winsound.html">winsound</a>: native windows audio playback of the python standard library, asynchronous playback only with wave files.</li>
+</ul>
+<p>Not yet supported by audioio:</p>
+<ul>
+<li><a href="https://github.com/quodlibet/mutagen">mutagen</a>: handles audio metadata of many audio file formats.</li>
+<li><a href="https://github.com/TaylorSMarks/playsound">playsound</a>: pure Python,
+  cross platform, single function module with no dependencies for
+  playing sounds. Plays sounds from files only.</li>
+<li><a href="https://github.com/garydavenport73/PreferredSoundPlayer">PreferredSoundPlayer</a>:
+  Platfrom independt playing of sound files.</li>
+<li><a href="https://github.com/mjbrusso/audioplayer">AudioPlayer</a>: cross
+  platform Python 3 package for playing sounds (mp3, wav, ...).</li>
+</ul>
+<p>Scientific audio software:</p>
+<ul>
+<li><a href="https://github.com/Soundphy/diapason">diapason</a>: musical notes like
+  <code>playaudio.note2freq</code>.</li>
+<li><a href="https://librosa.org/">librosa</a>: audio and music processing in
+  python.</li>
+<li><a href="https://github.com/j9ac9k/timeview">TimeView</a>: GUI application to
+  view and analyze time series signal data.</li>
+<li><a href="https://github.com/scikit-maad/scikit-maad">scikit-maad</a>:
+  quantitative analysis of environmental audio recordings</li>
+<li><a href="https://pypi.org/project/soundscapy/">Soundscapy</a>: analysing and
+  visualising soundscape assessments.</li>
+<li><a href="https://pypi.org/project/batdetect2/">BatDetect2</a>: detecting and
+  classifying bat echolocation calls in high frequency audio
+  recordings.</li>
+<li><a href="https://github.com/jmears63/batogram">Batogram</a>: viewing bat call
+  spectrograms with <a href="https://www.wildlifeacoustics.com/SCHEMA/GUANO.html">GUANO
+  metadata</a>,
+  including the ability to click to open the location in Google Maps.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="installation/" class="btn btn-neutral float-right" title="Installation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bendalab/audioio/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+      <span><a href="installation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2026-01-17 21:34:40.816520+00:00
+-->

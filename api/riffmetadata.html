@@ -1,0 +1,2884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.riffmetadata API documentation</title>
+<meta name="description" content="Read and write meta data and marker lists of riff based files …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.riffmetadata</code></h1>
+</header>
+<section id="section-intro">
+<p>Read and write meta data and marker lists of riff based files.</p>
+<p>Container files of the Resource Interchange File Format (RIFF) like
+WAVE files may contain sections (called chunks) with metadata and
+markers in addition to the timeseries (audio) data and the necessary
+specifications of sampling rate, bit depth, etc.</p>
+<h2 id="metadata">Metadata</h2>
+<p>There are various types of chunks for storing metadata, like the <a href="https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file">INFO
+list</a>,
+<a href="https://tech.ebu.ch/docs/tech/tech3285.pdf">broadcast-audio extension
+(BEXT)</a> chunk, or
+<a href="http://www.gallery.co.uk/ixml/">iXML</a> chunks. These chunks contain
+metadata as key-value pairs.
+Since wave files are primarily designed
+for music, valid keys in these chunks are restricted to topics from
+music and music production. Some keys are usefull also for science,
+but there is need for more keys. It is possible to extend the INFO
+list keys, but these keys are restricted to four characters and the
+INFO list chunk does also not allow for hierarchical metadata. The
+other metadata chunks, in particular the BEXT chunk, cannot be
+extended. With standard chunks, not all types of metadata can be
+stored.</p>
+<p>The <a href="https://github.com/riggsd/guano-spec">GUANO (Grand Unified Acoustic Notation
+Ontology)</a>, primarily designed
+for bat acoustic recordings, has some standard ontologies that are of
+much more interest in scientific context.
+In addition, GUANO allows
+for extensions with arbitray nested keys and string encoded values.
+In that respect it is a well defined and easy to handle serialization
+of the <a href="https://doi.org/10.3389/fninf.2011.00016">odML data model</a>.
+We use GUANO to write all metadata that do not fit into the INFO, BEXT
+or IXML chunks into a WAVE file.</p>
+<p>To interface the various ways to store and read metadata of RIFF
+files, the <code>riffmetadata</code> module simply uses nested dictionaries.
+The
+keys are always strings. Values are strings or integers for key-value
+pairs. Value strings can also be numbers followed by a unit. Values
+can also be dictionaries for defining subsections of key-value
+pairs. The dictionaries can be nested to arbitrary depth.</p>
+<p>The <code><a title="audioio.riffmetadata.write_wave" href="#audioio.riffmetadata.write_wave">write_wave()</a></code> function first tries to write an INFO list
+chunk. It checks for a key "INFO" with a flat dictionary of key value
+pairs. It then translates all keys of this dictionary using the
+<code><a title="audioio.riffmetadata.info_tags" href="#audioio.riffmetadata.info_tags">info_tags</a></code> mapping. If all the resulting keys have no more than four
+characters and there are no subsections, then an INFO list chunk is
+written. If no "INFO" key exists, then with the same procedure all
+elements of the provided metadata are checked for being valid INFO
+tags, and on success an INFO list chunk is written. Then, in similar
+ways, <code><a title="audioio.riffmetadata.write_wave" href="#audioio.riffmetadata.write_wave">write_wave()</a></code> tries to assemble valid BEXT and iXML chunks,
+based on the tags in <code><a title="audioio.riffmetadata.bext_tags" href="#audioio.riffmetadata.bext_tags">bext_tags</a></code> abd <code><a title="audioio.riffmetadata.ixml_tags" href="#audioio.riffmetadata.ixml_tags">ixml_tags</a></code>. All remaining
+metadata are then stored in an GUANO chunk.</p>
+<p>When reading metadata from a RIFF file, INFO, BEXT and iXML chunks are
+returned as subsections with the respective keys. Metadata from an
+GUANO chunk are stored directly in the metadata dictionary without
+marking them as GUANO.</p>
+<h2 id="markers">Markers</h2>
+<p>A number of different chunk types exist for handling markers or cues
+that mark specific events or regions in the audio data. In the end,
+each marker has a position, a span, a label, and a text.
+Position,
+and span are handled with 1-D or 2-D arrays of ints, where each row is
+a marker and the columns are position and span. The span column is
+optional. Labels and texts come in another 1-D or 2-D array of objects
+pointing to strings. Again, rows are the markers, first column are the
+labels, and second column the optional texts. Try to keep the labels
+short, and use text for longer descriptions, if necessary.</p>
+<h2 id="read-metadata-and-markers">Read metadata and markers</h2>
+<ul>
+<li><code><a title="audioio.riffmetadata.metadata_riff" href="#audioio.riffmetadata.metadata_riff">metadata_riff()</a></code>: read metadata from a RIFF/WAVE file.</li>
+<li><code><a title="audioio.riffmetadata.markers_riff" href="#audioio.riffmetadata.markers_riff">markers_riff()</a></code>: read markers from a RIFF/WAVE file.</li>
+</ul>
+<h2 id="write-data-metadata-and-markers">Write data, metadata and markers</h2>
+<ul>
+<li><code><a title="audioio.riffmetadata.write_wave" href="#audioio.riffmetadata.write_wave">write_wave()</a></code>: write time series, metadata and markers to a WAVE file.</li>
+<li><code><a title="audioio.riffmetadata.append_metadata_riff" href="#audioio.riffmetadata.append_metadata_riff">append_metadata_riff()</a></code>: append metadata chunks to RIFF file.</li>
+<li><code><a title="audioio.riffmetadata.append_markers_riff" href="#audioio.riffmetadata.append_markers_riff">append_markers_riff()</a></code>: append marker chunks to RIFF file.</li>
+<li><code><a title="audioio.riffmetadata.append_riff" href="#audioio.riffmetadata.append_riff">append_riff()</a></code>: append metadata and markers to an existing RIFF file.</li>
+</ul>
+<h2 id="helper-functions-for-reading-riff-and-wave-files">Helper functions for reading RIFF and WAVE files</h2>
+<ul>
+<li><code><a title="audioio.riffmetadata.read_chunk_tags" href="#audioio.riffmetadata.read_chunk_tags">read_chunk_tags()</a></code>: read tags of all chunks contained in a RIFF file.</li>
+<li><code><a title="audioio.riffmetadata.read_riff_header" href="#audioio.riffmetadata.read_riff_header">read_riff_header()</a></code>: read and check the RIFF file header.</li>
+<li><code><a title="audioio.riffmetadata.skip_chunk" href="#audioio.riffmetadata.skip_chunk">skip_chunk()</a></code>: skip over unknown RIFF chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_format_chunk" href="#audioio.riffmetadata.read_format_chunk">read_format_chunk()</a></code>: read format chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_info_chunks" href="#audioio.riffmetadata.read_info_chunks">read_info_chunks()</a></code>: read in meta data from info list chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_bext_chunk" href="#audioio.riffmetadata.read_bext_chunk">read_bext_chunk()</a></code>: read in metadata from the broadcast-audio extension chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_ixml_chunk" href="#audioio.riffmetadata.read_ixml_chunk">read_ixml_chunk()</a></code>: read in metadata from an IXML chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_guano_chunk" href="#audioio.riffmetadata.read_guano_chunk">read_guano_chunk()</a></code>: read in metadata from a GUANO chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_cue_chunk" href="#audioio.riffmetadata.read_cue_chunk">read_cue_chunk()</a></code>: read in marker positions from cue chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_playlist_chunk" href="#audioio.riffmetadata.read_playlist_chunk">read_playlist_chunk()</a></code>: read in marker spans from playlist chunk.</li>
+<li><code><a title="audioio.riffmetadata.read_adtl_chunks" href="#audioio.riffmetadata.read_adtl_chunks">read_adtl_chunks()</a></code>: read in associated data list chunks.</li>
+<li><code><a title="audioio.riffmetadata.read_lbl_chunk" href="#audioio.riffmetadata.read_lbl_chunk">read_lbl_chunk()</a></code>: read in marker positions, spans, labels, and texts from lbl chunk.</li>
+</ul>
+<h2 id="helper-functions-for-writing-riff-and-wave-files">Helper functions for writing RIFF and WAVE files</h2>
+<ul>
+<li><code><a title="audioio.riffmetadata.write_riff_chunk" href="#audioio.riffmetadata.write_riff_chunk">write_riff_chunk()</a></code>: write RIFF file header.</li>
+<li><code><a title="audioio.riffmetadata.write_filesize" href="#audioio.riffmetadata.write_filesize">write_filesize()</a></code>: write the file size into the RIFF file header.</li>
+<li><code><a title="audioio.riffmetadata.write_chunk_name" href="#audioio.riffmetadata.write_chunk_name">write_chunk_name()</a></code>: change the name of a chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_format_chunk" href="#audioio.riffmetadata.write_format_chunk">write_format_chunk()</a></code>: write format chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_data_chunk" href="#audioio.riffmetadata.write_data_chunk">write_data_chunk()</a></code>: write data chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_info_chunk" href="#audioio.riffmetadata.write_info_chunk">write_info_chunk()</a></code>: write metadata to LIST INFO chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_bext_chunk" href="#audioio.riffmetadata.write_bext_chunk">write_bext_chunk()</a></code>: write metadata to BEXT chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_ixml_chunk" href="#audioio.riffmetadata.write_ixml_chunk">write_ixml_chunk()</a></code>: write metadata to iXML chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_guano_chunk" href="#audioio.riffmetadata.write_guano_chunk">write_guano_chunk()</a></code>: write metadata to GUANO chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_cue_chunk" href="#audioio.riffmetadata.write_cue_chunk">write_cue_chunk()</a></code>: write marker positions to cue chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_playlist_chunk" href="#audioio.riffmetadata.write_playlist_chunk">write_playlist_chunk()</a></code>: write marker spans to playlist chunk.</li>
+<li><code><a title="audioio.riffmetadata.write_adtl_chunks" href="#audioio.riffmetadata.write_adtl_chunks">write_adtl_chunks()</a></code>: write associated data list chunks.</li>
+<li><code><a title="audioio.riffmetadata.write_lbl_chunk" href="#audioio.riffmetadata.write_lbl_chunk">write_lbl_chunk()</a></code>: write marker positions, spans, labels, and texts to lbl chunk.</li>
+</ul>
+<h2 id="demo">Demo</h2>
+<ul>
+<li><code><a title="audioio.riffmetadata.demo" href="#audioio.riffmetadata.demo">demo()</a></code>: print metadata and marker list of RIFF/WAVE file.</li>
+<li><code><a title="audioio.riffmetadata.main" href="#audioio.riffmetadata.main">main()</a></code>: call demo with command line arguments.</li>
+</ul>
+<h2 id="descriptions-of-the-riffwave-file-format">Descriptions of the RIFF/WAVE file format</h2>
+<ul>
+<li><a href="https://de.wikipedia.org/wiki/RIFF_WAVE">https://de.wikipedia.org/wiki/RIFF_WAVE</a></li>
+<li><a href="http://www.piclist.com/techref/io/serial/midi/wave.html">http://www.piclist.com/techref/io/serial/midi/wave.html</a></li>
+<li><a href="https://moddingwiki.shikadi.net/wiki/Resource_Interchange_File_Format_(RIFF)">https://moddingwiki.shikadi.net/wiki/Resource_Interchange_File_Format_(RIFF)</a> </li>
+<li><a href="https://www.recordingblogs.com/wiki/wave-file-format">https://www.recordingblogs.com/wiki/wave-file-format</a></li>
+<li><a href="http://fhein.users.ak.tu-berlin.de/Alias/Studio/ProTools/audio-formate/wav/overview.html">http://fhein.users.ak.tu-berlin.de/Alias/Studio/ProTools/audio-formate/wav/overview.html</a></li>
+<li><a href="http://www.gallery.co.uk/ixml/">http://www.gallery.co.uk/ixml/</a></li>
+</ul>
+<p>For INFO tag names see:</p>
+<ul>
+<li>see <a href="https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags">https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags</a></li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="audioio.riffmetadata.info_tags"><code class="name">var <span class="ident">info_tags</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with known tags of the INFO chunk as keys and their description as value.</p>
+<p>See <a href="https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags">https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags</a></p></div>
+</dd>
+<dt id="audioio.riffmetadata.bext_tags"><code class="name">var <span class="ident">bext_tags</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with tags of the BEXT chunk as keys and their size in bytes as values.</p>
+<p>See <a href="https://tech.ebu.ch/docs/tech/tech3285.pdf">https://tech.ebu.ch/docs/tech/tech3285.pdf</a></p></div>
+</dd>
+<dt id="audioio.riffmetadata.ixml_tags"><code class="name">var <span class="ident">ixml_tags</span></code></dt>
+<dd>
+<div class="desc"><p>List with valid tags of the iXML chunk.</p>
+<p>See <a href="http://www.gallery.co.uk/ixml/">http://www.gallery.co.uk/ixml/</a></p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.riffmetadata.read_riff_header"><code class="name flex">
+<span>def <span class="ident">read_riff_header</span></span>(<span>sf, tag=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_riff_header(sf, tag=None):
+    &#34;&#34;&#34;Read and check the RIFF file header.
+
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF/WAVE file.
+    tag: None or str
+        If supplied, check whether it matches the subchunk tag.
+        If it does not match, raise a ValueError.
+
+    Returns
+    -------
+    filesize: int
+        Size of the RIFF file in bytes.
+
+    Raises
+    ------
+    ValueError
+        Not a RIFF file or subchunk tag does not match `tag`.
+    &#34;&#34;&#34;
+    riffs = sf.read(4).decode(&#39;latin-1&#39;)
+    if riffs != &#39;RIFF&#39;:
+        raise ValueError(&#39;Not a RIFF file.&#39;)
+    fsize = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0] + 8
+    subtag = sf.read(4).decode(&#39;latin-1&#39;)
+    if tag is not None and subtag != tag:
+        raise ValueError(f&#39;Not a {tag} file.&#39;)
+    return fsize</code></pre>
+</details>
+<div class="desc"><p>Read and check the RIFF file header.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF/WAVE file.</dd>
+<dt><strong><code>tag</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>If supplied, check whether it matches the subchunk tag.
+If it does not match, raise a ValueError.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filesize</code></strong> :&ensp;<code>int</code></dt>
+<dd>Size of the RIFF file in bytes.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Not a RIFF file or subchunk tag does not match <code>tag</code>.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.skip_chunk"><code class="name flex">
+<span>def <span class="ident">skip_chunk</span></span>(<span>sf)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def skip_chunk(sf):
+    &#34;&#34;&#34;Skip over unknown RIFF chunk.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file.
+
+    Returns
+    -------
+    size: int
+        The size of the skipped chunk in bytes.
+    &#34;&#34;&#34;
+    size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    size += size % 2 
+    sf.seek(size, os.SEEK_CUR)
+    return size</code></pre>
+</details>
+<div class="desc"><p>Skip over unknown RIFF chunk.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>size</code></strong> :&ensp;<code>int</code></dt>
+<dd>The size of the skipped chunk in bytes.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_chunk_tags"><code class="name flex">
+<span>def <span class="ident">read_chunk_tags</span></span>(<span>filepath)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_chunk_tags(filepath):
+    &#34;&#34;&#34;Read tags of all chunks contained in a RIFF file.
+
+    Parameters
+    ----------
+    filepath: string or Path or file handle
+        The RIFF file.
+
+    Returns
+    -------
+    tags: dict
+        Keys are the tag names of the chunks found in the file. If the
+        chunk is a list chunk, then the list type is added with a dash
+        to the key, i.e. &#34;LIST-INFO&#34;. Values are tuples with the
+        corresponding file positions of the data of the chunk (after
+        the tag and the chunk size field) and the size of the chunk
+        data. The file position of the next chunk is thus the position
+        of the chunk plus the size of its data. Advance another 8 bytes 
+        to get to the data of the next chunk.
+        The total file size is the sum of the chunk sizes of each tag
+        incremented by eight plus another 12 bytes of the riff header.
+
+    Raises
+    ------
+    ValueError
+        Not a RIFF file.
+
+    &#34;&#34;&#34;           
+    tags = {}
+    sf = filepath
+    file_pos = None
+    if hasattr(filepath, &#39;read&#39;):
+        file_pos = sf.tell()
+        sf.seek(0, os.SEEK_SET)
+    else:
+        sf = open(filepath, &#39;rb&#39;)
+    fsize = read_riff_header(sf)
+    while (sf.tell() &lt; fsize - 8):
+        chunk = sf.read(4).decode(&#39;latin-1&#39;).upper()
+        size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+        size += size % 2 
+        fp = sf.tell()
+        if chunk == &#39;LIST&#39;:
+            subchunk = sf.read(4).decode(&#39;latin-1&#39;).upper()
+            tags[chunk + &#39;-&#39; + subchunk] = (fp, size)
+            size -= 4
+        else:
+            tags[chunk] = (fp, size)
+        sf.seek(size, os.SEEK_CUR)
+    if file_pos is None:
+        sf.close()
+    else:
+        sf.seek(file_pos, os.SEEK_SET)
+    return tags</code></pre>
+</details>
+<div class="desc"><p>Read tags of all chunks contained in a RIFF file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code> or <code>Path</code> or <code>file handle</code></dt>
+<dd>The RIFF file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>tags</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Keys are the tag names of the chunks found in the file. If the
+chunk is a list chunk, then the list type is added with a dash
+to the key, i.e. "LIST-INFO". Values are tuples with the
+corresponding file positions of the data of the chunk (after
+the tag and the chunk size field) and the size of the chunk
+data. The file position of the next chunk is thus the position
+of the chunk plus the size of its data. Advance another 8 bytes
+to get to the data of the next chunk.
+The total file size is the sum of the chunk sizes of each tag
+incremented by eight plus another 12 bytes of the riff header.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Not a RIFF file.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_format_chunk"><code class="name flex">
+<span>def <span class="ident">read_format_chunk</span></span>(<span>sf)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_format_chunk(sf):
+    &#34;&#34;&#34;Read format chunk.
+
+    Parameters
+    ----------
+    sf: stream
+        File stream for reading FMT chunk at the position of the chunk&#39;s size field.
+
+    Returns
+    -------
+    channels: int
+        Number of channels.
+    rate: float
+        Sampling rate (frames per time) in Hertz.
+    bits: int
+        Bit resolution.
+    &#34;&#34;&#34;
+    size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    size += size % 2
+    ccode, channels, rate, byterate, blockalign, bits = struct.unpack(&#39;&lt;HHIIHH&#39;, sf.read(16))
+    if size &gt; 16:
+        sf.read(size - 16)
+    return channels, float(rate), bits</code></pre>
+</details>
+<div class="desc"><p>Read format chunk.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for reading FMT chunk at the position of the chunk's size field.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>channels</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of channels.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate (frames per time) in Hertz.</dd>
+<dt><strong><code>bits</code></strong> :&ensp;<code>int</code></dt>
+<dd>Bit resolution.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_info_chunks"><code class="name flex">
+<span>def <span class="ident">read_info_chunks</span></span>(<span>sf, store_empty)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_info_chunks(sf, store_empty):
+    &#34;&#34;&#34;Read in meta data from info list chunk.
+
+    The variable `info_tags` is used to map the 4 character tags to
+    human readable key names.
+
+    See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: dict
+        Dictionary with key-value pairs of info tags.
+
+    &#34;&#34;&#34;
+    md = {}
+    list_size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    list_type = sf.read(4).decode(&#39;latin-1&#39;).upper()
+    list_size -= 4
+    if list_type == &#39;INFO&#39;:
+        while list_size &gt;= 8:
+            key = sf.read(4).decode(&#39;ascii&#39;).rstrip(&#39; \x00&#39;)
+            size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+            size += size % 2
+            bs = sf.read(size)
+            x = np.frombuffer(bs, dtype=np.uint8)
+            if np.sum((x &gt;= 0x80) &amp; (x &lt;= 0x9f)) &gt; 0:
+                s = bs.decode(&#39;windows-1252&#39;)
+            else:
+                s = bs.decode(&#39;latin1&#39;)
+            value = s.rstrip(&#39; \x00\x02&#39;)
+            list_size -= 8 + size
+            if key in info_tags:
+                key = info_tags[key]
+            if value or store_empty:
+                md[key] = value
+    if list_size &gt; 0:  # finish or skip
+        sf.seek(list_size, os.SEEK_CUR)
+    return md</code></pre>
+</details>
+<div class="desc"><p>Read in meta data from info list chunk.</p>
+<p>The variable <code><a title="audioio.riffmetadata.info_tags" href="#audioio.riffmetadata.info_tags">info_tags</a></code> is used to map the 4 character tags to
+human readable key names.</p>
+<p>See <a href="https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags">https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+<dt><strong><code>store_empty</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>False</code> do not add meta data with empty values.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary with key-value pairs of info tags.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_bext_chunk"><code class="name flex">
+<span>def <span class="ident">read_bext_chunk</span></span>(<span>sf, store_empty=True)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_bext_chunk(sf, store_empty=True):
+    &#34;&#34;&#34;Read in metadata from the broadcast-audio extension chunk.
+
+    The variable `bext_tags` lists all valid BEXT fields and their size.
+
+    See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    meta_data: dict
+        The meta-data of a BEXT chunk are stored in a flat dictionary
+        with the following keys:
+
+        - &#39;Description&#39;: a free description of the sequence.
+        - &#39;Originator&#39;: name of the originator/ producer of the audio file.
+        - &#39;OriginatorReference&#39;: unambiguous reference allocated by the originating organisation.
+        - &#39;OriginationDate&#39;: date of creation of audio sequence in yyyy:mm:dd.
+        - &#39;OriginationTime&#39;: time of creation of audio sequence in hh:mm:ss.
+        - &#39;TimeReference&#39;: first sample since midnight.
+        - &#39;Version&#39;: version of the BWF.
+        - &#39;UMID&#39;: unique material identifier.
+        - &#39;LoudnessValue&#39;: integrated loudness value.
+        - &#39;LoudnessRange&#39;:  loudness range.
+        - &#39;MaxTruePeakLevel&#39;: maximum true peak value in dBTP.
+        - &#39;MaxMomentaryLoudness&#39;: highest value of the momentary loudness level.
+        - &#39;MaxShortTermLoudness&#39;: highest value of the short-term loudness level.
+        - &#39;Reserved&#39;: 180 bytes reserved for extension.
+        - &#39;CodingHistory&#39;: description of coding processed applied to the audio data, with comma separated subfields: &#34;A=&#34; coding algorithm, e.g. PCM, &#34;F=&#34; sampling rate in Hertz, &#34;B=&#34; bit-rate for MPEG files, &#34;W=&#34; word length in bits, &#34;M=&#34; mono, stereo, dual-mono, joint-stereo, &#34;T=&#34; free text. 
+    &#34;&#34;&#34;
+    md = {}
+    size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    size += size % 2
+    s = sf.read(256).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;Description&#39;] = s
+    s = sf.read(32).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;Originator&#39;] = s
+    s = sf.read(32).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;OriginatorReference&#39;] = s
+    s = sf.read(10).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;OriginationDate&#39;] = s
+    s = sf.read(8).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;OriginationTime&#39;] = s
+    reference, version = struct.unpack(&#39;&lt;QH&#39;, sf.read(10))
+    if reference &gt; 0 or store_empty:
+        md[&#39;TimeReference&#39;] = reference
+    if version &gt; 0 or store_empty:
+        md[&#39;Version&#39;] = version
+    s = sf.read(64).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;UMID&#39;] = s
+    lvalue, lrange, peak, momentary, shortterm = struct.unpack(&#39;&lt;hhhhh&#39;, sf.read(10))
+    if lvalue &gt; 0 or store_empty:
+        md[&#39;LoudnessValue&#39;] = lvalue
+    if lrange &gt; 0 or store_empty:
+        md[&#39;LoudnessRange&#39;] = lrange
+    if peak &gt; 0 or store_empty:
+        md[&#39;MaxTruePeakLevel&#39;] = peak
+    if momentary &gt; 0 or store_empty:
+        md[&#39;MaxMomentaryLoudness&#39;] = momentary
+    if shortterm &gt; 0 or store_empty:
+        md[&#39;MaxShortTermLoudness&#39;] = shortterm
+    s = sf.read(180).decode(&#39;ascii&#39;).strip(&#39; \x00&#39;)
+    if s or store_empty:
+        md[&#39;Reserved&#39;] = s
+    size -= 256 + 32 + 32 + 10 + 8 + 8 + 2 + 64 + 10 + 180
+    s = sf.read(size).decode(&#39;ascii&#39;).strip(&#39; \x00\n\r&#39;)
+    if s or store_empty:
+        md[&#39;CodingHistory&#39;] = s
+    return md</code></pre>
+</details>
+<div class="desc"><p>Read in metadata from the broadcast-audio extension chunk.</p>
+<p>The variable <code><a title="audioio.riffmetadata.bext_tags" href="#audioio.riffmetadata.bext_tags">bext_tags</a></code> lists all valid BEXT fields and their size.</p>
+<p>See <a href="https://tech.ebu.ch/docs/tech/tech3285.pdf">https://tech.ebu.ch/docs/tech/tech3285.pdf</a> for specifications.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+<dt><strong><code>store_empty</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>False</code> do not add meta data with empty values.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>meta_data</code></strong> :&ensp;<code>dict</code></dt>
+<dd>
+<p>The meta-data of a BEXT chunk are stored in a flat dictionary
+with the following keys:</p>
+<ul>
+<li>'Description': a free description of the sequence.</li>
+<li>'Originator': name of the originator/ producer of the audio file.</li>
+<li>'OriginatorReference': unambiguous reference allocated by the originating organisation.</li>
+<li>'OriginationDate': date of creation of audio sequence in yyyy:mm:dd.</li>
+<li>'OriginationTime': time of creation of audio sequence in hh:mm:ss.</li>
+<li>'TimeReference': first sample since midnight.</li>
+<li>'Version': version of the BWF.</li>
+<li>'UMID': unique material identifier.</li>
+<li>'LoudnessValue': integrated loudness value.</li>
+<li>'LoudnessRange':
+loudness range.</li>
+<li>'MaxTruePeakLevel': maximum true peak value in dBTP.</li>
+<li>'MaxMomentaryLoudness': highest value of the momentary loudness level.</li>
+<li>'MaxShortTermLoudness': highest value of the short-term loudness level.</li>
+<li>'Reserved': 180 bytes reserved for extension.</li>
+<li>'CodingHistory': description of coding processed applied to the audio data, with comma separated subfields: "A=" coding algorithm, e.g. PCM, "F=" sampling rate in Hertz, "B=" bit-rate for MPEG files, "W=" word length in bits, "M=" mono, stereo, dual-mono, joint-stereo, "T=" free text.</li>
+</ul>
+</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_ixml_chunk"><code class="name flex">
+<span>def <span class="ident">read_ixml_chunk</span></span>(<span>sf, store_empty=True)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_ixml_chunk(sf, store_empty=True):
+    &#34;&#34;&#34;Read in metadata from an IXML chunk.
+
+    See the variable `ixml_tags` for a list of valid tags.
+
+    See http://www.gallery.co.uk/ixml/ for the specification of iXML.
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    metadata: nested dict
+        Dictionary with key-value pairs.
+    &#34;&#34;&#34;
+    
+    def parse_ixml(element, store_empty=True):
+        md = {}
+        for e in element:
+            if not e.text is None:
+                md[e.tag] = e.text
+            elif len(e) &gt; 0:
+                md[e.tag] = parse_ixml(e, store_empty)
+            elif store_empty:
+                md[e.tag] = &#39;&#39;
+        return md
+
+    size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    size += size % 2
+    xmls = sf.read(size).decode(&#39;latin-1&#39;).rstrip(&#39; \x00&#39;)
+    root = ET.fromstring(xmls)
+    md = {root.tag: parse_ixml(root, store_empty)}
+    if len(md) == 1 and &#39;BWFXML&#39; in md:
+        md = md[&#39;BWFXML&#39;]
+    return md</code></pre>
+</details>
+<div class="desc"><p>Read in metadata from an IXML chunk.</p>
+<p>See the variable <code><a title="audioio.riffmetadata.ixml_tags" href="#audioio.riffmetadata.ixml_tags">ixml_tags</a></code> for a list of valid tags.</p>
+<p>See <a href="http://www.gallery.co.uk/ixml/">http://www.gallery.co.uk/ixml/</a> for the specification of iXML.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+<dt><strong><code>store_empty</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>False</code> do not add meta data with empty values.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Dictionary with key-value pairs.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_guano_chunk"><code class="name flex">
+<span>def <span class="ident">read_guano_chunk</span></span>(<span>sf)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_guano_chunk(sf):
+    &#34;&#34;&#34;Read in metadata from a GUANO chunk.
+
+    GUANO is the Grand Unified Acoustic Notation Ontology, an
+    extensible, open format for embedding metadata within bat acoustic
+    recordings. See https://github.com/riggsd/guano-spec for details.
+
+    The GUANO specification allows for the inclusion of arbitrary
+    nested keys and string encoded values. In that respect it is a
+    well defined and easy to handle serialization of the [odML data
+    model](https://doi.org/10.3389/fninf.2011.00016).
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+
+    Returns
+    -------
+    metadata: nested dict
+        Dictionary with key-value pairs.
+
+    &#34;&#34;&#34;
+    md = {}
+    size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    size += size % 2
+    for line in io.StringIO(sf.read(size).decode(&#39;utf-8&#39;)):
+        ss = line.split(&#39;:&#39;)
+        if len(ss) &gt; 1:
+            md[ss[0].strip()] = &#39;:&#39;.join(ss[1:]).strip().replace(r&#39;\n&#39;, &#39;\n&#39;)
+    return unflatten_metadata(md, &#39;|&#39;)</code></pre>
+</details>
+<div class="desc"><p>Read in metadata from a GUANO chunk.</p>
+<p>GUANO is the Grand Unified Acoustic Notation Ontology, an
+extensible, open format for embedding metadata within bat acoustic
+recordings. See <a href="https://github.com/riggsd/guano-spec">https://github.com/riggsd/guano-spec</a> for details.</p>
+<p>The GUANO specification allows for the inclusion of arbitrary
+nested keys and string encoded values. In that respect it is a
+well defined and easy to handle serialization of the <a href="https://doi.org/10.3389/fninf.2011.00016">odML data
+model</a>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Dictionary with key-value pairs.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_cue_chunk"><code class="name flex">
+<span>def <span class="ident">read_cue_chunk</span></span>(<span>sf)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_cue_chunk(sf):
+    &#34;&#34;&#34;Read in marker positions from cue chunk.
+    
+    See https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+
+    Returns
+    -------
+    locs: 2-D array of ints
+        Each row is a marker with unique identifier in the first column,
+        position in the second column, and span in the third column.
+        The cue chunk does not encode spans, so the third column is
+        initialized with zeros.
+    &#34;&#34;&#34;
+    locs = []
+    size, n = struct.unpack(&#39;&lt;II&#39;, sf.read(8))
+    for c in range(n):
+        cpid, cppos = struct.unpack(&#39;&lt;II&#39;, sf.read(8))
+        datachunkid = sf.read(4).decode(&#39;latin-1&#39;).rstrip(&#39; \x00&#39;).upper()
+        chunkstart, blockstart, offset = struct.unpack(&#39;&lt;III&#39;, sf.read(12))
+        if datachunkid == &#39;DATA&#39;:
+            locs.append((cpid, cppos, 0))
+    return np.array(locs, dtype=int)</code></pre>
+</details>
+<div class="desc"><p>Read in marker positions from cue chunk.</p>
+<p>See <a href="https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file">https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>locs</code></strong> :&ensp;<code>2-D array</code> of <code>ints</code></dt>
+<dd>Each row is a marker with unique identifier in the first column,
+position in the second column, and span in the third column.
+The cue chunk does not encode spans, so the third column is
+initialized with zeros.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_playlist_chunk"><code class="name flex">
+<span>def <span class="ident">read_playlist_chunk</span></span>(<span>sf, locs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_playlist_chunk(sf, locs):
+    &#34;&#34;&#34;Read in marker spans from playlist chunk.
+    
+    See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+    locs: 2-D array of ints
+        Markers as returned by the `read_cue_chunk()` function.
+        Each row is a marker with unique identifier in the first column,
+        position in the second column, and span in the third column.
+        The span is read in from the playlist chunk.
+    &#34;&#34;&#34;
+    if len(locs) == 0:
+        warnings.warn(&#39;read_playlist_chunks() requires markers from a previous cue chunk&#39;)
+    size, n = struct.unpack(&#39;&lt;II&#39;, sf.read(8))
+    for p in range(n):
+        cpid, length, repeats = struct.unpack(&#39;&lt;III&#39;, sf.read(12))
+        i = np.where(locs[:,0] == cpid)[0]
+        if len(i) &gt; 0:
+            locs[i[0], 2] = length</code></pre>
+</details>
+<div class="desc"><p>Read in marker spans from playlist chunk.</p>
+<p>See <a href="https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file">https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>2-D array</code> of <code>ints</code></dt>
+<dd>Markers as returned by the <code><a title="audioio.riffmetadata.read_cue_chunk" href="#audioio.riffmetadata.read_cue_chunk">read_cue_chunk()</a></code> function.
+Each row is a marker with unique identifier in the first column,
+position in the second column, and span in the third column.
+The span is read in from the playlist chunk.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_adtl_chunks"><code class="name flex">
+<span>def <span class="ident">read_adtl_chunks</span></span>(<span>sf, locs, labels)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_adtl_chunks(sf, locs, labels):
+    &#34;&#34;&#34;Read in associated data list chunks.
+
+    See https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+    locs: 2-D array of ints
+        Markers as returned by the `read_cue_chunk()` function.
+        Each row is a marker with unique identifier in the first column,
+        position in the second column, and span in the third column.
+        The span is read in from the LTXT chunk.
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows)
+        from previous LABL, NOTE, and LTXT chunks.
+
+    Returns
+    -------
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows)
+        from LABL, NOTE (first column), and LTXT chunks (last column).
+    &#34;&#34;&#34;
+    list_size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    list_type = sf.read(4).decode(&#39;latin-1&#39;).upper()
+    list_size -= 4
+    if list_type == &#39;ADTL&#39;:
+        if len(locs) == 0:
+            warnings.warn(&#39;read_adtl_chunks() requires markers from a previous cue chunk&#39;)
+        if len(labels) == 0:
+            labels = np.zeros((len(locs), 2), dtype=object)
+        while list_size &gt;= 8:
+            key = sf.read(4).decode(&#39;latin-1&#39;).rstrip(&#39; \x00&#39;).upper()
+            size, cpid = struct.unpack(&#39;&lt;II&#39;, sf.read(8))
+            size += size % 2 - 4
+            if key == &#39;LABL&#39; or key == &#39;NOTE&#39;:
+                label = sf.read(size).decode(&#39;latin-1&#39;).rstrip(&#39; \x00&#39;)
+                i = np.where(locs[:,0] == cpid)[0]
+                if len(i) &gt; 0:
+                    i = i[0]
+                    if hasattr(labels[i,0], &#39;__len__&#39;) and len(labels[i,0]) &gt; 0:
+                        labels[i,0] += &#39;|&#39; + label
+                    else:
+                        labels[i,0] = label
+            elif key == &#39;LTXT&#39;:
+                length = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+                sf.read(12)  # skip fields
+                text = sf.read(size - 4 - 12).decode(&#39;latin-1&#39;).rstrip(&#39; \x00&#39;)
+                i = np.where(locs[:,0] == cpid)[0]
+                if len(i) &gt; 0:
+                    i = i[0]
+                    if hasattr(labels[i,1], &#39;__len__&#39;) and len(labels[i,1]) &gt; 0:
+                        labels[i,1] += &#39;|&#39; + text
+                    else:
+                        labels[i,1] = text
+                    locs[i,2] = length
+            else:
+                sf.read(size)
+            list_size -= 12 + size
+    if list_size &gt; 0:  # finish or skip
+        sf.seek(list_size, os.SEEK_CUR)
+    return labels</code></pre>
+</details>
+<div class="desc"><p>Read in associated data list chunks.</p>
+<p>See <a href="https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file">https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>2-D array</code> of <code>ints</code></dt>
+<dd>Markers as returned by the <code><a title="audioio.riffmetadata.read_cue_chunk" href="#audioio.riffmetadata.read_cue_chunk">read_cue_chunk()</a></code> function.
+Each row is a marker with unique identifier in the first column,
+position in the second column, and span in the third column.
+The span is read in from the LTXT chunk.</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (second column) for each marker (rows)
+from previous LABL, NOTE, and LTXT chunks.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>labels</code></strong> :&ensp;<code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (second column) for each marker (rows)
+from LABL, NOTE (first column), and LTXT chunks (last column).</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.read_lbl_chunk"><code class="name flex">
+<span>def <span class="ident">read_lbl_chunk</span></span>(<span>sf, rate)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_lbl_chunk(sf, rate):
+    &#34;&#34;&#34;Read in marker positions, spans, labels, and texts from lbl chunk.
+    
+    The proprietary LBL chunk is specific to wave files generated by
+    [AviSoft](www.avisoft.com) products.
+
+    The labels (first column of `labels`) have special meanings.
+    Markers with a span (a section label in the terminology of
+    AviSoft) can be arranged in three levels when displayed:
+
+    - &#34;M&#34;: layer 1, the top level section
+    - &#34;N&#34;: layer 2, sections below layer 1
+    - &#34;O&#34;: layer 3, sections below layer 2
+    - &#34;P&#34;: total, section start and end are displayed with two vertical lines.
+
+    All other labels mark single point labels with a time and a
+    frequency (that we here discard). See also
+    https://www.avisoft.com/Help/SASLab/menu_main_tools_labels.htm
+    
+    Parameters
+    ----------
+    sf: stream
+        File stream of RIFF file at the position of the chunk&#39;s size field..
+    rate: float
+        Sampling rate of the data in Hertz.
+
+    Returns
+    -------
+    locs: 2-D array of ints
+        Each row is a marker with unique identifier (simply integers
+        enumerating the markers) in the first column, position in the
+        second column, and span in the third column.
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column) for
+        each marker (rows).
+
+    &#34;&#34;&#34;
+    size = struct.unpack(&#39;&lt;I&#39;, sf.read(4))[0]
+    nn = size // 65
+    locs = np.zeros((nn, 3), dtype=int)
+    labels = np.zeros((nn, 2), dtype=object)
+    n = 0
+    for c in range(nn):
+        line = sf.read(65).decode(&#39;ascii&#39;)
+        fields = line.split(&#39;\t&#39;)
+        if len(fields) &gt;= 4:
+            labels[n,0] = fields[3].strip()
+            labels[n,1] = fields[2].strip()
+            start_idx = int(np.round(float(fields[0].strip(&#39;\x00&#39;))*rate))
+            end_idx = int(np.round(float(fields[1].strip(&#39;\x00&#39;))*rate))
+            locs[n,0] = n
+            locs[n,1] = start_idx
+            if labels[n,0] in &#39;MNOP&#39;:
+                locs[n,2] = end_idx - start_idx
+            else:
+                locs[n,2] = 0
+            n += 1
+        else:
+            # the first 65 bytes are a title string that applies to
+            # the whole wave file that can be set from the AVISoft
+            # software. The recorder leave this empty.
+            pass
+    return locs[:n,:], labels[:n,:]</code></pre>
+</details>
+<div class="desc"><p>Read in marker positions, spans, labels, and texts from lbl chunk.</p>
+<p>The proprietary LBL chunk is specific to wave files generated by
+<a href="www.avisoft.com">AviSoft</a> products.</p>
+<p>The labels (first column of <code>labels</code>) have special meanings.
+Markers with a span (a section label in the terminology of
+AviSoft) can be arranged in three levels when displayed:</p>
+<ul>
+<li>"M": layer 1, the top level section</li>
+<li>"N": layer 2, sections below layer 1</li>
+<li>"O": layer 3, sections below layer 2</li>
+<li>"P": total, section start and end are displayed with two vertical lines.</li>
+</ul>
+<p>All other labels mark single point labels with a time and a
+frequency (that we here discard). See also
+<a href="https://www.avisoft.com/Help/SASLab/menu_main_tools_labels.htm">https://www.avisoft.com/Help/SASLab/menu_main_tools_labels.htm</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>sf</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream of RIFF file at the position of the chunk's size field..</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>locs</code></strong> :&ensp;<code>2-D array</code> of <code>ints</code></dt>
+<dd>Each row is a marker with unique identifier (simply integers
+enumerating the markers) in the first column, position in the
+second column, and span in the third column.</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (second column) for
+each marker (rows).</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.metadata_riff"><code class="name flex">
+<span>def <span class="ident">metadata_riff</span></span>(<span>filepath, store_empty=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def metadata_riff(filepath, store_empty=False):
+    &#34;&#34;&#34;Read metadata from a RIFF/WAVE file.
+
+    Parameters
+    ----------
+    filepath: string or Path or file handle
+        The RIFF file.
+    store_empty: bool
+        If `False` do not add meta data with empty values.
+
+    Returns
+    -------
+    meta_data: nested dict
+        Meta data contained in the RIFF file.  Keys of the nested
+        dictionaries are always strings.  If the corresponding
+        values are dictionaries, then the key is the section name
+        of the metadata contained in the dictionary. All other
+        types of values are values for the respective key. In
+        particular they are strings, or list of strings. But other
+        simple types like ints or floats are also allowed.
+        First level contains sections of meta data
+        (e.g. keys &#39;INFO&#39;, &#39;BEXT&#39;, &#39;IXML&#39;, values are dictionaries).
+
+    Raises
+    ------
+    ValueError
+        Not a RIFF file.
+
+    Examples
+    --------
+    ```
+    from audioio.riffmetadata import riff_metadata
+    from audioio import print_metadata
+
+    md = riff_metadata(&#39;audio/file.wav&#39;)
+    print_metadata(md)
+    ```
+    &#34;&#34;&#34;           
+    meta_data = {}
+    sf = filepath
+    file_pos = None
+    if hasattr(filepath, &#39;read&#39;):
+        file_pos = sf.tell()
+        sf.seek(0, os.SEEK_SET)
+    else:
+        sf = open(filepath, &#39;rb&#39;)
+    fsize = read_riff_header(sf)
+    while (sf.tell() &lt; fsize - 8):
+        chunk = sf.read(4).decode(&#39;latin-1&#39;).upper()
+        if chunk == &#39;LIST&#39;:
+            md = read_info_chunks(sf, store_empty)
+            if len(md) &gt; 0:
+                meta_data[&#39;INFO&#39;] = md
+        elif chunk == &#39;BEXT&#39;:
+            md = read_bext_chunk(sf, store_empty)
+            if len(md) &gt; 0:
+                meta_data[&#39;BEXT&#39;] = md
+        elif chunk == &#39;IXML&#39;:
+            md = read_ixml_chunk(sf, store_empty)
+            if len(md) &gt; 0:
+                meta_data[&#39;IXML&#39;] = md
+        elif chunk == &#39;GUAN&#39;:
+            md = read_guano_chunk(sf)
+            if len(md) &gt; 0:
+                meta_data.update(md)
+        else:
+            skip_chunk(sf)
+    if file_pos is None:
+        sf.close()
+    else:
+        sf.seek(file_pos, os.SEEK_SET)
+    return meta_data</code></pre>
+</details>
+<div class="desc"><p>Read metadata from a RIFF/WAVE file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code> or <code>Path</code> or <code>file handle</code></dt>
+<dd>The RIFF file.</dd>
+<dt><strong><code>store_empty</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>False</code> do not add meta data with empty values.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>meta_data</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Meta data contained in the RIFF file.
+Keys of the nested
+dictionaries are always strings.
+If the corresponding
+values are dictionaries, then the key is the section name
+of the metadata contained in the dictionary. All other
+types of values are values for the respective key. In
+particular they are strings, or list of strings. But other
+simple types like ints or floats are also allowed.
+First level contains sections of meta data
+(e.g. keys 'INFO', 'BEXT', 'IXML', values are dictionaries).</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Not a RIFF file.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>from audioio.riffmetadata import riff_metadata
+from audioio import print_metadata
+
+md = riff_metadata('audio/file.wav')
+print_metadata(md)
+</code></pre></div>
+</dd>
+<dt id="audioio.riffmetadata.markers_riff"><code class="name flex">
+<span>def <span class="ident">markers_riff</span></span>(<span>filepath)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def markers_riff(filepath):
+    &#34;&#34;&#34;Read markers from a RIFF/WAVE file.
+
+    Parameters
+    ----------
+    filepath: string or Path or file handle
+        The RIFF file.
+
+    Returns
+    -------
+    locs: 2-D array of ints
+        Marker positions (first column) and spans (second column)
+        for each marker (rows).
+    labels: 2-D array of string objects
+        Labels (first column) and texts (second column)
+        for each marker (rows).
+
+    Raises
+    ------
+    ValueError
+        Not a RIFF file.
+
+    Examples
+    --------
+    ```
+    from audioio.riffmetadata import riff_markers
+    from audioio import print_markers
+
+    locs, labels = riff_markers(&#39;audio/file.wav&#39;)
+    print_markers(locs, labels)
+    ```
+    &#34;&#34;&#34;           
+    sf = filepath
+    file_pos = None
+    if hasattr(filepath, &#39;read&#39;):
+        file_pos = sf.tell()
+        sf.seek(0, os.SEEK_SET)
+    else:
+        sf = open(filepath, &#39;rb&#39;)
+    rate = None
+    locs = np.zeros((0, 3), dtype=int)
+    labels = np.zeros((0, 2), dtype=object)
+    fsize = read_riff_header(sf)
+    while (sf.tell() &lt; fsize - 8):
+        chunk = sf.read(4).decode(&#39;latin-1&#39;).upper()
+        if chunk == &#39;FMT &#39;:
+            rate = read_format_chunk(sf)[1]
+        elif chunk == &#39;CUE &#39;:
+            locs = read_cue_chunk(sf)
+        elif chunk == &#39;PLST&#39;:
+            read_playlist_chunk(sf, locs)
+        elif chunk == &#39;LIST&#39;:
+            labels = read_adtl_chunks(sf, locs, labels)
+        elif chunk == &#39;LBL &#39;:
+            locs, labels = read_lbl_chunk(sf, rate)
+        else:
+            skip_chunk(sf)
+    if file_pos is None:
+        sf.close()
+    else:
+        sf.seek(file_pos, os.SEEK_SET)
+    # sort markers according to their position:
+    if len(locs) &gt; 0:
+        idxs = np.argsort(locs[:,-2])
+        locs = locs[idxs,:]
+        if len(labels) &gt; 0:
+            labels = labels[idxs,:]
+    return locs[:,1:], labels</code></pre>
+</details>
+<div class="desc"><p>Read markers from a RIFF/WAVE file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code> or <code>Path</code> or <code>file handle</code></dt>
+<dd>The RIFF file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>locs</code></strong> :&ensp;<code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (second column)
+for each marker (rows).</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Not a RIFF file.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>from audioio.riffmetadata import riff_markers
+from audioio import print_markers
+
+locs, labels = riff_markers('audio/file.wav')
+print_markers(locs, labels)
+</code></pre></div>
+</dd>
+<dt id="audioio.riffmetadata.write_riff_chunk"><code class="name flex">
+<span>def <span class="ident">write_riff_chunk</span></span>(<span>df, filesize=0, tag='WAVE')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_riff_chunk(df, filesize=0, tag=&#39;WAVE&#39;):
+    &#34;&#34;&#34;Write RIFF file header.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing RIFF file header.
+    filesize: int
+        Size of the file in bytes.
+    tag: str
+        The type of RIFF file. Default is a wave file.
+        Exactly 4 characeters long.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+
+    Raises
+    ------
+    ValueError
+        `tag` is not 4 characters long.
+    &#34;&#34;&#34;
+    if len(tag) != 4:
+        raise ValueError(f&#39;file tag &#34;{tag}&#34; must be exactly 4 characters long&#39;)
+    if filesize &lt; 8:
+        filesize = 8
+    df.write(b&#39;RIFF&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, filesize - 8))
+    df.write(tag.encode(&#39;ascii&#39;, errors=&#39;strict&#39;))
+    return 12</code></pre>
+</details>
+<div class="desc"><p>Write RIFF file header.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing RIFF file header.</dd>
+<dt><strong><code>filesize</code></strong> :&ensp;<code>int</code></dt>
+<dd>Size of the file in bytes.</dd>
+<dt><strong><code>tag</code></strong> :&ensp;<code>str</code></dt>
+<dd>The type of RIFF file. Default is a wave file.
+Exactly 4 characeters long.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd><code>tag</code> is not 4 characters long.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_filesize"><code class="name flex">
+<span>def <span class="ident">write_filesize</span></span>(<span>df, filesize=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_filesize(df, filesize=None):
+    &#34;&#34;&#34;Write the file size into the RIFF file header.
+
+    Parameters
+    ----------
+    df: stream
+        File stream into which to write `filesize`.
+    filesize: int
+        Size of the file in bytes. If not specified or 0,
+        then use current size of the file.
+    &#34;&#34;&#34;
+    pos = df.tell()
+    if not filesize:
+        df.seek(0, os.SEEK_END)
+        filesize = df.tell()
+    df.seek(4, os.SEEK_SET)
+    df.write(struct.pack(&#39;&lt;I&#39;, filesize - 8))
+    df.seek(pos, os.SEEK_SET)</code></pre>
+</details>
+<div class="desc"><p>Write the file size into the RIFF file header.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream into which to write <code>filesize</code>.</dd>
+<dt><strong><code>filesize</code></strong> :&ensp;<code>int</code></dt>
+<dd>Size of the file in bytes. If not specified or 0,
+then use current size of the file.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_chunk_name"><code class="name flex">
+<span>def <span class="ident">write_chunk_name</span></span>(<span>df, pos, tag)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_chunk_name(df, pos, tag):
+    &#34;&#34;&#34;Change the name of a chunk.
+
+    Use this to make the content of an existing chunk to be ignored by
+    overwriting its name with an unknown one.
+
+    Parameters
+    ----------
+    df: stream
+        File stream.
+    pos: int
+        Position of the chunk in the file stream.
+    tag: str
+        The type of RIFF file. Default is a wave file.
+        Exactly 4 characeters long.
+
+    Raises
+    ------
+    ValueError
+        `tag` is not 4 characters long.
+    &#34;&#34;&#34;
+    if len(tag) != 4:
+        raise ValueError(f&#39;file tag &#34;{tag}&#34; must be exactly 4 characters long&#39;)
+    df.seek(pos, os.SEEK_SET)
+    df.write(tag.encode(&#39;ascii&#39;, errors=&#39;strict&#39;))</code></pre>
+</details>
+<div class="desc"><p>Change the name of a chunk.</p>
+<p>Use this to make the content of an existing chunk to be ignored by
+overwriting its name with an unknown one.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream.</dd>
+<dt><strong><code>pos</code></strong> :&ensp;<code>int</code></dt>
+<dd>Position of the chunk in the file stream.</dd>
+<dt><strong><code>tag</code></strong> :&ensp;<code>str</code></dt>
+<dd>The type of RIFF file. Default is a wave file.
+Exactly 4 characeters long.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd><code>tag</code> is not 4 characters long.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_format_chunk"><code class="name flex">
+<span>def <span class="ident">write_format_chunk</span></span>(<span>df, channels, frames, rate, bits=16)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_format_chunk(df, channels, frames, rate, bits=16):
+    &#34;&#34;&#34;Write format chunk.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing FMT chunk.
+    channels: int
+        Number of channels contained in the data.
+    frames: int
+        Number of frames contained in the data.
+    rate: int or float
+        Sampling rate (frames per time) in Hertz.
+    bits: 16 or 32
+        Bit resolution of the data to be written.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    &#34;&#34;&#34;
+    blockalign = channels * (bits//8)
+    byterate = int(rate) * blockalign
+    df.write(b&#39;fmt &#39;)
+    df.write(struct.pack(&#39;&lt;IHHIIHH&#39;, 16, 1, channels, int(rate),
+                         byterate, blockalign, bits))
+    return 8 + 16</code></pre>
+</details>
+<div class="desc"><p>Write format chunk.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing FMT chunk.</dd>
+<dt><strong><code>channels</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of channels contained in the data.</dd>
+<dt><strong><code>frames</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of frames contained in the data.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
+<dd>Sampling rate (frames per time) in Hertz.</dd>
+<dt><strong><code>bits</code></strong> :&ensp;<code>16</code> or <code>32</code></dt>
+<dd>Bit resolution of the data to be written.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_data_chunk"><code class="name flex">
+<span>def <span class="ident">write_data_chunk</span></span>(<span>df, data, bits=16)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_data_chunk(df, data, bits=16):
+    &#34;&#34;&#34;Write data chunk.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing data chunk.
+    data: 1-D or 2-D array of floats
+        Data with first column time (frames) and optional second column
+        channels with values between -1 and 1.
+    bits: 16 or 32
+        Bit resolution of the data to be written.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    &#34;&#34;&#34;
+    df.write(b&#39;data&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, data.size * (bits//8)))
+    buffer = data * 2**(bits-1)
+    n = df.write(buffer.astype(f&#39;&lt;i{bits//8}&#39;).tobytes(&#39;C&#39;))
+    return 8 + n</code></pre>
+</details>
+<div class="desc"><p>Write data chunk.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing data chunk.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Data with first column time (frames) and optional second column
+channels with values between -1 and 1.</dd>
+<dt><strong><code>bits</code></strong> :&ensp;<code>16</code> or <code>32</code></dt>
+<dd>Bit resolution of the data to be written.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_info_chunk"><code class="name flex">
+<span>def <span class="ident">write_info_chunk</span></span>(<span>df, metadata, size=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_info_chunk(df, metadata, size=None):
+    &#34;&#34;&#34;Write metadata to LIST INFO chunk.
+
+    If `metadata` contains an &#39;INFO&#39; key, then write the flat
+    dictionary of this key as an INFO chunk. Otherwise, attempt to
+    write all metadata items as an INFO chunk. The keys are translated
+    via the `info_tags` variable back to INFO tags. If after
+    translation any key is left that is longer than 4 characters or
+    any key has a dictionary as a value (non-flat metadata), the INFO
+    chunk is not written.
+
+    See https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing INFO chunk.
+    metadata: nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    size: int or None
+        If specified write this size into the list&#39;s size field.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the INFO chunk.
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return 0, []
+    is_info = False
+    if &#39;INFO&#39; in metadata:
+        metadata = metadata[&#39;INFO&#39;]
+        is_info = True
+    tags = {v: k for k, v in info_tags.items()}
+    n = 0
+    for k in metadata:
+        kn = tags.get(k, k)
+        if len(kn) &gt; 4:
+            if is_info:
+                warnings.warn(f&#39;no 4-character info tag for key &#34;{k}&#34; found.&#39;)
+            return 0, []
+        if isinstance(metadata[k], dict):
+            if is_info:
+                warnings.warn(f&#39;value of key &#34;{k}&#34; in INFO chunk cannot be a dictionary.&#39;)
+            return 0, []
+        try:
+            v = str(metadata[k]).encode(&#39;latin-1&#39;)
+        except UnicodeEncodeError:
+            v = str(metadata[k]).encode(&#39;windows-1252&#39;)
+        n += 8 + len(v) + len(v) % 2
+    df.write(b&#39;LIST&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, size if size is not None else n + 4))
+    df.write(b&#39;INFO&#39;)
+    keys_written = []
+    for k in metadata:
+        kn = tags.get(k, k)
+        df.write(f&#39;{kn:&lt;4s}&#39;.encode(&#39;latin-1&#39;))
+        try:
+            v = str(metadata[k]).encode(&#39;latin-1&#39;)
+        except UnicodeEncodeError:
+            v = str(metadata[k]).encode(&#39;windows-1252&#39;)
+        ns = len(v) + len(v) % 2
+        if ns &gt; len(v):
+            v += b&#39; &#39;;
+        df.write(struct.pack(&#39;&lt;I&#39;, ns))
+        df.write(v)
+        keys_written.append(k)
+    return 12 + n, [&#39;INFO&#39;] if is_info else keys_written</code></pre>
+</details>
+<div class="desc"><p>Write metadata to LIST INFO chunk.</p>
+<p>If <code>metadata</code> contains an 'INFO' key, then write the flat
+dictionary of this key as an INFO chunk. Otherwise, attempt to
+write all metadata items as an INFO chunk. The keys are translated
+via the <code><a title="audioio.riffmetadata.info_tags" href="#audioio.riffmetadata.info_tags">info_tags</a></code> variable back to INFO tags. If after
+translation any key is left that is longer than 4 characters or
+any key has a dictionary as a value (non-flat metadata), the INFO
+chunk is not written.</p>
+<p>See <a href="https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags">https://exiftool.org/TagNames/RIFF.html#Info%20for%20valid%20info%20tags</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing INFO chunk.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>size</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>If specified write this size into the list's size field.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+<dt><strong><code>keys_written</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Keys written to the INFO chunk.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_bext_chunk"><code class="name flex">
+<span>def <span class="ident">write_bext_chunk</span></span>(<span>df, metadata)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_bext_chunk(df, metadata):
+    &#34;&#34;&#34;Write metadata to BEXT chunk.
+
+    If `metadata` contains a BEXT key, and this contains valid BEXT
+    tags (one of the keys listed in the variable `bext_tags`), then
+    write the dictionary of that key as a broadcast-audio extension
+    chunk.
+
+    See https://tech.ebu.ch/docs/tech/tech3285.pdf for specifications.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing BEXT chunk.
+    metadata: nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the BEXT chunk.
+
+    &#34;&#34;&#34;
+    if not metadata or not &#39;BEXT&#39; in metadata:
+        return 0, []
+    metadata = metadata[&#39;BEXT&#39;]
+    for k in metadata:
+        if not k in bext_tags:
+            warnings.warn(f&#39;no bext tag for key &#34;{k}&#34; found.&#39;)
+            return 0, []
+    n = 0
+    for k in bext_tags:
+        n += bext_tags[k]
+    ch = metadata.get(&#39;CodingHistory&#39;, &#39;&#39;).encode(&#39;ascii&#39;, errors=&#39;replace&#39;)
+    if len(ch) &gt;= 2 and ch[-2:] != &#39;\r\n&#39;:
+        ch += b&#39;\r\n&#39;
+    nch = len(ch) + len(ch) % 2
+    n += nch
+    df.write(b&#39;BEXT&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, n))
+    for k in bext_tags:
+        bn = bext_tags[k]
+        if bn == 2:
+            v = metadata.get(k, &#39;0&#39;)
+            df.write(struct.pack(&#39;&lt;H&#39;, int(v)))
+        elif bn == 8 and k == &#39;TimeReference&#39;:
+            v = metadata.get(k, &#39;0&#39;)
+            df.write(struct.pack(&#39;&lt;Q&#39;, int(v)))
+        elif bn == 0:
+            df.write(ch)
+            df.write(bytes(nch - len(ch)))
+        else:
+            v = metadata.get(k, &#39;&#39;).encode(&#39;ascii&#39;, errors=&#39;replace&#39;)
+            df.write(v[:bn] + bytes(bn - len(v)))
+    return 8 + n, [&#39;BEXT&#39;]</code></pre>
+</details>
+<div class="desc"><p>Write metadata to BEXT chunk.</p>
+<p>If <code>metadata</code> contains a BEXT key, and this contains valid BEXT
+tags (one of the keys listed in the variable <code><a title="audioio.riffmetadata.bext_tags" href="#audioio.riffmetadata.bext_tags">bext_tags</a></code>), then
+write the dictionary of that key as a broadcast-audio extension
+chunk.</p>
+<p>See <a href="https://tech.ebu.ch/docs/tech/tech3285.pdf">https://tech.ebu.ch/docs/tech/tech3285.pdf</a> for specifications.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing BEXT chunk.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+<dt><strong><code>keys_written</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Keys written to the BEXT chunk.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_ixml_chunk"><code class="name flex">
+<span>def <span class="ident">write_ixml_chunk</span></span>(<span>df, metadata, keys_written=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_ixml_chunk(df, metadata, keys_written=None):
+    &#34;&#34;&#34;Write metadata to iXML chunk.
+
+    If `metadata` contains an IXML key with valid IXML tags (one of
+    those listed in the variable `ixml_tags`), or the remaining tags
+    in `metadata` are valid IXML tags, then write an IXML chunk.
+
+    See http://www.gallery.co.uk/ixml/ for the specification of iXML.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing IXML chunk.
+    metadata: nested dict
+        Meta-data as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    keys_written: list of str
+        Keys that have already written to INFO or BEXT chunk.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    keys_written: list of str
+        Keys written to the IXML chunk.
+
+    &#34;&#34;&#34;
+    def check_ixml(metadata):
+        for k in metadata:
+            if not k.upper() in ixml_tags:
+                return False
+            if isinstance(metadata[k], dict):
+                if not check_ixml(metadata[k]):
+                    return False
+        return True
+        
+    def build_xml(node, metadata):
+        kw = []
+        for k in metadata:
+            e = ET.SubElement(node, k)
+            if isinstance(metadata[k], dict):
+                build_xml(e, metadata[k])
+            else:
+                e.text = str(metadata[k])
+            kw.append(k)
+        return kw
+
+    if not metadata:
+        return 0, []
+    md = metadata
+    if keys_written:
+        md = {k: metadata[k] for k in metadata if not k in keys_written}
+    if len(md) == 0:
+        return 0, []
+    has_ixml = False
+    if &#39;IXML&#39; in md and check_ixml(md[&#39;IXML&#39;]):
+        md = md[&#39;IXML&#39;]
+        has_ixml = True
+    else:
+        if not check_ixml(md):
+            return 0, []
+    root = ET.Element(&#39;BWFXML&#39;)
+    kw = build_xml(root, md)
+    bs = bytes(ET.tostring(root, xml_declaration=True,
+                           short_empty_elements=False))
+    if len(bs) % 2 == 1:
+        bs += bytes(1)
+    df.write(b&#39;IXML&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, len(bs)))
+    df.write(bs)
+    return 8 + len(bs), [&#39;IXML&#39;] if has_ixml else kw</code></pre>
+</details>
+<div class="desc"><p>Write metadata to iXML chunk.</p>
+<p>If <code>metadata</code> contains an IXML key with valid IXML tags (one of
+those listed in the variable <code><a title="audioio.riffmetadata.ixml_tags" href="#audioio.riffmetadata.ixml_tags">ixml_tags</a></code>), or the remaining tags
+in <code>metadata</code> are valid IXML tags, then write an IXML chunk.</p>
+<p>See <a href="http://www.gallery.co.uk/ixml/">http://www.gallery.co.uk/ixml/</a> for the specification of iXML.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing IXML chunk.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Meta-data as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>keys_written</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Keys that have already written to INFO or BEXT chunk.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+<dt><strong><code>keys_written</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Keys written to the IXML chunk.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_guano_chunk"><code class="name flex">
+<span>def <span class="ident">write_guano_chunk</span></span>(<span>df, metadata, keys_written=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_guano_chunk(df, metadata, keys_written=None):
+    &#34;&#34;&#34;Write metadata to guan chunk.
+
+    GUANO is the Grand Unified Acoustic Notation Ontology, an
+    extensible, open format for embedding metadata within bat acoustic
+    recordings. See https://github.com/riggsd/guano-spec for details.
+
+    The GUANO specification allows for the inclusion of arbitrary
+    nested keys and string encoded values. In that respect it is a
+    well defined and easy to handle serialization of the [odML data
+    model](https://doi.org/10.3389/fninf.2011.00016).
+
+    This will write *all* metadata that are not in `keys_written`.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing guano chunk.
+    metadata: nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    keys_written: list of str
+        Keys that have already written to INFO, BEXT, IXML chunk.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    keys_written: list of str
+        Top-level keys written to the GUANO chunk.
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return 0, []
+    md = metadata
+    if keys_written:
+        md = {k: metadata[k] for k in metadata if not k in keys_written}
+    if len(md) == 0:
+        return 0, []
+    fmd = flatten_metadata(md, True, &#39;|&#39;)
+    for k in fmd:
+        if isinstance(fmd[k], str):
+            fmd[k] = fmd[k].replace(&#39;\n&#39;, r&#39;\n&#39;)
+    sio = io.StringIO()
+    m, k = find_key(md, &#39;GUANO.Version&#39;)
+    if k is None:
+       sio.write(&#39;GUANO|Version:1.0\n&#39;)
+    for k in fmd:
+       sio.write(f&#39;{k}:{fmd[k]}\n&#39;)
+    bs = sio.getvalue().encode(&#39;utf-8&#39;)
+    if len(bs) % 2 == 1:
+        bs += b&#39; &#39;
+    n = len(bs)
+    df.write(b&#39;guan&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, n))
+    df.write(bs)
+    return n, list(md)</code></pre>
+</details>
+<div class="desc"><p>Write metadata to guan chunk.</p>
+<p>GUANO is the Grand Unified Acoustic Notation Ontology, an
+extensible, open format for embedding metadata within bat acoustic
+recordings. See <a href="https://github.com/riggsd/guano-spec">https://github.com/riggsd/guano-spec</a> for details.</p>
+<p>The GUANO specification allows for the inclusion of arbitrary
+nested keys and string encoded values. In that respect it is a
+well defined and easy to handle serialization of the <a href="https://doi.org/10.3389/fninf.2011.00016">odML data
+model</a>.</p>
+<p>This will write <em>all</em> metadata that are not in <code>keys_written</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing guano chunk.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>keys_written</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Keys that have already written to INFO, BEXT, IXML chunk.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+<dt><strong><code>keys_written</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Top-level keys written to the GUANO chunk.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_cue_chunk"><code class="name flex">
+<span>def <span class="ident">write_cue_chunk</span></span>(<span>df, locs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_cue_chunk(df, locs):
+    &#34;&#34;&#34;Write marker positions to cue chunk.
+
+    See https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing cue chunk.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (optional second column)
+        for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    &#34;&#34;&#34;
+    if locs is None or len(locs) == 0:
+        return 0
+    df.write(b&#39;CUE &#39;)
+    df.write(struct.pack(&#39;&lt;II&#39;, 4 + len(locs)*24, len(locs)))
+    for i in range(len(locs)):
+        df.write(struct.pack(&#39;&lt;II4sIII&#39;, i, locs[i,0], b&#39;data&#39;, 0, 0, 0))
+    return 12 + len(locs)*24</code></pre>
+</details>
+<div class="desc"><p>Write marker positions to cue chunk.</p>
+<p>See <a href="https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file">https://www.recordingblogs.com/wiki/cue-chunk-of-a-wave-file</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing cue chunk.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_playlist_chunk"><code class="name flex">
+<span>def <span class="ident">write_playlist_chunk</span></span>(<span>df, locs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_playlist_chunk(df, locs):
+    &#34;&#34;&#34;Write marker spans to playlist chunk.
+
+    See https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing playlist chunk.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (optional second column)
+        for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    &#34;&#34;&#34;
+    if locs is None or len(locs) == 0 or locs.shape[1] &lt; 2:
+        return 0
+    n_spans = np.sum(locs[:,1] &gt; 0)
+    if n_spans == 0:
+        return 0
+    df.write(b&#39;plst&#39;)
+    df.write(struct.pack(&#39;&lt;II&#39;, 4 + n_spans*12, n_spans))
+    for i in range(len(locs)):
+        if locs[i,1] &gt; 0:
+            df.write(struct.pack(&#39;&lt;III&#39;, i, locs[i,1], 1))
+    return 12 + n_spans*12</code></pre>
+</details>
+<div class="desc"><p>Write marker spans to playlist chunk.</p>
+<p>See <a href="https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file">https://www.recordingblogs.com/wiki/playlist-chunk-of-a-wave-file</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing playlist chunk.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_adtl_chunks"><code class="name flex">
+<span>def <span class="ident">write_adtl_chunks</span></span>(<span>df, locs, labels)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_adtl_chunks(df, locs, labels):
+    &#34;&#34;&#34;Write associated data list chunks.
+
+    See https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file
+    
+    Parameters
+    ----------
+    df: stream
+        File stream for writing adtl chunk.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows).
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    &#34;&#34;&#34;
+    if labels is None or len(labels) == 0:
+        return 0
+    labels_size = 0
+    for l in labels[:,0]:
+        if hasattr(l, &#39;__len__&#39;):
+            n = len(l)
+            if n &gt; 0:
+                labels_size += 12 + n + n % 2
+    text_size = 0
+    if labels.shape[1] &gt; 1:
+        for t in labels[:,1]:
+            if hasattr(t, &#39;__len__&#39;):
+                n = len(t)
+                if n &gt; 0:
+                    text_size += 28 + n + n % 2 
+    if labels_size == 0 and text_size == 0:
+        return 0
+    size = 4 + labels_size + text_size
+    spans = locs[:,1] if locs.shape[1] &gt; 1 else None
+    df.write(b&#39;LIST&#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, size))
+    df.write(b&#39;adtl&#39;)
+    for i in range(len(labels)):
+        # labl sub-chunk:
+        l = labels[i,0]
+        if hasattr(l, &#39;__len__&#39;):
+            n = len(l)
+            if n &gt; 0:
+                n += n % 2
+                df.write(b&#39;labl&#39;)
+                df.write(struct.pack(&#39;&lt;II&#39;, 4 + n, i))
+                df.write(f&#39;{l:&lt;{n}s}&#39;.encode(&#39;latin-1&#39;, errors=&#39;replace&#39;))
+        # ltxt sub-chunk:
+        if labels.shape[1] &gt; 1:
+            t = labels[i,1]
+            if hasattr(t, &#39;__len__&#39;):
+                n = len(t)
+                if n &gt; 0:
+                    n += n % 2
+                    span = spans[i] if spans is not None else 0
+                    df.write(b&#39;ltxt&#39;)
+                    df.write(struct.pack(&#39;&lt;III&#39;, 20 + n, i, span))
+                    df.write(struct.pack(&#39;&lt;IHHHH&#39;, 0, 0, 0, 0, 0))
+                    df.write(f&#39;{t:&lt;{n}s}&#39;.encode(&#39;latin-1&#39;, errors=&#39;replace&#39;))
+    return 8 + size</code></pre>
+</details>
+<div class="desc"><p>Write associated data list chunks.</p>
+<p>See <a href="https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file">https://www.recordingblogs.com/wiki/associated-data-list-chunk-of-a-wave-file</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing adtl chunk.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (second column) for each marker (rows).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_lbl_chunk"><code class="name flex">
+<span>def <span class="ident">write_lbl_chunk</span></span>(<span>df, locs, labels, rate)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_lbl_chunk(df, locs, labels, rate):
+    &#34;&#34;&#34;Write marker positions, spans, labels, and texts to lbl chunk.
+    
+    The proprietary LBL chunk is specific to wave files generated by
+    [AviSoft](www.avisoft.com) products.
+
+    The labels (first column of `labels`) have special meanings.
+    Markers with a span (a section label in the terminology of
+    AviSoft) can be arranged in three levels when displayed:
+
+    - &#34;M&#34;: layer 1, the top level section
+    - &#34;N&#34;: layer 2, sections below layer 1
+    - &#34;O&#34;: layer 3, sections below layer 2
+    - &#34;P&#34;: total, section start and end are displayed with two vertical lines.
+
+    All other labels mark single point labels with a time and a
+    frequency (that we here discard). See also
+    https://www.avisoft.com/Help/SASLab/menu_main_tools_labels.htm
+
+    If a marker has a span, and its label is not one of &#34;M&#34;, &#34;N&#34;, &#34;O&#34;, or &#34;P&#34;,
+    then its label is set to &#34;M&#34;.
+    If a marker has no span, and its label is one of &#34;M&#34;, &#34;N&#34;, &#34;O&#34;, or &#34;P&#34;,
+    then its label is set to &#34;a&#34;.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing lbl chunk.
+    locs: None or 2-D array of ints
+        Positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (second column) for each marker (rows).
+    rate: float
+        Sampling rate of the data in Hertz.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+
+    &#34;&#34;&#34;
+    if locs is None or len(locs) == 0:
+        return 0
+    size = (1 + len(locs)) * 65
+    df.write(b&#39;LBL &#39;)
+    df.write(struct.pack(&#39;&lt;I&#39;, size))
+    # first empty entry (this is ment to be a title for the whole wave file):
+    df.write(b&#39; &#39; * 63)
+    df.write(b&#39;\r\n&#39;)
+    for k in range(len(locs)):
+        t0 = locs[k,0]/rate
+        t1 = t0
+        t1 += locs[k,1]/rate
+        ls = &#39;M&#39; if locs[k,1] &gt; 0 else &#39;a&#39;
+        ts = &#39;&#39;
+        if labels is not None and len(labels) &gt; k:
+            ls = labels[k,0]
+            if ls != 0 and len(ls) &gt; 0:
+                ls = ls[0]
+                if ls in &#39;MNOP&#39;:
+                    if locs[k,1] == 0:
+                        ls = &#39;a&#39;
+                else:
+                    if locs[k,1] &gt; 0:
+                        ls = &#39;M&#39;
+            ts = labels[k,1]
+            if ts == 0:
+                ts = &#39;&#39;
+        df.write(struct.pack(&#39;&lt;14sc&#39;, f&#39;{t0:e}&#39;.encode(&#39;ascii&#39;, errors=&#39;replace&#39;), b&#39;\t&#39;))
+        df.write(struct.pack(&#39;&lt;14sc&#39;, f&#39;{t1:e}&#39;.encode(&#39;ascii&#39;, errors=&#39;replace&#39;), b&#39;\t&#39;))
+        bs = f&#39;{ts:31s}\t{ls}\r\n&#39;.encode(&#39;ascii&#39;, errors=&#39;replace&#39;)
+        df.write(bs)
+    return 8 + size</code></pre>
+</details>
+<div class="desc"><p>Write marker positions, spans, labels, and texts to lbl chunk.</p>
+<p>The proprietary LBL chunk is specific to wave files generated by
+<a href="www.avisoft.com">AviSoft</a> products.</p>
+<p>The labels (first column of <code>labels</code>) have special meanings.
+Markers with a span (a section label in the terminology of
+AviSoft) can be arranged in three levels when displayed:</p>
+<ul>
+<li>"M": layer 1, the top level section</li>
+<li>"N": layer 2, sections below layer 1</li>
+<li>"O": layer 3, sections below layer 2</li>
+<li>"P": total, section start and end are displayed with two vertical lines.</li>
+</ul>
+<p>All other labels mark single point labels with a time and a
+frequency (that we here discard). See also
+<a href="https://www.avisoft.com/Help/SASLab/menu_main_tools_labels.htm">https://www.avisoft.com/Help/SASLab/menu_main_tools_labels.htm</a></p>
+<p>If a marker has a span, and its label is not one of "M", "N", "O", or "P",
+then its label is set to "M".
+If a marker has no span, and its label is one of "M", "N", "O", or "P",
+then its label is set to "a".</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing lbl chunk.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (second column) for each marker (rows).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.append_metadata_riff"><code class="name flex">
+<span>def <span class="ident">append_metadata_riff</span></span>(<span>df, metadata)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append_metadata_riff(df, metadata):
+    &#34;&#34;&#34;Append metadata chunks to RIFF file.
+
+    You still need to update the filesize by calling
+    `write_filesize()`.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing metadata chunks.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    tags: list of str
+        Tag names of chunks written to audio file.
+    &#34;&#34;&#34;
+    if not metadata:
+        return 0, []
+    n = 0
+    tags = []
+    # metadata INFO chunk:
+    nc, kw = write_info_chunk(df, metadata)
+    if nc &gt; 0:
+        tags.append(&#39;LIST-INFO&#39;)
+    n += nc
+    # metadata BEXT chunk:
+    nc, bkw = write_bext_chunk(df, metadata)
+    if nc &gt; 0:
+        tags.append(&#39;BEXT&#39;)
+    n += nc
+    kw.extend(bkw)
+    # metadata IXML chunk:
+    nc, xkw = write_ixml_chunk(df, metadata, kw)
+    if nc &gt; 0:
+        tags.append(&#39;IXML&#39;)
+    n += nc
+    kw.extend(xkw)
+    # write remaining metadata to GUANO chunk:
+    nc, _ = write_guano_chunk(df, metadata, kw)
+    if nc &gt; 0:
+        tags.append(&#39;GUAN&#39;)
+    n += nc
+    kw.extend(bkw)
+    return n, tags</code></pre>
+</details>
+<div class="desc"><p>Append metadata chunks to RIFF file.</p>
+<p>You still need to update the filesize by calling
+<code><a title="audioio.riffmetadata.write_filesize" href="#audioio.riffmetadata.write_filesize">write_filesize()</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing metadata chunks.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+<dt><strong><code>tags</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Tag names of chunks written to audio file.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.append_markers_riff"><code class="name flex">
+<span>def <span class="ident">append_markers_riff</span></span>(<span>df, locs, labels=None, rate=None, marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append_markers_riff(df, locs, labels=None, rate=None,
+                        marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Append marker chunks to RIFF file.
+
+    You still need to update the filesize by calling
+    `write_filesize()`.
+
+    Parameters
+    ----------
+    df: stream
+        File stream for writing metadata chunks.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 1-D or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    rate: float
+        Sampling rate of the data in Hertz, needed for storing markers
+        in seconds.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+    tags: list of str
+        Tag names of chunks written to audio file.
+ 
+    Raises
+    ------
+    ValueError
+        Encoding not supported.
+    IndexError
+        `locs` and `labels` differ in len.
+    &#34;&#34;&#34;
+    if locs is None or len(locs) == 0:
+        return 0, []
+    if labels is not None and len(labels) &gt; 0 and len(labels) != len(locs):
+        raise IndexError(f&#39;locs and labels must have same number of elements.&#39;)
+    # make locs and labels 2-D:
+    if not locs is None and locs.ndim == 1:
+        locs = locs.reshape(-1, 1)
+    if not labels is None and labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
+    # sort markers according to their position:
+    idxs = np.argsort(locs[:,0])
+    locs = locs[idxs,:]
+    if not labels is None and len(labels) &gt; 0:
+        labels = labels[idxs,:]
+    n = 0
+    tags = []
+    if marker_hint.lower() == &#39;cue&#39;:
+        # write marker positions:
+        nc = write_cue_chunk(df, locs)
+        if nc &gt; 0:
+            tags.append(&#39;CUE &#39;)
+        n += nc
+        # write marker spans:
+        nc = write_playlist_chunk(df, locs)
+        if nc &gt; 0:
+            tags.append(&#39;PLST&#39;)
+        n += nc
+        # write marker labels:
+        nc = write_adtl_chunks(df, locs, labels)
+        if nc &gt; 0:
+            tags.append(&#39;LIST-ADTL&#39;)
+        n += nc
+    elif marker_hint.lower() == &#39;lbl&#39;:
+        # write avisoft labels:
+        nc = write_lbl_chunk(df, locs, labels, rate)
+        if nc &gt; 0:
+            tags.append(&#39;LBL &#39;)
+        n += nc
+    else:
+        raise ValueError(f&#39;marker_hint &#34;{marker_hint}&#34; not supported for storing markers&#39;)
+    return n, tags</code></pre>
+</details>
+<div class="desc"><p>Append marker chunks to RIFF file.</p>
+<p>You still need to update the filesize by calling
+<code><a title="audioio.riffmetadata.write_filesize" href="#audioio.riffmetadata.write_filesize">write_filesize()</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>stream</code></dt>
+<dd>File stream for writing metadata chunks.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz, needed for storing markers
+in seconds.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+<dt><strong><code>tags</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Tag names of chunks written to audio file.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Encoding not supported.</dd>
+<dt><code>IndexError</code></dt>
+<dd><code>locs</code> and <code>labels</code> differ in len.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.write_wave"><code class="name flex">
+<span>def <span class="ident">write_wave</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_wave(filepath, data, rate, metadata=None, locs=None,
+               labels=None, encoding=None, marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write time series, metadata and markers to a WAVE file.
+
+    Only 16 or 32bit PCM encoding is supported.
+
+    Parameters
+    ----------
+    filepath: string or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 1-D or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    encoding: string or None
+        Encoding of the data: &#39;PCM_32&#39; or &#39;PCM_16&#39;.
+        If None or empty string use &#39;PCM_16&#39;.
+     marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ValueError
+        Encoding not supported.
+    IndexError
+        `locs` and `labels` differ in len.
+
+    See Also
+    --------
+    audioio.audiowriter.write_audio()
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio.riffmetadata import write_wave
+    
+    rate = 28000.0
+    freq = 800.0
+    time = np.arange(0.0, 1.0, 1/rate) # one second
+    data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+    md = dict(Artist=&#39;underscore_&#39;)          # metadata
+
+    write_wave(&#39;audio/file.wav&#39;, data, rate, md)
+    ```
+    &#34;&#34;&#34;
+    if not encoding:
+        encoding = &#39;PCM_16&#39;
+    encoding = encoding.upper()
+    bits = 0
+    if encoding == &#39;PCM_16&#39;:
+        bits = 16
+    elif encoding == &#39;PCM_32&#39;:
+        bits = 32
+    else:
+        raise ValueError(f&#39;file encoding {encoding} not supported&#39;)
+    if locs is not None and len(locs) &gt; 0 and \
+       labels is not None and len(labels) &gt; 0 and len(labels) != len(locs):
+        raise IndexError(f&#39;locs and labels must have same number of elements.&#39;)
+    # write WAVE file:
+    with open(filepath, &#39;wb&#39;) as df:
+        write_riff_chunk(df)
+        if data.ndim == 1:
+            write_format_chunk(df, 1, len(data), rate, bits)
+        else:
+            write_format_chunk(df, data.shape[1], data.shape[0],
+                               rate, bits)
+        append_metadata_riff(df, metadata)
+        write_data_chunk(df, data, bits)
+        append_markers_riff(df, locs, labels, rate, marker_hint)
+        write_filesize(df)</code></pre>
+</details>
+<div class="desc"><p>Write time series, metadata and markers to a WAVE file.</p>
+<p>Only 16 or 32bit PCM encoding is supported.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>string</code> or <code>None</code></dt>
+<dd>Encoding of the data: 'PCM_32' or 'PCM_16'.
+If None or empty string use 'PCM_16'.</dd>
+</dl>
+<p>marker_hint: str
+- 'cue': store markers in cue and and adtl chunks.
+- 'lbl': store markers in avisoft lbl chunk.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Encoding not supported.</dd>
+<dt><code>IndexError</code></dt>
+<dd><code>locs</code> and <code>labels</code> differ in len.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiowriter.write_audio" href="audiowriter.html#audioio.audiowriter.write_audio">write_audio()</a></code></p>
+<h2 id="examples">Examples</h2>
+<pre><code>import numpy as np
+from audioio.riffmetadata import write_wave
+
+rate = 28000.0
+freq = 800.0
+time = np.arange(0.0, 1.0, 1/rate) # one second
+data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+md = dict(Artist='underscore_')          # metadata
+
+write_wave('audio/file.wav', data, rate, md)
+</code></pre></div>
+</dd>
+<dt id="audioio.riffmetadata.append_riff"><code class="name flex">
+<span>def <span class="ident">append_riff</span></span>(<span>filepath, metadata=None, locs=None, labels=None, rate=None, marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append_riff(filepath, metadata=None, locs=None, labels=None,
+                rate=None, marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Append metadata and markers to an existing RIFF file.
+
+    Parameters
+    ----------
+    filepath: string or Path
+        Full path and name of the file to write.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 1-D or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    rate: float
+        Sampling rate of the data in Hertz, needed for storing markers
+        in seconds.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Returns
+    -------
+    n: int
+        Number of bytes written to the stream.
+ 
+    Raises
+    ------
+    IndexError
+        `locs` and `labels` differ in len.
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio.riffmetadata import append_riff
+    
+    md = dict(Artist=&#39;underscore_&#39;)    # metadata
+    append_riff(&#39;audio/file.wav&#39;, md)  # append them to existing audio file
+    ```
+    &#34;&#34;&#34;
+    if locs is not None and len(locs) &gt; 0 and \
+       labels is not None and len(labels) &gt; 0 and len(labels) != len(locs):
+        raise IndexError(f&#39;locs and labels must have same number of elements.&#39;)
+    # check RIFF file:
+    chunks = read_chunk_tags(filepath)
+    # append to RIFF file:
+    n = 0
+    with open(filepath, &#39;r+b&#39;) as df:
+        tags = []
+        df.seek(0, os.SEEK_END)
+        nc, tgs = append_metadata_riff(df, metadata)
+        n += nc
+        tags.extend(tgs)
+        nc, tgs = append_markers_riff(df, locs, labels, rate, marker_hint)
+        n += nc
+        tags.extend(tgs)
+        write_filesize(df)
+        # blank out already existing chunks:
+        for tag in chunks:
+            if tag in tags:
+                if &#39;-&#39; in tag:
+                    xtag = tag[5:7] + &#39;xx&#39;
+                else:
+                    xtag = tag[:2] + &#39;xx&#39;
+                write_chunk_name(df, chunks[tag][0], xtag)
+    return 0</code></pre>
+</details>
+<div class="desc"><p>Append metadata and markers to an existing RIFF file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz, needed for storing markers
+in seconds.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of bytes written to the stream.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>IndexError</code></dt>
+<dd><code>locs</code> and <code>labels</code> differ in len.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>import numpy as np
+from audioio.riffmetadata import append_riff
+
+md = dict(Artist='underscore_')    # metadata
+append_riff('audio/file.wav', md)  # append them to existing audio file
+</code></pre></div>
+</dd>
+<dt id="audioio.riffmetadata.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>filepath)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo(filepath):
+    &#34;&#34;&#34;Print metadata and markers of a RIFF/WAVE file.
+
+    Parameters
+    ----------
+    filepath: string or Path
+        Path of a RIFF/WAVE file.
+    &#34;&#34;&#34;
+    def print_meta_data(meta_data, level=0):
+        for sk in meta_data:
+            md = meta_data[sk]
+            if isinstance(md, dict):
+                print(f&#39;{&#34;&#34;:&lt;{level*4}}{sk}:&#39;)
+                print_meta_data(md, level+1)
+            else:
+                v = str(md).replace(&#39;\n&#39;, &#39;.&#39;).replace(&#39;\r&#39;, &#39;.&#39;)
+                print(f&#39;{&#34;&#34;:&lt;{level*4}s}{sk:&lt;20s}: {v}&#39;)
+        
+    # read meta data:
+    meta_data = metadata_riff(filepath, store_empty=False)
+    
+    # print meta data:
+    print()
+    print(&#39;metadata:&#39;)
+    print_meta_data(meta_data)
+            
+    # read cues:
+    locs, labels = markers_riff(filepath)
+    
+    # print marker table:
+    if len(locs) &gt; 0:
+        print()
+        print(&#39;markers:&#39;)
+        print(f&#39;{&#34;position&#34;:10} {&#34;span&#34;:8} {&#34;label&#34;:10} {&#34;text&#34;:10}&#39;)
+        for i in range(len(locs)):
+            if i &lt; len(labels):
+                print(f&#39;{locs[i,0]:10} {locs[i,1]:8} {labels[i,0]:10} {labels[i,1]:30}&#39;)
+            else:
+                print(f&#39;{locs[i,0]:10} {locs[i,1]:8} {&#34;-&#34;:10} {&#34;-&#34;:10}&#39;)</code></pre>
+</details>
+<div class="desc"><p>Print metadata and markers of a RIFF/WAVE file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>string</code> or <code>Path</code></dt>
+<dd>Path of a RIFF/WAVE file.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.riffmetadata.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*args):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as returned by sys.argv[1:]
+    &#34;&#34;&#34;
+    if len(args) &gt; 0 and (args[0] == &#39;-h&#39; or args[0] == &#39;--help&#39;):
+        print()
+        print(&#39;Usage:&#39;)
+        print(&#39;  python -m src.audioio.riffmetadata [--help] &lt;audio/file.wav&gt;&#39;)
+        print()
+        return
+
+    if len(args) &gt; 0:
+        demo(args[0])
+    else:
+        rate = 44100
+        t = np.arange(0, 2, 1/rate)
+        x = np.sin(2*np.pi*440*t)
+        imd = dict(IENG=&#39;JB&#39;, ICRD=&#39;2024-01-24&#39;, RATE=9,
+                   Comment=&#39;this is test1&#39;)
+        bmd = dict(Description=&#39;a recording&#39;,
+                   OriginationDate=&#39;2024:01:24&#39;, TimeReference=123456,
+                   Version=42, CodingHistory=&#39;Test1\nTest2&#39;)
+        xmd = dict(Project=&#39;Record all&#39;, Note=&#39;still testing&#39;,
+                   Sync_Point_List=dict(Sync_Point=1,
+                                        Sync_Point_Comment=&#39;great&#39;))
+        omd = imd.copy()
+        omd[&#39;Production&#39;] = bmd
+        md = dict(INFO=imd, BEXT=bmd, IXML=xmd,
+                  Recording=omd, Notes=xmd)
+        locs = np.random.randint(10, len(x)-10, (5, 2))
+        locs = locs[np.argsort(locs[:,0]),:]
+        locs[:,1] = np.random.randint(0, 20, len(locs))
+        labels = np.zeros((len(locs), 2), dtype=object)
+        for i in range(len(labels)):
+            labels[i,0] = chr(ord(&#39;a&#39;) + i % 26)
+            labels[i,1] = chr(ord(&#39;A&#39;) + i % 26)*5
+        write_wave(&#39;test.wav&#39;, x, rate, md, locs, labels)
+        demo(&#39;test.wav&#39;)</code></pre>
+</details>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>args</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as returned by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#metadata">Metadata</a></li>
+<li><a href="#markers">Markers</a></li>
+<li><a href="#read-metadata-and-markers">Read metadata and markers</a></li>
+<li><a href="#write-data-metadata-and-markers">Write data, metadata and markers</a></li>
+<li><a href="#helper-functions-for-reading-riff-and-wave-files">Helper functions for reading RIFF and WAVE files</a></li>
+<li><a href="#helper-functions-for-writing-riff-and-wave-files">Helper functions for writing RIFF and WAVE files</a></li>
+<li><a href="#demo">Demo</a></li>
+<li><a href="#descriptions-of-the-riffwave-file-format">Descriptions of the RIFF/WAVE file format</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="audioio.riffmetadata.info_tags" href="#audioio.riffmetadata.info_tags">info_tags</a></code></li>
+<li><code><a title="audioio.riffmetadata.bext_tags" href="#audioio.riffmetadata.bext_tags">bext_tags</a></code></li>
+<li><code><a title="audioio.riffmetadata.ixml_tags" href="#audioio.riffmetadata.ixml_tags">ixml_tags</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.riffmetadata.read_riff_header" href="#audioio.riffmetadata.read_riff_header">read_riff_header</a></code></li>
+<li><code><a title="audioio.riffmetadata.skip_chunk" href="#audioio.riffmetadata.skip_chunk">skip_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_chunk_tags" href="#audioio.riffmetadata.read_chunk_tags">read_chunk_tags</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_format_chunk" href="#audioio.riffmetadata.read_format_chunk">read_format_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_info_chunks" href="#audioio.riffmetadata.read_info_chunks">read_info_chunks</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_bext_chunk" href="#audioio.riffmetadata.read_bext_chunk">read_bext_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_ixml_chunk" href="#audioio.riffmetadata.read_ixml_chunk">read_ixml_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_guano_chunk" href="#audioio.riffmetadata.read_guano_chunk">read_guano_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_cue_chunk" href="#audioio.riffmetadata.read_cue_chunk">read_cue_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_playlist_chunk" href="#audioio.riffmetadata.read_playlist_chunk">read_playlist_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_adtl_chunks" href="#audioio.riffmetadata.read_adtl_chunks">read_adtl_chunks</a></code></li>
+<li><code><a title="audioio.riffmetadata.read_lbl_chunk" href="#audioio.riffmetadata.read_lbl_chunk">read_lbl_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.metadata_riff" href="#audioio.riffmetadata.metadata_riff">metadata_riff</a></code></li>
+<li><code><a title="audioio.riffmetadata.markers_riff" href="#audioio.riffmetadata.markers_riff">markers_riff</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_riff_chunk" href="#audioio.riffmetadata.write_riff_chunk">write_riff_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_filesize" href="#audioio.riffmetadata.write_filesize">write_filesize</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_chunk_name" href="#audioio.riffmetadata.write_chunk_name">write_chunk_name</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_format_chunk" href="#audioio.riffmetadata.write_format_chunk">write_format_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_data_chunk" href="#audioio.riffmetadata.write_data_chunk">write_data_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_info_chunk" href="#audioio.riffmetadata.write_info_chunk">write_info_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_bext_chunk" href="#audioio.riffmetadata.write_bext_chunk">write_bext_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_ixml_chunk" href="#audioio.riffmetadata.write_ixml_chunk">write_ixml_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_guano_chunk" href="#audioio.riffmetadata.write_guano_chunk">write_guano_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_cue_chunk" href="#audioio.riffmetadata.write_cue_chunk">write_cue_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_playlist_chunk" href="#audioio.riffmetadata.write_playlist_chunk">write_playlist_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_adtl_chunks" href="#audioio.riffmetadata.write_adtl_chunks">write_adtl_chunks</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_lbl_chunk" href="#audioio.riffmetadata.write_lbl_chunk">write_lbl_chunk</a></code></li>
+<li><code><a title="audioio.riffmetadata.append_metadata_riff" href="#audioio.riffmetadata.append_metadata_riff">append_metadata_riff</a></code></li>
+<li><code><a title="audioio.riffmetadata.append_markers_riff" href="#audioio.riffmetadata.append_markers_riff">append_markers_riff</a></code></li>
+<li><code><a title="audioio.riffmetadata.write_wave" href="#audioio.riffmetadata.write_wave">write_wave</a></code></li>
+<li><code><a title="audioio.riffmetadata.append_riff" href="#audioio.riffmetadata.append_riff">append_riff</a></code></li>
+<li><code><a title="audioio.riffmetadata.demo" href="#audioio.riffmetadata.demo">demo</a></code></li>
+<li><code><a title="audioio.riffmetadata.main" href="#audioio.riffmetadata.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

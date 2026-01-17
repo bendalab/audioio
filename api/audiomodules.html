@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.audiomodules API documentation</title>
+<meta name="description" content="Query and control installation status and availability of audio modules …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audiomodules</code></h1>
+</header>
+<section id="section-intro">
+<p>Query and control installation status and availability of audio modules.</p>
+<p><code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules()</a></code> and <code><a title="audioio.audiomodules.installed_modules" href="#audioio.audiomodules.installed_modules">installed_modules()</a></code> let you query which audio
+modules are currently installed on your system.</p>
+<p>Call <code><a title="audioio.audiomodules.missing_modules" href="#audioio.audiomodules.missing_modules">missing_modules()</a></code> for a list of module names that should be
+installed.
+The <code><a title="audioio.audiomodules.missing_modules_instructions" href="#audioio.audiomodules.missing_modules_instructions">missing_modules_instructions()</a></code> function prints
+installation instructions for packages you should install for better
+performance.
+For installation instructions on a specific module use
+<code><a title="audioio.audiomodules.installation_instruction" href="#audioio.audiomodules.installation_instruction">installation_instruction()</a></code>.</p>
+<p>By default all installed modules are used by the audioio functions.
+The <code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module()</a></code>, <code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code> and <code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module()</a></code>
+functions allow to control which of the installed audio modules
+should be used by the audioio functions.</p>
+<p><code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules()</a></code>, <code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code> and <code><a title="audioio.audiomodules.unavailable_modules" href="#audioio.audiomodules.unavailable_modules">unavailable_modules()</a></code> let
+you query which audio modules are installed and available and which
+modules are not available on your system.</p>
+<h2 id="functions">Functions</h2>
+<ul>
+<li><code><a title="audioio.audiomodules.installed_modules" href="#audioio.audiomodules.installed_modules">installed_modules()</a></code>: installed audio modules.</li>
+<li><code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code>: installed and enabled audio modules.</li>
+<li><code><a title="audioio.audiomodules.unavailable_modules" href="#audioio.audiomodules.unavailable_modules">unavailable_modules()</a></code>: audio modules that are not installed and not enabled.</li>
+<li><code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module()</a></code>: disable audio module.</li>
+<li><code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code>: enable audio modules provided they are installed.</li>
+<li><code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module()</a></code>: select (enable) a single audio module and disable all others.</li>
+<li><code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules()</a></code>: print list of all supported modules and their installation status.</li>
+<li><code><a title="audioio.audiomodules.missing_modules" href="#audioio.audiomodules.missing_modules">missing_modules()</a></code>: missing audio modules that are recommended to be installed.</li>
+<li><code><a title="audioio.audiomodules.missing_modules_instructions" href="#audioio.audiomodules.missing_modules_instructions">missing_modules_instructions()</a></code>: print installation instructions for missing but useful audio modules.</li>
+<li><code><a title="audioio.audiomodules.installation_instruction" href="#audioio.audiomodules.installation_instruction">installation_instruction()</a></code>: instructions on how to install a specific audio module.</li>
+<li><code><a title="audioio.audiomodules.main" href="#audioio.audiomodules.main">main()</a></code>: command line program for listing installation status of audio modules.</li>
+</ul>
+<h2 id="command-line-script">Command line script</h2>
+<p>Run this module as a script from within the audioio source tree</p>
+<pre><code class="language-sh">&gt; python -m src.audioio.auidomodules
+</code></pre>
+<p>or, once the audioio package is installed on your system, simply run</p>
+<pre><code class="language-sh">&gt; audiomodules
+</code></pre>
+<p>for an overview of audio packages, their installation status, and recommendations on
+how to install further audio packages. The output looks like this:</p>
+<pre><code class="language-text">Status of audio packages on this machine:
+-----------------------------------------
+
+wave              is  installed (F)
+ewave             is  installed (F)
+scipy.io.wavfile  is  installed (F)
+soundfile         is  installed (F)
+wavefile          is  installed (F)
+audioread         is  installed (F)
+pyaudio           is  installed (D)
+sounddevice       not installed (D)
+simpleaudio       is  installed (D)
+soundcard         is  installed (D)
+ossaudiodev       is  installed (D)
+winsound          not installed (D)
+
+F: file I/O, D: audio device
+
+There is no need to install additional audio packages.
+</code></pre>
+<p>For instructions on specific packages, run <code>audiomodules</code> with the name of
+the package supplied as argument:</p>
+<pre><code class="language-sh">&gt; audiomodules soundfile
+</code></pre>
+<p>This produces something like this:</p>
+<pre><code class="language-text">...
+Installation instructions for the soundfile module:
+---------------------------------------------------
+The soundfile package is a wrapper of the sndfile library,
+that supports many different audio file formats.
+See http://python-soundfile.readthedocs.org for a documentation of the soundfile python wrapper
+and http://www.mega-nerd.com/libsndfile for details on the sndfile library.
+
+First, install the following packages:
+
+sudo apt install libsndfile1 libsndfile1-dev libffi-dev
+
+Install the soundfile module with pip:
+
+sudo pip install SoundFile
+
+or alternatively from your distribution's package:
+
+sudo apt install python3-soundfile
+</code></pre>
+<p>Running</p>
+<pre><code class="language-sh">audiomodules --help
+</code></pre>
+<p>prints</p>
+<pre><code class="language-text">usage: audiomodules [--version] [--help] [PACKAGE]
+
+Installation status and instructions of python audio packages.
+
+optional arguments:
+  --help      show this help message and exit
+  --version   show version number and exit
+  PACKAGE     show installation instructions for PACKAGE
+
+version 2.2.0 by Benda-Lab (2015-2024)
+</code></pre>
+<h2 id="links">Links</h2>
+<p>For an overview on python modules regarding file I/O see, for example,
+<a href="http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb">http://nbviewer.jupyter.org/github/mgeier/python-audio/blob/master/audio-files/index.ipynb</a></p>
+<p>For an overview on packages for playing and recording audio, see
+<a href="https://realpython.com/playing-and-recording-sound-python/">https://realpython.com/playing-and-recording-sound-python/</a></p>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="audioio.audiomodules.audio_modules"><code class="name">var <span class="ident">audio_modules</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with availability of various audio modules.
+Keys are the module names, values are booleans.
+Based on this dictionary audioio employs functions of installed audio modules.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_installed"><code class="name">var <span class="ident">audio_installed</span></code></dt>
+<dd>
+<div class="desc"><p>List of installed audio modules.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_infos"><code class="name">var <span class="ident">audio_infos</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with information about all supported audio modules.
+Keys are the module names, values are the informations.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_instructions_linux"><code class="name">var <span class="ident">audio_instructions_linux</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with general installation instructions for linux that
+are needed in addition to installing some packages.
+Keys are the module names, values are the instructions.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_instructions_windows"><code class="name">var <span class="ident">audio_instructions_windows</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with general installation instructions for windows that
+are needed in addition to installing some packages.
+Keys are the module names, values are the instructions.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_pip_packages"><code class="name">var <span class="ident">audio_pip_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with pip package names of the audio modules.
+Keys are the module names, values are pip package names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_conda_packages"><code class="name">var <span class="ident">audio_conda_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with conda package names of the audio modules.
+Keys are the module names, values are conda package names,
+optionally with a channel specification.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_deb_packages"><code class="name">var <span class="ident">audio_deb_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with Linux DEB packages of the audio modules.
+Keys are the module names, values are the package names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_rpm_packages"><code class="name">var <span class="ident">audio_rpm_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with Linux RPM packages of the audio modules.
+Keys are the module names, values are the package names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_brew_packages"><code class="name">var <span class="ident">audio_brew_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with macOS homebrew packages of the audio modules.
+Keys are the module names, values are the package (formulae) names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_required_deb_packages"><code class="name">var <span class="ident">audio_required_deb_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with Linux DEB packages required for the audio modules.
+Keys are the module names, values are lists of string with package names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_required_rpm_packages"><code class="name">var <span class="ident">audio_required_rpm_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with Linux RPM packages required for the audio modules.
+Keys are the module names, values are lists of string with package names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_required_brew_packages"><code class="name">var <span class="ident">audio_required_brew_packages</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with macOS homebrew packages required for the audio modules.
+Keys are the module names, values are lists of string with package (formulae) names.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_fileio"><code class="name">var <span class="ident">audio_fileio</span></code></dt>
+<dd>
+<div class="desc"><p>List of audio modules used for reading and writing audio files.</p></div>
+</dd>
+<dt id="audioio.audiomodules.audio_device"><code class="name">var <span class="ident">audio_device</span></code></dt>
+<dd>
+<div class="desc"><p>List of audio modules used for playing and recording sounds on audio devices.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audiomodules.installed_modules"><code class="name flex">
+<span>def <span class="ident">installed_modules</span></span>(<span>func='all')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def installed_modules(func=&#39;all&#39;):
+    &#34;&#34;&#34;Installed audio modules.
+
+    By default all installed modules are available. With
+    `disable_module()`, `enable_module()` and `select_module()`
+    the availability of installed modules can be controlled.
+
+    Parameters
+    ----------
+    func: string
+        &#39;all&#39;: all installed audio modules.
+        &#39;fileio&#39;: installed audio modules used for file I/O.
+        &#39;device&#39;: installed audio modules used for playing and recording sounds.
+    
+    Returns
+    -------
+    mods: list of strings
+        List of installed audio modules of the requested function.
+
+    See Also
+    --------
+    available_modules()
+    &#34;&#34;&#34;
+    if func == &#39;fileio&#39;:
+        return [module for module in audio_fileio if module in audio_installed]
+    elif func == &#39;device&#39;:
+        return [module for module in audio_device if module in audio_installed]
+    else:
+        return audio_installed</code></pre>
+</details>
+<div class="desc"><p>Installed audio modules.</p>
+<p>By default all installed modules are available. With
+<code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module()</a></code>, <code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code> and <code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module()</a></code>
+the availability of installed modules can be controlled.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>string</code></dt>
+<dd>'all': all installed audio modules.
+'fileio': installed audio modules used for file I/O.
+'device': installed audio modules used for playing and recording sounds.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>mods</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>List of installed audio modules of the requested function.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code></p></div>
+</dd>
+<dt id="audioio.audiomodules.available_modules"><code class="name flex">
+<span>def <span class="ident">available_modules</span></span>(<span>func='all')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def available_modules(func=&#39;all&#39;):
+    &#34;&#34;&#34;Installed and enabled audio modules.
+
+    By default all installed modules are available. With
+    `disable_module()`, `enable_module()` and `select_module()`
+    the availability of installed modules can be controlled.
+
+    Parameters
+    ----------
+    func: string
+        &#39;all&#39;: all installed audio modules.
+        &#39;fileio&#39;: installed audio modules used for file I/O.
+        &#39;device&#39;: installed audio modules used for playing and recording sounds.
+    
+    Returns
+    -------
+    mods: list of strings
+        List of available, i.e. installed and enabled, audio modules
+        of the requested function.
+    &#34;&#34;&#34;
+    if func == &#39;fileio&#39;:
+        return [module for module in audio_fileio if audio_modules[module]]
+    elif func == &#39;device&#39;:
+        return [module for module in audio_device if audio_modules[module]]
+    else:
+        return [module for module in audio_installed if audio_modules[module]]</code></pre>
+</details>
+<div class="desc"><p>Installed and enabled audio modules.</p>
+<p>By default all installed modules are available. With
+<code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module()</a></code>, <code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code> and <code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module()</a></code>
+the availability of installed modules can be controlled.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>string</code></dt>
+<dd>'all': all installed audio modules.
+'fileio': installed audio modules used for file I/O.
+'device': installed audio modules used for playing and recording sounds.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>mods</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>List of available, i.e. installed and enabled, audio modules
+of the requested function.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiomodules.unavailable_modules"><code class="name flex">
+<span>def <span class="ident">unavailable_modules</span></span>(<span>func='all')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unavailable_modules(func=&#39;all&#39;):
+    &#34;&#34;&#34;Audio modules that are not installed and not enabled.
+
+    Parameters
+    ----------
+    func: string
+        &#39;all&#39;: all installed audio modules.
+        &#39;fileio&#39;: installed audio modules used for file I/O.
+        &#39;device&#39;: installed audio modules used for playing and recording sounds.
+    
+    Returns
+    -------
+    mods: list of strings
+        List of not available, i.e. not installed and not enabled, audio modules
+        of the requested function.
+    &#34;&#34;&#34;
+    if func == &#39;fileio&#39;:
+        return [module for module in audio_fileio if not audio_modules[module]]
+    elif func == &#39;device&#39;:
+        return [module for module in audio_device if not audio_modules[module]]
+    else:
+        return [module for module in audio_modules.keys() if not audio_modules[module]]</code></pre>
+</details>
+<div class="desc"><p>Audio modules that are not installed and not enabled.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>string</code></dt>
+<dd>'all': all installed audio modules.
+'fileio': installed audio modules used for file I/O.
+'device': installed audio modules used for playing and recording sounds.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>mods</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>List of not available, i.e. not installed and not enabled, audio modules
+of the requested function.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiomodules.disable_module"><code class="name flex">
+<span>def <span class="ident">disable_module</span></span>(<span>module=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disable_module(module=None):
+    &#34;&#34;&#34;Disable an audio module.
+
+    A disabled module is not used by the audioio functions and classes.
+    To disable all modules except one, call `select_module()`.
+    
+    Parameters
+    ----------
+    module: string or None
+        Name of the module to be disabled as it appears in `available_modules()`.
+        If None disable all installed audio modules.
+
+    See Also
+    --------
+    enable_module(), select_module(), available_modules(), list_modules()
+    &#34;&#34;&#34;
+    if module is None:
+        for module in audio_installed:
+            audio_modules[module] = False
+    elif module in audio_modules:
+        audio_modules[module] = False</code></pre>
+</details>
+<div class="desc"><p>Disable an audio module.</p>
+<p>A disabled module is not used by the audioio functions and classes.
+To disable all modules except one, call <code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module()</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>module</code></strong> :&ensp;<code>string</code> or <code>None</code></dt>
+<dd>Name of the module to be disabled as it appears in <code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code>.
+If None disable all installed audio modules.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code>, <code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module()</a></code>, <code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code>, <code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules()</a></code></p></div>
+</dd>
+<dt id="audioio.audiomodules.enable_module"><code class="name flex">
+<span>def <span class="ident">enable_module</span></span>(<span>module=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def enable_module(module=None):
+    &#34;&#34;&#34;Enable audio modules provided they are installed.
+    
+    Parameters
+    ----------
+    module: string or None
+        Name of the module to be (re)enabled.
+        If None enable all installed audio modules.
+
+    See Also
+    --------
+    disable_module(), available_modules(), list_modules()
+    &#34;&#34;&#34;
+    if module is None:
+        for module in audio_installed:
+            audio_modules[module] = True
+    elif module in audio_modules:
+        audio_modules[module] = (module in audio_installed)</code></pre>
+</details>
+<div class="desc"><p>Enable audio modules provided they are installed.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>module</code></strong> :&ensp;<code>string</code> or <code>None</code></dt>
+<dd>Name of the module to be (re)enabled.
+If None enable all installed audio modules.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module()</a></code>, <code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code>, <code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules()</a></code></p></div>
+</dd>
+<dt id="audioio.audiomodules.select_module"><code class="name flex">
+<span>def <span class="ident">select_module</span></span>(<span>module)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_module(module):
+    &#34;&#34;&#34;Select (enable) a single audio module and disable all others.
+
+    Undo by calling `enable_module()` without arguments.
+    
+    Parameters
+    ----------
+    module: string
+        Name of the module to be selected.
+
+    Returns
+    -------
+    selected: bool
+        False if the module can not be selected, because it is not installed.
+        In this case the other modules are not disabled.
+
+    See Also
+    --------
+    enable_module(), disable_module(), available_modules(), list_modules()
+    &#34;&#34;&#34;
+    if module not in audio_installed:
+        return False
+    for mod in audio_installed:
+        audio_modules[mod] = (mod == module)
+    return True</code></pre>
+</details>
+<div class="desc"><p>Select (enable) a single audio module and disable all others.</p>
+<p>Undo by calling <code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code> without arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>module</code></strong> :&ensp;<code>string</code></dt>
+<dd>Name of the module to be selected.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>selected</code></strong> :&ensp;<code>bool</code></dt>
+<dd>False if the module can not be selected, because it is not installed.
+In this case the other modules are not disabled.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module()</a></code>, <code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module()</a></code>, <code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules()</a></code>, <code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules()</a></code></p></div>
+</dd>
+<dt id="audioio.audiomodules.list_modules"><code class="name flex">
+<span>def <span class="ident">list_modules</span></span>(<span>module='all', availability=True)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_modules(module=&#39;all&#39;, availability=True):
+    &#34;&#34;&#34;Print list of all supported modules and their installation status.
+    
+    Modules that are not installed but are recommended are marked
+    with an all uppercase &#34;NOT installed&#34;.
+
+    Parameters
+    ----------
+    module: string
+        If &#39;all&#39; list all modules.
+        If &#39;fileio&#39; list all modules used for file I/O.
+        If &#39;device&#39; list all modules used for playing and recording sounds.
+        Otherwise list only the specified module.
+    availability: bool
+        Mark availability of each module by an asterisk.
+
+    See Also
+    --------
+    installed_modules()
+    missing_modules()
+    missing_modules_instructions()
+    &#34;&#34;&#34;
+    def print_module(module, missing, print_type):
+        audio_avail = &#39;&#39;
+        if availability:
+            audio_avail = &#39;* &#39; if audio_modules[module] else &#39;  &#39;
+        audio_type = &#39;&#39;
+        if print_type:
+            if module in audio_fileio:
+                audio_type += &#39;F&#39;
+            if module in audio_device:
+                audio_type += &#39;D&#39;
+            if len(audio_type) &gt; 0:
+                audio_type = f&#39; ({audio_type})&#39;
+        if module in audio_installed:
+            print(f&#39;{audio_avail}{module:&lt;17s} is  installed{audio_type}&#39;)
+        elif module in missing:
+            print(f&#39;{audio_avail}{module:&lt;17s} NOT installed{audio_type}&#39;)
+        else:
+            print(f&#39;{audio_avail}{module:&lt;17s} not installed{audio_type}&#39;)
+
+    missing = missing_modules()
+    if module not in [&#39;all&#39;, &#39;fileio&#39;, &#39;device&#39;]:
+        print_module(module, missing, True)
+    else:
+        print_type = (module == &#39;all&#39;)
+        modules = sorted(audio_modules.keys())
+        if module in [&#39;all&#39;, &#39;fileio&#39;]:
+            for mod in audio_fileio:
+                print_module(mod, missing, print_type)
+                modules.remove(mod)
+        if module in [&#39;all&#39;, &#39;device&#39;]:
+            for mod in audio_device:
+                if mod in modules:
+                    print_module(mod, missing, print_type)
+                    modules.remove(mod)
+        if module == &#39;all&#39;:
+            for mod in modules:
+                print_module(mod, missing, print_type)</code></pre>
+</details>
+<div class="desc"><p>Print list of all supported modules and their installation status.</p>
+<p>Modules that are not installed but are recommended are marked
+with an all uppercase "NOT installed".</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>module</code></strong> :&ensp;<code>string</code></dt>
+<dd>If 'all' list all modules.
+If 'fileio' list all modules used for file I/O.
+If 'device' list all modules used for playing and recording sounds.
+Otherwise list only the specified module.</dd>
+<dt><strong><code>availability</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Mark availability of each module by an asterisk.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiomodules.installed_modules" href="#audioio.audiomodules.installed_modules">installed_modules()</a></code>
+<code><a title="audioio.audiomodules.missing_modules" href="#audioio.audiomodules.missing_modules">missing_modules()</a></code>
+<code><a title="audioio.audiomodules.missing_modules_instructions" href="#audioio.audiomodules.missing_modules_instructions">missing_modules_instructions()</a></code></p></div>
+</dd>
+<dt id="audioio.audiomodules.missing_modules"><code class="name flex">
+<span>def <span class="ident">missing_modules</span></span>(<span>func='all')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def missing_modules(func=&#39;all&#39;):
+    &#34;&#34;&#34;Missing audio modules that are recommended to be installed.
+
+    Parameters
+    ----------
+    func: string
+        &#39;all&#39;: missing audio modules of all functions.
+        &#39;fileio&#39;: missing audio modules for file I/O.
+        &#39;device&#39;: missing audio modules for playing and recording sounds.
+    
+    Returns
+    -------
+    mods: list of strings
+        List of missing audio modules of the requested function.
+    &#34;&#34;&#34;
+    mods = []
+    if func in [&#39;all&#39;, &#39;fileio&#39;]:
+        if &#39;soundfile&#39; not in audio_installed and \
+           &#39;wavefile&#39; not in audio_installed:
+            mods.append(&#39;soundfile&#39;)
+        if &#39;audioread&#39; not in audio_installed:
+            mods.append(&#39;audioread&#39;)
+        if &#39;pydub&#39; not in audio_installed:
+            mods.append(&#39;pydub&#39;)
+    if func in [&#39;all&#39;, &#39;device&#39;]:
+        if &#39;pyaudio&#39; not in audio_installed and \
+           &#39;sounddevice&#39; not in audio_installed:
+            mods.append(&#39;sounddevice&#39;)
+    return mods</code></pre>
+</details>
+<div class="desc"><p>Missing audio modules that are recommended to be installed.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>string</code></dt>
+<dd>'all': missing audio modules of all functions.
+'fileio': missing audio modules for file I/O.
+'device': missing audio modules for playing and recording sounds.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>mods</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>List of missing audio modules of the requested function.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiomodules.missing_modules_instructions"><code class="name flex">
+<span>def <span class="ident">missing_modules_instructions</span></span>(<span>func='all')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def missing_modules_instructions(func=&#39;all&#39;):
+    &#34;&#34;&#34;Print installation instructions for missing but useful audio modules.
+
+    Parameters
+    ----------
+    func: string
+        &#39;all&#39;: missing audio modules of all functions.
+        &#39;fileio&#39;: missing audio modules for file I/O.
+        &#39;device&#39;: missing audio modules for playing and recording sounds.
+    &#34;&#34;&#34;
+    mods = missing_modules(func)
+    if len(mods) &gt; 0 :
+        print(&#39;For better performance you should install the following modules:&#39;)
+        for mod in mods:
+            print()
+            print(f&#39;{mod}:&#39;)
+            print(&#39;-&#39;*(len(mod)+1))
+            print(installation_instruction(mod))
+    else:
+        print(&#39;There is no need to install additional audio packages.&#39;)</code></pre>
+</details>
+<div class="desc"><p>Print installation instructions for missing but useful audio modules.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>string</code></dt>
+<dd>'all': missing audio modules of all functions.
+'fileio': missing audio modules for file I/O.
+'device': missing audio modules for playing and recording sounds.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiomodules.installation_instruction"><code class="name flex">
+<span>def <span class="ident">installation_instruction</span></span>(<span>module)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def installation_instruction(module):
+    &#34;&#34;&#34;Instructions on how to install a specific audio module.
+
+    Parameters
+    ----------
+    module: string
+        The name of the module for which an instruction should be printed.
+    
+    Returns
+    -------
+    msg: multi-line string
+        Installation instruction for the requested module.
+    &#34;&#34;&#34;
+    install_package_deb = &#34;sudo apt install&#34;
+    install_package_rpm = &#34;dnf install&#34;
+    install_package_brew = &#34;brew install&#34;
+    install_package = None
+    package = None
+    required_packages = None
+    multiline = False
+    instruction = None
+        
+    install_pip_deb = &#34;sudo pip install&#34;
+    install_pip_rpm = &#34;pip install&#34;
+    install_pip_osx = &#34;pip install&#34;
+    install_pip_win = &#34;pip install&#34;
+    install_pip = install_pip_deb
+
+    install_conda = &#34;conda install&#34;
+
+    # check operating system:
+    if sys.platform[0:5] == &#34;linux&#34;:
+        if os.path.exists(&#39;/etc/redhat-release&#39;) or os.path.exists(&#39;/etc/fedora-release&#39;):
+            install_package = install_package_rpm
+            install_pip = install_pip_rpm
+            package = audio_rpm_packages.get(module, None)
+            required_packages = audio_required_rpm_packages.get(module, None)
+        else:
+            install_package = install_package_deb
+            package = audio_deb_packages.get(module, None)
+            required_packages = audio_required_deb_packages.get(module, None)
+        instruction = audio_instructions_linux.get(module, None)
+    elif sys.platform == &#34;darwin&#34;:
+        install_package = install_package_brew
+        install_pip = install_pip_osx
+        package = audio_brew_packages.get(module, None)
+        required_packages = audio_required_brew_packages.get(module, None)
+        multiline = True
+    elif sys.platform[0:3] == &#34;win&#34;:
+        install_package = &#39;&#39;
+        install_pip = install_pip_win
+        instruction = audio_instructions_windows.get(module, None)
+    # check conda:
+    conda = &#34;CONDA_DEFAULT_ENV&#34; in os.environ
+    conda_package = audio_conda_packages.get(module, None)
+    if conda:
+        install_pip = install_pip.replace(&#39;sudo &#39;, &#39;&#39;)
+
+    pip_package = audio_pip_packages.get(module, None)
+        
+    req_inst = None
+    if required_packages is not None:
+        if multiline:
+            ps = &#39;\n&#39;.join([install_package + &#39; &#39; + p for p in required_packages])
+        else:
+            ps = install_package + &#39; &#39; + &#39; &#39;.join(required_packages)
+        if pip_package is None and package is None:
+            req_inst = &#39;Install the following packages:\n\n&#39; + ps
+        else:
+            req_inst = &#39;First, install the following packages:\n\n&#39; + ps
+    
+    pip_inst = None
+    if pip_package is not None:
+        pip_inst = f&#39;Install the {module} module with pip:\n\n{install_pip} {pip_package}&#39;
+        
+    dist_inst = None
+    if package is not None:
+        if pip_inst is None:
+            dist_inst = f&#39;Install module from your distribution\&#39;s package:\n\n{install_package} {package}&#39;
+        else:
+            dist_inst = f&#39;or alternatively from your distribution\&#39;s package:\n\n{install_package} {package}&#39;
+
+    conda_inst = None
+    if conda and conda_package is not None:
+        conda_inst = f&#39;Install the {module} module with conda:\n\n{install_package} {package}&#39;
+        req_inst = pip_inst = dist_inst = instruction = None
+
+    info = audio_infos.get(module, None)
+
+    msg = &#39;&#39;
+    for s in [info, conda_inst, req_inst, pip_inst, dist_inst, instruction]:
+        if s is not None:
+            if len(msg) &gt; 0:
+                msg += &#39;\n\n&#39;
+            msg += s
+    
+    return msg</code></pre>
+</details>
+<div class="desc"><p>Instructions on how to install a specific audio module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>module</code></strong> :&ensp;<code>string</code></dt>
+<dd>The name of the module for which an instruction should be printed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>msg</code></strong> :&ensp;<code>multi-line string</code></dt>
+<dd>Installation instruction for the requested module.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiomodules.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*args):
+    &#34;&#34;&#34; Command line program for listing installation status of audio modules.
+
+    Run this module as a script
+    ```
+    &gt; python -m src.audioio.auidomodules
+    ```
+    or, when the audioio package is installed on your system, simply run
+    ```sh
+    &gt; audiomodules
+    ```
+    for an overview of audio packages, their installation status, and recommendations on
+    how to install further audio packages.
+
+    The &#39;--help&#39; argument prints out a help message:
+    ```sh
+    &gt; audiomodules --help
+    ```
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv[1:]
+    &#34;&#34;&#34;
+    if len(args) == 0:
+        args = sys.argv[1:]
+    if len(args) &gt; 0:
+        if args[0] == &#39;--version&#39;:
+            print(f&#39;version {__version__} by Benda-Lab (2015-{__year__})&#39;)
+            sys.exit(0)
+        if args[0] == &#39;--help&#39; or args[0] == &#39;-h&#39;:
+            print(&#39;usage: audiomodules [--version] [--help] [PACKAGE]&#39;)
+            print(&#39;&#39;)
+            print(&#39;Installation status and instructions of python audio packages.&#39;)
+            print(&#39;&#39;)
+            print(&#39;optional arguments:&#39;)
+            print(&#39;  --help      show this help message and exit&#39;)
+            print(&#39;  --version   show version number and exit&#39;)
+            print(&#39;  PACKAGE     show installation instructions for PACKAGE&#39;)
+            print(&#39;&#39;)
+            print(f&#39;version {__version__} by Benda-Lab (2015-{__year__})&#39;)
+            return
+
+    print(&#39;&#39;)
+    if len(args) &gt; 0 :
+        mod = args[0]
+        if mod in audio_modules:
+            print(f&#39;Installation instructions for the {mod} module:&#39;)
+            print(&#39;-&#39;*(42+len(mod)))
+            print(installation_instruction(mod))
+            print(&#39;&#39;)
+    else:
+        print(&#39;Status of audio packages on this machine:&#39;)
+        print(&#39;-&#39;*41)
+        print(&#39;&#39;)
+        list_modules(&#39;all&#39;, False)
+        print(&#39;&#39;)
+        print(&#39;F: file I/O, D: audio device&#39;)
+        print(&#39;&#39;)
+        missing_modules_instructions()
+        print(&#39;&#39;)</code></pre>
+</details>
+<div class="desc"><p>Command line program for listing installation status of audio modules.</p>
+<p>Run this module as a script</p>
+<pre><code>&gt; python -m src.audioio.auidomodules
+</code></pre>
+<p>or, when the audioio package is installed on your system, simply run</p>
+<pre><code class="language-sh">&gt; audiomodules
+</code></pre>
+<p>for an overview of audio packages, their installation status, and recommendations on
+how to install further audio packages.</p>
+<p>The '&ndash;help' argument prints out a help message:</p>
+<pre><code class="language-sh">&gt; audiomodules --help
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>args</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as provided by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#functions">Functions</a></li>
+<li><a href="#command-line-script">Command line script</a></li>
+<li><a href="#links">Links</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="audioio.audiomodules.audio_modules" href="#audioio.audiomodules.audio_modules">audio_modules</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_installed" href="#audioio.audiomodules.audio_installed">audio_installed</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_infos" href="#audioio.audiomodules.audio_infos">audio_infos</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_instructions_linux" href="#audioio.audiomodules.audio_instructions_linux">audio_instructions_linux</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_instructions_windows" href="#audioio.audiomodules.audio_instructions_windows">audio_instructions_windows</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_pip_packages" href="#audioio.audiomodules.audio_pip_packages">audio_pip_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_conda_packages" href="#audioio.audiomodules.audio_conda_packages">audio_conda_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_deb_packages" href="#audioio.audiomodules.audio_deb_packages">audio_deb_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_rpm_packages" href="#audioio.audiomodules.audio_rpm_packages">audio_rpm_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_brew_packages" href="#audioio.audiomodules.audio_brew_packages">audio_brew_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_required_deb_packages" href="#audioio.audiomodules.audio_required_deb_packages">audio_required_deb_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_required_rpm_packages" href="#audioio.audiomodules.audio_required_rpm_packages">audio_required_rpm_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_required_brew_packages" href="#audioio.audiomodules.audio_required_brew_packages">audio_required_brew_packages</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_fileio" href="#audioio.audiomodules.audio_fileio">audio_fileio</a></code></li>
+<li><code><a title="audioio.audiomodules.audio_device" href="#audioio.audiomodules.audio_device">audio_device</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.audiomodules.installed_modules" href="#audioio.audiomodules.installed_modules">installed_modules</a></code></li>
+<li><code><a title="audioio.audiomodules.available_modules" href="#audioio.audiomodules.available_modules">available_modules</a></code></li>
+<li><code><a title="audioio.audiomodules.unavailable_modules" href="#audioio.audiomodules.unavailable_modules">unavailable_modules</a></code></li>
+<li><code><a title="audioio.audiomodules.disable_module" href="#audioio.audiomodules.disable_module">disable_module</a></code></li>
+<li><code><a title="audioio.audiomodules.enable_module" href="#audioio.audiomodules.enable_module">enable_module</a></code></li>
+<li><code><a title="audioio.audiomodules.select_module" href="#audioio.audiomodules.select_module">select_module</a></code></li>
+<li><code><a title="audioio.audiomodules.list_modules" href="#audioio.audiomodules.list_modules">list_modules</a></code></li>
+<li><code><a title="audioio.audiomodules.missing_modules" href="#audioio.audiomodules.missing_modules">missing_modules</a></code></li>
+<li><code><a title="audioio.audiomodules.missing_modules_instructions" href="#audioio.audiomodules.missing_modules_instructions">missing_modules_instructions</a></code></li>
+<li><code><a title="audioio.audiomodules.installation_instruction" href="#audioio.audiomodules.installation_instruction">installation_instruction</a></code></li>
+<li><code><a title="audioio.audiomodules.main" href="#audioio.audiomodules.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

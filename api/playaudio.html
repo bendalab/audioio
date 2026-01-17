@@ -1,0 +1,2747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.playaudio API documentation</title>
+<meta name="description" content="Play numpy arrays as audio …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.playaudio</code></h1>
+</header>
+<section id="section-intro">
+<p>Play numpy arrays as audio.</p>
+<p>Accepted data for playback are 1-D or 2-D (frames, channels) numpy
+arrays with values ranging from -1 to 1.
+If necessary data are downsampled automatically to match supported
+sampling rates.</p>
+<h2 id="class">Class</h2>
+<p>Use the <code><a title="audioio.playaudio.PlayAudio" href="#audioio.playaudio.PlayAudio">PlayAudio</a></code> class for audio output to a speaker:</p>
+<pre><code>with PlayAudio() as audio:
+    audio.beep()
+</code></pre>
+<p>or without context management:</p>
+<pre><code>audio = PlayAudio()
+audio.beep(1.0, 'a4')
+audio.close()
+</code></pre>
+<h2 id="functions">Functions</h2>
+<p>Alternatively, the globally defined functions <code><a title="audioio.playaudio.play" href="#audioio.playaudio.play">play()</a></code> and <code><a title="audioio.playaudio.beep" href="#audioio.playaudio.beep">beep()</a></code>
+use the global instance <code><a title="audioio.playaudio.handle" href="#audioio.playaudio.handle">handle</a></code> of the <code><a title="audioio.playaudio.PlayAudio" href="#audioio.playaudio.PlayAudio">PlayAudio</a></code> class to play a
+sound on the default audio output device.</p>
+<ul>
+<li><code><a title="audioio.playaudio.play" href="#audioio.playaudio.play">play()</a></code>: playback audio data.</li>
+<li><code><a title="audioio.playaudio.beep" href="#audioio.playaudio.beep">beep()</a></code>: playback a tone.</li>
+<li><code><a title="audioio.playaudio.close" href="#audioio.playaudio.close">close()</a></code>: close the global PlayAudio instance.</li>
+</ul>
+<h2 id="helper-functions">Helper functions</h2>
+<ul>
+<li><code><a title="audioio.playaudio.speaker_devices" href="#audioio.playaudio.speaker_devices">speaker_devices()</a></code>: query available output devices.</li>
+<li><code><a title="audioio.playaudio.print_speaker_devices" href="#audioio.playaudio.print_speaker_devices">print_speaker_devices()</a></code>: print available output devices.</li>
+<li><code><a title="audioio.playaudio.fade_in" href="#audioio.playaudio.fade_in">fade_in()</a></code>: fade in a signal in place.</li>
+<li><code><a title="audioio.playaudio.fade_out" href="#audioio.playaudio.fade_out">fade_out()</a></code>: fade out a signal in place.</li>
+<li><code><a title="audioio.playaudio.fade" href="#audioio.playaudio.fade">fade()</a></code>: fade in and out a signal in place.</li>
+<li><code><a title="audioio.playaudio.note2freq" href="#audioio.playaudio.note2freq">note2freq()</a></code>: convert textual note to corresponding frequency.</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>You might need to install additional packages for better audio output.
+See <a href="https://bendalab.github.io/audioio/installation">installation</a>
+for further instructions.</p>
+<h2 id="demo">Demo</h2>
+<p>For a demo, run the script as:</p>
+<pre><code>python -m src.audioio.playaudio
+</code></pre>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="audioio.playaudio.handle"><code class="name">var <span class="ident">handle</span></code></dt>
+<dd>
+<div class="desc"><p>Default audio device handler.</p>
+<p>Defaults to <code>None</code>. Will get a PlayAudio instance assigned via
+<code><a title="audioio.playaudio.play" href="#audioio.playaudio.play">play()</a></code> or <code><a title="audioio.playaudio.beep" href="#audioio.playaudio.beep">beep()</a></code>.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.playaudio.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*args):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of strings
+        Command line arguments as provided by sys.argv[1:]
+    &#34;&#34;&#34;
+    help = False
+    mod = False
+    dev = False
+    ldev = False
+    device_index = None
+    for arg in args:
+        if mod:
+            if not select_module(arg):
+                print(f&#39;module {arg} not installed. Exit!&#39;)
+                return
+            mod = False
+        elif dev:
+            device_index = int(arg)
+            dev = False
+        elif arg == &#39;-h&#39;:
+            help = True
+            break
+        elif arg == &#39;-l&#39;:
+            ldev = True
+            break
+        elif arg == &#39;-m&#39;:
+            mod = True
+        elif arg == &#39;-d&#39;:
+            dev = True
+        else:
+            break
+
+    if help:
+        print()
+        print(&#39;Usage:&#39;)
+        print(&#39;  python -m src.audioio.playaudio [-m &lt;module&gt;] [-l] [-d &lt;device index&gt;]&#39;)
+        print(&#39;  -m: audio module to be used&#39;)
+        print(&#39;  -l: list available audio output devices&#39;)
+        print(&#39;  -d: set audio output device to be used&#39;)
+        return
+
+    if ldev:
+        print_speaker_devices()
+        return
+        
+    demo(device_index)</code></pre>
+</details>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>args</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as provided by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.note2freq"><code class="name flex">
+<span>def <span class="ident">note2freq</span></span>(<span>note, a4freq=440.0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def note2freq(note, a4freq=440.0):
+    &#34;&#34;&#34;Convert textual note to corresponding frequency.
+
+    Parameters
+    ----------
+    note: string
+        A musical note like &#39;a4&#39;, &#39;f#3&#39;, &#39;eb5&#39;.
+        The first character is the note, it can be
+        &#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;, or &#39;g&#39;.
+        The optional second character is either a &#39;b&#39;
+        or a &#39;#&#39; to decrease or increase by half a note.
+        The last character specifies the octave.
+        &#39;a4&#39; is defined by `a4freq`.
+    a4freq: float
+        The frequency of a4 in Hertz.
+
+    Returns
+    -------
+    freq: float
+        The frequency of the note in Hertz.
+
+    Raises
+    ------
+    ValueError:
+        No or an invalid note was specified.
+    &#34;&#34;&#34;
+    freq = a4freq
+    tone = 0
+    octave = 4
+    if not isinstance(note, str) or len(note) == 0:
+        raise ValueError(&#39;no note specified&#39;)
+    # note:
+    if note[0] &lt; &#39;a&#39; or note[0] &gt; &#39;g&#39;:
+        raise ValueError(&#39;invalid note&#39;, note[0])
+    index = 0
+    tonemap = [0, 2, 3, 5, 7, 8, 10]
+    tone = tonemap[ord(note[index]) - ord(&#39;a&#39;)]
+    index += 1
+    # flat or sharp:
+    flat  = False
+    sharp = False
+    if index &lt; len(note):
+        if note[index] == &#39;b&#39;:
+            flat = True
+            tone -= 1
+            index += 1
+        elif note[index] == &#39;#&#39;:
+            sharp = True
+            tone += 1
+            index += 1
+    # octave:
+    if index &lt; len(note) and note[index] &gt;= &#39;0&#39; and note[index] &lt;= &#39;9&#39;:
+        octave = 0
+        while index &lt; len(note) and note[index] &gt;= &#39;0&#39; and note[index] &lt;= &#39;9&#39;:
+            octave *= 10
+            octave += ord(note[index]) - ord(&#39;0&#39;)
+            index += 1
+    # remaining characters:
+    if index &lt; len(note):
+        raise ValueError(&#39;invalid characters in note&#39;, note)
+    # compute frequency:
+    if (tone &gt;= 3 and not sharp) or (tone == 2 and flat):
+        octave -= 1
+    tone += 12*(octave-4)
+    # frequency:
+    freq = a4freq * 2.0**(tone/12.0)
+    return freq</code></pre>
+</details>
+<div class="desc"><p>Convert textual note to corresponding frequency.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>note</code></strong> :&ensp;<code>string</code></dt>
+<dd>A musical note like 'a4', 'f#3', 'eb5'.
+The first character is the note, it can be
+'a', 'b', 'c', 'd', 'e', 'f', or 'g'.
+The optional second character is either a 'b'
+or a '#' to decrease or increase by half a note.
+The last character specifies the octave.
+'a4' is defined by <code>a4freq</code>.</dd>
+<dt><strong><code>a4freq</code></strong> :&ensp;<code>float</code></dt>
+<dd>The frequency of a4 in Hertz.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>freq</code></strong> :&ensp;<code>float</code></dt>
+<dd>The frequency of the note in Hertz.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<h2 id="valueerror">Valueerror</h2>
+<p>No or an invalid note was specified.</p></div>
+</dd>
+<dt id="audioio.playaudio.fade_in"><code class="name flex">
+<span>def <span class="ident">fade_in</span></span>(<span>data, rate, fadetime)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fade_in(data, rate, fadetime):
+    &#34;&#34;&#34;Fade in a signal in place.
+
+    The first `fadetime` seconds of the data are multiplied with a
+    squared sine in place. If `fadetime` is larger than half the
+    duration of the data, then `fadetime` is reduced to half of the
+    duration.
+    
+    Parameters
+    ----------
+    data: array
+        The data to be faded in, either 1-D array for single channel output,
+        or 2-D array with first axis time and second axis channel.
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in in seconds.
+    &#34;&#34;&#34;
+    if len(data) &lt; 4:
+        return
+    nr = min(int(np.round(fadetime*rate)), len(data)//2) 
+    x = np.arange(float(nr))/float(nr) # 0 to pi/2
+    y = np.sin(0.5*np.pi*x)**2.0
+    if data.ndim &gt; 1:
+        data[:nr, :] *= y[:, None]
+    else:
+        data[:nr] *= y</code></pre>
+</details>
+<div class="desc"><p>Fade in a signal in place.</p>
+<p>The first <code>fadetime</code> seconds of the data are multiplied with a
+squared sine in place. If <code>fadetime</code> is larger than half the
+duration of the data, then <code>fadetime</code> is reduced to half of the
+duration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data to be faded in, either 1-D array for single channel output,
+or 2-D array with first axis time and second axis channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>fadetime</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time for fading in in seconds.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.fade_out"><code class="name flex">
+<span>def <span class="ident">fade_out</span></span>(<span>data, rate, fadetime)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fade_out(data, rate, fadetime):
+    &#34;&#34;&#34;Fade out a signal in place.
+
+    The last `fadetime` seconds of the data are multiplied with a
+    squared sine in place. If `fadetime` is larger than half the
+    duration of the data, then `fadetime` is reduced to half of the
+    duration.
+    
+    Parameters
+    ----------
+    data: array
+        The data to be faded out, either 1-D array for single channel output,
+        or 2-D array with first axis time and second axis channel.
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading out in seconds.
+    &#34;&#34;&#34;
+    if len(data) &lt; 4:
+        return
+    nr = min(int(np.round(fadetime*rate)), len(data)//2) 
+    x = np.arange(float(nr))/float(nr) + 1.0 # pi/2 to pi
+    y = np.sin(0.5*np.pi*x)**2.0
+    if data.ndim &gt; 1:
+        data[-nr:, :] *= y[:, None]
+    else:
+        data[-nr:] *= y</code></pre>
+</details>
+<div class="desc"><p>Fade out a signal in place.</p>
+<p>The last <code>fadetime</code> seconds of the data are multiplied with a
+squared sine in place. If <code>fadetime</code> is larger than half the
+duration of the data, then <code>fadetime</code> is reduced to half of the
+duration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data to be faded out, either 1-D array for single channel output,
+or 2-D array with first axis time and second axis channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>fadetime</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time for fading out in seconds.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.fade"><code class="name flex">
+<span>def <span class="ident">fade</span></span>(<span>data, rate, fadetime)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fade(data, rate, fadetime):
+    &#34;&#34;&#34;Fade in and out a signal in place.
+
+    The first and last `fadetime` seconds of the data are multiplied
+    with a squared sine in place. If `fadetime` is larger than half the
+    duration of the data, then `fadetime` is reduced to half of the
+    duration.
+        
+    Parameters
+    ----------
+    data: array
+        The data to be faded, either 1-D array for single channel output,
+        or 2-D array with first axis time and second axis channel.
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in and out in seconds.
+    &#34;&#34;&#34;
+    fade_in(data, rate, fadetime)
+    fade_out(data, rate, fadetime)</code></pre>
+</details>
+<div class="desc"><p>Fade in and out a signal in place.</p>
+<p>The first and last <code>fadetime</code> seconds of the data are multiplied
+with a squared sine in place. If <code>fadetime</code> is larger than half the
+duration of the data, then <code>fadetime</code> is reduced to half of the
+duration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data to be faded, either 1-D array for single channel output,
+or 2-D array with first axis time and second axis channel.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>fadetime</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time for fading in and out in seconds.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.play"><code class="name flex">
+<span>def <span class="ident">play</span></span>(<span>data, rate, scale=None, blocking=True, device_index=None, verbose=0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def play(data, rate, scale=None, blocking=True, device_index=None, verbose=0):
+    &#34;&#34;&#34;Playback audio data.
+
+    Create a `PlayAudio` instance on the global variable `handle`.
+
+    Parameters
+    ----------
+    data: array
+        The data to be played, either 1-D array for single channel output,
+        or 2-D array with first axis time and second axis channel.
+        Data values range between -1 and 1.
+    rate: float
+        The sampling rate in Hertz.
+    scale: float
+        Multiply data with scale before playing.
+        If `None` scale it to the maximum value, if 1.0 do not scale.
+    blocking: boolean
+        If False do not block. 
+    device_index: int or None
+        Index of the playback device to be used,
+        if not already openend.
+        If None take the default device.
+    verbose: int
+        Verbosity level. 
+    &#34;&#34;&#34;
+    global handle
+    if handle is None:
+        handle = PlayAudio(device_index, verbose)
+    handle.verbose = verbose
+    handle.play(data, rate, scale, blocking, device_index)</code></pre>
+</details>
+<div class="desc"><p>Playback audio data.</p>
+<p>Create a <code><a title="audioio.playaudio.PlayAudio" href="#audioio.playaudio.PlayAudio">PlayAudio</a></code> instance on the global variable <code><a title="audioio.playaudio.handle" href="#audioio.playaudio.handle">handle</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data to be played, either 1-D array for single channel output,
+or 2-D array with first axis time and second axis channel.
+Data values range between -1 and 1.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>float</code></dt>
+<dd>Multiply data with scale before playing.
+If <code>None</code> scale it to the maximum value, if 1.0 do not scale.</dd>
+<dt><strong><code>blocking</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If False do not block.</dd>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used,
+if not already openend.
+If None take the default device.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>Verbosity level.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.beep"><code class="name flex">
+<span>def <span class="ident">beep</span></span>(<span>duration=0.5,<br>frequency=880.0,<br>amplitude=0.5,<br>rate=44100.0,<br>fadetime=0.05,<br>blocking=True,<br>device_index=None,<br>verbose=0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
+         fadetime=0.05, blocking=True, device_index=None, verbose=0):
+    &#34;&#34;&#34;Playback a tone.
+
+    Create a `PlayAudio` instance on the global variable `handle`.
+
+    Parameters
+    ----------
+    duration: float
+        The duration of the tone in seconds.
+    frequency: float or string
+        If float the frequency of the tone in Hertz.
+        If string, a musical note like &#39;f#5&#39;.
+        See `note2freq()` for details
+    amplitude: float
+        The ampliude (volume) of the tone from 0.0 to 1.0.
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in and out in seconds.
+    blocking: boolean
+        If False do not block.
+    device_index: int or None
+        Index of the playback device to be used,
+        if not already openend.
+        If None take the default device.
+    verbose: int
+        Verbosity level. 
+    &#34;&#34;&#34;
+    global handle
+    if handle is None:
+        handle = PlayAudio(device_index, verbose)
+    handle.verbose = verbose
+    handle.beep(duration, frequency, amplitude, rate, fadetime, blocking,
+                device_index)</code></pre>
+</details>
+<div class="desc"><p>Playback a tone.</p>
+<p>Create a <code><a title="audioio.playaudio.PlayAudio" href="#audioio.playaudio.PlayAudio">PlayAudio</a></code> instance on the global variable <code><a title="audioio.playaudio.handle" href="#audioio.playaudio.handle">handle</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>duration</code></strong> :&ensp;<code>float</code></dt>
+<dd>The duration of the tone in seconds.</dd>
+<dt><strong><code>frequency</code></strong> :&ensp;<code>float</code> or <code>string</code></dt>
+<dd>If float the frequency of the tone in Hertz.
+If string, a musical note like 'f#5'.
+See <code><a title="audioio.playaudio.note2freq" href="#audioio.playaudio.note2freq">note2freq()</a></code> for details</dd>
+<dt><strong><code>amplitude</code></strong> :&ensp;<code>float</code></dt>
+<dd>The ampliude (volume) of the tone from 0.0 to 1.0.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>fadetime</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time for fading in and out in seconds.</dd>
+<dt><strong><code>blocking</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If False do not block.</dd>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used,
+if not already openend.
+If None take the default device.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>Verbosity level.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close():
+    &#34;&#34;&#34;Close the global PlayAudio instance.
+    &#34;&#34;&#34;
+    global handle
+    if handle is not None:
+        handle.close()
+        handle = None</code></pre>
+</details>
+<div class="desc"><p>Close the global PlayAudio instance.</p></div>
+</dd>
+<dt id="audioio.playaudio.speaker_devices_pyaudio"><code class="name flex">
+<span>def <span class="ident">speaker_devices_pyaudio</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def speaker_devices_pyaudio():
+    &#34;&#34;&#34;Query available output devices of the pyaudio module.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
+        -1 if no default output device is available.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;pyaudio&#39;]:
+        raise ImportError
+    oldstderr = os.dup(2)
+    os.close(2)
+    tmpfile = &#39;tmpfile.tmp&#39;
+    os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
+    pa = pyaudio.PyAudio()
+    os.close(2)
+    os.dup(oldstderr)
+    os.close(oldstderr)
+    os.remove(tmpfile)
+    indices = []
+    devices = []
+    for i in range(pa.get_device_count()):
+        info = pa.get_device_info_by_index(i)
+        if info[&#39;maxOutputChannels&#39;] &gt; 0:
+            host = sounddevice.query_hostapis(info[&#39;hostApi&#39;])[&#39;name&#39;]
+            device = f&#39;{info[&#34;name&#34;]}, {host} ({info[&#34;maxInputChannels&#34;]} in, {info[&#34;maxOutputChannels&#34;]} out)&#39;
+            indices.append(info[&#39;index&#39;])
+            devices.append(device)
+    try:
+        default_device = pa.get_default_output_device_info()[&#39;index&#39;]
+    except OSError:
+        default_device = -1
+    return indices, devices, default_device</code></pre>
+</details>
+<div class="desc"><p>Query available output devices of the pyaudio module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Device indices.</dd>
+<dt><strong><code>devices</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Devices corresponding to <code>indices</code>.</dd>
+<dt><strong><code>default_device</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of default device.
+-1 if no default output device is available.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.speaker_devices_sounddevice"><code class="name flex">
+<span>def <span class="ident">speaker_devices_sounddevice</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def speaker_devices_sounddevice():
+    &#34;&#34;&#34;Query available output devices of the sounddevice module.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;sounddevice&#39;]:
+        raise ImportError
+    indices = []
+    devices = []
+    infos = sounddevice.query_devices()
+    for info in infos:
+        if info[&#39;max_output_channels&#39;] &gt; 0:
+            host = sounddevice.query_hostapis(info[&#39;hostapi&#39;])[&#39;name&#39;]
+            device = f&#39;{info[&#34;name&#34;]}, {host} ({info[&#34;max_input_channels&#34;]} in, {info[&#34;max_output_channels&#34;]} out)&#39;
+            indices.append(info[&#39;index&#39;])
+            devices.append(device)
+    try:
+        info_out = sounddevice.query_devices(kind=&#39;output&#39;)
+    except sounddevice.PortAudioError:
+        return indices, devices, -1
+    try:
+        info_in = sounddevice.query_devices(kind=&#39;input&#39;)
+        if info_in[&#39;index&#39;] != info_out[&#39;index&#39;] and \
+           info_in[&#39;max_output_channels&#39;] &gt; info_out[&#39;max_output_channels&#39;]:
+            info_out = info_in
+    except sounddevice.PortAudioError:
+        pass
+    return indices, devices, info_out[&#39;index&#39;]</code></pre>
+</details>
+<div class="desc"><p>Query available output devices of the sounddevice module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Device indices.</dd>
+<dt><strong><code>devices</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Devices corresponding to <code>indices</code>.</dd>
+<dt><strong><code>default_device</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of default device.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.speaker_devices_soundcard"><code class="name flex">
+<span>def <span class="ident">speaker_devices_soundcard</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def speaker_devices_soundcard():
+    &#34;&#34;&#34;Query available output devices of the soundcard module.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundcard&#39;]:
+        raise ImportError
+    indices = []
+    devices = []
+    infos = soundcard.all_speakers()
+    def_speaker = str(soundcard.default_speaker())
+    default_device = -1
+    for i, info in enumerate(infos):
+        if str(info) == def_speaker:
+            default_device = i
+        indices.append(i)
+        devices.append(str(info).lstrip(&#39;&lt;&#39;).rstrip(&#39;&gt;&#39;))
+    return indices, devices, default_device</code></pre>
+</details>
+<div class="desc"><p>Query available output devices of the soundcard module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Device indices.</dd>
+<dt><strong><code>devices</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Devices corresponding to <code>indices</code>.</dd>
+<dt><strong><code>default_device</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of default device.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.speaker_devices"><code class="name flex">
+<span>def <span class="ident">speaker_devices</span></span>(<span>library=None, verbose=0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def speaker_devices(library=None, verbose=0):
+    &#34;&#34;&#34;Query available output devices.
+
+    Parameters
+    ----------
+    library: str or None
+        If specified, use specific sound library.
+    verbose: int
+        Verbosity level.
+
+    Returns
+    -------
+    indices: list of int
+        Device indices.
+    devices: list of str
+        Devices corresponding to `indices`.
+    default_device: int
+        Index of default device.
+    &#34;&#34;&#34;
+    # list of implemented list functions:
+    audio_devices = [
+        [&#39;sounddevice&#39;, speaker_devices_sounddevice],
+        [&#39;pyaudio&#39;, speaker_devices_pyaudio],
+        [&#39;simpleaudio&#39;, None],
+        [&#39;soundcard&#39;, speaker_devices_soundcard],
+        [&#39;ossaudiodev&#39;, None],
+        [&#39;winsound&#39;, None]
+        ]
+    if platform[0:3] == &#34;win&#34;:
+        sa = audio_open.pop(2)
+        audio_open.insert(0, sa)
+    # query audio devices by trying various modules:
+    success = False
+    for lib, devices in audio_devices:
+        if library and library != lib:
+            continue
+        if not audio_modules[lib]:
+            if verbose &gt; 0:
+                print(f&#39;module {lib} not available&#39;)
+            continue
+        if devices is None:
+            return [0], [&#39;default output device&#39;], 0
+        else:
+            return devices()
+    warnings.warn(&#39;no library for audio output available for devices&#39;)
+    return [], [], -1</code></pre>
+</details>
+<div class="desc"><p>Query available output devices.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>library</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>If specified, use specific sound library.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>Verbosity level.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Device indices.</dd>
+<dt><strong><code>devices</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Devices corresponding to <code>indices</code>.</dd>
+<dt><strong><code>default_device</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of default device.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.print_speaker_devices"><code class="name flex">
+<span>def <span class="ident">print_speaker_devices</span></span>(<span>library=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_speaker_devices(library=None):
+    &#34;&#34;&#34;Print available output devices.
+
+    Parameters
+    ----------
+    library: str or None
+        If specified, use specific sound library.
+    &#34;&#34;&#34;
+    indices, devices, default_device = speaker_devices()
+    for i, d in zip(indices, devices):
+        if i == default_device:
+            print(f&#39;* {i:2d}: {d}&#39;)
+        else:
+            print(f&#39;  {i:2d}: {d}&#39;)</code></pre>
+</details>
+<div class="desc"><p>Print available output devices.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>library</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>If specified, use specific sound library.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo(device_index=None):
+    &#34;&#34;&#34; Demonstrate the playaudio module.&#34;&#34;&#34;
+    print(&#39;play mono beep 1&#39;)
+    audio = PlayAudio(device_index, verbose=2)
+    audio.beep(1.0, 440.0)
+    audio.close()
+    
+    print(&#39;play mono beep 2&#39;)
+    with PlayAudio(device_index) as audio:
+        audio.beep(1.0, &#39;b4&#39;, 0.75, blocking=False)
+        print(&#39;  done&#39;)
+        sleep(0.3)
+    sleep(0.5)
+
+    print(&#39;play mono beep 3&#39;)
+    beep(1.0, &#39;c5&#39;, 0.25, blocking=False, device_index=device_index)
+    print(&#39;  done&#39;)
+    sleep(0.5)
+            
+    print(&#39;play stereo beep&#39;)
+    duration = 1.0
+    rate = 44100.0
+    t = np.arange(0.0, duration, 1.0/rate)
+    data = np.zeros((len(t),2))
+    data[:,0] = np.sin(2.0*np.pi*note2freq(&#39;a4&#39;)*t)
+    data[:,1] = 0.25*np.sin(2.0*np.pi*note2freq(&#39;e5&#39;)*t)
+    fade(data, rate, 0.1)
+    play(data, rate, verbose=2, device_index=device_index)</code></pre>
+</details>
+<div class="desc"><p>Demonstrate the playaudio module.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="audioio.playaudio.PlayAudio"><code class="flex name class">
+<span>class <span class="ident">PlayAudio</span></span>
+<span>(</span><span>device_index=None, verbose=0, library=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PlayAudio(object):
+    &#34;&#34;&#34; Audio playback.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+        Use the speaker_devices() function to query available devices.
+    verbose: int
+        Verbosity level.
+    library: str or None
+        If specified, open a specific sound library.
+
+
+    Attributes
+    ----------
+    lib: string
+        The library used for playback.
+    verbose: int
+        Verbosity level.
+
+    Methods
+    -------
+    - `play(data, rate, scale=None, blocking=True)`: Playback audio data.
+    - `beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0, fadetime=0.05, blocking=True)`: Playback a pure tone.
+    - `open()`: Initialize the PlayAudio class with the best module available.
+    - `close()`: Terminate module for playing audio.
+    - `stop()`:  Stop any playback in progress.
+
+    Examples
+    --------
+    ```
+    from audioio import PlayAudio
+    
+    with PlayAudio() as audio:
+        audio.beep()
+    ```
+    or without context management:
+    ```
+    audio = PlayAudio()
+    audio.beep(1.0, &#39;a4&#39;)
+    audio.close()
+    ```
+    &#34;&#34;&#34;
+    
+    def __init__(self, device_index=None, verbose=0, library=None):
+        self.verbose = verbose
+        self.handle = None
+        self._do_play = self._play
+        self.close = self._close
+        self.stop = self._stop
+        self.lib = None
+        self.open(device_index, library)
+
+    def _close(self):
+        &#34;&#34;&#34;Terminate PlayAudio class for playing audio.&#34;&#34;&#34;
+        self.handle = None
+        self._do_play = self._play
+        self.close = self._close
+        self.stop = self._stop
+        self.lib = None
+
+    def _stop(self):
+        &#34;&#34;&#34;Stop any playback in progress.&#34;&#34;&#34;
+        pass
+
+    def _play(self, blocking=True):
+        &#34;&#34;&#34;Default implementation of playing a sound: does nothing.&#34;&#34;&#34;
+        pass
+
+    def play(self, data, rate, scale=None, blocking=True, device_index=None):
+        &#34;&#34;&#34;Playback audio data.
+
+        Parameters
+        ----------
+        data: array
+            The data to be played, either 1-D array for single channel output,
+            or 2-D array with first axis time and second axis channel.
+            Data values range between -1 and 1.
+        rate: float
+            The sampling rate in Hertz.
+        scale: float
+            Multiply data with scale before playing.
+            If `None` scale it to the maximum value, if 1.0 do not scale.
+        blocking: boolean
+            If False do not block. 
+        device_index: int or None
+            Index of the playback device to be used,
+            if not already openend via the constructor.
+            If None take the default device.
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        FileNotFoundError
+            No audio device for playback.
+        &#34;&#34;&#34;
+        if self.handle is None:
+            self.open(device_index)
+        else:
+            self.stop()
+        self.rate = rate
+        self.channels = 1
+        if data.ndim &gt; 1:
+            self.channels = data.shape[1]
+        # convert data:
+        rawdata = data - np.mean(data, axis=0)
+        if scale is None:
+            scale = 1.0/np.max(np.abs(rawdata))
+        rawdata *= scale
+        self.data = np.floor(rawdata*(2**15-1)).astype(np.int16, order=&#39;C&#39;)
+        self.index = 0
+        self._do_play(blocking)
+
+    def beep(self, duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
+             fadetime=0.05, blocking=True, device_index=None):
+        &#34;&#34;&#34;Playback a pure tone.
+
+        Parameters
+        ----------
+        duration: float
+            The duration of the tone in seconds.
+        frequency: float or string
+            If float, the frequency of the tone in Hertz.
+            If string, a musical note like &#39;f#5&#39;.
+            See `note2freq()` for details.
+        amplitude: float
+            The ampliude (volume) of the tone in the range from 0.0 to 1.0.
+        rate: float
+            The sampling rate in Hertz.
+        fadetime: float
+            Time for fading in and out in seconds.
+        blocking: boolean
+            If False do not block.
+        device_index: int or None
+            Index of the playback device to be used,
+            if not already openend via the constructor.
+            If None take the default device.
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        FileNotFoundError
+            No audio device for playback.
+        
+        See also
+        --------
+        https://mail.python.org/pipermail/tutor/2012-September/091529.html
+        for fourier series based construction of waveforms.  
+        &#34;&#34;&#34;
+        # frequency
+        if isinstance(frequency, str):
+            frequency = note2freq(frequency)
+        # sine wave:
+        time = np.arange(0.0, duration, 1.0/rate)
+        data = amplitude*np.sin(2.0*np.pi*frequency*time)
+        # fade in and out:
+        fade(data, rate, fadetime)
+        # # final click for testing (mono only):
+        # data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
+        # play:
+        self.play(data, rate, scale=1.0, blocking=blocking,
+                  device_index=device_index)
+
+    def _down_sample(self, channels, scale=1):
+        &#34;&#34;&#34;Sample the data down and adapt maximum channel number.&#34;&#34;&#34;
+        iscale = 1
+        rscale = scale
+        if isinstance(scale, int):
+            iscale = scale
+            rscale = 1.0
+        elif scale &gt; 2:
+            iscale = int(np.floor(scale))
+            rscale = scale/iscale
+        
+        if iscale &gt; 1:
+            data = decimate(self.data, iscale, axis=0)
+            if self.data.ndim &gt; 1:
+                self.data = np.asarray(data[:,:channels],
+                                       dtype=np.int16, order=&#39;C&#39;)
+            else:
+                self.data = np.asarray(data, dtype=np.int16, order=&#39;C&#39;)
+            if self.verbose &gt; 0:
+                print(f&#39;decimated sampling rate from {self.rate:.1f}Hz down to {self.rate/iscale:.1f}Hz&#39;)
+            self.rate /= iscale
+
+        if rscale != 1.0:
+            dt0 = 1.0/self.rate
+            dt1 = rscale/self.rate
+            old_time = np.arange(len(self.data))*dt0
+            new_time = np.arange(0.0, old_time[-1]+0.5*dt0, dt1)
+            if self.data.ndim &gt; 1:
+                data = np.zeros((len(new_time), channels), order=&#39;C&#39;)
+                for c in range(channels):
+                    data[:,c] = np.interp(new_time, old_time, self.data[:,c])
+            else:
+                data = np.interp(new_time, old_time, self.data)
+            self.data = np.asarray(data, dtype=self.data.dtype, order=&#39;C&#39;)
+            if self.verbose &gt; 0:
+                print(f&#39;adapted sampling rate from {self.rate:.1f}Hz to {self.rate/rscale:.1f}Hz&#39;)
+            self.rate /= rscale
+        self.channels = channels
+
+    def __del__(self):
+        &#34;&#34;&#34;Terminate the audio module.&#34;&#34;&#34;
+        self.close()
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, type, value, tb):
+        self.__del__()
+        return value
+
+        
+    def open_pyaudio(self, device_index=None):
+        &#34;&#34;&#34;Initialize audio output via PyAudio module.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+
+        Raises
+        ------
+        ImportError
+            PyAudio module is not available.
+        FileNotFoundError
+            Failed to open audio device.
+
+        Documentation
+        -------------
+        https://people.csail.mit.edu/hubert/pyaudio/
+        http://www.portaudio.com/
+
+        Installation
+        ------------
+        ```
+        sudo apt install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+        ```
+        
+        On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+        &lt;https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio&gt;.  Install this file with pip,
+        that is go to the folder where the wheel file is downloaded and run
+        ```
+        pip install PyAudio-0.2.11-cp39-cp39-win_amd64.whl
+        ```
+        replace the wheel file name by the one you downloaded.
+        &#34;&#34;&#34;
+        if not audio_modules[&#39;pyaudio&#39;]:
+            raise ImportError
+        oldstderr = os.dup(2)
+        os.close(2)
+        tmpfile = &#39;tmpfile.tmp&#39;
+        os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
+        self.handle = pyaudio.PyAudio()
+        self.stream = None
+        os.close(2)
+        os.dup(oldstderr)
+        os.close(oldstderr)
+        os.remove(tmpfile)
+        try:
+            if device_index is None:
+                info = self.handle.get_default_output_device_info()
+            else:
+                info = self.handle.get_device_info_by_index(device_index)
+            self.max_channels = info[&#39;maxOutputChannels&#39;]
+            self.default_rate = info[&#39;defaultSampleRate&#39;]
+            self.device_index = info[&#39;index&#39;]
+            self.handle.is_format_supported(self.default_rate,
+                                            output_device=self.device_index,
+                                            output_channels=1,
+                                            output_format=pyaudio.paInt16)
+        except Exception as e:
+            if self.verbose &gt; 0:
+                print(str(e))
+            self.handle.terminate()
+            self._close()
+            raise FileNotFoundError(&#39;failed to initialize audio device&#39;)
+        self.index = 0
+        self.data = None
+        self.close = self._close_pyaudio
+        self.stop = self._stop_pyaudio
+        self._do_play = self._play_pyaudio
+        self.lib = &#39;pyaudio&#39;
+        return self
+
+    def _callback_pyaudio(self, in_data, frames, time_info, status):
+        &#34;&#34;&#34;Callback for pyaudio for supplying output with data.&#34;&#34;&#34;
+        flag = pyaudio.paContinue
+        if not self.run:
+            flag = pyaudio.paComplete
+        if self.index &lt; len(self.data):
+            out_data = self.data[self.index:self.index+frames]
+            self.index += len(out_data)
+            # zero padding:
+            if len(out_data) &lt; frames:
+                if self.data.ndim &gt; 1:
+                    out_data = np.vstack((out_data,
+                      np.zeros((frames-len(out_data), self.channels), dtype=np.int16)))
+                else:
+                    out_data = np.hstack((out_data, np.zeros(frames-len(out_data), dtype=np.int16)))
+            return (out_data, flag)
+        else:
+            # we need to play more to make sure everything is played!
+            # This is because of an ALSA bug and might be fixed in newer versions,
+            # see http://music.columbia.edu/pipermail/portaudio/2012-May/013959.html
+            out_data = np.zeros(frames*self.channels, dtype=np.int16)
+            self.index += frames
+            if self.index &gt;= len(self.data) + 2*self.latency:
+                flag = pyaudio.paComplete
+            return (out_data, flag)
+
+    def _stop_pyaudio(self):
+        &#34;&#34;&#34;Stop any ongoing activity of the pyaudio module.&#34;&#34;&#34;
+        if self.stream is not None:
+            if self.stream.is_active():
+                # fade out:
+                fadetime = 0.1
+                nr = int(np.round(fadetime*self.rate))
+                index = self.index+nr
+                if nr &gt; len(self.data) - index:
+                    nr = len(self.data) - index
+                else:
+                    self.data[index+nr:] = 0
+                if nr &gt; 0:
+                    for k in range(nr) :
+                        self.data[index+(nr-k-1)] = np.array(self.data[index+(nr-k-1)] *
+                                np.sin(0.5*np.pi*float(k)/float(nr))**2.0, np.int16, order=&#39;C&#39;)
+                try:
+                    sleep(2*fadetime)
+                except SystemError:
+                    # pyaudio interferes with sleep in python 3.10
+                    pass
+            if self.stream.is_active():
+                self.run = False
+                while self.stream.is_active():
+                    try:
+                        sleep(0.01)
+                    except SystemError:
+                        # pyaudio interferes with sleep in python 3.10
+                        pass
+                self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
+    
+    def _play_pyaudio(self, blocking=True):
+        &#34;&#34;&#34;Play audio data using the pyaudio module.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block.
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        &#34;&#34;&#34;
+        # check channel count:
+        channels = self.channels
+        if self.channels &gt; self.max_channels:
+            channels = self.max_channels
+        # check sampling rate:
+        scale_fac = 1
+        scaled_rate = self.rate
+        max_rate = 48000.0
+        if self.rate &gt; max_rate:
+            scale_fac = int(np.ceil(self.rate/max_rate))
+            scaled_rate = int(self.rate//scale_fac)
+        rates = [self.rate, scaled_rate, 44100, 48000, 22050, self.default_rate]
+        scales = [1, scale_fac, None, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            try:
+                if self.handle.is_format_supported(int(rate),
+                                                   output_device=self.device_index,
+                                                   output_channels=channels,
+                                                   output_format=pyaudio.paInt16):
+                    if scale is None:
+                        scale = self.rate/float(rate)
+                    success = True
+                    break
+            except Exception as e:
+                if self.verbose &gt; 0:
+                    print(f&#39;invalid sampling rate of {rate}Hz&#39;)
+                if e.args[1] != pyaudio.paInvalidSampleRate:
+                    raise
+        if not success:
+            raise ValueError(&#39;No valid sampling rate found&#39;)
+        if channels != self.channels or scale != 1:
+            self._down_sample(channels, scale)
+        
+        # play:
+        self.run = True
+        self.stream = self.handle.open(format=pyaudio.paInt16, channels=self.channels,
+                                        rate=int(self.rate), output=True,
+                                        stream_callback=self._callback_pyaudio)
+        self.latency = int(self.stream.get_output_latency()*self.rate)
+        self.stream.start_stream()
+        if blocking:
+            while self.stream.is_active():
+                try:
+                    sleep(0.01)
+                except (ValueError, SystemError):
+                    # pyaudio interferes with sleep in python 3.10
+                    pass
+            self.run = False
+            self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
+        
+    def _close_pyaudio(self):
+        &#34;&#34;&#34;Terminate pyaudio module.&#34;&#34;&#34;
+        self._stop_pyaudio()
+        if self.handle is not None:
+            self.handle.terminate()
+        self._close()
+
+
+    def open_sounddevice(self, device_index=None):
+        &#34;&#34;&#34;Initialize audio output via sounddevice module.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+
+        Raises
+        ------
+        ImportError
+            sounddevice module is not available.            
+        FileNotFoundError
+            Failed to open audio device.
+
+        Documentation
+        -------------
+        https://python-sounddevice.readthedocs.io
+
+        Installation
+        ------------
+        ```
+        sudo apt install -y libportaudio2 portaudio19-dev
+        sudo pip install sounddevice
+        ```
+        &#34;&#34;&#34;
+        if not audio_modules[&#39;sounddevice&#39;]:
+            raise ImportError
+        self.handle = True
+        self.index = 0
+        self.data = None
+        self.stream = None
+        try:
+            if device_index is None:
+                info_in = sounddevice.query_devices(kind=&#39;input&#39;)
+                info_out = sounddevice.query_devices(kind=&#39;output&#39;)
+                if info_in[&#39;index&#39;] == info_out[&#39;index&#39;]:
+                    info = info_out
+                else:
+                    info = info_out
+                    if info_in[&#39;max_output_channels&#39;] &gt; info_out[&#39;max_output_channels&#39;]:
+                        info = info_in
+            else:
+                info = sounddevice.query_devices(device_index)
+            self.device_index = info[&#39;index&#39;]
+            self.max_channels = info[&#39;max_output_channels&#39;]
+            self.default_rate = info[&#39;default_samplerate&#39;]
+            sounddevice.check_output_settings(device=self.device_index,
+                                              channels=1, dtype=np.int16,
+                                              samplerate=48000)
+        except Exception as e:
+            if self.verbose &gt; 0:
+                print(str(e))
+            self._close()
+            raise FileNotFoundError(&#39;failed to initialize audio device&#39;)
+        self.close = self._close_sounddevice
+        self.stop = self._stop_sounddevice
+        self._do_play = self._play_sounddevice
+        self.lib = &#39;sounddevice&#39;
+        return self
+
+    def _callback_sounddevice(self, out_data, frames, time_info, status):
+        &#34;&#34;&#34;Callback for sounddevice for supplying output with data.&#34;&#34;&#34;
+        if status:
+            print(status)
+        if self.index &lt; len(self.data):
+            ndata = len(self.data) - self.index
+            if ndata &gt;= frames :
+                if self.data.ndim &lt;= 1:
+                    out_data[:,0] = self.data[self.index:self.index+frames]
+                else:
+                    out_data[:, :] = self.data[self.index:self.index+frames, :]
+                self.index += frames
+            else:
+                if self.data.ndim &lt;= 1:
+                    out_data[:ndata, 0] = self.data[self.index:]
+                    out_data[ndata:, 0] = np.zeros(frames-ndata, dtype=np.int16)
+                else:
+                    out_data[:ndata, :] = self.data[self.index:, :]
+                    out_data[ndata:, :] = np.zeros((frames-ndata, self.channels),
+                                                   dtype=np.int16)
+                self.index += frames
+        else:
+            # we need to play more to make sure everything is played!
+            # This is because of an ALSA bug and might be fixed in newer versions,
+            # see http://music.columbia.edu/pipermail/portaudio/2012-May/013959.html
+            if self.data.ndim &lt;= 1:
+                out_data[:, 0] = np.zeros(frames, dtype=np.int16)
+            else:
+                out_data[:, :] = np.zeros((frames, self.channels), dtype=np.int16)
+            self.index += frames
+            if self.index &gt;= len(self.data) + 2*self.latency:
+                raise sounddevice.CallbackStop
+        if not self.run:
+            raise sounddevice.CallbackStop
+
+    def _stop_sounddevice(self):
+        &#34;&#34;&#34;Stop any ongoing activity of the sounddevice module.&#34;&#34;&#34;
+        if self.stream is not None:
+            if self.stream.active:
+                # fade out:
+                fadetime = 0.1
+                nr = int(np.round(fadetime*self.rate))
+                index = self.index+nr
+                if nr &gt; len(self.data) - index:
+                    nr = len(self.data) - index
+                else:
+                    self.data[index+nr:] = 0
+                if nr &gt; 0:
+                    for k in range(nr) :
+                        self.data[index+(nr-k-1)] = np.array(self.data[index+(nr-k-1)] *
+                                np.sin(0.5*np.pi*float(k)/float(nr))**2.0, np.int16, order=&#39;C&#39;)
+                sounddevice.sleep(int(2000*fadetime))
+            if self.stream.active:
+                self.run = False
+                while self.stream.active:
+                    sounddevice.sleep(10)
+                self.stream.stop()
+            self.stream.close()
+            self.stream = None
+    
+    def _play_sounddevice(self, blocking=True):
+        &#34;&#34;&#34;Play audio data using the sounddevice module.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block.
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        &#34;&#34;&#34;
+        # check channel count:
+        channels = self.channels
+        if self.channels &gt; self.max_channels:
+            channels = self.max_channels
+        # check sampling rate:
+        scale_fac = 1
+        scaled_rate = self.rate
+        max_rate = 48000.0
+        if self.rate &gt; max_rate:
+            scale_fac = int(np.ceil(self.rate/max_rate))
+            scaled_rate = int(self.rate//scale_fac)
+        rates = [self.rate, scaled_rate, 44100, 48000, 22050, self.default_rate]
+        scales = [1, scale_fac, None, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            try:
+                sounddevice.check_output_settings(device=self.device_index,
+                                                  channels=channels,
+                                                  dtype=np.int16,
+                                                  samplerate=rate)
+                if scale is None:
+                    scale = self.rate/float(rate)
+                success = True
+                break
+            except sounddevice.PortAudioError as pae:
+                if pae.args[1] != -9997:
+                    raise
+                elif self.verbose &gt; 0:
+                    print(f&#39;invalid sampling rate of {rate}Hz&#39;)
+        if not success:
+            raise ValueError(&#39;No valid sampling rate found&#39;)
+        if channels != self.channels or scale != 1:
+            self._down_sample(channels, scale)
+        
+        # play:
+        self.stream = sounddevice.OutputStream(samplerate=self.rate,
+                                               device=self.device_index,
+                                               channels=self.channels,
+                                               dtype=np.int16,
+                                               callback=self._callback_sounddevice)
+        self.latency = self.stream.latency*self.rate
+        self.run = True
+        self.stream.start()
+        if blocking:
+            while self.stream.active:
+                sounddevice.sleep(10)
+            self.run = False
+            self.stream.stop()
+            self.stream.close()
+            self.stream = None
+        
+    def _close_sounddevice(self):
+        &#34;&#34;&#34;Terminate sounddevice module.&#34;&#34;&#34;
+        self._stop_sounddevice()
+        self._close()
+
+        
+    def open_simpleaudio(self, device_index=None):
+        &#34;&#34;&#34;Initialize audio output via simpleaudio package.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+            Not supported by simpleaudio.
+
+        Raises
+        ------
+        ImportError
+            simpleaudio module is not available.
+
+        Documentation
+        -------------
+        https://simpleaudio.readthedocs.io
+        &#34;&#34;&#34;
+        if not audio_modules[&#39;simpleaudio&#39;]:
+            raise ImportError
+        self.handle = True
+        self._do_play = self._play_simpleaudio
+        self.close = self._close_simpleaudio
+        self.stop = self._stop_simpleaudio
+        self.lib = &#39;simpleaudio&#39;
+        return self
+
+    def _stop_simpleaudio(self):
+        &#34;&#34;&#34;Stop any ongoing activity of the simpleaudio package.&#34;&#34;&#34;
+        if self.handle is not None and self.handle is not True:
+            self.handle.stop()
+    
+    def _play_simpleaudio(self, blocking=True):
+        &#34;&#34;&#34;Play audio data using the simpleaudio package.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        FileNotFoundError
+            No audio device for playback.
+        &#34;&#34;&#34;
+        rates = [self.rate, 44100, 48000, 22050]
+        scales = [1, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            if scale is None:
+                scale = self.rate/float(rate)
+            if scale != 1:
+                self._down_sample(self.channels, scale)
+            try:
+                self.handle = simpleaudio.play_buffer(self.data, self.channels,
+                                                      2, int(self.rate))
+                success = True
+                break
+            except ValueError as e:
+                if self.verbose &gt; 0:
+                    print(f&#39;invalid sampling rate of {rate}Hz&#39;)
+            except simpleaudio._simpleaudio.SimpleaudioError as e:
+                if self.verbose &gt; 0:
+                    print(&#39;simpleaudio SimpleaudioError:&#39;, str(e))
+                if &#39;Error opening&#39; in str(e):
+                    raise FileNotFoundError(&#39;No audio device found&#39;)
+            except Exception as e:
+                if self.verbose &gt; 0:
+                    print(&#39;simpleaudio Exception:&#39;, str(e))
+        if not success:
+            raise ValueError(&#39;No valid sampling rate found&#39;)
+        elif blocking:
+            self.handle.wait_done()
+        
+    def _close_simpleaudio(self):
+        &#34;&#34;&#34;Close audio output using simpleaudio package.&#34;&#34;&#34;
+        self._stop_simpleaudio()
+        simpleaudio.stop_all()
+        self._close()
+
+        
+    def open_soundcard(self, device_index=None):
+        &#34;&#34;&#34;Initialize audio output via soundcard package.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+
+        Raises
+        ------
+        ImportError
+            soundcard module is not available.
+        FileNotFoundError
+            Failed to open audio device.
+
+        Documentation
+        -------------
+        https://github.com/bastibe/SoundCard
+        &#34;&#34;&#34;
+        if not audio_modules[&#39;soundcard&#39;]:
+            raise ImportError
+        try:
+            if device_index is None:
+                self.handle = soundcard.default_speaker()
+            else:
+                self.handle = soundcard.all_speakers()[device_index]
+        except IndexError:
+            raise FileNotFoundError(&#39;No audio device found&#39;)
+        except Exception as e:
+            print(&#39;soundcard Exception:&#39;, type(e).__name__, str(e))
+        if self.handle is None:
+            raise FileNotFoundError(&#39;No audio device found&#39;)
+        self._do_play = self._play_soundcard
+        self.close = self._close_soundcard
+        self.stop = self._stop_soundcard
+        self.lib = &#39;soundcard&#39;
+        return self
+
+    def _stop_soundcard(self):
+        &#34;&#34;&#34;Stop any ongoing activity of the soundcard package.&#34;&#34;&#34;
+        pass
+    
+    def _play_soundcard(self, blocking=True):
+        &#34;&#34;&#34;Play audio data using the soundcard package.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block.
+            Non-blocking playback not supported by soundcard.
+            Return immediately without playing sound.
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+        &#34;&#34;&#34;
+        if not blocking:
+            warnings.warn(&#39;soundcard module does not support non-blocking playback&#39;)
+            return
+        rates = [self.rate, 44100, 48000, 22050]
+        scales = [1, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            if scale is None:
+                scale = self.rate/float(rate)
+            if scale != 1:
+                self._down_sample(self.channels, scale)
+            try:
+                self.handle.play(self.data, samplerate=int(self.rate))
+                success = True
+                break
+            except RuntimeError as e:
+                if &#39;invalid sample spec&#39; in str(e):
+                    if self.verbose &gt; 0:
+                        print(f&#39;invalid sampling rate of {rate}Hz&#39;)
+                else:
+                    if self.verbose &gt; 0:
+                        print(&#39;soundcard error:&#39;, type(e).__name__, str(e))
+            except Exception as e:
+                if self.verbose &gt; 0:
+                    print(&#39;soundcard error:&#39;, type(e).__name__, str(e))
+        if not success:
+            raise ValueError(&#39;No valid sampling rate found&#39;)
+    
+    def _close_soundcard(self):
+        &#34;&#34;&#34;Close audio output using soundcard package.&#34;&#34;&#34;
+        self._stop_soundcard()
+        self._close()
+
+                
+    def open_ossaudiodev(self, device_index=None):
+        &#34;&#34;&#34;Initialize audio output via ossaudiodev module.
+
+        The OSS audio module is part of the python standard library.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+            There is only a single OSS audio device.
+
+        Raises
+        ------
+        ImportError
+            ossaudiodev module is not available.
+        FileNotFoundError
+            Failed to open audio device.
+
+        Documentation
+        -------------
+        https://docs.python.org/2/library/ossaudiodev.html
+
+        Installation
+        ------------
+        The ossaudiodev module needs an oss `/dev/dsp` device file.
+        Enable an oss emulation via alsa by installing
+        ```
+        sudo apt install -y osspd
+        ```
+        &#34;&#34;&#34;
+        if not audio_modules[&#39;ossaudiodev&#39;]:
+            raise ImportError
+        self.handle = True
+        self.osshandle = None
+        self.run = False
+        self.play_thread = None
+        try:
+            handle = ossaudiodev.open(&#39;w&#39;)
+            handle.close()
+        except Exception as e:
+            if self.verbose &gt; 0:
+                print(str(e))
+            self._close()
+            raise FileNotFoundError(&#39;failed to initialize audio device&#39;)
+        self.close = self._close_ossaudiodev
+        self.stop = self._stop_ossaudiodev
+        self._do_play = self._play_ossaudiodev
+        self.lib = &#39;ossaudiodev&#39;
+        return self
+
+    def _stop_ossaudiodev(self):
+        &#34;&#34;&#34;Stop any ongoing activity of the ossaudiodev module.&#34;&#34;&#34;
+        if self.osshandle is not None:
+            self.run = False
+            self.osshandle.reset()
+            if self.play_thread is not None:
+                if self.play_thread.is_alive():
+                    self.play_thread.join()
+                self.play_thread = None
+            self.osshandle.close()
+            self.osshandle = None
+
+    def _run_play_ossaudiodev(self):
+        &#34;&#34;&#34;Play the data using the ossaudiodev module.&#34;&#34;&#34;
+        self.osshandle.writeall(self.data)
+        if self.run:
+            sleep(0.5)
+            self.osshandle.close()
+            self.osshandle = None
+            self.run = False
+        
+    def _play_ossaudiodev(self, blocking=True):
+        &#34;&#34;&#34;Play audio data using the ossaudiodev module.
+
+        Raises
+        ------
+        ValueError
+            Invalid sampling rate (after some attemps of resampling).
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
+        &#34;&#34;&#34;
+        self.osshandle = ossaudiodev.open(&#39;w&#39;)
+        self.osshandle.setfmt(ossaudiodev.AFMT_S16_LE)
+        # set and check channel count:
+        channels = self.osshandle.channels(self.channels)
+        # check sampling rate:
+        scale_fac = 1
+        scaled_rate = self.rate
+        max_rate = 48000.0
+        if self.rate &gt; max_rate:
+            scale_fac = int(np.ceil(self.rate/max_rate))
+            scaled_rate = int(self.rate//scale_fac)
+        rates = [self.rate, scaled_rate, 44100, 48000, 22050, 8000]
+        scales = [1, scale_fac, None, None, None, None]
+        success = False
+        for rate, scale in zip(rates, scales):
+            set_rate = self.osshandle.speed(int(rate))
+            if abs(set_rate - rate) &lt; 2:
+                if scale is None:
+                    scale = self.rate/float(set_rate)
+                success = True
+                break
+            else:
+                if self.verbose &gt; 0:
+                    print(f&#39;invalid sampling rate of {rate}Hz&#39;)
+        if not success:
+            raise ValueError(&#39;No valid sampling rate found&#39;)
+        if channels != self.channels or scale != 1:
+            self._down_sample(channels, scale)
+        if blocking:
+            self.run = True
+            self.osshandle.writeall(self.data)
+            sleep(0.5)
+            self.osshandle.close()
+            self.run = False
+            self.osshandle = None
+        else:
+            self.play_thread = Process(target=self._run_play_ossaudiodev)
+            self.run = True
+            self.play_thread.start()
+
+    def _close_ossaudiodev(self):
+        &#34;&#34;&#34;Close audio output using ossaudiodev module.&#34;&#34;&#34;
+        self._stop_ossaudiodev()
+        self._close()
+
+        
+    def open_winsound(self, device_index=None):
+        &#34;&#34;&#34;Initialize audio output via winsound module.
+
+        The winsound module is part of the python standard library.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+            Device selection is not supported by the winsound module.
+
+        Raises
+        ------
+        ImportError
+            winsound module is not available.
+
+        Documentation
+        -------------
+        https://docs.python.org/3.6/library/winsound.html
+        https://mail.python.org/pipermail/tutor/2012-September/091529.html
+        &#34;&#34;&#34;
+        if not audio_modules[&#39;winsound&#39;] or not audio_modules[&#39;wave&#39;]:
+            raise ImportError
+        self.handle = True
+        self._do_play = self._play_winsound
+        self.close = self._close_winsound
+        self.stop = self._stop_winsound
+        self.audio_file = &#39;&#39;
+        self.lib = &#39;winsound&#39;
+        return self
+
+    def _stop_winsound(self):
+        &#34;&#34;&#34;Stop any ongoing activity of the winsound module.&#34;&#34;&#34;
+        try:
+            winsound.PlaySound(None, winsound.SND_MEMORY)
+        except Exception as e:
+            pass
+        
+    def _play_winsound(self, blocking=True):
+        &#34;&#34;&#34;Play audio data using the winsound module.
+
+        Parameters
+        ----------
+        blocking: boolean
+            If False do not block. 
+        &#34;&#34;&#34;
+        # play file:
+        if blocking:
+            # write data as wav file to memory:
+            self.data_buffer = BytesIO()
+            w = wave.open(self.data_buffer, &#39;w&#39;)
+            w.setnchannels(self.channels)
+            w.setsampwidth(2)
+            w.setframerate(int(self.rate))
+            w.setnframes(len(self.data))
+            try:
+                w.writeframes(self.data.tobytes())
+            except AttributeError:
+                w.writeframes(self.data.tostring())
+            w.close()
+            try:
+                winsound.PlaySound(self.data_buffer.getvalue(), winsound.SND_MEMORY)
+            except Exception as e:
+                if self.verbose &gt; 0:
+                    print(str(e))
+                return
+        else:
+            if self.verbose &gt; 0:
+                print(&#39;Warning: asynchronous playback is limited to playing wav files by the winsound module. Install an alternative package as recommended by the audiomodules script. &#39;)
+            # write data as wav file to file:
+            self.audio_file = &#39;audioio-async_playback.wav&#39;
+            w = wave.open(self.audio_file, &#39;w&#39;)
+            w.setnchannels(self.channels)
+            w.setsampwidth(2)
+            w.setframerate(int(self.rate))
+            w.setnframes(len(self.data))
+            try:
+                w.writeframes(self.data.tobytes())
+            except AttributeError:
+                w.writeframes(self.data.tostring())
+            w.close()
+            try:
+                winsound.PlaySound(self.audio_file, winsound.SND_ASYNC)
+            except Exception as e:
+                if self.verbose &gt; 0:
+                    print(str(e))
+                return
+        
+    def _close_winsound(self):
+        &#34;&#34;&#34;Close audio output using winsound module.&#34;&#34;&#34;
+        self._stop_winsound()
+        self.handle = None
+        if len(self.audio_file) &gt; 0 and os.path.isfile(self.audio_file):
+            os.remove(self.audio_file)
+        self._close()
+
+
+    def open(self, device_index=None, library=None):
+        &#34;&#34;&#34;Initialize the PlayAudio class with the best module available.
+
+        Parameters
+        ----------
+        device_index: int or None
+            Index of the playback device to be used.
+            If None take the default device.
+        library: str or None
+            If specified, open a specific sound library.
+        &#34;&#34;&#34;
+        # list of implemented play functions:
+        audio_open = [
+            [&#39;sounddevice&#39;, self.open_sounddevice],
+            [&#39;pyaudio&#39;, self.open_pyaudio],
+            [&#39;simpleaudio&#39;, self.open_simpleaudio],
+            [&#39;soundcard&#39;, self.open_soundcard],
+            [&#39;ossaudiodev&#39;, self.open_ossaudiodev],
+            [&#39;winsound&#39;, self.open_winsound]
+            ]
+        if platform[0:3] == &#34;win&#34;:
+            sa = audio_open.pop(2)
+            audio_open.insert(0, sa)
+        # open audio device by trying various modules:
+        success = False
+        for lib, open_device in audio_open:
+            if library and library != lib:
+                continue
+            if not audio_modules[lib]:
+                if self.verbose &gt; 0:
+                    print(f&#39;module {lib} not available&#39;)
+                continue
+            try:
+                open_device(device_index)
+                success = True
+                if self.verbose &gt; 0:
+                    print(f&#39;successfully opened {lib} module for playing&#39;)
+                break
+            except Exception as e:
+                if self.verbose &gt; 0:
+                    print(f&#39;failed to open {lib} module for playing:&#39;,
+                          type(e).__name__, str(e))
+        if not success:
+            warnings.warn(&#39;cannot open any device for audio output&#39;)
+        return self</code></pre>
+</details>
+<div class="desc"><p>Audio playback.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.
+Use the speaker_devices() function to query available devices.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>Verbosity level.</dd>
+<dt><strong><code>library</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>If specified, open a specific sound library.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>lib</code></strong> :&ensp;<code>string</code></dt>
+<dd>The library used for playback.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>Verbosity level.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<ul>
+<li><code>play(data, rate, scale=None, blocking=True)</code>: Playback audio data.</li>
+<li><code>beep(duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0, fadetime=0.05, blocking=True)</code>: Playback a pure tone.</li>
+<li><code>open()</code>: Initialize the PlayAudio class with the best module available.</li>
+<li><code><a title="audioio.playaudio.close" href="#audioio.playaudio.close">close()</a></code>: Terminate module for playing audio.</li>
+<li><code>stop()</code>:
+Stop any playback in progress.</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<pre><code>from audioio import PlayAudio
+
+with PlayAudio() as audio:
+    audio.beep()
+</code></pre>
+<p>or without context management:</p>
+<pre><code>audio = PlayAudio()
+audio.beep(1.0, 'a4')
+audio.close()
+</code></pre></div>
+<h3>Methods</h3>
+<dl>
+<dt id="audioio.playaudio.PlayAudio.play"><code class="name flex">
+<span>def <span class="ident">play</span></span>(<span>self, data, rate, scale=None, blocking=True, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def play(self, data, rate, scale=None, blocking=True, device_index=None):
+    &#34;&#34;&#34;Playback audio data.
+
+    Parameters
+    ----------
+    data: array
+        The data to be played, either 1-D array for single channel output,
+        or 2-D array with first axis time and second axis channel.
+        Data values range between -1 and 1.
+    rate: float
+        The sampling rate in Hertz.
+    scale: float
+        Multiply data with scale before playing.
+        If `None` scale it to the maximum value, if 1.0 do not scale.
+    blocking: boolean
+        If False do not block. 
+    device_index: int or None
+        Index of the playback device to be used,
+        if not already openend via the constructor.
+        If None take the default device.
+
+    Raises
+    ------
+    ValueError
+        Invalid sampling rate (after some attemps of resampling).
+    FileNotFoundError
+        No audio device for playback.
+    &#34;&#34;&#34;
+    if self.handle is None:
+        self.open(device_index)
+    else:
+        self.stop()
+    self.rate = rate
+    self.channels = 1
+    if data.ndim &gt; 1:
+        self.channels = data.shape[1]
+    # convert data:
+    rawdata = data - np.mean(data, axis=0)
+    if scale is None:
+        scale = 1.0/np.max(np.abs(rawdata))
+    rawdata *= scale
+    self.data = np.floor(rawdata*(2**15-1)).astype(np.int16, order=&#39;C&#39;)
+    self.index = 0
+    self._do_play(blocking)</code></pre>
+</details>
+<div class="desc"><p>Playback audio data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data to be played, either 1-D array for single channel output,
+or 2-D array with first axis time and second axis channel.
+Data values range between -1 and 1.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>float</code></dt>
+<dd>Multiply data with scale before playing.
+If <code>None</code> scale it to the maximum value, if 1.0 do not scale.</dd>
+<dt><strong><code>blocking</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If False do not block.</dd>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used,
+if not already openend via the constructor.
+If None take the default device.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Invalid sampling rate (after some attemps of resampling).</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd>No audio device for playback.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.beep"><code class="name flex">
+<span>def <span class="ident">beep</span></span>(<span>self,<br>duration=0.5,<br>frequency=880.0,<br>amplitude=0.5,<br>rate=44100.0,<br>fadetime=0.05,<br>blocking=True,<br>device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def beep(self, duration=0.5, frequency=880.0, amplitude=0.5, rate=44100.0,
+         fadetime=0.05, blocking=True, device_index=None):
+    &#34;&#34;&#34;Playback a pure tone.
+
+    Parameters
+    ----------
+    duration: float
+        The duration of the tone in seconds.
+    frequency: float or string
+        If float, the frequency of the tone in Hertz.
+        If string, a musical note like &#39;f#5&#39;.
+        See `note2freq()` for details.
+    amplitude: float
+        The ampliude (volume) of the tone in the range from 0.0 to 1.0.
+    rate: float
+        The sampling rate in Hertz.
+    fadetime: float
+        Time for fading in and out in seconds.
+    blocking: boolean
+        If False do not block.
+    device_index: int or None
+        Index of the playback device to be used,
+        if not already openend via the constructor.
+        If None take the default device.
+
+    Raises
+    ------
+    ValueError
+        Invalid sampling rate (after some attemps of resampling).
+    FileNotFoundError
+        No audio device for playback.
+    
+    See also
+    --------
+    https://mail.python.org/pipermail/tutor/2012-September/091529.html
+    for fourier series based construction of waveforms.  
+    &#34;&#34;&#34;
+    # frequency
+    if isinstance(frequency, str):
+        frequency = note2freq(frequency)
+    # sine wave:
+    time = np.arange(0.0, duration, 1.0/rate)
+    data = amplitude*np.sin(2.0*np.pi*frequency*time)
+    # fade in and out:
+    fade(data, rate, fadetime)
+    # # final click for testing (mono only):
+    # data = np.hstack((data, np.sin(2.0*np.pi*1000.0*time[0:int(np.ceil(4.0*rate/1000.0))])))
+    # play:
+    self.play(data, rate, scale=1.0, blocking=blocking,
+              device_index=device_index)</code></pre>
+</details>
+<div class="desc"><p>Playback a pure tone.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>duration</code></strong> :&ensp;<code>float</code></dt>
+<dd>The duration of the tone in seconds.</dd>
+<dt><strong><code>frequency</code></strong> :&ensp;<code>float</code> or <code>string</code></dt>
+<dd>If float, the frequency of the tone in Hertz.
+If string, a musical note like 'f#5'.
+See <code><a title="audioio.playaudio.note2freq" href="#audioio.playaudio.note2freq">note2freq()</a></code> for details.</dd>
+<dt><strong><code>amplitude</code></strong> :&ensp;<code>float</code></dt>
+<dd>The ampliude (volume) of the tone in the range from 0.0 to 1.0.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>The sampling rate in Hertz.</dd>
+<dt><strong><code>fadetime</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time for fading in and out in seconds.</dd>
+<dt><strong><code>blocking</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If False do not block.</dd>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used,
+if not already openend via the constructor.
+If None take the default device.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Invalid sampling rate (after some attemps of resampling).</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd>No audio device for playback.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<p><code>&lt;https://mail.python.org/pipermail/tutor/2012-September/091529.html&gt;</code>
+<code>for fourier series based construction of waveforms.</code></p></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open_pyaudio"><code class="name flex">
+<span>def <span class="ident">open_pyaudio</span></span>(<span>self, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_pyaudio(self, device_index=None):
+    &#34;&#34;&#34;Initialize audio output via PyAudio module.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+
+    Raises
+    ------
+    ImportError
+        PyAudio module is not available.
+    FileNotFoundError
+        Failed to open audio device.
+
+    Documentation
+    -------------
+    https://people.csail.mit.edu/hubert/pyaudio/
+    http://www.portaudio.com/
+
+    Installation
+    ------------
+    ```
+    sudo apt install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+    ```
+    
+    On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+    &lt;https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio&gt;.  Install this file with pip,
+    that is go to the folder where the wheel file is downloaded and run
+    ```
+    pip install PyAudio-0.2.11-cp39-cp39-win_amd64.whl
+    ```
+    replace the wheel file name by the one you downloaded.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;pyaudio&#39;]:
+        raise ImportError
+    oldstderr = os.dup(2)
+    os.close(2)
+    tmpfile = &#39;tmpfile.tmp&#39;
+    os.open(tmpfile, os.O_WRONLY | os.O_CREAT)
+    self.handle = pyaudio.PyAudio()
+    self.stream = None
+    os.close(2)
+    os.dup(oldstderr)
+    os.close(oldstderr)
+    os.remove(tmpfile)
+    try:
+        if device_index is None:
+            info = self.handle.get_default_output_device_info()
+        else:
+            info = self.handle.get_device_info_by_index(device_index)
+        self.max_channels = info[&#39;maxOutputChannels&#39;]
+        self.default_rate = info[&#39;defaultSampleRate&#39;]
+        self.device_index = info[&#39;index&#39;]
+        self.handle.is_format_supported(self.default_rate,
+                                        output_device=self.device_index,
+                                        output_channels=1,
+                                        output_format=pyaudio.paInt16)
+    except Exception as e:
+        if self.verbose &gt; 0:
+            print(str(e))
+        self.handle.terminate()
+        self._close()
+        raise FileNotFoundError(&#39;failed to initialize audio device&#39;)
+    self.index = 0
+    self.data = None
+    self.close = self._close_pyaudio
+    self.stop = self._stop_pyaudio
+    self._do_play = self._play_pyaudio
+    self.lib = &#39;pyaudio&#39;
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize audio output via PyAudio module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>PyAudio module is not available.</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd>Failed to open audio device.</dd>
+</dl>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://people.csail.mit.edu/hubert/pyaudio/">https://people.csail.mit.edu/hubert/pyaudio/</a>
+<a href="http://www.portaudio.com/">http://www.portaudio.com/</a></p>
+<h2 id="installation">Installation</h2>
+<pre><code>sudo apt install -y libportaudio2 portaudio19-dev python-pyaudio python3-pyaudio
+</code></pre>
+<p>On Windows, download an appropriate (latest version, 32 or 64 bit) wheel from
+<a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio">https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio</a>.
+Install this file with pip,
+that is go to the folder where the wheel file is downloaded and run</p>
+<pre><code>pip install PyAudio-0.2.11-cp39-cp39-win_amd64.whl
+</code></pre>
+<p>replace the wheel file name by the one you downloaded.</p></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open_sounddevice"><code class="name flex">
+<span>def <span class="ident">open_sounddevice</span></span>(<span>self, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_sounddevice(self, device_index=None):
+    &#34;&#34;&#34;Initialize audio output via sounddevice module.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+
+    Raises
+    ------
+    ImportError
+        sounddevice module is not available.            
+    FileNotFoundError
+        Failed to open audio device.
+
+    Documentation
+    -------------
+    https://python-sounddevice.readthedocs.io
+
+    Installation
+    ------------
+    ```
+    sudo apt install -y libportaudio2 portaudio19-dev
+    sudo pip install sounddevice
+    ```
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;sounddevice&#39;]:
+        raise ImportError
+    self.handle = True
+    self.index = 0
+    self.data = None
+    self.stream = None
+    try:
+        if device_index is None:
+            info_in = sounddevice.query_devices(kind=&#39;input&#39;)
+            info_out = sounddevice.query_devices(kind=&#39;output&#39;)
+            if info_in[&#39;index&#39;] == info_out[&#39;index&#39;]:
+                info = info_out
+            else:
+                info = info_out
+                if info_in[&#39;max_output_channels&#39;] &gt; info_out[&#39;max_output_channels&#39;]:
+                    info = info_in
+        else:
+            info = sounddevice.query_devices(device_index)
+        self.device_index = info[&#39;index&#39;]
+        self.max_channels = info[&#39;max_output_channels&#39;]
+        self.default_rate = info[&#39;default_samplerate&#39;]
+        sounddevice.check_output_settings(device=self.device_index,
+                                          channels=1, dtype=np.int16,
+                                          samplerate=48000)
+    except Exception as e:
+        if self.verbose &gt; 0:
+            print(str(e))
+        self._close()
+        raise FileNotFoundError(&#39;failed to initialize audio device&#39;)
+    self.close = self._close_sounddevice
+    self.stop = self._stop_sounddevice
+    self._do_play = self._play_sounddevice
+    self.lib = &#39;sounddevice&#39;
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize audio output via sounddevice module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>sounddevice module is not available.</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd>Failed to open audio device.</dd>
+</dl>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://python-sounddevice.readthedocs.io">https://python-sounddevice.readthedocs.io</a></p>
+<h2 id="installation">Installation</h2>
+<pre><code>sudo apt install -y libportaudio2 portaudio19-dev
+sudo pip install sounddevice
+</code></pre></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open_simpleaudio"><code class="name flex">
+<span>def <span class="ident">open_simpleaudio</span></span>(<span>self, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_simpleaudio(self, device_index=None):
+    &#34;&#34;&#34;Initialize audio output via simpleaudio package.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+        Not supported by simpleaudio.
+
+    Raises
+    ------
+    ImportError
+        simpleaudio module is not available.
+
+    Documentation
+    -------------
+    https://simpleaudio.readthedocs.io
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;simpleaudio&#39;]:
+        raise ImportError
+    self.handle = True
+    self._do_play = self._play_simpleaudio
+    self.close = self._close_simpleaudio
+    self.stop = self._stop_simpleaudio
+    self.lib = &#39;simpleaudio&#39;
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize audio output via simpleaudio package.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.
+Not supported by simpleaudio.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>simpleaudio module is not available.</dd>
+</dl>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://simpleaudio.readthedocs.io">https://simpleaudio.readthedocs.io</a></p></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open_soundcard"><code class="name flex">
+<span>def <span class="ident">open_soundcard</span></span>(<span>self, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_soundcard(self, device_index=None):
+    &#34;&#34;&#34;Initialize audio output via soundcard package.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+
+    Raises
+    ------
+    ImportError
+        soundcard module is not available.
+    FileNotFoundError
+        Failed to open audio device.
+
+    Documentation
+    -------------
+    https://github.com/bastibe/SoundCard
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundcard&#39;]:
+        raise ImportError
+    try:
+        if device_index is None:
+            self.handle = soundcard.default_speaker()
+        else:
+            self.handle = soundcard.all_speakers()[device_index]
+    except IndexError:
+        raise FileNotFoundError(&#39;No audio device found&#39;)
+    except Exception as e:
+        print(&#39;soundcard Exception:&#39;, type(e).__name__, str(e))
+    if self.handle is None:
+        raise FileNotFoundError(&#39;No audio device found&#39;)
+    self._do_play = self._play_soundcard
+    self.close = self._close_soundcard
+    self.stop = self._stop_soundcard
+    self.lib = &#39;soundcard&#39;
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize audio output via soundcard package.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>soundcard module is not available.</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd>Failed to open audio device.</dd>
+</dl>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/bastibe/SoundCard">https://github.com/bastibe/SoundCard</a></p></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open_ossaudiodev"><code class="name flex">
+<span>def <span class="ident">open_ossaudiodev</span></span>(<span>self, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_ossaudiodev(self, device_index=None):
+    &#34;&#34;&#34;Initialize audio output via ossaudiodev module.
+
+    The OSS audio module is part of the python standard library.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+        There is only a single OSS audio device.
+
+    Raises
+    ------
+    ImportError
+        ossaudiodev module is not available.
+    FileNotFoundError
+        Failed to open audio device.
+
+    Documentation
+    -------------
+    https://docs.python.org/2/library/ossaudiodev.html
+
+    Installation
+    ------------
+    The ossaudiodev module needs an oss `/dev/dsp` device file.
+    Enable an oss emulation via alsa by installing
+    ```
+    sudo apt install -y osspd
+    ```
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;ossaudiodev&#39;]:
+        raise ImportError
+    self.handle = True
+    self.osshandle = None
+    self.run = False
+    self.play_thread = None
+    try:
+        handle = ossaudiodev.open(&#39;w&#39;)
+        handle.close()
+    except Exception as e:
+        if self.verbose &gt; 0:
+            print(str(e))
+        self._close()
+        raise FileNotFoundError(&#39;failed to initialize audio device&#39;)
+    self.close = self._close_ossaudiodev
+    self.stop = self._stop_ossaudiodev
+    self._do_play = self._play_ossaudiodev
+    self.lib = &#39;ossaudiodev&#39;
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize audio output via ossaudiodev module.</p>
+<p>The OSS audio module is part of the python standard library.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.
+There is only a single OSS audio device.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>ossaudiodev module is not available.</dd>
+<dt><code>FileNotFoundError</code></dt>
+<dd>Failed to open audio device.</dd>
+</dl>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://docs.python.org/2/library/ossaudiodev.html">https://docs.python.org/2/library/ossaudiodev.html</a></p>
+<h2 id="installation">Installation</h2>
+<p>The ossaudiodev module needs an oss <code>/dev/dsp</code> device file.
+Enable an oss emulation via alsa by installing</p>
+<pre><code>sudo apt install -y osspd
+</code></pre></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open_winsound"><code class="name flex">
+<span>def <span class="ident">open_winsound</span></span>(<span>self, device_index=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_winsound(self, device_index=None):
+    &#34;&#34;&#34;Initialize audio output via winsound module.
+
+    The winsound module is part of the python standard library.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+        Device selection is not supported by the winsound module.
+
+    Raises
+    ------
+    ImportError
+        winsound module is not available.
+
+    Documentation
+    -------------
+    https://docs.python.org/3.6/library/winsound.html
+    https://mail.python.org/pipermail/tutor/2012-September/091529.html
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;winsound&#39;] or not audio_modules[&#39;wave&#39;]:
+        raise ImportError
+    self.handle = True
+    self._do_play = self._play_winsound
+    self.close = self._close_winsound
+    self.stop = self._stop_winsound
+    self.audio_file = &#39;&#39;
+    self.lib = &#39;winsound&#39;
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize audio output via winsound module.</p>
+<p>The winsound module is part of the python standard library.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.
+Device selection is not supported by the winsound module.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>winsound module is not available.</dd>
+</dl>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://docs.python.org/3.6/library/winsound.html">https://docs.python.org/3.6/library/winsound.html</a>
+<a href="https://mail.python.org/pipermail/tutor/2012-September/091529.html">https://mail.python.org/pipermail/tutor/2012-September/091529.html</a></p></div>
+</dd>
+<dt id="audioio.playaudio.PlayAudio.open"><code class="name flex">
+<span>def <span class="ident">open</span></span>(<span>self, device_index=None, library=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open(self, device_index=None, library=None):
+    &#34;&#34;&#34;Initialize the PlayAudio class with the best module available.
+
+    Parameters
+    ----------
+    device_index: int or None
+        Index of the playback device to be used.
+        If None take the default device.
+    library: str or None
+        If specified, open a specific sound library.
+    &#34;&#34;&#34;
+    # list of implemented play functions:
+    audio_open = [
+        [&#39;sounddevice&#39;, self.open_sounddevice],
+        [&#39;pyaudio&#39;, self.open_pyaudio],
+        [&#39;simpleaudio&#39;, self.open_simpleaudio],
+        [&#39;soundcard&#39;, self.open_soundcard],
+        [&#39;ossaudiodev&#39;, self.open_ossaudiodev],
+        [&#39;winsound&#39;, self.open_winsound]
+        ]
+    if platform[0:3] == &#34;win&#34;:
+        sa = audio_open.pop(2)
+        audio_open.insert(0, sa)
+    # open audio device by trying various modules:
+    success = False
+    for lib, open_device in audio_open:
+        if library and library != lib:
+            continue
+        if not audio_modules[lib]:
+            if self.verbose &gt; 0:
+                print(f&#39;module {lib} not available&#39;)
+            continue
+        try:
+            open_device(device_index)
+            success = True
+            if self.verbose &gt; 0:
+                print(f&#39;successfully opened {lib} module for playing&#39;)
+            break
+        except Exception as e:
+            if self.verbose &gt; 0:
+                print(f&#39;failed to open {lib} module for playing:&#39;,
+                      type(e).__name__, str(e))
+    if not success:
+        warnings.warn(&#39;cannot open any device for audio output&#39;)
+    return self</code></pre>
+</details>
+<div class="desc"><p>Initialize the PlayAudio class with the best module available.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>device_index</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of the playback device to be used.
+If None take the default device.</dd>
+<dt><strong><code>library</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>If specified, open a specific sound library.</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#class">Class</a></li>
+<li><a href="#functions">Functions</a></li>
+<li><a href="#helper-functions">Helper functions</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#demo">Demo</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="audioio.playaudio.handle" href="#audioio.playaudio.handle">handle</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.playaudio.main" href="#audioio.playaudio.main">main</a></code></li>
+<li><code><a title="audioio.playaudio.note2freq" href="#audioio.playaudio.note2freq">note2freq</a></code></li>
+<li><code><a title="audioio.playaudio.fade_in" href="#audioio.playaudio.fade_in">fade_in</a></code></li>
+<li><code><a title="audioio.playaudio.fade_out" href="#audioio.playaudio.fade_out">fade_out</a></code></li>
+<li><code><a title="audioio.playaudio.fade" href="#audioio.playaudio.fade">fade</a></code></li>
+<li><code><a title="audioio.playaudio.play" href="#audioio.playaudio.play">play</a></code></li>
+<li><code><a title="audioio.playaudio.beep" href="#audioio.playaudio.beep">beep</a></code></li>
+<li><code><a title="audioio.playaudio.close" href="#audioio.playaudio.close">close</a></code></li>
+<li><code><a title="audioio.playaudio.speaker_devices_pyaudio" href="#audioio.playaudio.speaker_devices_pyaudio">speaker_devices_pyaudio</a></code></li>
+<li><code><a title="audioio.playaudio.speaker_devices_sounddevice" href="#audioio.playaudio.speaker_devices_sounddevice">speaker_devices_sounddevice</a></code></li>
+<li><code><a title="audioio.playaudio.speaker_devices_soundcard" href="#audioio.playaudio.speaker_devices_soundcard">speaker_devices_soundcard</a></code></li>
+<li><code><a title="audioio.playaudio.speaker_devices" href="#audioio.playaudio.speaker_devices">speaker_devices</a></code></li>
+<li><code><a title="audioio.playaudio.print_speaker_devices" href="#audioio.playaudio.print_speaker_devices">print_speaker_devices</a></code></li>
+<li><code><a title="audioio.playaudio.demo" href="#audioio.playaudio.demo">demo</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="audioio.playaudio.PlayAudio" href="#audioio.playaudio.PlayAudio">PlayAudio</a></code></h4>
+<ul class="two-column">
+<li><code><a title="audioio.playaudio.PlayAudio.play" href="#audioio.playaudio.PlayAudio.play">play</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.beep" href="#audioio.playaudio.PlayAudio.beep">beep</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open_pyaudio" href="#audioio.playaudio.PlayAudio.open_pyaudio">open_pyaudio</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open_sounddevice" href="#audioio.playaudio.PlayAudio.open_sounddevice">open_sounddevice</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open_simpleaudio" href="#audioio.playaudio.PlayAudio.open_simpleaudio">open_simpleaudio</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open_soundcard" href="#audioio.playaudio.PlayAudio.open_soundcard">open_soundcard</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open_ossaudiodev" href="#audioio.playaudio.PlayAudio.open_ossaudiodev">open_ossaudiodev</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open_winsound" href="#audioio.playaudio.PlayAudio.open_winsound">open_winsound</a></code></li>
+<li><code><a title="audioio.playaudio.PlayAudio.open" href="#audioio.playaudio.PlayAudio.open">open</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
