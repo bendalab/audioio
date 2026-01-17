@@ -30,6 +30,7 @@ files and devices for scientific data analysis.
 - Read [`markers()`](https://bendalab.github.io/audioio/api/audioloader.html#audioio.audioloader.markers), i.e. cue points with spans, labels, and descriptions.
 - [`write_audio()`](https://bendalab.github.io/audioio/api/audiowriter.html#audioio.audiowriter.write_audio) function for writing data, metadata, and markers to an audio file. 
 - Platform independent, synchronous (blocking) and asynchronous (non blocking) playback of numpy arrays  via [`play()`](https://bendalab.github.io/audioio/api/playaudio.html#audioio.playaudio.play) with automatic resampling to match supported sampling rates.
+- Full pathlib support.
 - Detailed and platform specific installation instructions (pip, conda, Debian and RPM based Linux packages, homebrew for MacOS) for all supported audio packages (see [audiomodules](https://bendalab.github.io/audioio/api/audiomodules.html)).
 
 The AudioIO modules try to use whatever audio packages are installed
