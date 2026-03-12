@@ -258,6 +258,7 @@ class PlayAudio(object):
     - `open()`: Initialize the PlayAudio class with the best module available.
     - `close()`: Terminate module for playing audio.
     - `stop()`:  Stop any playback in progress.
+    - `active()`:  Report whether playback is in progress.
 
     Examples
     --------
@@ -281,6 +282,7 @@ class PlayAudio(object):
         self._do_play = self._play
         self.close = self._close
         self.stop = self._stop
+        self.active = self._active
         self.lib = None
         self.open(device_index, library)
 
@@ -295,6 +297,18 @@ class PlayAudio(object):
     def _stop(self):
         """Stop any playback in progress."""
         pass
+
+    def _active(self):
+        """Report whether playback is in progress.
+
+        Returns
+        -------
+        active: bool
+            True if audio output is still active.
+            Libraries that do not support this return False independent
+            of whether output is in progress or not.
+        """
+        return False
 
     def _play(self, blocking=True):
         """Default implementation of playing a sound: does nothing."""
@@ -516,6 +530,7 @@ class PlayAudio(object):
         self.data = None
         self.close = self._close_pyaudio
         self.stop = self._stop_pyaudio
+        self.active = self._active_pyaudio
         self._do_play = self._play_pyaudio
         self.lib = 'pyaudio'
         return self
@@ -578,6 +593,16 @@ class PlayAudio(object):
                 self.stream.stop_stream()
             self.stream.close()
             self.stream = None
+
+    def _active_pyaudio(self):
+        """Report whether playback is in progress.
+
+        Returns
+        -------
+        active: bool
+            True if audio output is still active.
+        """
+        return self.stream is not None and self.stream.is_active() 
     
     def _play_pyaudio(self, blocking=True):
         """Play audio data using the pyaudio module.
@@ -711,6 +736,7 @@ class PlayAudio(object):
             raise FileNotFoundError('failed to initialize audio device')
         self.close = self._close_sounddevice
         self.stop = self._stop_sounddevice
+        self.active = self._active_sounddevice
         self._do_play = self._play_sounddevice
         self.lib = 'sounddevice'
         return self
@@ -774,6 +800,16 @@ class PlayAudio(object):
                 self.stream.stop()
             self.stream.close()
             self.stream = None
+
+    def _active_sounddevice(self):
+        """Report whether playback is in progress.
+
+        Returns
+        -------
+        active: bool
+            True if audio output is still active.
+        """
+        return self.stream is not None and self.stream.active 
     
     def _play_sounddevice(self, blocking=True):
         """Play audio data using the sounddevice module.
@@ -870,6 +906,7 @@ class PlayAudio(object):
         self._do_play = self._play_simpleaudio
         self.close = self._close_simpleaudio
         self.stop = self._stop_simpleaudio
+        self.active = self._active_simpleaudio
         self.lib = 'simpleaudio'
         return self
 
@@ -877,6 +914,17 @@ class PlayAudio(object):
         """Stop any ongoing activity of the simpleaudio package."""
         if self.handle is not None and self.handle is not True:
             self.handle.stop()
+
+    def _active_simpleaudio(self):
+        """Report whether playback is in progress.
+
+        Returns
+        -------
+        active: bool
+            True if audio output is still active.
+        """
+        return self.handle is not None and \
+            self.handle is not True and self.handle.is_playing() 
     
     def _play_simpleaudio(self, blocking=True):
         """Play audio data using the simpleaudio package.
@@ -965,6 +1013,7 @@ class PlayAudio(object):
         self._do_play = self._play_soundcard
         self.close = self._close_soundcard
         self.stop = self._stop_soundcard
+        self.active = self._active   # not supported ?
         self.lib = 'soundcard'
         return self
 
@@ -1068,6 +1117,7 @@ class PlayAudio(object):
             raise FileNotFoundError('failed to initialize audio device')
         self.close = self._close_ossaudiodev
         self.stop = self._stop_ossaudiodev
+        self.active = self._active_ossaudiodev
         self._do_play = self._play_ossaudiodev
         self.lib = 'ossaudiodev'
         return self
@@ -1083,6 +1133,16 @@ class PlayAudio(object):
                 self.play_thread = None
             self.osshandle.close()
             self.osshandle = None
+
+    def _active_ossaudiodev(self):
+        """Report whether playback is in progress.
+
+        Returns
+        -------
+        active: bool
+            True if audio output is still active.
+        """
+        return self.run
 
     def _run_play_ossaudiodev(self):
         """Play the data using the ossaudiodev module."""
@@ -1180,6 +1240,7 @@ class PlayAudio(object):
         self._do_play = self._play_winsound
         self.close = self._close_winsound
         self.stop = self._stop_winsound
+        self.active = self._active   # not supported
         self.audio_file = ''
         self.lib = 'winsound'
         return self
