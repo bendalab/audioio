@@ -1,0 +1,1758 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.audiowriter API documentation</title>
+<meta name="description" content="Write numpy arrays of floats to audio files …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audiowriter</code></h1>
+</header>
+<section id="section-intro">
+<p>Write numpy arrays of floats to audio files.</p>
+<ul>
+<li><code><a title="audioio.audiowriter.write_audio" href="#audioio.audiowriter.write_audio">write_audio()</a></code>: write audio data to file.</li>
+<li><code><a title="audioio.audiowriter.available_formats" href="#audioio.audiowriter.available_formats">available_formats()</a></code>: audio file formats supported by any of the installed audio modules.</li>
+<li><code><a title="audioio.audiowriter.available_encodings" href="#audioio.audiowriter.available_encodings">available_encodings()</a></code>: encodings of an audio file format supported by any of the installed audio modules.</li>
+<li><code><a title="audioio.audiowriter.format_from_extension" href="#audioio.audiowriter.format_from_extension">format_from_extension()</a></code>: deduce audio file format from file extension.</li>
+</ul>
+<p>The data to be written are 1-D or 2-D numpy arrays of floats ranging
+between -1 and 1 with first axis time and (optional) second axis channel.</p>
+<p>For support of more audio formats, you might need to install
+additional packages.
+See <a href="https://bendalab.github.io/audioio/installation">installation</a>
+for further instructions.</p>
+<p>For a demo, run the script as:</p>
+<pre><code>python -m src.audioio.audiowriter
+</code></pre>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="audioio.audiowriter.audio_formats_funcs"><code class="name">var <span class="ident">audio_formats_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>List of implemented formats() functions.</p>
+<p>Each element of the list is a tuple with the module's name and the formats() function.</p></div>
+</dd>
+<dt id="audioio.audiowriter.audio_encodings_funcs"><code class="name">var <span class="ident">audio_encodings_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>List of implemented encodings() functions.</p>
+<p>Each element of the list is a tuple with the module's name and the encodings() function.</p></div>
+</dd>
+<dt id="audioio.audiowriter.audio_writer_funcs"><code class="name">var <span class="ident">audio_writer_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>List of implemented write() functions.</p>
+<p>Each element of the list is a tuple with the module's name and the write() function.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audiowriter.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*args):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    args: list of str
+        Command line arguments as provided by sys.argv[1:]
+    &#34;&#34;&#34;
+    help = False
+    file_path = None
+    encoding = &#39;&#39;
+    mod = False
+    nchan = False
+    channels = 2
+    for arg in args:
+        if mod:
+            select_module(arg)
+            mod = False
+        elif nchan:
+            channels = int(arg)
+            nchan = False
+        elif arg == &#39;-h&#39;:
+            help = True
+            break
+        elif arg == &#39;-m&#39;:
+            mod = True
+        elif arg == &#39;-n&#39;:
+            nchan = True
+        elif file_path is None:
+            file_path = arg
+        else:
+            encoding = arg
+            break
+    if file_path is None:
+        file_path = &#39;test.wav&#39;
+
+    if help:
+        print(&#39;&#39;)
+        print(&#39;Usage:&#39;)
+        print(&#39;  python -m src.audioio.audiowriter [-m module] [-n channels] [&lt;filename&gt;] [&lt;encoding&gt;]&#39;)
+        return
+
+    demo(file_path, channels=channels, encoding=encoding)</code></pre>
+</details>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>args</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Command line arguments as provided by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.format_from_extension"><code class="name flex">
+<span>def <span class="ident">format_from_extension</span></span>(<span>filepath)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_from_extension(filepath):
+    &#34;&#34;&#34;Deduce audio file format from file extension.
+
+    Parameters
+    ----------
+    filepath: str or Path or None
+        Name of the audio file.
+
+    Returns
+    -------
+    format: str
+        Audio format deduced from file extension.
+    &#34;&#34;&#34;
+    if filepath is None:
+        return None
+    filepath = Path(filepath)
+    ext = filepath.suffix
+    if not ext:
+        return None
+    if ext[0] == &#39;.&#39;:
+        ext = ext[1:]
+    if not ext:
+        return None
+    ext = ext.upper()
+    if ext == &#39;WAVE&#39;:
+        return &#39;WAV&#39;
+    ext = ext.replace(&#39;MPEG&#39; , &#39;MP&#39;)
+    return ext</code></pre>
+</details>
+<div class="desc"><p>Deduce audio file format from file extension.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code> or <code>None</code></dt>
+<dd>Name of the audio file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>Audio format deduced from file extension.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.formats_wave"><code class="name flex">
+<span>def <span class="ident">formats_wave</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formats_wave():
+    &#34;&#34;&#34;Audio file formats supported by the wave module.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wave&#39;]:
+        return []
+    else:
+        return [&#39;WAV&#39;]</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by the wave module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.encodings_wave"><code class="name flex">
+<span>def <span class="ident">encodings_wave</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encodings_wave(format):
+    &#34;&#34;&#34;Encodings of an audio file format supported by the wave module.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wave&#39;]:
+        return []
+    elif format.upper() != &#39;WAV&#39;:
+        return []
+    else:
+        return [&#39;PCM_32&#39;, &#39;PCM_16&#39;, &#39;PCM_U8&#39;]</code></pre>
+</details>
+<div class="desc"><p>Encodings of an audio file format supported by the wave module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.write_wave"><code class="name flex">
+<span>def <span class="ident">write_wave</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_wave(filepath, data, rate, metadata=None, locs=None,
+               labels=None, format=None, encoding=None,
+               marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write audio data using the wave module from pythons standard libray.
+    
+    Documentation
+    -------------
+    https://docs.python.org/3.8/library/wave.html
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format, only &#39;WAV&#39; is supported.
+    encoding: str or None
+        Encoding of the data: &#39;PCM_32&#39;, &#39;PCM_16&#39;, or &#39;PCM_U8&#39;.
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ImportError
+        The wave module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wave&#39;]:
+        raise ImportError
+    if not format:
+        format = format_from_extension(filepath)
+    if format and format.upper() != &#39;WAV&#39;:
+        raise ValueError(&#39;file format %s not supported by wave module&#39; % format)
+
+    wave_encodings = {&#39;PCM_32&#39;: [4, &#39;i4&#39;],
+                      &#39;PCM_16&#39;: [2, &#39;i2&#39;],
+                      &#39;PCM_U8&#39;: [1, &#39;u1&#39;] }
+    if not encoding:
+        encoding = &#39;PCM_16&#39;
+    encoding = encoding.upper()
+    if encoding not in wave_encodings:
+        raise ValueError(&#39;file encoding %s not supported by wave module&#39; % encoding)
+    sampwidth = wave_encodings[encoding][0]
+    dtype = wave_encodings[encoding][1]
+
+    wf = wave.open(os.fspath(filepath), &#39;w&#39;) # &#39;with&#39; is not supported by wave
+    channels = 1
+    if len(data.shape) &gt; 1:
+        channels = data.shape[1]
+    wf.setnchannels(channels)
+    wf.setnframes(len(data))
+    wf.setframerate(int(rate))
+    wf.setsampwidth(sampwidth)
+    factor = 2**(sampwidth*8-1)
+    if sampwidth == 1:
+        buffer = np.floor((data+1.0) * factor).astype(dtype)
+        buffer[data &gt;= 1.0] = 2*factor - 1
+    else:
+        buffer = np.floor(data * factor).astype(dtype)
+        buffer[data &gt;= 1.0] = factor - 1
+    wf.writeframes(buffer.tobytes())
+    wf.close()
+    append_riff(filepath, metadata, locs, labels, rate, marker_hint)</code></pre>
+</details>
+<div class="desc"><p>Write audio data using the wave module from pythons standard libray.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://docs.python.org/3.8/library/wave.html">https://docs.python.org/3.8/library/wave.html</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only 'WAV' is supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data: 'PCM_32', 'PCM_16', or 'PCM_U8'.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wave module is not installed.</dd>
+<dt>*</dt>
+<dt>Writing of the data failed.</dt>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.formats_ewave"><code class="name flex">
+<span>def <span class="ident">formats_ewave</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formats_ewave():
+    &#34;&#34;&#34;Audio file formats supported by the ewave module.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;ewave&#39;]:
+        return []
+    else:
+        return [&#39;WAV&#39;, &#39;WAVEX&#39;]</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by the ewave module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.encodings_ewave"><code class="name flex">
+<span>def <span class="ident">encodings_ewave</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encodings_ewave(format):
+    &#34;&#34;&#34;Encodings of an audio file format supported by the ewave module.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;ewave&#39;]:
+        return []
+    elif format.upper() != &#39;WAV&#39; and format.upper() != &#39;WAVEX&#39;:
+        return []
+    else:
+        return [&#39;PCM_64&#39;, &#39;PCM_32&#39;, &#39;PCM_16&#39;, &#39;FLOAT&#39;, &#39;DOUBLE&#39;]</code></pre>
+</details>
+<div class="desc"><p>Encodings of an audio file format supported by the ewave module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.write_ewave"><code class="name flex">
+<span>def <span class="ident">write_ewave</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_ewave(filepath, data, rate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None,
+                marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write audio data using the ewave module from pythons standard libray.
+
+    Documentation
+    -------------
+    https://github.com/melizalab/py-ewave
+
+    Parameters
+    ----------
+    filepath: str
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format, only &#39;WAV&#39; and &#39;WAVEX&#39; are supported.
+    encoding: str or None
+        Encoding of the data: &#39;PCM_64&#39;, &#39;PCM_32&#39;, PCM_16&#39;, &#39;FLOAT&#39;, &#39;DOUBLE&#39;
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ImportError
+        The ewave module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;ewave&#39;]:
+        raise ImportError
+
+    if not format:
+        format = format_from_extension(filepath)
+    if format and format.upper() != &#39;WAV&#39; and format.upper() != &#39;WAVEX&#39;:
+        raise ValueError(&#39;file format %s not supported by ewave module&#39; % format)
+
+    ewave_encodings = {&#39;PCM_64&#39;: &#39;l&#39;,
+                       &#39;PCM_32&#39;: &#39;i&#39;,
+                       &#39;PCM_16&#39;: &#39;h&#39;,
+                       &#39;FLOAT&#39;: &#39;f&#39;,
+                       &#39;DOUBLE&#39;: &#39;d&#39; }
+    if not encoding:
+        encoding = &#39;PCM_16&#39;
+    encoding = encoding.upper()
+    if encoding not in ewave_encodings:
+        raise ValueError(&#39;file encoding %s not supported by ewave module&#39; % encoding)
+
+    channels = 1
+    if len(data.shape) &gt; 1:
+        channels = data.shape[1]
+
+    with ewave.open(filepath, &#39;w&#39;, sampling_rate=int(rate),
+                    dtype=ewave_encodings[encoding], nchannels=channels) as wf:
+        wf.write(data, scale=True)
+    append_riff(filepath, metadata, locs, labels, rate, marker_hint)</code></pre>
+</details>
+<div class="desc"><p>Write audio data using the ewave module from pythons standard libray.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/melizalab/py-ewave">https://github.com/melizalab/py-ewave</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only 'WAV' and 'WAVEX' are supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'FLOAT', 'DOUBLE'
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The ewave module is not installed.</dd>
+<dt>*</dt>
+<dt>Writing of the data failed.</dt>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.formats_wavfile"><code class="name flex">
+<span>def <span class="ident">formats_wavfile</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formats_wavfile():
+    &#34;&#34;&#34;Audio file formats supported by the scipy.io.wavfile module.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;scipy.io.wavfile&#39;]:
+        return []
+    else:
+        return [&#39;WAV&#39;]</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by the scipy.io.wavfile module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.encodings_wavfile"><code class="name flex">
+<span>def <span class="ident">encodings_wavfile</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encodings_wavfile(format):
+    &#34;&#34;&#34;Encodings of an audio file format supported by the scipy.io.wavfile module.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;scipy.io.wavfile&#39;]:
+        return []
+    elif format.upper() != &#39;WAV&#39;:
+        return []
+    else:
+        return [&#39;PCM_U8&#39;, &#39;PCM_16&#39;, &#39;PCM_32&#39;, &#39;PCM_64&#39;, &#39;FLOAT&#39;, &#39;DOUBLE&#39;]</code></pre>
+</details>
+<div class="desc"><p>Encodings of an audio file format supported by the scipy.io.wavfile module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.write_wavfile"><code class="name flex">
+<span>def <span class="ident">write_wavfile</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_wavfile(filepath, data, rate, metadata=None, locs=None,
+                  labels=None, format=None, encoding=None,
+                  marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write audio data using the scipy.io.wavfile module.
+    
+    Documentation
+    -------------
+    http://docs.scipy.org/doc/scipy/reference/io.html
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format, only &#39;WAV&#39; is supported.
+    encoding: str or None
+        Encoding of the data: &#39;PCM_64&#39;, &#39;PCM_32&#39;, PCM_16&#39;, &#39;PCM_U8&#39;, &#39;FLOAT&#39;, &#39;DOUBLE&#39;
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ImportError
+        The wavfile module is not installed.
+    ValueError
+        File format or encoding not supported.
+    *
+        Writing of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;scipy.io.wavfile&#39;]:
+        raise ImportError
+
+    if not format:
+        format = format_from_extension(filepath)
+    if format and format.upper() != &#39;WAV&#39;:
+        raise ValueError(&#39;file format %s not supported by scipy.io.wavfile module&#39; % format)
+
+    wave_encodings = {&#39;PCM_U8&#39;: [1, &#39;u1&#39;],
+                      &#39;PCM_16&#39;: [2, &#39;i2&#39;],
+                      &#39;PCM_32&#39;: [4, &#39;i4&#39;],
+                      &#39;PCM_64&#39;: [8, &#39;i8&#39;],
+                      &#39;FLOAT&#39;: [4, &#39;f&#39;],
+                      &#39;DOUBLE&#39;: [8, &#39;d&#39;]}
+    if not encoding:
+        encoding = &#39;PCM_16&#39;
+    encoding = encoding.upper()
+    if encoding not in wave_encodings:
+        raise ValueError(&#39;file encoding %s not supported by scipy.io.wavfile module&#39; % encoding)
+    sampwidth = wave_encodings[encoding][0]
+    dtype = wave_encodings[encoding][1]
+    if sampwidth == 1:
+        factor = 2**(sampwidth*8-1)
+        buffer = np.floor((data+1.0) * factor).astype(dtype)
+        buffer[data &gt;= 1.0] = 2*factor - 1
+    elif dtype[0] == &#39;i&#39;:
+        factor = 2**(sampwidth*8-1)
+        buffer = np.floor(data * factor).astype(dtype)
+        buffer[data &gt;= 1.0] = factor - 1
+    else:
+        buffer = data.astype(dtype, copy=False)
+    wavfile.write(filepath, int(rate), buffer)
+    append_riff(filepath, metadata, locs, labels, rate, marker_hint)</code></pre>
+</details>
+<div class="desc"><p>Write audio data using the scipy.io.wavfile module.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="http://docs.scipy.org/doc/scipy/reference/io.html">http://docs.scipy.org/doc/scipy/reference/io.html</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only 'WAV' is supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data: 'PCM_64', 'PCM_32', PCM_16', 'PCM_U8', 'FLOAT', 'DOUBLE'
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wavfile module is not installed.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl>
+<p>*
+Writing of the data failed.</p></div>
+</dd>
+<dt id="audioio.audiowriter.formats_soundfile"><code class="name flex">
+<span>def <span class="ident">formats_soundfile</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formats_soundfile():
+    &#34;&#34;&#34;Audio file formats supported by the SoundFile module.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundfile&#39;]:
+        return []
+    else:
+        return sorted(list(soundfile.available_formats()))</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by the SoundFile module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.encodings_soundfile"><code class="name flex">
+<span>def <span class="ident">encodings_soundfile</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encodings_soundfile(format):
+    &#34;&#34;&#34;Encodings of an audio file format supported by the SoundFile module.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundfile&#39;]:
+        return []
+    else:
+        return sorted(list(soundfile.available_subtypes(format)))</code></pre>
+</details>
+<div class="desc"><p>Encodings of an audio file format supported by the SoundFile module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.write_soundfile"><code class="name flex">
+<span>def <span class="ident">write_soundfile</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_soundfile(filepath, data, rate, metadata=None, locs=None,
+                    labels=None, format=None, encoding=None,
+                    marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write audio data using the SoundFile module (based on libsndfile).
+    
+    Documentation
+    -------------
+    http://pysoundfile.readthedocs.org
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format.
+    encoding: str or None
+        Encoding of the data.
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ImportError
+        The SoundFile module is not installed.
+    *
+        Writing of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;soundfile&#39;]:
+        raise ImportError
+
+    if not format:
+        format = format_from_extension(filepath)
+    if format:
+        format = format.upper()
+
+    if not encoding:
+        encoding = &#39;PCM_16&#39;
+    encoding = encoding.upper()
+    
+    soundfile.write(filepath, data, int(rate), format=format,
+                    subtype=encoding)
+    try:
+        append_riff(filepath, metadata, locs, labels, rate, marker_hint)
+    except ValueError:
+        pass</code></pre>
+</details>
+<div class="desc"><p>Write audio data using the SoundFile module (based on libsndfile).</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="http://pysoundfile.readthedocs.org">http://pysoundfile.readthedocs.org</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The SoundFile module is not installed.</dd>
+</dl>
+<p>*
+Writing of the data failed.</p></div>
+</dd>
+<dt id="audioio.audiowriter.formats_wavefile"><code class="name flex">
+<span>def <span class="ident">formats_wavefile</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formats_wavefile():
+    &#34;&#34;&#34;Audio file formats supported by the wavefile module.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wavefile&#39;]:
+        return []
+    formats = []
+    for attr in dir(wavefile.Format):
+        v = getattr(wavefile.Format, attr)
+        if ( isinstance(v, int)
+             and v &amp; wavefile.Format.TYPEMASK &gt; 0
+             and v != wavefile.Format.TYPEMASK ):
+            formats.append(attr)
+    return sorted(formats)</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by the wavefile module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.encodings_wavefile"><code class="name flex">
+<span>def <span class="ident">encodings_wavefile</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encodings_wavefile(format):
+    &#34;&#34;&#34;Encodings supported by the wavefile module.
+
+    Parameters
+    ----------
+    format: str
+        The file format (ignored).
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wavefile&#39;]:
+        return []
+    if not format.upper() in formats_wavefile():
+        return []
+    encodings = []
+    for attr in dir(wavefile.Format):
+        v = getattr(wavefile.Format, attr)
+        if ( isinstance(v, int)
+             and v &amp; wavefile.Format.SUBMASK &gt; 0
+             and v != wavefile.Format.SUBMASK ):
+            encodings.append(attr)
+    return sorted(encodings)</code></pre>
+</details>
+<div class="desc"><p>Encodings supported by the wavefile module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format (ignored).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.write_wavefile"><code class="name flex">
+<span>def <span class="ident">write_wavefile</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_wavefile(filepath, data, rate, metadata=None, locs=None,
+                   labels=None, format=None, encoding=None,
+                   marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write audio data using the wavefile module (based on libsndfile).
+    
+    Documentation
+    -------------
+    https://github.com/vokimon/python-wavefile
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format as in wavefile.Format.
+    encoding: str or None
+        Encoding of the data as in wavefile.Format.
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ImportError
+        The wavefile module is not installed.
+    ValueError
+        File format or encoding not supported.
+    *
+        Writing of the data failed.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;wavefile&#39;]:
+        raise ImportError
+
+    if not format:
+        format = format_from_extension(filepath)
+    format = format.upper()
+    try:
+        format_value = getattr(wavefile.Format, format)
+    except AttributeError:
+        raise ValueError(&#39;file format %s not supported by wavefile module&#39; % format)
+
+    if not encoding:
+        encodings = encodings_wavefile(format)
+        encoding = encodings[0]
+        if &#39;PCM_16&#39; in encodings:
+            encoding = &#39;PCM_16&#39;
+    encoding = encoding.upper()
+    try:
+        encoding_value = getattr(wavefile.Format, encoding)
+    except AttributeError:
+        raise ValueError(&#39;file encoding %s not supported by wavefile module&#39; % encoding)
+        
+    channels = 1
+    if len(data.shape) &gt; 1:
+        channels = data.shape[1]
+    else:
+        data = data.reshape((-1, 1))
+    with wavefile.WaveWriter(os.fspath(filepath), channels=channels,
+                             samplerate=int(rate),
+                             format=format_value|encoding_value) as w:
+        w.write(data.T)
+    try:
+        append_riff(filepath, metadata, locs, labels, rate, marker_hint)
+    except ValueError:
+        pass</code></pre>
+</details>
+<div class="desc"><p>Write audio data using the wavefile module (based on libsndfile).</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/vokimon/python-wavefile">https://github.com/vokimon/python-wavefile</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format as in wavefile.Format.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data as in wavefile.Format.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The wavefile module is not installed.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl>
+<p>*
+Writing of the data failed.</p></div>
+</dd>
+<dt id="audioio.audiowriter.formats_pydub"><code class="name flex">
+<span>def <span class="ident">formats_pydub</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formats_pydub():
+    &#34;&#34;&#34;Audio file formats supported by the Pydub module.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;pydub&#39;]:
+        return []
+    formats = []
+    command = [pydub.AudioSegment.converter, &#39;-formats&#39;]
+    with open(os.devnull, &#39;rb&#39;) as devnull:
+        p = subprocess.Popen(command, stdin=devnull, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, universal_newlines=True)
+        skip = True
+        for line in p.communicate()[0].split(&#39;\n&#39;):
+            if &#39;--&#39; in line[:3]:
+                skip = False
+                continue
+            if skip:
+                continue
+            cols = line.split()
+            if len(cols) &gt; 2 and &#39;E&#39; in cols[0]:
+                formats.append(cols[1].upper())
+    return formats</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by the Pydub module.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.encodings_pydub"><code class="name flex">
+<span>def <span class="ident">encodings_pydub</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encodings_pydub(format):
+    &#34;&#34;&#34;Encodings of an audio file format supported by the Pydub module.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    &#34;&#34;&#34;
+    pydub_encodings = {&#39;pcm_s16le&#39;: &#39;PCM_16&#39;,
+                       &#39;pcm_s24le&#39;: &#39;PCM_24&#39;,
+                       &#39;pcm_s32le&#39;: &#39;PCM_32&#39;,
+                       &#39;pcm_f32le&#39;: &#39;FLOAT&#39;,
+                       &#39;pcm_f64le&#39;: &#39;DOUBLE&#39;,
+                       }    
+    if not audio_modules[&#39;pydub&#39;]:
+        return []
+    if format.upper() not in formats_pydub():
+        return []
+    encodings = []
+    command = [pydub.AudioSegment.converter, &#39;-encoders&#39;]
+    with open(os.devnull, &#39;rb&#39;) as devnull:
+        p = subprocess.Popen(command, stdin=devnull, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, universal_newlines=True)
+        skip = True
+        for line in p.communicate()[0].split(&#39;\n&#39;):
+            if &#39;--&#39; in line[:3]:
+                skip = False
+                continue
+            if skip:
+                continue
+            cols = line.split()
+            if len(cols) &gt; 2 and cols[0][0] == &#39;A&#39;:
+                encoding = cols[1]
+                if encoding in pydub_encodings:
+                    encoding = pydub_encodings[encoding]
+                encodings.append(encoding.upper())
+    return encodings</code></pre>
+</details>
+<div class="desc"><p>Encodings of an audio file format supported by the Pydub module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.write_pydub"><code class="name flex">
+<span>def <span class="ident">write_pydub</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_pydub(filepath, data, rate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None,
+                marker_hint=&#39;cue&#39;):
+    &#34;&#34;&#34;Write audio data using the Pydub module.
+    
+    Documentation
+    -------------
+    https://github.com/jiaaro/pydub
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format, everything ffmpeg or avtools are supporting.
+    encoding: str or None
+        Encoding of the data.
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+
+    Raises
+    ------
+    ImportError
+        The Pydub module is not installed.
+    *
+        Writing of the data failed.
+    ValueError
+        File format or encoding not supported.
+    &#34;&#34;&#34;
+    if not audio_modules[&#39;pydub&#39;]:
+        raise ImportError
+
+    if not format:
+        format = format_from_extension(filepath)
+    if format and format.upper() not in formats_pydub():
+        raise ValueError(&#39;file format %s not supported by Pydub module&#39; % format)
+
+    pydub_encodings = {&#39;PCM_16&#39;: &#39;pcm_s16le&#39;,
+                       &#39;PCM_24&#39;: &#39;pcm_s24le&#39;,
+                       &#39;PCM_32&#39;: &#39;pcm_s32le&#39;,
+                       &#39;DOUBLE&#39;: &#39;pcm_f32le&#39;,
+                       &#39;FLOAT&#39;: &#39;pcm_f64le&#39;,
+                       }    
+    if encoding:
+        encoding = encoding.upper()
+        if encoding in pydub_encodings:
+            encoding = pydub_encodings[encoding]
+        if encoding not in encodings_pydub(format):
+            raise ValueError(&#39;file encoding %s not supported by Pydub module&#39; % encoding)
+        encoding = encoding.lower()
+    else:
+        encoding = None
+        
+    channels = 1
+    if len(data.shape) &gt; 1:
+        channels = data.shape[1]
+    int_data = (data*(2**31-1)).astype(np.int32)
+    sound = pydub.AudioSegment(int_data.ravel(), sample_width=4,
+                               frame_rate=rate, channels=channels)
+    sound.export(filepath, format=format.lower(), codec=encoding)
+    try:
+        append_riff(filepath, metadata, locs, labels, rate, marker_hint)
+    except ValueError:
+        pass</code></pre>
+</details>
+<div class="desc"><p>Write audio data using the Pydub module.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://github.com/jiaaro/pydub">https://github.com/jiaaro/pydub</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, everything ffmpeg or avtools are supporting.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The Pydub module is not installed.</dd>
+<dt>*</dt>
+<dt>Writing of the data failed.</dt>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiowriter.available_formats"><code class="name flex">
+<span>def <span class="ident">available_formats</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def available_formats():
+    &#34;&#34;&#34;Audio file formats supported by any of the installed audio modules.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import available_formats
+    &gt;&gt;&gt; f = available_formats()
+    &gt;&gt;&gt; printf(f)
+    [&#39;3G2&#39;, &#39;3GP&#39;, &#39;A64&#39;, &#39;AC3&#39;, &#39;ADTS&#39;, &#39;ADX&#39;, &#39;AIFF&#39;, ...,  &#39;WAV&#39;, &#39;WAVEX&#39;, &#39;WEBM&#39;, &#39;WEBM_CHUNK&#39;, &#39;WEBM_DASH_MANIFEST&#39;, &#39;WEBP&#39;, &#39;WEBVTT&#39;, &#39;WTV&#39;, &#39;WV&#39;, &#39;WVE&#39;, &#39;XI&#39;, &#39;XV&#39;, &#39;YUV4MPEGPIPE&#39;]
+    ```
+    &#34;&#34;&#34;
+    formats = set()
+    for module, formats_func in audio_formats_funcs:
+        formats |= set(formats_func())
+    return sorted(list(formats))</code></pre>
+</details>
+<div class="desc"><p>Audio file formats supported by any of the installed audio modules.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import available_formats
+&gt;&gt;&gt; f = available_formats()
+&gt;&gt;&gt; printf(f)
+['3G2', '3GP', 'A64', 'AC3', 'ADTS', 'ADX', 'AIFF', ...,  'WAV', 'WAVEX', 'WEBM', 'WEBM_CHUNK', 'WEBM_DASH_MANIFEST', 'WEBP', 'WEBVTT', 'WTV', 'WV', 'WVE', 'XI', 'XV', 'YUV4MPEGPIPE']
+</code></pre></div>
+</dd>
+<dt id="audioio.audiowriter.available_encodings"><code class="name flex">
+<span>def <span class="ident">available_encodings</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def available_encodings(format):
+    &#34;&#34;&#34;Encodings of an audio file format supported by any of the installed audio modules.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+
+    Example
+    -------
+    ```
+    &gt;&gt;&gt; from audioio import available_encodings
+    &gt;&gt;&gt; e = available_encodings(&#39;WAV&#39;)
+    &gt;&gt;&gt; printf(e)
+    [&#39;ALAW&#39;, &#39;DOUBLE&#39;, &#39;FLOAT&#39;, &#39;G721_32&#39;, &#39;GSM610&#39;, &#39;IMA_ADPCM&#39;, &#39;MS_ADPCM&#39;, &#39;PCM_16&#39;, &#39;PCM_24&#39;, &#39;PCM_32&#39;, &#39;PCM_U8&#39;, &#39;ULAW&#39;]
+    ```
+    &#34;&#34;&#34;
+    for module, encodings_func in audio_encodings_funcs:
+        encs = encodings_func(format)
+        if len(encs) &gt; 0:
+            return encs
+    return []</code></pre>
+</details>
+<div class="desc"><p>Encodings of an audio file format supported by any of the installed audio modules.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; from audioio import available_encodings
+&gt;&gt;&gt; e = available_encodings('WAV')
+&gt;&gt;&gt; printf(e)
+['ALAW', 'DOUBLE', 'FLOAT', 'G721_32', 'GSM610', 'IMA_ADPCM', 'MS_ADPCM', 'PCM_16', 'PCM_24', 'PCM_32', 'PCM_U8', 'ULAW']
+</code></pre></div>
+</dd>
+<dt id="audioio.audiowriter.write_audio"><code class="name flex">
+<span>def <span class="ident">write_audio</span></span>(<span>filepath,<br>data,<br>rate,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>marker_hint='cue',<br>verbose=0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_audio(filepath, data, rate, metadata=None, locs=None,
+                labels=None, format=None, encoding=None,
+                marker_hint=&#39;cue&#39;, verbose=0):
+    &#34;&#34;&#34;Write audio data, metadata, and marker to file.
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, second index channel,
+        values within -1.0 and 1.0).
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: None or nested dict
+        Metadata as key-value pairs. Values can be strings, integers,
+        or dictionaries.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format. If None deduce file format from filepath.
+        See `available_formats()` for possible values.
+    encoding: str or None
+        Encoding of the data. See `available_encodings()` for possible values.
+        If None or empty string use &#39;PCM_16&#39;.
+    marker_hint: str
+        - &#39;cue&#39;: store markers in cue and and adtl chunks.
+        - &#39;lbl&#39;: store markers in avisoft lbl chunk.
+    verbose: int
+        If &gt;0 show detailed error/warning messages.
+
+    Raises
+    ------
+    ValueError
+        `filepath` is empty string.
+    IOError
+        Writing of the data failed.
+
+    Examples
+    --------
+    ```
+    import numpy as np
+    from audioio import write_audio
+    
+    rate = 28000.0
+    freq = 800.0
+    time = np.arange(0.0, 1.0, 1/rate) # one second
+    data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+    md = dict(Artist=&#39;underscore_&#39;)          # metadata
+
+    write_audio(&#39;audio/file.wav&#39;, data, rate, md)
+    ```
+    &#34;&#34;&#34;
+    # write audio with metadata and markers:
+    if not format:
+        format = format_from_extension(filepath)
+    if format == &#39;WAV&#39; and (metadata is not None or locs is not None):
+        try:
+            audioio_write_wave(filepath, data, rate, metadata,
+                               locs, labels, encoding, marker_hint)
+            return
+        except ValueError:
+            pass
+    # write audio file by trying available modules:
+    errors = [f&#39;failed to write data to file &#34;{filepath}&#34;:&#39;]
+    for lib, write_file in audio_writer_funcs:
+        if not audio_modules[lib]:
+            continue
+        try:
+            write_file(filepath, data, rate, metadata, locs,
+                       labels, format, encoding, marker_hint)
+            success = True
+            if verbose &gt; 0:
+                print(&#39;wrote data to file &#34;%s&#34; using %s module&#39; %
+                      (filepath, lib))
+                if verbose &gt; 1:
+                    print(&#39;  sampling rate: %g Hz&#39; % rate)
+                    print(&#39;  channels     : %d&#39; % (data.shape[1] if len(data.shape) &gt; 1 else 1))
+                    print(&#39;  frames       : %d&#39; % len(data))
+            return
+        except Exception as e:
+            errors.append(f&#39;  {lib} failed: {str(e)}&#39;)
+    raise IOError(&#39;\n&#39;.join(errors))</code></pre>
+</details>
+<div class="desc"><p>Write audio data, metadata, and marker to file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel,
+values within -1.0 and 1.0).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>None</code> or <code>nested dict</code></dt>
+<dd>Metadata as key-value pairs. Values can be strings, integers,
+or dictionaries.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format. If None deduce file format from filepath.
+See <code><a title="audioio.audiowriter.available_formats" href="#audioio.audiowriter.available_formats">available_formats()</a></code> for possible values.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data. See <code><a title="audioio.audiowriter.available_encodings" href="#audioio.audiowriter.available_encodings">available_encodings()</a></code> for possible values.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>marker_hint</code></strong> :&ensp;<code>str</code></dt>
+<dd>
+<ul>
+<li>'cue': store markers in cue and and adtl chunks.</li>
+<li>'lbl': store markers in avisoft lbl chunk.</li>
+</ul>
+</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd><code>filepath</code> is empty string.</dd>
+<dt><code>IOError</code></dt>
+<dd>Writing of the data failed.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>import numpy as np
+from audioio import write_audio
+
+rate = 28000.0
+freq = 800.0
+time = np.arange(0.0, 1.0, 1/rate) # one second
+data = np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+md = dict(Artist='underscore_')          # metadata
+
+write_audio('audio/file.wav', data, rate, md)
+</code></pre></div>
+</dd>
+<dt id="audioio.audiowriter.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>file_path, channels=2, encoding='')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo(file_path, channels=2, encoding=&#39;&#39;):
+    &#34;&#34;&#34;Demo of the audiowriter functions.
+
+    Parameters
+    ----------
+    file_path: str
+        File path of an audio file.
+    encoding: str
+        Encoding to be used.
+    &#34;&#34;&#34;
+    print(&#39;generate data ...&#39;)
+    rate = 44100.0
+    t = np.arange(0.0, 1.0, 1.0/rate)
+    data = np.zeros((len(t), channels))
+    for c in range(channels):
+        data[:,c] = np.sin(2.0*np.pi*(440.0+c*8.0)*t)
+        
+    print(&#34;write_audio(%s) ...&#34; % file_path)
+    write_audio(file_path, data, rate, encoding=encoding, verbose=2)
+
+    print(&#39;done.&#39;)</code></pre>
+</details>
+<div class="desc"><p>Demo of the audiowriter functions.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>file_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>File path of an audio file.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code></dt>
+<dd>Encoding to be used.</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="audioio.audiowriter.audio_formats_funcs" href="#audioio.audiowriter.audio_formats_funcs">audio_formats_funcs</a></code></li>
+<li><code><a title="audioio.audiowriter.audio_encodings_funcs" href="#audioio.audiowriter.audio_encodings_funcs">audio_encodings_funcs</a></code></li>
+<li><code><a title="audioio.audiowriter.audio_writer_funcs" href="#audioio.audiowriter.audio_writer_funcs">audio_writer_funcs</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.audiowriter.main" href="#audioio.audiowriter.main">main</a></code></li>
+<li><code><a title="audioio.audiowriter.format_from_extension" href="#audioio.audiowriter.format_from_extension">format_from_extension</a></code></li>
+<li><code><a title="audioio.audiowriter.formats_wave" href="#audioio.audiowriter.formats_wave">formats_wave</a></code></li>
+<li><code><a title="audioio.audiowriter.encodings_wave" href="#audioio.audiowriter.encodings_wave">encodings_wave</a></code></li>
+<li><code><a title="audioio.audiowriter.write_wave" href="#audioio.audiowriter.write_wave">write_wave</a></code></li>
+<li><code><a title="audioio.audiowriter.formats_ewave" href="#audioio.audiowriter.formats_ewave">formats_ewave</a></code></li>
+<li><code><a title="audioio.audiowriter.encodings_ewave" href="#audioio.audiowriter.encodings_ewave">encodings_ewave</a></code></li>
+<li><code><a title="audioio.audiowriter.write_ewave" href="#audioio.audiowriter.write_ewave">write_ewave</a></code></li>
+<li><code><a title="audioio.audiowriter.formats_wavfile" href="#audioio.audiowriter.formats_wavfile">formats_wavfile</a></code></li>
+<li><code><a title="audioio.audiowriter.encodings_wavfile" href="#audioio.audiowriter.encodings_wavfile">encodings_wavfile</a></code></li>
+<li><code><a title="audioio.audiowriter.write_wavfile" href="#audioio.audiowriter.write_wavfile">write_wavfile</a></code></li>
+<li><code><a title="audioio.audiowriter.formats_soundfile" href="#audioio.audiowriter.formats_soundfile">formats_soundfile</a></code></li>
+<li><code><a title="audioio.audiowriter.encodings_soundfile" href="#audioio.audiowriter.encodings_soundfile">encodings_soundfile</a></code></li>
+<li><code><a title="audioio.audiowriter.write_soundfile" href="#audioio.audiowriter.write_soundfile">write_soundfile</a></code></li>
+<li><code><a title="audioio.audiowriter.formats_wavefile" href="#audioio.audiowriter.formats_wavefile">formats_wavefile</a></code></li>
+<li><code><a title="audioio.audiowriter.encodings_wavefile" href="#audioio.audiowriter.encodings_wavefile">encodings_wavefile</a></code></li>
+<li><code><a title="audioio.audiowriter.write_wavefile" href="#audioio.audiowriter.write_wavefile">write_wavefile</a></code></li>
+<li><code><a title="audioio.audiowriter.formats_pydub" href="#audioio.audiowriter.formats_pydub">formats_pydub</a></code></li>
+<li><code><a title="audioio.audiowriter.encodings_pydub" href="#audioio.audiowriter.encodings_pydub">encodings_pydub</a></code></li>
+<li><code><a title="audioio.audiowriter.write_pydub" href="#audioio.audiowriter.write_pydub">write_pydub</a></code></li>
+<li><code><a title="audioio.audiowriter.available_formats" href="#audioio.audiowriter.available_formats">available_formats</a></code></li>
+<li><code><a title="audioio.audiowriter.available_encodings" href="#audioio.audiowriter.available_encodings">available_encodings</a></code></li>
+<li><code><a title="audioio.audiowriter.write_audio" href="#audioio.audiowriter.write_audio">write_audio</a></code></li>
+<li><code><a title="audioio.audiowriter.demo" href="#audioio.audiowriter.demo">demo</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

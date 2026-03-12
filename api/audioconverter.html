@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.audioconverter API documentation</title>
+<meta name="description" content="Command line script for converting, downsampling, renaming and merging audio files …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audioconverter</code></h1>
+</header>
+<section id="section-intro">
+<p>Command line script for converting, downsampling, renaming and merging audio files.</p>
+<pre><code class="language-sh">audioconverter -o test.wav test.mp3
+</code></pre>
+<p>converts 'test.mp3' to 'test.wav'.</p>
+<p>The script reads all input files with <code><a title="audioio.audioloader.load_audio" href="audioloader.html#audioio.audioloader.load_audio">load_audio()</a></code>,
+combines the audio and marker data and writes them along with the
+metadata to an output file using <code><a title="audioio.audiowriter.write_audio" href="audiowriter.html#audioio.audiowriter.write_audio">write_audio()</a></code>.</p>
+<p>Thus, all formats supported by these functions and the installed
+python audio modules are available. This implies that MP3 files can be
+read via the <a href="https://github.com/beetbox/audioread">audioread</a> module,
+and they can be written via <a href="https://github.com/jiaaro/pydub">pydub</a>.
+Many other input and output file formats are supported by the <a href="http://www.mega-nerd.com/libsndfile/">sndfile
+library</a>, provided the
+<a href="http://pysoundfile.readthedocs.org">SoundFile</a> or
+<a href="https://github.com/vokimon/python-wavefile">wavefile</a> python packages
+are <a href="https://bendalab.github.io/audioio/installation">installed</a>.</p>
+<p>Metadata and markers are preserved if possible.</p>
+<p>Run</p>
+<pre><code class="language-sh">audioconverter -l
+</code></pre>
+<p>for a list of supported output file formats and</p>
+<pre><code class="language-sh">audioconverter -f wav -l
+</code></pre>
+<p>for a list of supported encodings for a given output format (<code>-f</code> option).</p>
+<p>Running</p>
+<pre><code class="language-sh">audioconverter --help
+</code></pre>
+<p>prints</p>
+<pre><code class="language-text">usage: audioconverter [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]]
+                      [-U [THRESH]] [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-r KEY] [-n NUM]
+                      [-o OUTPATH] [-i KWARGS]
+                      [files ...]
+
+Convert audio file formats.
+
+positional arguments:
+  files         one or more input files to be combined into a single output file
+
+options:
+  -h, --help    show this help message and exit
+  --version     show program's version number and exit
+  -v            print debug output
+  -l            list supported file formats and encodings
+  -f FORMAT     audio format of output file
+  -e ENCODING   audio encoding of output file
+  -s SCALE      scale the data by factor SCALE
+  -u [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is
+                0.5) and divide by two
+  -U [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is
+                0.5) and clip
+  -d FAC        downsample by integer factor
+  -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
+  -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by &quot;.&quot;
+  -r KEY        remove keys from metadata. Keys can have section names separated by &quot;.&quot;
+  -n NUM        merge NUM input files into one output file
+  -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be
+                replaced by their values from the input file
+  -i KWARGS     key-word arguments for the data loader function
+
+version 2.6.0 by Benda-Lab (2020-2025)
+</code></pre>
+<h2 id="functions">Functions</h2>
+<ul>
+<li><code><a title="audioio.audioconverter.add_arguments" href="#audioio.audioconverter.add_arguments">add_arguments()</a></code>: add command line arguments to parser.</li>
+<li><code><a title="audioio.audioconverter.parse_channels" href="#audioio.audioconverter.parse_channels">parse_channels()</a></code>: parse channel selection string.</li>
+<li><code><a title="audioio.audioconverter.parse_load_kwargs" href="#audioio.audioconverter.parse_load_kwargs">parse_load_kwargs()</a></code>: parse additional arguments for loading data.</li>
+<li><code><a title="audioio.audioconverter.check_format" href="#audioio.audioconverter.check_format">check_format()</a></code>: check whether requested audio format is valid and supported.</li>
+<li><code><a title="audioio.audioconverter.list_formats_encodings" href="#audioio.audioconverter.list_formats_encodings">list_formats_encodings()</a></code>: list available formats or encodings.</li>
+<li><code><a title="audioio.audioconverter.make_outfile" href="#audioio.audioconverter.make_outfile">make_outfile()</a></code>: make name for output file.</li>
+<li><code><a title="audioio.audioconverter.modify_data" href="#audioio.audioconverter.modify_data">modify_data()</a></code>: modify audio data and add modifications to metadata.</li>
+<li><code><a title="audioio.audioconverter.format_outfile" href="#audioio.audioconverter.format_outfile">format_outfile()</a></code>: put metadata values into name of output file.</li>
+<li><code><a title="audioio.audioconverter.main" href="#audioio.audioconverter.main">main()</a></code>: command line script for converting, downsampling, renaming and merging audio files.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audioconverter.add_arguments"><code class="name flex">
+<span>def <span class="ident">add_arguments</span></span>(<span>parser)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_arguments(parser):
+    &#34;&#34;&#34;Add command line arguments to parser.
+
+    Parameters
+    ----------
+    parser: argparse.ArgumentParser
+        The parser.
+    &#34;&#34;&#34;
+    parser.add_argument(&#39;--version&#39;, action=&#39;version&#39;, version=__version__)
+    parser.add_argument(&#39;-v&#39;, action=&#39;count&#39;, dest=&#39;verbose&#39;, default=0,
+                        help=&#39;print debug output&#39;)
+    parser.add_argument(&#39;-l&#39;, dest=&#39;list_formats&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list supported file formats and encodings&#39;)
+    parser.add_argument(&#39;-f&#39;, dest=&#39;data_format&#39;, default=None, type=str,
+                        metavar=&#39;FORMAT&#39;, help=&#39;audio format of output file&#39;)
+    parser.add_argument(&#39;-e&#39;, dest=&#39;encoding&#39;, default=None, type=str,
+                        help=&#39;audio encoding of output file&#39;)
+    parser.add_argument(&#39;-s&#39;, dest=&#39;scale&#39;, default=1, type=float,
+                        help=&#39;scale the data by factor SCALE&#39;)
+    parser.add_argument(&#39;-u&#39;, dest=&#39;unwrap&#39;, default=0, type=float,
+                        metavar=&#39;THRESH&#39;, const=1.5, nargs=&#39;?&#39;,
+                        help=&#39;unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and divide by two&#39;)
+    parser.add_argument(&#39;-U&#39;, dest=&#39;unwrap_clip&#39;, default=0, type=float,
+                        metavar=&#39;THRESH&#39;, const=1.5, nargs=&#39;?&#39;,
+                        help=&#39;unwrap clipped data with threshold relative to maximum of input range (default is 0.5) and clip&#39;)
+    parser.add_argument(&#39;-d&#39;, dest=&#39;decimate&#39;, default=1, type=int,
+                        metavar=&#39;FAC&#39;,
+                        help=&#39;downsample by integer factor&#39;)
+    parser.add_argument(&#39;-c&#39;, dest=&#39;channels&#39;, default=&#39;&#39;, type=str,
+                        help=&#39;comma and dash separated list of channels to be saved (first channel is 0)&#39;)
+    parser.add_argument(&#39;-a&#39;, dest=&#39;md_list&#39;, action=&#39;append&#39;, default=[],
+                        type=str, metavar=&#39;KEY=VALUE&#39;,
+                        help=&#39;add key-value pairs to metadata. Keys can have section names separated by &#34;.&#34;&#39;)
+    parser.add_argument(&#39;-r&#39;, dest=&#39;remove_keys&#39;, action=&#39;append&#39;, default=[],
+                        type=str, metavar=&#39;KEY&#39;,
+                        help=&#39;remove keys from metadata. Keys can have section names separated by &#34;.&#34;&#39;)
+    parser.add_argument(&#39;-n&#39;, dest=&#39;nmerge&#39;, default=0, type=int, metavar=&#39;NUM&#39;,
+                        help=&#39;merge NUM input files into one output file&#39;)
+    parser.add_argument(&#39;-o&#39;, dest=&#39;outpath&#39;, default=None, type=str,
+                         help=&#39;path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their values from the input file&#39;)
+    parser.add_argument(&#39;-i&#39;, dest=&#39;load_kwargs&#39;, default=[],
+                        action=&#39;append&#39;, metavar=&#39;KWARGS&#39;,
+                        help=&#39;key-word arguments for the data loader function&#39;)
+    parser.add_argument(&#39;files&#39;, nargs=&#39;*&#39;, type=str,
+                        help=&#39;one or more input files to be combined into a single output file&#39;)</code></pre>
+</details>
+<div class="desc"><p>Add command line arguments to parser.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>parser</code></strong> :&ensp;<code>argparse.ArgumentParser</code></dt>
+<dd>The parser.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.parse_channels"><code class="name flex">
+<span>def <span class="ident">parse_channels</span></span>(<span>cstr)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_channels(cstr):
+    &#34;&#34;&#34;Parse channel selection string.
+
+    Parameters
+    ----------
+    cstr: str
+        String with comma separated channels and dash separated channel ranges.
+
+    Returns
+    -------
+    channels: list of int
+        List of selected channels.
+    &#34;&#34;&#34;
+    cs = [s.strip() for s in cstr.split(&#39;,&#39;)]
+    channels = []
+    for c in cs:
+        if len(c) == 0:
+            continue
+        css = [s.strip() for s in c.split(&#39;-&#39;)]
+        if len(css) == 2:
+            channels.extend(list(range(int(css[0]), int(css[1])+1)))
+        else:
+            channels.append(int(c))
+    return channels</code></pre>
+</details>
+<div class="desc"><p>Parse channel selection string.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cstr</code></strong> :&ensp;<code>str</code></dt>
+<dd>String with comma separated channels and dash separated channel ranges.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>channels</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>List of selected channels.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.parse_load_kwargs"><code class="name flex">
+<span>def <span class="ident">parse_load_kwargs</span></span>(<span>load_strs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_load_kwargs(load_strs):
+    &#34;&#34;&#34;Parse additional arguments for loading data.
+
+    Parameters
+    ----------
+    load_strs: list of str
+        Strings with with comma separated key-value pairs as returned
+        by args.load_kwargs from `add_arguments()`.
+
+    Returns
+    -------
+    load_kwargs: dict
+        Key-word arguments for `load_audio()` and related functions.
+        Value strings containing integer or floating point numbers
+        are converted to `int` and `float`, respectively.
+    &#34;&#34;&#34;
+    load_kwargs = {}
+    for s in load_strs:
+        for kw in s.split(&#39;,&#39;):
+            kws = kw.split(&#39;:&#39;)
+            if len(kws) == 2:
+                key = kws[0].strip()
+                value = kws[1].strip()
+                try:
+                    val = int(value)
+                except ValueError:
+                    try:
+                        val = float(value)
+                    except ValueError:
+                        val = value
+                load_kwargs[key] = val
+    return load_kwargs</code></pre>
+</details>
+<div class="desc"><p>Parse additional arguments for loading data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>load_strs</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Strings with with comma separated key-value pairs as returned
+by args.load_kwargs from <code><a title="audioio.audioconverter.add_arguments" href="#audioio.audioconverter.add_arguments">add_arguments()</a></code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>load_kwargs</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Key-word arguments for <code>load_audio()</code> and related functions.
+Value strings containing integer or floating point numbers
+are converted to <code>int</code> and <code>float</code>, respectively.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.check_format"><code class="name flex">
+<span>def <span class="ident">check_format</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_format(format):
+    &#34;&#34;&#34;Check whether requested audio format is valid and supported.
+
+    If the format is not available print an error message on console.
+
+    Parameters
+    ----------
+    format: string
+        Audio format to be checked.
+
+    Returns
+    -------
+    valid: bool
+        True if the requested audio format is valid.
+    &#34;&#34;&#34;
+    if not format or format.upper() not in available_formats():
+        print(f&#39;! invalid audio file format &#34;{format}&#34;!&#39;)
+        print(&#39;run&#39;)
+        print(f&#39;&gt; {__file__} -l&#39;)
+        print(&#39;for a list of available formats&#39;)
+        return False
+    else:
+        return True</code></pre>
+</details>
+<div class="desc"><p>Check whether requested audio format is valid and supported.</p>
+<p>If the format is not available print an error message on console.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>string</code></dt>
+<dd>Audio format to be checked.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>valid</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True if the requested audio format is valid.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.list_formats_encodings"><code class="name flex">
+<span>def <span class="ident">list_formats_encodings</span></span>(<span>data_format)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_formats_encodings(data_format):
+    &#34;&#34;&#34;List available formats or encodings.
+
+    Parameters
+    ----------
+    data_format: None or str
+        If provided, list encodings for this data format.
+        Otherwise, list available audio file formats.
+    &#34;&#34;&#34;
+    if not data_format:
+        print(&#39;available file formats:&#39;)
+        for f in available_formats():
+            print(f&#39;  {f}&#39;)
+    else:
+        if not check_format(data_format):
+            sys.exit(-1)
+        print(f&#39;available encodings for {data_format} file format:&#39;)
+        for e in available_encodings(data_format):
+            print(f&#39;  {e}&#39;)</code></pre>
+</details>
+<div class="desc"><p>List available formats or encodings.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data_format</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>If provided, list encodings for this data format.
+Otherwise, list available audio file formats.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.make_outfile"><code class="name flex">
+<span>def <span class="ident">make_outfile</span></span>(<span>outpath, infile, data_format, blocks, format_from_ext)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_outfile(outpath, infile, data_format, blocks, format_from_ext):
+    &#34;&#34;&#34;Make name for output file.
+
+    Parameters
+    ----------
+    outpath: None or str
+        Requested output path.
+    infile: Path
+        Path of the input file.
+    data_format: None or str
+        Requested output file format.
+    blocks: bool
+        If True, produce outputfile for group of input files.
+    format_from_ext: function
+        Function that inspects a filename for its extension and
+        deduces a file format from it.
+
+    Returns
+    -------
+    outfile: Path
+        Path of output file.
+    data_format: str
+        Format of output file.
+    &#34;&#34;&#34;
+    outpath = Path(&#39;&#39; if outpath is None else outpath)
+    if blocks and not data_format and \
+       format_from_ext(outpath) is None and \
+       not outpath.exists():
+        outpath.mkdir()
+    if outpath == Path() or outpath.is_dir():
+        if outpath != Path():
+            outfile = outpath / infile
+        else:
+            outfile = infile
+        if not data_format:
+            print(&#39;! need to specify an audio format via -f or a file extension !&#39;)
+            sys.exit(-1)
+        outfile = outfile.with_suffix(&#39;.&#39; + data_format.lower())
+    else:
+        outfile = outpath
+        if data_format:
+            outfile = outfile.with_suffix(&#39;.&#39; + data_format.lower())
+        else:
+            data_format = format_from_ext(outfile)
+    return outfile, data_format</code></pre>
+</details>
+<div class="desc"><p>Make name for output file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>outpath</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>Requested output path.</dd>
+<dt><strong><code>infile</code></strong> :&ensp;<code>Path</code></dt>
+<dd>Path of the input file.</dd>
+<dt><strong><code>data_format</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>Requested output file format.</dd>
+<dt><strong><code>blocks</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, produce outputfile for group of input files.</dd>
+<dt><strong><code>format_from_ext</code></strong> :&ensp;<code>function</code></dt>
+<dd>Function that inspects a filename for its extension and
+deduces a file format from it.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>outfile</code></strong> :&ensp;<code>Path</code></dt>
+<dd>Path of output file.</dd>
+<dt><strong><code>data_format</code></strong> :&ensp;<code>str</code></dt>
+<dd>Format of output file.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.modify_data"><code class="name flex">
+<span>def <span class="ident">modify_data</span></span>(<span>data,<br>rate,<br>metadata,<br>channels,<br>scale,<br>unwrap_clip,<br>unwrap_thresh,<br>ampl_max,<br>unit,<br>decimate_fac)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def modify_data(data, rate, metadata, channels, scale,
+                unwrap_clip, unwrap_thresh, ampl_max, unit, decimate_fac):
+    &#34;&#34;&#34;Modify audio data and add modifications to metadata.
+
+    Parameters
+    ----------
+    data: 2-D array of float
+        The data to be written into the output file.
+    rate: float
+        Sampling rate of the data in Hertz.
+    metadata: nested dict
+        Metadata.
+    channels: list of int
+        List of channels to be selected from the data.
+    scale: float
+        Scaling factor to be applied to the data.
+    unwrap_clip: float
+        If larger than zero, unwrap the data using this as a threshold
+        relative to `ampl_max`, and clip the data at +-`ampl_max`.
+    unwrap_thresh: float
+        If larger than zero, unwrap the data using this as a threshold
+        relative to `ampl_max`, and downscale the data by a factor of two.
+        Also update the gain in the metadata.
+    ampl_max: float
+        Maximum amplitude of the input range.
+    unit: str
+        Unit of the input range.
+    decimate_fac: int
+        Downsample the data by this factor.
+
+    Returns
+    -------
+    &#34;&#34;&#34;
+    # select channels:
+    if len(channels) &gt; 0:
+        data = data[:,channels]
+    # scale data:
+    if scale != 1:
+        data *= scale
+        if not update_gain(metadata, 1/scale):
+            metadata[&#39;gain&#39;] = 1/scale
+    # fix data:
+    if unwrap_clip &gt; 1e-3:
+        unwrap(data, unwrap_clip, ampl_max)
+        data[data &gt; +ampl_max] = +ampl_max
+        data[data &lt; -ampl_max] = -ampl_max
+        add_unwrap(metadata, unwrap_clip*ampl_max, ampl_max, unit)
+    elif unwrap_thresh &gt; 1e-3:
+        unwrap(data, unwrap_thresh, ampl_max)
+        data *= 0.5
+        update_gain(metadata, 0.5)
+        add_unwrap(metadata, unwrap_thresh*ampl_max, 0.0, unit)
+    # decimate:
+    if decimate_fac &gt; 1:
+        data = decimate(data, decimate_fac, axis=0)
+        rate /= decimate_fac
+    return data, rate</code></pre>
+</details>
+<div class="desc"><p>Modify audio data and add modifications to metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>2-D array</code> of <code>float</code></dt>
+<dd>The data to be written into the output file.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>channels</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>List of channels to be selected from the data.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>float</code></dt>
+<dd>Scaling factor to be applied to the data.</dd>
+<dt><strong><code>unwrap_clip</code></strong> :&ensp;<code>float</code></dt>
+<dd>If larger than zero, unwrap the data using this as a threshold
+relative to <code>ampl_max</code>, and clip the data at +-<code>ampl_max</code>.</dd>
+<dt><strong><code>unwrap_thresh</code></strong> :&ensp;<code>float</code></dt>
+<dd>If larger than zero, unwrap the data using this as a threshold
+relative to <code>ampl_max</code>, and downscale the data by a factor of two.
+Also update the gain in the metadata.</dd>
+<dt><strong><code>ampl_max</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum amplitude of the input range.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the input range.</dd>
+<dt><strong><code>decimate_fac</code></strong> :&ensp;<code>int</code></dt>
+<dd>Downsample the data by this factor.</dd>
+</dl>
+<h2 id="returns">Returns</h2></div>
+</dd>
+<dt id="audioio.audioconverter.format_outfile"><code class="name flex">
+<span>def <span class="ident">format_outfile</span></span>(<span>outfile, metadata)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_outfile(outfile, metadata):
+    &#34;&#34;&#34;Put metadata values into name of output file.
+
+    Parameters
+    ----------
+    outfile: Path
+        Path of output file. May contain metadata keys enclosed in curly braces.
+    metadata: nested dict
+        Metadata.
+
+    Returns
+    -------
+    outfile: Path
+        Output path with formatted name.
+    &#34;&#34;&#34;
+    if len(metadata) &gt; 0 and &#39;{&#39; in outfile.stem and &#39;}&#39; in outfile.stem:
+        fmd = flatten_metadata(metadata)
+        fmd = {k:(fmd[k] if isinstance(fmd[k], (int, float)) else fmd[k].replace(&#39; &#39;, &#39;_&#39;)) for k in fmd}
+        outfile = outfile.with_stem(outfile.stem.format(**fmd))
+    return outfile</code></pre>
+</details>
+<div class="desc"><p>Put metadata values into name of output file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>outfile</code></strong> :&ensp;<code>Path</code></dt>
+<dd>Path of output file. May contain metadata keys enclosed in curly braces.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>outfile</code></strong> :&ensp;<code>Path</code></dt>
+<dd>Output path with formatted name.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audioconverter.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*cargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*cargs):
+    &#34;&#34;&#34;Command line script for converting, downsampling, renaming and merging audio files.
+
+    Parameters
+    ----------
+    cargs: list of strings
+        Command line arguments as returned by sys.argv[1:].
+    &#34;&#34;&#34;
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description=&#39;Convert audio file formats.&#39;,
+        epilog=f&#39;version {__version__} by Benda-Lab (2020-{__year__})&#39;)
+    add_arguments(parser)
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
+    
+    channels = parse_channels(args.channels)
+    
+    if args.list_formats:
+        if args.data_format is None and len(args.files) &gt; 0:
+            args.data_format = args.files[0]
+        list_formats_encodings(args.data_format)
+        return
+
+    if len(args.files) == 0 or len(args.files[0]) == 0:
+        print(&#39;! need to specify at least one input file !&#39;)
+        sys.exit(-1)
+        
+    # expand wildcard patterns:
+    files = []
+    if os.name == &#39;nt&#39;:
+        for fn in args.files:
+            files.extend(glob.glob(fn))
+    else:
+        files = args.files
+
+    nmerge = args.nmerge
+    if nmerge == 0:
+        nmerge = len(files)
+
+    # kwargs for audio loader:
+    load_kwargs = parse_load_kwargs(args.load_kwargs)
+
+    # read in audio:
+    try:
+        data = AudioLoader(files, verbose=args.verbose - 1,
+                           **load_kwargs)
+    except FileNotFoundError:
+        print(f&#39;file &#34;{files[0]}&#34; not found!&#39;)
+        sys.exit(-1)
+    if len(data.file_paths) &lt; len(files):
+        print(f&#39;file &#34;{files[len(data.file_paths)]}&#34; does not continue file &#34;{data.file_paths[-1]}&#34;!&#39;)
+        sys.exit(-1)
+    md = data.metadata()
+    add_metadata(md, args.md_list, &#39;.&#39;)
+    if len(args.remove_keys) &gt; 0:
+        remove_metadata(md, args.remove_keys, &#39;.&#39;)
+        cleanup_metadata(md)
+    locs, labels = data.markers()
+    pre_history = bext_history_str(data.encoding,
+                                   data.rate,
+                                   data.channels,
+                                   os.fsdecode(data.filepath))
+    if args.verbose &gt; 1:
+        print(f&#39;loaded audio file &#34;{data.filepath}&#34;&#39;)
+        
+    if data.encoding is not None and args.encoding is None:
+        args.encoding = data.encoding
+    for i0 in range(0, len(data.file_paths), nmerge):
+        infile = data.file_paths[i0]
+        outfile, data_format = make_outfile(args.outpath, infile,
+                                            args.data_format,
+                                            nmerge &lt; len(files),
+                                            format_from_extension)
+        if not check_format(data_format):
+            sys.exit(-1)
+        if infile.resolve() == outfile.resolve():
+            print(f&#39;! cannot convert &#34;{infile}&#34; to itself !&#39;)
+            sys.exit(-1)
+
+        if len(data.file_paths) &gt; 1:
+            i1 = i0 + nmerge - 1
+            if i1 &gt;= len(data.end_indices):
+                i1 = len(data.end_indices) - 1
+            si = data.start_indices[i0]
+            ei = data.end_indices[i1]
+        else:
+            si = 0
+            ei = data.frames
+        wdata, wrate = modify_data(data[si:ei], data.rate,
+                                   md, channels, args.scale,
+                                   args.unwrap_clip, args.unwrap, 1.0,
+                                   &#39;&#39;, args.decimate)
+        mask = (locs[:, 0] &gt;= si) &amp; (locs[:, 0] &lt; ei)
+        wlocs = locs[mask, :]
+        if len(wlocs) &gt; 0:
+            wlocs[:, 0] -= si
+        wlabels = labels[mask, :]
+        outfile = format_outfile(outfile, md)
+        # history:
+        hkey = &#39;CodingHistory&#39;
+        if &#39;BEXT&#39; in md:
+            hkey = &#39;BEXT.&#39; + hkey
+        history = bext_history_str(args.encoding, wrate,
+                                   data.shape[1], os.fsdecode(outfile))
+        add_history(md, history, hkey, pre_history)
+        # write out audio:
+        try:
+            write_audio(outfile, wdata, wrate, md, wlocs, wlabels,
+                        format=data_format, encoding=args.encoding)
+        except PermissionError:
+            print(f&#39;failed to write &#34;{outfile}&#34;: permission denied!&#39;)
+            sys.exit(-1)
+        # message:
+        if args.verbose &gt; 1:
+            print(f&#39;wrote &#34;{outfile}&#34;&#39;)
+        elif args.verbose:
+            print(f&#39;converted audio file &#34;{infile}&#34; to &#34;{outfile}&#34;&#39;)
+    data.close()</code></pre>
+</details>
+<div class="desc"><p>Command line script for converting, downsampling, renaming and merging audio files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cargs</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as returned by sys.argv[1:].</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#functions">Functions</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.audioconverter.add_arguments" href="#audioio.audioconverter.add_arguments">add_arguments</a></code></li>
+<li><code><a title="audioio.audioconverter.parse_channels" href="#audioio.audioconverter.parse_channels">parse_channels</a></code></li>
+<li><code><a title="audioio.audioconverter.parse_load_kwargs" href="#audioio.audioconverter.parse_load_kwargs">parse_load_kwargs</a></code></li>
+<li><code><a title="audioio.audioconverter.check_format" href="#audioio.audioconverter.check_format">check_format</a></code></li>
+<li><code><a title="audioio.audioconverter.list_formats_encodings" href="#audioio.audioconverter.list_formats_encodings">list_formats_encodings</a></code></li>
+<li><code><a title="audioio.audioconverter.make_outfile" href="#audioio.audioconverter.make_outfile">make_outfile</a></code></li>
+<li><code><a title="audioio.audioconverter.modify_data" href="#audioio.audioconverter.modify_data">modify_data</a></code></li>
+<li><code><a title="audioio.audioconverter.format_outfile" href="#audioio.audioconverter.format_outfile">format_outfile</a></code></li>
+<li><code><a title="audioio.audioconverter.main" href="#audioio.audioconverter.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

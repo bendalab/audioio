@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.fixtimestamps API documentation</title>
+<meta name="description" content="Fix time stamps …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.fixtimestamps</code></h1>
+</header>
+<section id="section-intro">
+<p>Fix time stamps.</p>
+<p>Change time stamps in the metadata (of wave files) and file names
+<em>without rewriting</em> the entire file.
+This is useful in case the
+real-time clock of a recorder failed.</p>
+<h2 id="command-line-script">Command line script</h2>
+<p>Let's assume you have a continous recording spread over the following
+four files each covering 3 minutes of the recording:</p>
+<pre><code class="language-txt">logger-20190101T000015.wav
+logger-20190101T000315.wav
+logger-20190101T000615.wav
+logger-20190101T000915.wav
+</code></pre>
+<p>However, the recording was actually started at 2025-06-09T10:42:17.
+Obviously, the real-time clock failed, since all times in the file name
+and the time stamps in the metadata start in the year 2019.</p>
+<p>To fix this, run</p>
+<pre><code class="language-sh">&gt; fixtimestamps -s '2025-06-09T10:42:17' logger-2019*.wav
+</code></pre>
+<p>Then the files are renamed:</p>
+<pre><code class="language-txt">logger-20190101T000015.wav -&gt; logger-20250609T104217.wav
+logger-20190101T000315.wav -&gt; logger-20250609T104517.wav
+logger-20190101T000615.wav -&gt; logger-20250609T104817.wav
+logger-20190101T000915.wav -&gt; logger-20250609T105117.wav
+</code></pre>
+<p>and the time stamps in the meta data are set accordingly.</p>
+<p>Supported date formats are "YYYY-MM-DD" or "YYYYMMDD".
+Supported time formats are "HH:MM:SS" or "HHMMSS".</p>
+<p>Adding the <code>-n</code> flag runs the script in dry mode, i.e. it just reports
+what it would do without modifying the audio files:</p>
+<pre><code class="language-sh">&gt; fixtimestamps -n -s 20250701T173420 *.wav
+</code></pre>
+<p>Alternatively, the script can be run from within the audioio source
+tree as:</p>
+<pre><code>python -m src.audioio.fixtimestamps -s 20250701T173420 *.wav
+</code></pre>
+<p>Running</p>
+<pre><code class="language-sh">fixtimestamps --help
+</code></pre>
+<p>prints</p>
+<pre><code class="language-text">usage: fixtimestamps [-h] [--version] -s STARTTIME [-n] files [files ...]
+
+Fix time stamps.
+
+positional arguments:
+  files         audio files
+
+options:
+  -h, --help    show this help message and exit
+  --version     show program's version number and exit
+  -s STARTTIME  new start time of the first file
+  -n            do not modify the files, just report what would be done.
+
+version 2.5.0 by Benda-Lab (2020-2025)
+</code></pre>
+<h2 id="functions">Functions</h2>
+<ul>
+<li><code><a title="audioio.fixtimestamps.parse_datetime" href="#audioio.fixtimestamps.parse_datetime">parse_datetime()</a></code>: parse string for a date and a time.</li>
+<li><code><a title="audioio.fixtimestamps.replace_datetime" href="#audioio.fixtimestamps.replace_datetime">replace_datetime()</a></code>: replace in a string date and time.</li>
+<li><code><a title="audioio.fixtimestamps.write_riff_datetime" href="#audioio.fixtimestamps.write_riff_datetime">write_riff_datetime()</a></code>: modify time stamps in the metadata of a RIFF/WAVE file.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.fixtimestamps.parse_datetime"><code class="name flex">
+<span>def <span class="ident">parse_datetime</span></span>(<span>string)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_datetime(string):
+    &#34;&#34;&#34;Parse string for a date and a time.
+
+    Parameters
+    ----------
+    string: str
+        String to be parsed.
+
+    Returns
+    -------
+    dtime: datetime or None
+        The date and time parsed from the string.
+        None if neither a date nor a time was found.
+    &#34;&#34;&#34;
+    date = None
+    time = None
+    time_pos = 0
+    m = re.search(&#39;([123][0-9][0-9][0-9]-[01][0-9]-[0123][0-9])&#39;, string)
+    if m is not None:
+        date = dt.date.fromisoformat(m[0])
+        time_pos = m.end()
+    else:
+        m = re.search(&#39;([123][0-9][0-9][0-9][01][0-9][0123][0-9])&#39;, string)
+        if m is not None:
+            dts = m[0]
+            dts = f&#39;{dts[0:4]}-{dts[4:6]}-{dts[6:8]}&#39;
+            date = dt.date.fromisoformat(dts)
+            time_pos = m.end()
+    m = re.search(&#39;([012][0-9]:[0-5][0-9]:[0-5][0-9])&#39;, string[time_pos:])
+    if m is not None:
+        time = dt.time.fromisoformat(m[0])
+    else:
+        m = re.search(&#39;([012][0-9][0-5][0-9][0-5][0-9])&#39;, string[time_pos:])
+        if m is not None:
+            dts = m[0]
+            dts = f&#39;{dts[0:2]}:{dts[2:4]}:{dts[4:6]}&#39;
+            time = dt.time.fromisoformat(dts)
+    if date is None and time is None:
+        return None
+    if date is None:
+        date = dt.date(1, 1, 1)
+    if time is None:
+        time = dt.time(0, 0, 0)
+    dtime = dt.datetime.combine(date, time)
+    return dtime</code></pre>
+</details>
+<div class="desc"><p>Parse string for a date and a time.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>String to be parsed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>dtime</code></strong> :&ensp;<code>datetime</code> or <code>None</code></dt>
+<dd>The date and time parsed from the string.
+None if neither a date nor a time was found.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.fixtimestamps.replace_datetime"><code class="name flex">
+<span>def <span class="ident">replace_datetime</span></span>(<span>string, date_time)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def replace_datetime(string, date_time):
+    &#34;&#34;&#34; Replace in a string date and time.
+
+    Parameters
+    ----------
+    string: str
+        String in which date and time are replaced.
+    date_time: datetime
+        Date and time to write into the string.
+
+    Returns
+    -------
+    new_string: str
+        The `string` with date and time replaced by `date_time`.
+    &#34;&#34;&#34;
+    if date_time is None:
+        return string
+    new_string = string
+    time_pos = 0
+    dts = date_time.date().isoformat()
+    pattern = re.compile(&#39;([123][0-9][0-9][0-9]-[01][0-9]-[0123][0-9])&#39;)
+    m = pattern.search(new_string)
+    if m is not None:
+        time_pos = m.end()
+        new_string = pattern.sub(dts, new_string)
+    else:
+        pattern = re.compile(&#39;([123][0-9][0-9][0-9][01][0-9][0123][0-9])&#39;)
+        m = pattern.search(new_string)
+        if m is not None:
+            time_pos = m.end()
+            new_string = pattern.sub(dts.replace(&#39;-&#39;, &#39;&#39;), new_string)
+    dts = date_time.time().isoformat()
+    pattern = re.compile(&#39;([012][0-9]:[0-5][0-9]:[0-5][0-9])&#39;)
+    m = pattern.search(new_string[time_pos:])
+    if m is not None:
+        new_string = new_string[:time_pos] + \
+            pattern.sub(dts, new_string[time_pos:])
+    else:
+        pattern = re.compile(&#39;([012][0-9][0-5][0-9][0-5][0-9])&#39;)
+        m = pattern.search(new_string[time_pos:])
+        if m is not None:
+            new_string = new_string[:time_pos] + \
+                pattern.sub(dts.replace(&#39;:&#39;, &#39;&#39;), new_string[time_pos:])
+    return new_string</code></pre>
+</details>
+<div class="desc"><p>Replace in a string date and time.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>String in which date and time are replaced.</dd>
+<dt><strong><code>date_time</code></strong> :&ensp;<code>datetime</code></dt>
+<dd>Date and time to write into the string.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>new_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>The <code>string</code> with date and time replaced by <code>date_time</code>.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.fixtimestamps.write_riff_datetime"><code class="name flex">
+<span>def <span class="ident">write_riff_datetime</span></span>(<span>path, start_time, file_time=None, no_mod=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
+    &#34;&#34;&#34; Modify time stamps in the metadata of a RIFF/WAVE file.
+
+    Parameters
+    ----------
+    path: str
+        Path to a wave file.
+    start_time: datetime
+        Date and time to which all time stamps should be set.
+    file_time: None or date_time
+        If provided check whether the time stamp in the metadata
+        matches.
+
+    Returns
+    -------
+    duration: timedelta
+        Total duration of the audio data in the file.
+    orig_time: date_time or None
+        The time stamp found in the metadata.
+    no_mod: bool
+        Do not modify the files, just report what would be done.    
+    &#34;&#34;&#34;
+    def check_starttime(file_orig, time_time, path):
+        if file_time is not None and orig_time is not None and \
+           abs(orig_time - file_time) &gt; dt.timedelta(seconds=1):
+            raise ValueError(f&#39;&#34;{path}&#34; start time is {orig_time} but should be {file_time} for a continuous recording.&#39;)
+
+        
+    duration = dt.timedelta(seconds=0)
+    orig_time = None
+    store_empty = False
+    with open(path, &#39;r+b&#39;) as sf:
+        try:
+            fsize = read_riff_header(sf)
+        except ValueError:
+            raise ValueError(f&#39;&#34;{path}&#34; is not a valid RIFF/WAVE file, time stamps cannot be modified.&#39;)
+        tags = read_chunk_tags(sf)
+        if &#39;FMT &#39; not in tags:
+            raise ValueError(f&#39;missing FMT chunk in &#34;{path}&#34;.&#39;)
+        sf.seek(tags[&#39;FMT &#39;][0] - 4, os.SEEK_SET)
+        channels, rate, bits = read_format_chunk(sf)
+        bts = 1 + (bits - 1) // 8
+        if &#39;DATA&#39; not in tags:
+            raise ValueError(f&#39;missing DATA chunk in &#34;{path}&#34;.&#39;)
+        dsize = tags[&#39;DATA&#39;][1]
+        duration = dt.timedelta(seconds=(dsize//bts//channels)/rate)
+        for chunk in tags:
+            sf.seek(tags[chunk][0] - 4, os.SEEK_SET)
+            md = {}
+            if chunk == &#39;LIST-INFO&#39;:
+                md[&#39;INFO&#39;] = read_info_chunks(sf, store_empty)
+                orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
+                if not no_mod and set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_info_chunk(sf, md, tags[chunk][1])
+            elif chunk == &#39;BEXT&#39;:
+                md[&#39;BEXT&#39;] = read_bext_chunk(sf, store_empty)
+                orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
+                if not no_mod and set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_bext_chunk(sf, md)
+            elif chunk == &#39;IXML&#39;:
+                md[&#39;IXML&#39;] = read_ixml_chunk(sf, store_empty)
+                orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
+                if not no_mod and set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_ixml_chunk(sf, md)
+            elif chunk == &#39;GUAN&#39;:
+                md[&#39;GUANO&#39;] = read_guano_chunk(sf)
+                orig_time = get_datetime(md)
+                check_starttime(orig_time, file_time, path)
+                if not no_mod and set_starttime(md, start_time):
+                    sf.seek(tags[chunk][0] - 8, os.SEEK_SET)
+                    write_guano_chunk(sf, md[&#39;GUANO&#39;])
+    return duration, orig_time</code></pre>
+</details>
+<div class="desc"><p>Modify time stamps in the metadata of a RIFF/WAVE file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to a wave file.</dd>
+<dt><strong><code>start_time</code></strong> :&ensp;<code>datetime</code></dt>
+<dd>Date and time to which all time stamps should be set.</dd>
+<dt><strong><code>file_time</code></strong> :&ensp;<code>None</code> or <code>date_time</code></dt>
+<dd>If provided check whether the time stamp in the metadata
+matches.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>duration</code></strong> :&ensp;<code>timedelta</code></dt>
+<dd>Total duration of the audio data in the file.</dd>
+<dt><strong><code>orig_time</code></strong> :&ensp;<code>date_time</code> or <code>None</code></dt>
+<dd>The time stamp found in the metadata.</dd>
+<dt><strong><code>no_mod</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Do not modify the files, just report what would be done.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.fixtimestamps.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>start_time, file_pathes, no_mod=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo(start_time, file_pathes, no_mod=False):
+    &#34;&#34;&#34;Modify time stamps of audio files.
+
+    Parameters
+    ----------
+    start_time: str
+        Time stamp of the first file.
+    file_pathes: list of str
+        Pathes of audio files.
+    no_mod: bool
+        Do not modify the files, just report what would be done.    
+    &#34;&#34;&#34;
+    file_time = None
+    start_time = dt.datetime.fromisoformat(start_time)
+    for fp in file_pathes:
+        duration, orig_time = write_riff_datetime(fp, start_time,
+                                                  file_time, no_mod)
+        name_time = parse_datetime(Path(fp).stem)
+        if orig_time is None:
+            orig_time = name_time
+        if file_time is None:
+            file_time = orig_time
+        if orig_time is None:
+            raise ValueError(f&#39;&#34;{fp}&#34; does not contain any time in its metadata or name.&#39;)
+        if name_time is not None:
+            p = Path(fp)
+            np = p.with_stem(replace_datetime(p.stem, start_time))
+            if not no_mod:
+                os.rename(fp, np)
+            print(f&#39;{fp} -&gt; {np}&#39;)
+        else:
+            print(f&#39;{fp}: {orig_time} -&gt; {start_time}&#39;)
+        start_time += duration
+        file_time += duration</code></pre>
+</details>
+<div class="desc"><p>Modify time stamps of audio files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>start_time</code></strong> :&ensp;<code>str</code></dt>
+<dd>Time stamp of the first file.</dd>
+<dt><strong><code>file_pathes</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Pathes of audio files.</dd>
+<dt><strong><code>no_mod</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Do not modify the files, just report what would be done.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.fixtimestamps.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*cargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*cargs):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    cargs: list of strings
+        Command line arguments as provided by sys.argv[1:]
+    &#34;&#34;&#34;
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description=&#39;Fix time stamps.&#39;,
+        epilog=f&#39;version {__version__} by Benda-Lab (2020-{__year__})&#39;)
+    parser.add_argument(&#39;--version&#39;, action=&#39;version&#39;, version=__version__)
+    parser.add_argument(&#39;-s&#39;, dest=&#39;starttime&#39;, default=None, type=str, required=True,
+                        help=&#39;new start time of the first file&#39;)
+    parser.add_argument(&#39;-n&#39;, dest=&#39;nomod&#39;, action=&#39;store_true&#39;,
+                        help=&#39;do not modify the files, just report what would be done.&#39;)
+    parser.add_argument(&#39;files&#39;, type=str, nargs=&#39;+&#39;,
+                        help=&#39;audio files&#39;)
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
+    
+    # expand wildcard patterns:
+    files = []
+    if os.name == &#39;nt&#39;:
+        for fn in args.files:
+            files.extend(glob.glob(fn))
+    else:
+        files = args.files
+
+    demo(args.starttime, files, args.nomod)</code></pre>
+</details>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cargs</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as provided by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#command-line-script">Command line script</a></li>
+<li><a href="#functions">Functions</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="audioio.fixtimestamps.parse_datetime" href="#audioio.fixtimestamps.parse_datetime">parse_datetime</a></code></li>
+<li><code><a title="audioio.fixtimestamps.replace_datetime" href="#audioio.fixtimestamps.replace_datetime">replace_datetime</a></code></li>
+<li><code><a title="audioio.fixtimestamps.write_riff_datetime" href="#audioio.fixtimestamps.write_riff_datetime">write_riff_datetime</a></code></li>
+<li><code><a title="audioio.fixtimestamps.demo" href="#audioio.fixtimestamps.demo">demo</a></code></li>
+<li><code><a title="audioio.fixtimestamps.main" href="#audioio.fixtimestamps.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
