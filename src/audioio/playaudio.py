@@ -103,7 +103,7 @@ def note2freq(note, a4freq=440.0):
 
     Raises
     ------
-    ValueError:
+    ValueError
         No or an invalid note was specified.
     """
     freq = a4freq
