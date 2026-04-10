@@ -182,7 +182,7 @@ def parse_load_kwargs(load_strs):
     Parameters
     ----------
     load_strs: list of str
-        Strings with with comma separated key-value pairs as returned
+        Strings with comma separated key-value pairs as returned
         by args.load_kwargs from `add_arguments()`.
 
     Returns

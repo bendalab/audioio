@@ -98,6 +98,11 @@ from .audiometadata import get_datetime, set_starttime
 def parse_datetime(string):
     """Parse string for a date and a time.
 
+    Date and time can appear anywhere in the string,
+    but time needs to appear after a date.
+    Supported date formats are "YYYY-MM-DD" or "YYYYMMDD".
+    Supported time formats are "HH:MM:SS" or "HHMMSS".
+
     Parameters
     ----------
     string: str
@@ -145,6 +150,11 @@ def parse_datetime(string):
 def replace_datetime(string, date_time):
     """ Replace in a string date and time.
 
+    Date and time can appear anywhere in the string,
+    but time needs to appear after a date.
+    Supported date formats are "YYYY-MM-DD" or "YYYYMMDD".
+    Supported time formats are "HH:MM:SS" or "HHMMSS".
+
     Parameters
     ----------
     string: str
@@ -189,7 +199,7 @@ def replace_datetime(string, date_time):
 
 
 def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
-    """ Modify time stamps in the metadata of a RIFF/WAVE file.
+    """ Modify time stamps in the metadata of a RIFF/WAVE file in place.
 
     Parameters
     ----------
@@ -199,18 +209,23 @@ def write_riff_datetime(path, start_time, file_time=None, no_mod=False):
         Date and time to which all time stamps should be set.
     file_time: None or date_time
         If provided check whether the time stamp in the metadata
-        matches.
+        matches. If they do not match a `ValueError` is raised.
+    no_mod: bool
+        Do not modify the files, just report what would be done.    
 
     Returns
     -------
     duration: timedelta
         Total duration of the audio data in the file.
     orig_time: date_time or None
-        The time stamp found in the metadata.
-    no_mod: bool
-        Do not modify the files, just report what would be done.    
+        The original time stamp found in the metadata.
+
+    Raises
+    ------
+    ValueError:
+        Time stamp in metadata does not match expected `file_time`. 
     """
-    def check_starttime(file_orig, time_time, path):
+    def check_starttime(orig_time, file_time, path):
         if file_time is not None and orig_time is not None and \
            abs(orig_time - file_time) > dt.timedelta(seconds=1):
             raise ValueError(f'"{path}" start time is {orig_time} but should be {file_time} for a continuous recording.')
