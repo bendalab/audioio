@@ -56,6 +56,7 @@ ewave             is  installed (F)
 scipy.io.wavfile  is  installed (F)
 soundfile         is  installed (F)
 wavefile          is  installed (F)
+wavpack           is  installed (F)
 audioread         is  installed (F)
 pyaudio           is  installed (D)
 sounddevice       not installed (D)
@@ -266,6 +267,28 @@ that supports many different audio file formats.
 See https://github.com/vokimon/python-wavefile for documentation of the wavefile python wrapper
 and http://www.mega-nerd.com/libsndfile for details on the sndfile library."""
         
+audio_fileio.append('wavpack')
+try:
+    import ctypes
+    wavpack = ctypes.CDLL('libwavpack.so.1')
+    wavpack.WavpackOpenFileInput.restype = ctypes.c_void_p
+    wavpack.WavpackGetNumSamples64.restype = ctypes.c_int64
+    wavpack.WavpackGetWrapperData.restype = ctypes.POINTER(ctypes.c_ubyte)
+    wavpack.WavpackSeekSample64.argtypes = [ctypes.c_void_p, ctypes.c_int64]
+    wavpack.WavpackUnpackSamples.argtypes = [ctypes.c_void_p,
+                                             ctypes.POINTER(ctypes.c_int32),
+                                             ctypes.c_uint32]
+    audio_modules['wavpack'] = True
+    audio_installed.append('wavpack')
+except (OSError, AttributeError):   # no library or too old
+    audio_modules['wavpack'] = False
+audio_deb_packages['wavpack'] = 'libwavpack1'
+audio_rpm_packages['wavpack'] = 'wavpack-libs'
+audio_brew_packages['wavpack'] = 'wavpack'
+audio_infos['wavpack'] = """The wavpack library reads WavPack files, a lossless compression of audio data.
+It is called via ctypes, no python package is needed.
+For documentation see https://www.wavpack.com"""
+        
 audio_fileio.append('audioread')
 try:
     import audioread
@@ -301,29 +324,6 @@ audio_required_brew_packages['pydub'] = ['libav --with-libvorbis --with-sdl --wi
 audio_infos['pydub'] = """The pydub package uses libav (https://libav.org/) or ffmpeg (https://ffmpeg.org/) to make mpeg files readable and writeable.
 Install this package if you need to write mpeg files.
 For documentation see https://github.com/jiaaro/pydub"""
-        
-audio_fileio.append('wavpack')
-try:
-    import ctypes
-    wavpack = ctypes.CDLL('libwavpack.so.1')
-    wavpack.WavpackOpenFileInput.restype = ctypes.c_void_p
-    wavpack.WavpackGetNumSamples64.restype = ctypes.c_int64
-    wavpack.WavpackGetWrapperData.restype = ctypes.POINTER(ctypes.c_ubyte)
-    wavpack.WavpackSeekSample64.argtypes = [ctypes.c_void_p, ctypes.c_int64]
-    wavpack.WavpackUnpackSamples.argtypes = [ctypes.c_void_p,
-                                             ctypes.POINTER(ctypes.c_int32),
-                                             ctypes.c_uint32]
-    audio_modules['wavpack'] = True
-    audio_installed.append('wavpack')
-except (OSError, AttributeError):   # no library or too old
-    audio_modules['wavpack'] = False
-audio_deb_packages['wavpack'] = 'libwavpack1'
-audio_rpm_packages['wavpack'] = 'wavpack-libs'
-audio_brew_packages['wavpack'] = 'wavpack'
-audio_infos['wavpack'] = """The wavpack library reads WavPack files, a lossless compression of wave files.
-It is called via ctypes, no python package is needed.
-The wavpack program compresses a wave file into a WavPack file, wvunpack expands it again.
-For documentation see https://www.wavpack.com"""
         
 audio_device.append('pyaudio')
 try:

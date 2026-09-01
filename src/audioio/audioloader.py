@@ -446,10 +446,10 @@ audio_loader_funcs = (
     ('soundfile', load_soundfile),
     ('wave', load_wave),
     ('wavefile', load_wavefile),
+    ('wavpack', load_wavpack),
     ('ewave', load_ewave),
     ('scipy.io.wavfile', load_wavfile),
     ('audioread', load_audioread),
-    ('wavpack', load_wavpack),
     )
 """List of implemented load() functions.
 
@@ -1953,9 +1953,9 @@ class AudioLoader(BufferedArray):
             ('soundfile', self.open_soundfile),
             ('wave', self.open_wave),
             ('wavefile', self.open_wavefile),
+            ('wavpack', self.open_wavpack),
             ('ewave', self.open_ewave),
             ('audioread', self.open_audioread),
-            ('wavpack', self.open_wavpack),
             )
         # open an audio file by trying various modules:
         not_installed = []
