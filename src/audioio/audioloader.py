@@ -27,6 +27,7 @@ import ctypes
 import warnings
 import numpy as np
 
+from io import BytesIO
 from pathlib import Path
 from datetime import timedelta
 
@@ -354,6 +355,50 @@ def unpack_wavpack(wpc, nframes, channels):
     return buffer[:n,:]
 
 
+def riff_wavpack(filepath):
+    """Read the header and trailer of the original file from a WavPack file.
+
+    The wavpack program stores everything of the file it compresses
+    that is not a sample, so that metadata and markers of the original
+    wave file are still available. The samples are not part of the
+    returned stream, the size of its data chunk is set to zero.
+
+    Parameters
+    ----------
+    filepath: str or Path
+        The full path and name of the WavPack file.
+
+    Returns
+    -------
+    sf: BytesIO or None
+        Header and trailer of the original file as a stream,
+        None if the WavPack file does not contain a RIFF header.
+    """
+    try:
+        wpc = open_wavpack_file(filepath, wavpack_wrapper)
+    except (ImportError, IOError, TypeError):
+        return None
+    nheader = wavpack.WavpackGetWrapperBytes(wpc)
+    frames = wavpack.WavpackGetNumSamples64(wpc)
+    if frames > 1:
+        # the trailer is added to the wrapper only after unpacking
+        # ran into the end of the file:
+        wavpack.WavpackSeekSample64(wpc, frames - 1)
+        unpack_wavpack(wpc, 2, wavpack.WavpackGetNumChannels(wpc))
+    n = wavpack.WavpackGetWrapperBytes(wpc)
+    riff = ctypes.string_at(wavpack.WavpackGetWrapperData(wpc), n) if n > 0 else b''
+    wavpack.WavpackCloseFile(wpc)
+    if riff[:4] != b'RIFF':
+        return None
+    header = riff[:nheader]
+    trailer = riff[nheader:]
+    if header[-8:-4] == b'data':
+        header = header[:-4] + bytes(4)   # no samples in this data chunk
+    riff = header + trailer
+    riff = riff[:4] + (len(riff) - 8).to_bytes(4, 'little') + riff[8:]
+    return BytesIO(riff)
+
+
 def load_wavpack(filepath):
     """Load WavPack file using the wavpack library.
 
@@ -530,8 +575,11 @@ def metadata(filepath, store_empty=False):
     """
     try:
         return metadata_riff(filepath, store_empty)
-    except ValueError: # not a RIFF file
-        return {}
+    except ValueError: # not a RIFF file, but maybe a WavPack file
+        sf = riff_wavpack(filepath)
+        if sf is None:
+            return {}
+        return metadata_riff(sf, store_empty)
 
 
 def markers(filepath):
@@ -569,8 +617,11 @@ def markers(filepath):
     """
     try:
         return markers_riff(filepath)
-    except ValueError: # not a RIFF file
-        return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
+    except ValueError: # not a RIFF file, but maybe a WavPack file
+        sf = riff_wavpack(filepath)
+        if sf is None:
+            return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
+        return markers_riff(sf)
 
     
 class AudioLoader(BufferedArray):
