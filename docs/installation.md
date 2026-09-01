@@ -29,6 +29,10 @@ and ffmpeg (https://ffmpeg.org/) via
 [audioread](https://github.com/beetbox/audioread) for reading
 and [Pydub](https://github.com/jiaaro/pydub) for writing.
 
+WavPack files, a lossless compression of wave files, are read via the
+[wavpack library](https://www.wavpack.com). The wavpack program
+compresses a wave file, wvunpack expands it again.
+
 For playing sounds, use the
 [sounddevice](https://python-sounddevice.readthedocs.io) package, that
 is based on [portaudio](http://www.portaudio.com).
@@ -42,6 +46,7 @@ For details, call
 audiomodules soundfile
 audiomodules audioread
 audiomodules pydub
+audiomodules wavpack
 audiomodules sounddevice
 ````
 
@@ -53,6 +58,7 @@ Here is how to install all these packages at once:
 sudo apt install libsndfile1 libsndfile1-dev libffi-dev
 sudo pip install SoundFile
 sudo apt install ffmpeg python3-audioread python3-pydub
+sudo apt install libwavpack1 wavpack
 sudo apt install libportaudio2 portaudio19-dev python3-cffi
 sudo pip install sounddevice
 ```
@@ -63,6 +69,7 @@ sudo pip install sounddevice
 dnf install libsndfile libsndfile-devel libffi-devel
 pip install SoundFile
 dnf install ffmpeg ffmpeg-devel python3-audioread python3-pydub
+dnf install wavpack-libs wavpack
 dnf install libportaudio portaudio-devel python3-cffi
 pip install sounddevie
 ```
