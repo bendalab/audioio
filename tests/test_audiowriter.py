@@ -83,7 +83,7 @@ def test_write_read():
 
         # write, read, and check:
         for lib in am.installed_modules('fileio'):
-            if lib in ['audioread', 'pydub']:
+            if lib in ['audioread', 'pydub', 'wavpack']:
                 continue
             print()
             print('%s module:' % lib)
@@ -128,7 +128,7 @@ def test_dimensions():
     t = np.arange(0.0, duration, 1.0/rate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread' or (lib == 'pydub' and
+        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
                                   'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)
@@ -148,7 +148,7 @@ def test_dimensions():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread' or (lib == 'pydub' and
+        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
                                   'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)
@@ -169,7 +169,7 @@ def test_dimensions():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 2))
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread' or (lib == 'pydub' and
+        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
                                   'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)
@@ -194,7 +194,7 @@ def test_dimensions_pathlib():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 2))
     for lib in am.installed_modules('fileio'):
-        if lib == 'audioread' or (lib == 'pydub' and
+        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
                                   'audioread' not in am.installed_modules('fileio')):
             continue
         print('%s module...' % lib)

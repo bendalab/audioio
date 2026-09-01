@@ -1,4 +1,6 @@
 import pytest
+import shutil
+import subprocess
 import numpy as np
 
 from pathlib import Path
@@ -62,7 +64,7 @@ def test_basename():
     filename = 'test.wav'
     write_audio_file(filename, 20.0)
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('check basename for module %s ...' % lib)
@@ -86,7 +88,7 @@ def test_get_file_index():
     write_audio_file(filename, 20.0)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('check file index for module %s ...' % lib)
@@ -114,7 +116,7 @@ def test_single_frame():
     tolerance = 2.0**(-15)
     ntests = 500
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('check single frame access for module %s ...' % lib)
@@ -143,7 +145,7 @@ def test_slice():
     tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('random frame slice access for module %s' % lib)
@@ -173,7 +175,7 @@ def test_slice_pathlib():
     tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('random frame slice access for module %s' % lib)
@@ -193,7 +195,7 @@ def test_forward():
     tolerance = 2.0**(-15)
     nsteps = 200
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('forward slice access for module %s' % lib)
@@ -220,7 +222,7 @@ def test_backward():
     tolerance = 2.0**(-15)
     nsteps = 200
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('backward slice access for module %s' % lib)
@@ -248,7 +250,7 @@ def test_negative():
     tolerance = 2.0**(-15)
     nsteps = 200
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('negative slice access for module %s' % lib)
@@ -275,7 +277,7 @@ def test_multiple():
     tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('multiple indices access for module %s' % lib)
@@ -533,3 +535,56 @@ def test_main():
     al.main(filename)
     al.main('-m', 'wave', filename)
     Path(filename).unlink(True)
+
+
+def test_wavpack():
+    am.enable_module()
+    if 'wavpack' not in am.installed_modules('fileio'):
+        print('the wavpack library is not installed')
+        return
+    if shutil.which('wavpack') is None:
+        print('the wavpack program is not installed')
+        return
+    filename = 'test.wav'
+    wvfilename = 'test.wv'
+    rate = 44100.0
+    duration = 10.0
+    t = np.arange(0.0, duration, 1.0/rate)
+    data = np.sin(2.0*np.pi*880.0*t) * t/duration
+    data = data.reshape((-1, 1))
+    locs = np.array([[1000, 0], [20000, 500]])
+    labels = np.array([['a', 'first'], ['b', 'second']], dtype=object)
+    md = dict(INFO=dict(DateTimeOriginal='2024-03-02T10:42:24'))
+    aw.write_wave(filename, data, rate, md, locs, labels)
+    subprocess.run(['wavpack', '-q', '-y', filename, '-o', wvfilename],
+                   check=True)
+
+    # WavPack files are a lossless compression of the wave file:
+    wav_data, wav_rate = al.load_audio(filename)
+    wv_data, wv_rate = al.load_audio(wvfilename)
+    assert wv_rate == wav_rate, 'sampling rate of WavPack file'
+    assert np.array_equal(wv_data, wav_data), 'data of WavPack file'
+
+    # random access, also backwards:
+    with al.AudioLoader(filename, 1.0, 0.0) as wav_file, \
+         al.AudioLoader(wvfilename, 1.0, 0.0) as wv_file:
+        assert wv_file.format == 'WAVPACK', 'format of WavPack file'
+        assert wv_file.encoding == wav_file.encoding, 'encoding of WavPack file'
+        assert wv_file.rate == wav_file.rate, 'sampling rate of WavPack file'
+        assert wv_file.channels == wav_file.channels, 'channels of WavPack file'
+        assert wv_file.frames == wav_file.frames, 'frames of WavPack file'
+        for offset in [0, 100000, 40000, 300000, 200000]:
+            assert np.array_equal(wv_file[offset:offset + 10000,:],
+                                  wav_file[offset:offset + 10000,:]), \
+                                  'random access into WavPack file'
+
+    # metadata and markers are in the wave header stored by wavpack:
+    assert al.metadata(wvfilename) == al.metadata(filename), \
+        'metadata of WavPack file'
+    wv_locs, wv_labels = al.markers(wvfilename)
+    wav_locs, wav_labels = al.markers(filename)
+    assert np.array_equal(wv_locs, wav_locs), 'markers of WavPack file'
+    assert np.array_equal(wv_labels, wav_labels), 'marker labels of WavPack file'
+
+    Path(filename).unlink(True)
+    Path(wvfilename).unlink(True)
