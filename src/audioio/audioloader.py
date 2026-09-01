@@ -23,6 +23,7 @@ python -m src.audioio.audioloader audiofile.wav
 import os
 import gc
 import sys
+import ctypes
 import warnings
 import numpy as np
 
@@ -285,6 +286,117 @@ def load_audioread(filepath):
     return data/(2.0**15-1.0), float(rate)
 
 
+wavpack_wrapper = 0x04
+""" Flag for WavpackOpenFileInput() to also read the header of the original file. """
+
+wavpack_float = 0x08
+""" Bit returned by WavpackGetMode() indicating floating point samples. """
+
+
+def open_wavpack_file(filepath, flags=0):
+    """Open a WavPack file using the wavpack library.
+
+    Parameters
+    ----------
+    filepath: str or Path
+        The full path and name of the file to open.
+    flags: int
+        Flags passed on to WavpackOpenFileInput().
+
+    Returns
+    -------
+    wpc: ctypes.c_void_p
+        Handle of the open WavPack file.
+
+    Raises
+    ------
+    ImportError
+        The wavpack library is not installed
+    IOError
+        Opening the file failed
+    """
+    if not audio_modules['wavpack']:
+        raise ImportError
+
+    error = ctypes.create_string_buffer(160)
+    wpc = wavpack.WavpackOpenFileInput(os.fsencode(filepath), error, flags, 0)
+    if not wpc:
+        raise IOError(f'{filepath}: {error.value.decode("latin-1")}')
+    return ctypes.c_void_p(wpc)
+
+
+def unpack_wavpack(wpc, nframes, channels):
+    """Read samples from an open WavPack file.
+
+    Parameters
+    ----------
+    wpc: ctypes.c_void_p
+        Handle of an open WavPack file.
+    nframes: int
+        Number of frames to be read.
+    channels: int
+        Number of channels of the file.
+
+    Returns
+    -------
+    buffer: 2-D ndarray of int32
+        The samples as signed integers, right justified. At the end of
+        the file this can be less than `nframes` frames.
+    """
+    buffer = np.zeros((nframes, channels), dtype=np.int32)
+    n = 0
+    while n < nframes:
+        p = buffer[n:,:].ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
+        m = wavpack.WavpackUnpackSamples(wpc, p, nframes - n)
+        if m == 0:   # end of file
+            break
+        n += m
+    return buffer[:n,:]
+
+
+def load_wavpack(filepath):
+    """Load WavPack file using the wavpack library.
+
+    Documentation
+    -------------
+    https://www.wavpack.com
+
+    Parameters
+    ----------
+    filepath: str or Path
+        The full path and name of the file to load.
+
+    Returns
+    -------
+    data: ndarray
+        All data traces as an 2-D ndarray, first dimension is time, second is channel
+    rate: float
+        The sampling rate of the data in Hertz.
+
+    Raises
+    ------
+    ImportError
+        The wavpack library is not installed
+    *
+        Loading of the data failed
+    """
+    if not audio_modules['wavpack']:
+        raise ImportError
+
+    wpc = open_wavpack_file(filepath)
+    rate = wavpack.WavpackGetSampleRate(wpc)
+    channels = wavpack.WavpackGetNumChannels(wpc)
+    frames = wavpack.WavpackGetNumSamples64(wpc)
+    buffer = unpack_wavpack(wpc, frames, channels)
+    if wavpack.WavpackGetMode(wpc) & wavpack_float > 0:
+        data = buffer.view(np.float32).astype('d')
+    else:
+        bits = wavpack.WavpackGetBitsPerSample(wpc)
+        data = buffer.astype('d')/2.0**(bits-1)
+    wavpack.WavpackCloseFile(wpc)
+    return data, float(rate)
+
+
 audio_loader_funcs = (
     ('soundfile', load_soundfile),
     ('wave', load_wave),
@@ -292,6 +404,7 @@ audio_loader_funcs = (
     ('ewave', load_ewave),
     ('scipy.io.wavfile', load_wavfile),
     ('audioread', load_audioread),
+    ('wavpack', load_wavpack),
     )
 """List of implemented load() functions.
 
@@ -1405,6 +1518,99 @@ class AudioLoader(BufferedArray):
                 r_size -= n
 
 
+    # wavpack interface:
+    def open_wavpack(self, filepath, buffersize=10.0, backsize=0.0,
+                     verbose=0):
+        """Open WavPack file for reading using the wavpack library.
+
+        Parameters
+        ----------
+        filepath: str or Path
+            Name of the file.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If larger than zero show detailed error/warning messages.
+
+        Raises
+        ------
+        ImportError
+            The wavpack library is not installed
+        """
+        self.verbose = verbose
+        if self.verbose > 0:
+            print(f'open_wavpack(filepath) with filepath={filepath}')
+        if not audio_modules['wavpack']:
+            self.rate = 0.0
+            self.channels = 0
+            self.frames = 0
+            self.size = 0
+            self.shape = (0, 0)
+            self.offset = 0
+            raise ImportError
+        if self.sf is not None:
+            self._close_wavpack()
+        self.sf = open_wavpack_file(filepath)
+        self.filepath = Path(filepath)
+        self.file_paths = [self.filepath]
+        self.file_indices = [0]
+        self.rate = float(wavpack.WavpackGetSampleRate(self.sf))
+        self.format = 'WAVPACK'
+        if wavpack.WavpackGetMode(self.sf) & wavpack_float > 0:
+            self.encoding = 'FLOAT'
+            self.factor = 1.0
+        else:
+            bits = wavpack.WavpackGetBitsPerSample(self.sf)
+            self.encoding = f'PCM_{bits}'
+            self.factor = 1.0/(2.0**(bits-1))
+        self.channels = wavpack.WavpackGetNumChannels(self.sf)
+        self.frames = wavpack.WavpackGetNumSamples64(self.sf)
+        self.shape = (self.frames, self.channels)
+        self.size = self.frames * self.channels
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
+        self.init_buffer()
+        self.close = self._close_wavpack
+        self.load_audio_buffer = self._load_buffer_wavpack
+        # the frame at which the file continues to unpack:
+        self.wavpack_pos = 0
+        return self
+
+    def _close_wavpack(self):
+        """Close the audio file using the wavpack library. """
+        if self.sf is not None:
+            wavpack.WavpackCloseFile(self.sf)
+            self.sf = None
+
+    def _load_buffer_wavpack(self, r_offset, r_size, buffer):
+        """Load new data from file using the wavpack library.
+
+        Parameters
+        ----------
+        r_offset: int
+           First frame to be read from file.
+        r_size: int
+           Number of frames to be read from file.
+        buffer: ndarray
+           Buffer where to store the loaded data.
+        """
+        if self.sf is None:
+            self.sf = open_wavpack_file(self.filepath)
+            self.wavpack_pos = 0
+        if r_offset != self.wavpack_pos:   # reading on is cheaper than seeking
+            if wavpack.WavpackSeekSample64(self.sf, r_offset) == 0:
+                raise IOError(f'failed to seek to frame {r_offset} of file "{self.filepath}"')
+            self.wavpack_pos = r_offset
+        fbuffer = unpack_wavpack(self.sf, r_size, self.channels)
+        self.wavpack_pos += len(fbuffer)
+        if self.encoding == 'FLOAT':
+            buffer[:len(fbuffer),:] = fbuffer.view(np.float32)
+        else:
+            buffer[:len(fbuffer),:] = fbuffer * self.factor
+
+
     # open multiple audio files as one:
     def open_multiple(self, filepaths, buffersize=10.0, backsize=0.0,
                       verbose=0, mode='strict', rate=None, channels=None,
@@ -1698,6 +1904,7 @@ class AudioLoader(BufferedArray):
             ('wavefile', self.open_wavefile),
             ('ewave', self.open_ewave),
             ('audioread', self.open_audioread),
+            ('wavpack', self.open_wavpack),
             )
         # open an audio file by trying various modules:
         not_installed = []
