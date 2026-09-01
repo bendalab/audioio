@@ -62,7 +62,7 @@ def test_basename():
     filename = 'test.wav'
     write_audio_file(filename, 20.0)
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('check basename for module %s ...' % lib)
@@ -86,7 +86,7 @@ def test_get_file_index():
     write_audio_file(filename, 20.0)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('check file index for module %s ...' % lib)
@@ -114,7 +114,7 @@ def test_single_frame():
     tolerance = 2.0**(-15)
     ntests = 500
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('check single frame access for module %s ...' % lib)
@@ -143,7 +143,7 @@ def test_slice():
     tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('random frame slice access for module %s' % lib)
@@ -173,7 +173,7 @@ def test_slice_pathlib():
     tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('random frame slice access for module %s' % lib)
@@ -193,7 +193,7 @@ def test_forward():
     tolerance = 2.0**(-15)
     nsteps = 200
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('forward slice access for module %s' % lib)
@@ -220,7 +220,7 @@ def test_backward():
     tolerance = 2.0**(-15)
     nsteps = 200
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('backward slice access for module %s' % lib)
@@ -248,7 +248,7 @@ def test_negative():
     tolerance = 2.0**(-15)
     nsteps = 200
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('negative slice access for module %s' % lib)
@@ -275,7 +275,7 @@ def test_multiple():
     tolerance = 2.0**(-15)
     ntests = 100
     for lib in am.installed_modules('fileio'):
-        if lib in ['scipy.io.wavfile', 'pydub']:
+        if lib in ['scipy.io.wavfile', 'pydub', 'wavpack']:
             continue
         print()
         print('multiple indices access for module %s' % lib)
