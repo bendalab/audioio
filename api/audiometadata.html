@@ -1,0 +1,3527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>audioio.audiometadata API documentation</title>
+<meta name="description" content="Working with metadata …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>audioio.audiometadata</code></h1>
+</header>
+<section id="section-intro">
+<p>Working with metadata.</p>
+<p>To interface the various ways metadata are stored in audio files, the
+<code><a title="audioio" href="index.html">audioio</a></code> package uses nested dictionaries.
+The keys are always
+strings. Values are strings, integers, floats, datetimes, or other
+types. Value strings can also be numbers followed by a unit,
+e.g. "4.2mV". For defining subsections of key-value pairs, values can
+be dictionaries. The dictionaries can be nested to arbitrary depth.</p>
+<pre><code class="language-py">&gt;&gt;&gt; from audioio import print_metadata
+&gt;&gt;&gt; md = dict(Recording=dict(Experimenter='John Doe',
+                             DateTimeOriginal='2023-10-01T14:10:02',
+                             Count=42),
+               Hardware=dict(Amplifier='Teensy_Amp 4.1',
+                             Highpass='10Hz',
+                             Gain='120mV'))
+&gt;&gt;&gt; print_metadata(md)
+</code></pre>
+<p>results in</p>
+<pre><code class="language-txt">Recording:
+    Experimenter    : John Doe
+    DateTimeOriginal: 2023-10-01T14:10:02
+    Count           : 42
+Hardware:
+    Amplifier: Teensy_Amp 4.1
+    Highpass : 10Hz
+    Gain     : 120mV
+</code></pre>
+<p>Often, audio files have very specific ways to store metadata. You can
+enforce using these by putting them into a dictionary that is added to
+the metadata with a key having the name of the metadata type you want,
+e.g. the "INFO", "BEXT", "iXML", and "GUAN" chunks of RIFF/WAVE files.</p>
+<h2 id="functions">Functions</h2>
+<p>The <code>audiometadata</code> module provides functions for handling and
+manipulating these nested dictionaries. Many functions take keys as
+arguments for finding or setting specific key-value pairs. These keys
+can be the key of a specific item of a (sub-) dictionary, no matter on
+which level of the metadata hierarchy it is. For example, simply
+searching for "Highpass" retrieves the corrseponding value "10Hz",
+although "Highpass" is contained in the sub-dictionary (or "section")
+with key "Hardware". The same item can also be specified together with
+its parent keys: "Hardware.Highpass". Parent keys (or section keys)
+are by default separated by '.', but all functions have a <code>sep</code>
+key-word that specifies the string separating section names in
+keys. Key matching is case insensitive.</p>
+<p>Since the same items are named by many different keys in the different
+types of metadata data models, the functions also take lists of keys
+as arguments.</p>
+<p>Do not forget that you can easily manipulate the metadata by means of
+the standard functions of dictionaries.</p>
+<p>If you need to make a copy of the metadata use <code>deepcopy</code>:</p>
+<pre><code>from copy import deepcopy
+md_orig = deepcopy(md)
+</code></pre>
+<h3 id="output">Output</h3>
+<p>Write nested dictionaries as texts:</p>
+<ul>
+<li><code><a title="audioio.audiometadata.write_metadata_text" href="#audioio.audiometadata.write_metadata_text">write_metadata_text()</a></code>: write meta data into a text/yaml file.</li>
+<li><code><a title="audioio.audiometadata.print_metadata" href="#audioio.audiometadata.print_metadata">print_metadata()</a></code>: write meta data to standard output.</li>
+</ul>
+<h3 id="flatten">Flatten</h3>
+<p>Conversion between nested and flat dictionaries:</p>
+<ul>
+<li><code><a title="audioio.audiometadata.flatten_metadata" href="#audioio.audiometadata.flatten_metadata">flatten_metadata()</a></code>: flatten hierachical metadata to a single dictionary.</li>
+<li><code><a title="audioio.audiometadata.unflatten_metadata" href="#audioio.audiometadata.unflatten_metadata">unflatten_metadata()</a></code>: unflatten a previously flattened metadata dictionary.</li>
+</ul>
+<h3 id="parse-numbers-with-units">Parse numbers with units</h3>
+<ul>
+<li><code><a title="audioio.audiometadata.parse_number" href="#audioio.audiometadata.parse_number">parse_number()</a></code>: parse string with number and unit.</li>
+<li><code><a title="audioio.audiometadata.change_unit" href="#audioio.audiometadata.change_unit">change_unit()</a></code>: scale numerical value to a new unit.</li>
+</ul>
+<h3 id="find-and-get-values">Find and get values</h3>
+<p>Find keys and get their values parsed and converted to various types:</p>
+<ul>
+<li><code><a title="audioio.audiometadata.find_key" href="#audioio.audiometadata.find_key">find_key()</a></code>: find dictionary in metadata hierarchy containing the specified key.</li>
+<li><code><a title="audioio.audiometadata.get_number_unit" href="#audioio.audiometadata.get_number_unit">get_number_unit()</a></code>: find a key in metadata and return its number and unit.</li>
+<li><code><a title="audioio.audiometadata.get_number" href="#audioio.audiometadata.get_number">get_number()</a></code>: find a key in metadata and return its value in a given unit.</li>
+<li><code><a title="audioio.audiometadata.get_int" href="#audioio.audiometadata.get_int">get_int()</a></code>: find a key in metadata and return its integer value.</li>
+<li><code><a title="audioio.audiometadata.get_bool" href="#audioio.audiometadata.get_bool">get_bool()</a></code>: find a key in metadata and return its boolean value.</li>
+<li><code><a title="audioio.audiometadata.get_datetime" href="#audioio.audiometadata.get_datetime">get_datetime()</a></code>: find keys in metadata and return a datetime.</li>
+<li><code><a title="audioio.audiometadata.get_str" href="#audioio.audiometadata.get_str">get_str()</a></code>: find a key in metadata and return its string value.</li>
+</ul>
+<h3 id="organize-metadata">Organize metadata</h3>
+<p>Add and remove metadata:</p>
+<ul>
+<li><code><a title="audioio.audiometadata.strlist_to_dict" href="#audioio.audiometadata.strlist_to_dict">strlist_to_dict()</a></code>: convert list of key-value-pair strings to dictionary.</li>
+<li><code><a title="audioio.audiometadata.add_sections" href="#audioio.audiometadata.add_sections">add_sections()</a></code>: add sections to metadata dictionary.</li>
+<li><code><a title="audioio.audiometadata.set_metadata" href="#audioio.audiometadata.set_metadata">set_metadata()</a></code>: set values of existing metadata.</li>
+<li><code><a title="audioio.audiometadata.add_metadata" href="#audioio.audiometadata.add_metadata">add_metadata()</a></code>: add or modify key-value pairs.</li>
+<li><code><a title="audioio.audiometadata.move_metadata" href="#audioio.audiometadata.move_metadata">move_metadata()</a></code>: remove a key from metadata and add it to a dictionary.</li>
+<li><code><a title="audioio.audiometadata.remove_metadata" href="#audioio.audiometadata.remove_metadata">remove_metadata()</a></code>: remove key-value pairs or sections from metadata.</li>
+<li><code><a title="audioio.audiometadata.cleanup_metadata" href="#audioio.audiometadata.cleanup_metadata">cleanup_metadata()</a></code>: remove empty sections from metadata.</li>
+</ul>
+<h3 id="special-metadata-fields">Special metadata fields</h3>
+<p>Retrieve and set specific metadata:</p>
+<ul>
+<li><code><a title="audioio.audiometadata.get_gain" href="#audioio.audiometadata.get_gain">get_gain()</a></code>: get gain and unit from metadata.</li>
+<li><code><a title="audioio.audiometadata.update_gain" href="#audioio.audiometadata.update_gain">update_gain()</a></code>: update gain setting in metadata.</li>
+<li><code><a title="audioio.audiometadata.set_starttime" href="#audioio.audiometadata.set_starttime">set_starttime()</a></code>: set all start-of-recording times in metadata.</li>
+<li><code><a title="audioio.audiometadata.update_starttime" href="#audioio.audiometadata.update_starttime">update_starttime()</a></code>: update start-of-recording times in metadata.</li>
+<li><code><a title="audioio.audiometadata.bext_history_str" href="#audioio.audiometadata.bext_history_str">bext_history_str()</a></code>: assemble a string for the BEXT CodingHistory field.</li>
+<li><code><a title="audioio.audiometadata.add_history" href="#audioio.audiometadata.add_history">add_history()</a></code>: add a string describing coding history to metadata.</li>
+<li><code><a title="audioio.audiometadata.add_unwrap" href="#audioio.audiometadata.add_unwrap">add_unwrap()</a></code>: add unwrap infos to metadata.</li>
+</ul>
+<p>Lists of standard keys:</p>
+<ul>
+<li><code><a title="audioio.audiometadata.default_starttime_keys" href="#audioio.audiometadata.default_starttime_keys">default_starttime_keys</a></code>: keys of times of start of the recording.</li>
+<li><code><a title="audioio.audiometadata.default_timeref_keys" href="#audioio.audiometadata.default_timeref_keys">default_timeref_keys</a></code>: keys of integer time references.</li>
+<li><code><a title="audioio.audiometadata.default_gain_keys" href="#audioio.audiometadata.default_gain_keys">default_gain_keys</a></code>: keys of gain settings.</li>
+<li><code><a title="audioio.audiometadata.default_history_keys" href="#audioio.audiometadata.default_history_keys">default_history_keys</a></code>: keys of strings describing coding history.</li>
+</ul>
+<h2 id="command-line-script">Command line script</h2>
+<p>The module can be run as a script from the command line to display the
+metadata and markers contained in an audio file:</p>
+<pre><code class="language-sh">&gt; audiometadata logger.wav
+</code></pre>
+<p>prints</p>
+<pre><code class="language-text">file:
+  filepath    : logger.wav
+  samplingrate: 96000Hz
+  channels    : 16
+  frames      : 17280000
+  duration    : 180.000s
+
+metadata:
+  INFO:
+      Bits            : 32
+      Pins            : 1-CH2R,1-CH2L,1-CH3R,1-CH3L,2-CH2R,2-CH2L,2-CH3R,2-CH3L,3-CH2R,3-CH2L,3-CH3R,3-CH3L,4-CH2R,4-CH2L,4-CH3R,4-CH3L
+      Gain            : 165.00mV
+      uCBoard         : Teensy 4.1
+      MACAdress       : 04:e9:e5:15:3e:95
+      DateTimeOriginal: 2023-10-01T14:10:02
+      Software        : TeeGrid R4-senors-logger v1.0
+</code></pre>
+<p>Alternatively, the script can be run from within the audioio source tree as:</p>
+<pre><code>python -m src.audioio.audiometadata audiofile.wav
+</code></pre>
+<p>Running</p>
+<pre><code class="language-sh">audiometadata --help
+</code></pre>
+<p>prints</p>
+<pre><code class="language-text">usage: audiometadata [-h] [--version] [-f] [-m] [-c] [-t] files [files ...]
+
+Convert audio file formats.
+
+positional arguments:
+  files       audio file
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+  -f          list file format only
+  -m          list metadata only
+  -c          list cues/markers only
+  -t          list tags of all riff/wave chunks contained in the file
+
+version 2.0.0 by Benda-Lab (2020-2024)
+</code></pre>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="audioio.audiometadata.unit_prefixes"><code class="name">var <span class="ident">unit_prefixes</span></code></dt>
+<dd>
+<div class="desc"><p>SI prefixes for units with corresponding factors.</p></div>
+</dd>
+<dt id="audioio.audiometadata.default_starttime_keys"><code class="name">var <span class="ident">default_starttime_keys</span></code></dt>
+<dd>
+<div class="desc"><p>Default keys of times of start of the recording in metadata.
+Used by <code><a title="audioio.audiometadata.get_datetime" href="#audioio.audiometadata.get_datetime">get_datetime()</a></code> and <code><a title="audioio.audiometadata.update_starttime" href="#audioio.audiometadata.update_starttime">update_starttime()</a></code> functions.</p></div>
+</dd>
+<dt id="audioio.audiometadata.default_gain_keys"><code class="name">var <span class="ident">default_gain_keys</span></code></dt>
+<dd>
+<div class="desc"><p>Default keys of gain settings in metadata. Used by <code><a title="audioio.audiometadata.get_gain" href="#audioio.audiometadata.get_gain">get_gain()</a></code> function.</p></div>
+</dd>
+<dt id="audioio.audiometadata.default_timeref_keys"><code class="name">var <span class="ident">default_timeref_keys</span></code></dt>
+<dd>
+<div class="desc"><p>Default keys of integer time references in metadata.
+Used by <code><a title="audioio.audiometadata.update_starttime" href="#audioio.audiometadata.update_starttime">update_starttime()</a></code> function.</p></div>
+</dd>
+<dt id="audioio.audiometadata.default_history_keys"><code class="name">var <span class="ident">default_history_keys</span></code></dt>
+<dd>
+<div class="desc"><p>Default keys of strings describing coding history in metadata.
+Used by <code><a title="audioio.audiometadata.add_history" href="#audioio.audiometadata.add_history">add_history()</a></code> function.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="audioio.audiometadata.write_metadata_text"><code class="name flex">
+<span>def <span class="ident">write_metadata_text</span></span>(<span>fh, meta, prefix='', indent=4, replace=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_metadata_text(fh, meta, prefix=&#39;&#39;, indent=4, replace=None):
+    &#34;&#34;&#34;Write meta data into a text/yaml file or stream.
+
+    With the default parameters, the output is a valid yaml file.
+
+    Parameters
+    ----------
+    fh: filename or stream
+        If not a stream, the file with name `fh` is opened.
+        Otherwise `fh` is used as a stream for writing.
+    meta: nested dict
+        Key-value pairs of metadata to be written into the file.
+    prefix: str
+        This string is written at the beginning of each line.
+    indent: int
+        Number of characters used for indentation of sections.
+    replace: char or None
+        If specified, replace special characters by this character.
+
+    Examples
+    --------
+    ```
+    from audioio import write_metadata
+    md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)))
+    write_metadata(&#39;info.txt&#39;, md)
+    ```
+    &#34;&#34;&#34;
+    
+    def write_dict(df, md, level, smap):
+        w = 0
+        for k in md:
+            if not isinstance(md[k], dict) and w &lt; len(k):
+                w = len(k)
+        for k in md:
+            clevel = level*indent
+            if isinstance(md[k], dict):
+                df.write(f&#39;{prefix}{&#34;&#34;:&gt;{clevel}}{k}:\n&#39;)
+                write_dict(df, md[k], level+1, smap)
+            else:
+                value = md[k]
+                if isinstance(value, (list, tuple)):
+                    value = &#39;, &#39;.join([f&#39;{v}&#39; for v in value])
+                else:
+                    value = f&#39;{value}&#39;
+                value = value.replace(&#39;\r\n&#39;, r&#39;\n&#39;)
+                value = value.replace(&#39;\n&#39;, r&#39;\n&#39;)
+                if len(smap) &gt; 0:
+                    value = value.translate(smap)
+                df.write(f&#39;{prefix}{&#34;&#34;:&gt;{clevel}}{k:&lt;{w}}: {value}\n&#39;)
+
+    if not meta:
+        return
+    if hasattr(fh, &#39;write&#39;):
+        own_file = False
+    else:
+        own_file = True
+        fh = open(fh, &#39;w&#39;)
+    smap = {}
+    if replace:
+        smap = str.maketrans(&#39;\r\n\t\x00&#39;, &#39;&#39;.join([replace]*4))
+    write_dict(fh, meta, 0, smap)
+    if own_file:
+        fh.close()</code></pre>
+</details>
+<div class="desc"><p>Write meta data into a text/yaml file or stream.</p>
+<p>With the default parameters, the output is a valid yaml file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>fh</code></strong> :&ensp;<code>filename</code> or <code>stream</code></dt>
+<dd>If not a stream, the file with name <code>fh</code> is opened.
+Otherwise <code>fh</code> is used as a stream for writing.</dd>
+<dt><strong><code>meta</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Key-value pairs of metadata to be written into the file.</dd>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>This string is written at the beginning of each line.</dd>
+<dt><strong><code>indent</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of characters used for indentation of sections.</dd>
+<dt><strong><code>replace</code></strong> :&ensp;<code>char</code> or <code>None</code></dt>
+<dd>If specified, replace special characters by this character.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>from audioio import write_metadata
+md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)))
+write_metadata('info.txt', md)
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.print_metadata"><code class="name flex">
+<span>def <span class="ident">print_metadata</span></span>(<span>meta, prefix='', indent=4, replace=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_metadata(meta, prefix=&#39;&#39;, indent=4, replace=None):
+    &#34;&#34;&#34;Write meta data to standard output.
+
+    Parameters
+    ----------
+    meta: nested dict
+        Key-value pairs of metadata to be written into the file.
+    prefix: str
+        This string is written at the beginning of each line.
+    indent: int
+        Number of characters used for indentation of sections.
+    replace: char or None
+        If specified, replace special characters by this character.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata
+    &gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)), iiii=dict(jjj=6))
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            hh: 5
+    iiii:
+        jjj: 6
+    ```
+    &#34;&#34;&#34;
+    write_metadata_text(sys.stdout, meta, prefix, indent, replace)</code></pre>
+</details>
+<div class="desc"><p>Write meta data to standard output.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>meta</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Key-value pairs of metadata to be written into the file.</dd>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>This string is written at the beginning of each line.</dd>
+<dt><strong><code>indent</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of characters used for indentation of sections.</dd>
+<dt><strong><code>replace</code></strong> :&ensp;<code>char</code> or <code>None</code></dt>
+<dd>If specified, replace special characters by this character.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata
+&gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)), iiii=dict(jjj=6))
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+bbbb:
+    ccc: 3
+    ddd: 4
+    eee:
+        hh: 5
+iiii:
+    jjj: 6
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.flatten_metadata"><code class="name flex">
+<span>def <span class="ident">flatten_metadata</span></span>(<span>md, keep_sections=False, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flatten_metadata(md, keep_sections=False, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Flatten hierarchical metadata to a single dictionary.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata as returned by `metadata()`.
+    keep_sections: bool
+        If `True`, then prefix keys with section names, separated by `sep`.
+    sep: str
+        String for separating section names.
+
+    Returns
+    -------
+    d: dict
+        Non-nested dict containing all key-value pairs of `md`.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, flatten_metadata
+    &gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)), iiii=dict(jjj=6))
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            hh: 5
+    iiii:
+        jjj: 6
+    
+    &gt;&gt;&gt; fmd = flatten_metadata(md, keep_sections=True)
+    &gt;&gt;&gt; print_metadata(fmd)
+    aaaa       : 2
+    bbbb.ccc   : 3
+    bbbb.ddd   : 4
+    bbbb.eee.hh: 5
+    iiii.jjj   : 6
+    ```
+    &#34;&#34;&#34;
+    def flatten(cd, section):
+        df = {}
+        for k in cd:
+            if isinstance(cd[k], dict):
+                df.update(flatten(cd[k], section + k + sep))
+            else:
+                if keep_sections:
+                    df[section+k] = cd[k]
+                else:
+                    df[k] = cd[k]
+        return df
+
+    return flatten(md, &#39;&#39;)</code></pre>
+</details>
+<div class="desc"><p>Flatten hierarchical metadata to a single dictionary.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>md</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata as returned by <code>metadata()</code>.</dd>
+<dt><strong><code>keep_sections</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, then prefix keys with section names, separated by <code>sep</code>.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String for separating section names.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>d</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Non-nested dict containing all key-value pairs of <code>md</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, flatten_metadata
+&gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(hh=5)), iiii=dict(jjj=6))
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+bbbb:
+    ccc: 3
+    ddd: 4
+    eee:
+        hh: 5
+iiii:
+    jjj: 6
+
+&gt;&gt;&gt; fmd = flatten_metadata(md, keep_sections=True)
+&gt;&gt;&gt; print_metadata(fmd)
+aaaa       : 2
+bbbb.ccc   : 3
+bbbb.ddd   : 4
+bbbb.eee.hh: 5
+iiii.jjj   : 6
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.unflatten_metadata"><code class="name flex">
+<span>def <span class="ident">unflatten_metadata</span></span>(<span>md, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unflatten_metadata(md, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Unflatten a previously flattened metadata dictionary.
+
+    Parameters
+    ----------
+    md: dict
+        Flat dictionary with key-value pairs as obtained from
+        `flatten_metadata()` with `keep_sections=True`.
+    sep: str
+        String that separates section names.
+
+    Returns
+    -------
+    d: nested dict
+        Hierarchical dictionary with sub-dictionaries and key-value pairs.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, unflatten_metadata
+    &gt;&gt;&gt; fmd = {&#39;aaaa&#39;: 2, &#39;bbbb.ccc&#39;: 3, &#39;bbbb.ddd&#39;: 4, &#39;bbbb.eee.hh&#39;: 5, &#39;iiii.jjj&#39;: 6}
+    &gt;&gt;&gt; print_metadata(fmd)
+    aaaa       : 2
+    bbbb.ccc   : 3
+    bbbb.ddd   : 4
+    bbbb.eee.hh: 5
+    iiii.jjj   : 6
+    
+    &gt;&gt;&gt; md = unflatten_metadata(fmd)
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            hh: 5
+    iiii:
+        jjj: 6
+    ```
+    &#34;&#34;&#34;
+    umd = {}       # unflattened metadata
+    cmd = [umd]    # current metadata dicts for each level of the hierarchy
+    csk = []       # current section keys
+    for k in md:
+        ks = k.split(sep)
+        # go up the hierarchy:
+        for i in range(len(csk) - len(ks)):
+            csk.pop()
+            cmd.pop()
+        for kss in reversed(ks[:len(csk)]):
+            if kss == csk[-1]:
+                break
+            csk.pop()
+            cmd.pop()
+        # add new sections:
+        for kss in ks[len(csk):-1]:
+            csk.append(kss)
+            cmd[-1][kss] = {}
+            cmd.append(cmd[-1][kss])
+        # add key-value pair:
+        cmd[-1][ks[-1]] = md[k]
+    return umd</code></pre>
+</details>
+<div class="desc"><p>Unflatten a previously flattened metadata dictionary.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>md</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Flat dictionary with key-value pairs as obtained from
+<code><a title="audioio.audiometadata.flatten_metadata" href="#audioio.audiometadata.flatten_metadata">flatten_metadata()</a></code> with <code>keep_sections=True</code>.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>d</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Hierarchical dictionary with sub-dictionaries and key-value pairs.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, unflatten_metadata
+&gt;&gt;&gt; fmd = {'aaaa': 2, 'bbbb.ccc': 3, 'bbbb.ddd': 4, 'bbbb.eee.hh': 5, 'iiii.jjj': 6}
+&gt;&gt;&gt; print_metadata(fmd)
+aaaa       : 2
+bbbb.ccc   : 3
+bbbb.ddd   : 4
+bbbb.eee.hh: 5
+iiii.jjj   : 6
+
+&gt;&gt;&gt; md = unflatten_metadata(fmd)
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+bbbb:
+    ccc: 3
+    ddd: 4
+    eee:
+        hh: 5
+iiii:
+    jjj: 6
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.parse_number"><code class="name flex">
+<span>def <span class="ident">parse_number</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_number(s):
+    &#34;&#34;&#34;Parse string with number and unit.
+
+    Parameters
+    ----------
+    s: str, float, or int
+        String to be parsed. The initial part of the string is
+        expected to be a number, the part following the number is
+        interpreted as the unit. If float or int, then return this
+        as the value with empty unit.
+
+    Returns
+    -------
+    v: None, int, or float
+        Value of the string as float. Without decimal point, an int is returned.
+        If the string does not contain a number, None is returned.
+    u: str
+        Unit that follows the initial number.
+    n: int
+        Number of digits behind the decimal point.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import parse_number
+
+    # integer:
+    &gt;&gt;&gt; parse_number(&#39;42&#39;)
+    (42, &#39;&#39;, 0)
+
+    # integer with unit:
+    &gt;&gt;&gt; parse_number(&#39;42ms&#39;)
+    (42, &#39;ms&#39;, 0)
+
+    # float with unit:
+    &gt;&gt;&gt; parse_number(&#39;42.ms&#39;)
+    (42.0, &#39;ms&#39;, 0)
+
+    # float with unit:
+    &gt;&gt;&gt; parse_number(&#39;42.3ms&#39;)
+    (42.3, &#39;ms&#39;, 1)
+
+    # float with space and unit:
+    &gt;&gt;&gt; parse_number(&#39;423.17 Hz&#39;)
+    (423.17, &#39;Hz&#39;, 2)
+    ```
+
+    &#34;&#34;&#34;
+    if not isinstance(s, str):
+        if isinstance(s, int):
+            return s, &#39;&#39;, 0
+        if isinstance(s, float):
+            return s, &#39;&#39;, 5
+        else:
+            return None, &#39;&#39;, 0
+    n = len(s)
+    ip = n
+    have_point = False
+    for i in range(len(s)):
+        if s[i] == &#39;.&#39;:
+            if have_point:
+                n = i
+                break
+            have_point = True
+            ip = i + 1
+        if not s[i] in &#39;0123456789.+-&#39;:
+            n = i
+            break
+    if n == 0:
+        return None, s, 0
+    v = float(s[:n]) if have_point else int(s[:n])
+    u = s[n:].strip()
+    nd = n - ip if n &gt;= ip else 0
+    return v, u, nd</code></pre>
+</details>
+<div class="desc"><p>Parse string with number and unit.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>s</code></strong> :&ensp;<code>str, float,</code> or <code>int</code></dt>
+<dd>String to be parsed. The initial part of the string is
+expected to be a number, the part following the number is
+interpreted as the unit. If float or int, then return this
+as the value with empty unit.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None, int,</code> or <code>float</code></dt>
+<dd>Value of the string as float. Without decimal point, an int is returned.
+If the string does not contain a number, None is returned.</dd>
+<dt><strong><code>u</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit that follows the initial number.</dd>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of digits behind the decimal point.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import parse_number
+
+# integer:
+&gt;&gt;&gt; parse_number('42')
+(42, '', 0)
+
+# integer with unit:
+&gt;&gt;&gt; parse_number('42ms')
+(42, 'ms', 0)
+
+# float with unit:
+&gt;&gt;&gt; parse_number('42.ms')
+(42.0, 'ms', 0)
+
+# float with unit:
+&gt;&gt;&gt; parse_number('42.3ms')
+(42.3, 'ms', 1)
+
+# float with space and unit:
+&gt;&gt;&gt; parse_number('423.17 Hz')
+(423.17, 'Hz', 2)
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.change_unit"><code class="name flex">
+<span>def <span class="ident">change_unit</span></span>(<span>val, old_unit, new_unit)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def change_unit(val, old_unit, new_unit):
+    &#34;&#34;&#34;Scale numerical value to a new unit.
+
+    Adapted from https://github.com/relacs/relacs/blob/1facade622a80e9f51dbf8e6f8171ac74c27f100/options/src/parameter.cc#L1647-L1703
+
+    Parameters
+    ----------
+    val: float
+        Value given in `old_unit`.
+    old_unit: str
+        Unit of `val`.
+    new_unit: str
+        Requested unit of return value.
+
+    Returns
+    -------
+    new_val: float
+        The input value `val` scaled to `new_unit`.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import change_unit
+    &gt;&gt;&gt; change_unit(5, &#39;mm&#39;, &#39;cm&#39;)
+    0.5
+
+    &gt;&gt;&gt; change_unit(5, &#39;&#39;, &#39;cm&#39;)
+    5.0
+
+    &gt;&gt;&gt; change_unit(5, &#39;mm&#39;, &#39;&#39;)
+    5.0
+
+    &gt;&gt;&gt; change_unit(5, &#39;cm&#39;, &#39;mm&#39;)
+    50.0
+
+    &gt;&gt;&gt; change_unit(4, &#39;kg&#39;, &#39;g&#39;)
+    4000.0
+
+    &gt;&gt;&gt; change_unit(12, &#39;%&#39;, &#39;&#39;)
+    0.12
+
+    &gt;&gt;&gt; change_unit(1.24, &#39;&#39;, &#39;%&#39;)
+    124.0
+
+    &gt;&gt;&gt; change_unit(2.5, &#39;min&#39;, &#39;s&#39;)
+    150.0
+
+    &gt;&gt;&gt; change_unit(3600, &#39;s&#39;, &#39;h&#39;)
+    1.0
+
+    ```
+
+    &#34;&#34;&#34;
+    # missing unit?
+    if not old_unit and not new_unit:
+        return val
+    if not old_unit and new_unit != &#39;%&#39;:
+        return val
+    if not new_unit and old_unit != &#39;%&#39;:
+        return val
+
+    # special units that directly translate into factors:
+    unit_factors = {&#39;%&#39;: 0.01, &#39;hour&#39;: 60.0*60.0, &#39;h&#39;: 60.0*60.0, &#39;min&#39;: 60.0}
+
+    # parse old unit:
+    f1 = 1.0
+    if old_unit in unit_factors:
+        f1 = unit_factors[old_unit]
+    else:
+        for k in unit_prefixes:
+            if len(old_unit) &gt; len(k) and old_unit[:len(k)] == k:
+                f1 = unit_prefixes[k];
+  
+    # parse new unit:
+    f2 = 1.0
+    if new_unit in unit_factors:
+        f2 = unit_factors[new_unit]
+    else:
+        for k in unit_prefixes:
+            if len(new_unit) &gt; len(k) and new_unit[:len(k)] == k:
+                f2 = unit_prefixes[k];
+  
+    return val*f1/f2</code></pre>
+</details>
+<div class="desc"><p>Scale numerical value to a new unit.</p>
+<p>Adapted from <a href="https://github.com/relacs/relacs/blob/1facade622a80e9f51dbf8e6f8171ac74c27f100/options/src/parameter.cc#L1647-L1703">https://github.com/relacs/relacs/blob/1facade622a80e9f51dbf8e6f8171ac74c27f100/options/src/parameter.cc#L1647-L1703</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>val</code></strong> :&ensp;<code>float</code></dt>
+<dd>Value given in <code>old_unit</code>.</dd>
+<dt><strong><code>old_unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of <code>val</code>.</dd>
+<dt><strong><code>new_unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Requested unit of return value.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>new_val</code></strong> :&ensp;<code>float</code></dt>
+<dd>The input value <code>val</code> scaled to <code>new_unit</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import change_unit
+&gt;&gt;&gt; change_unit(5, 'mm', 'cm')
+0.5
+
+&gt;&gt;&gt; change_unit(5, '', 'cm')
+5.0
+
+&gt;&gt;&gt; change_unit(5, 'mm', '')
+5.0
+
+&gt;&gt;&gt; change_unit(5, 'cm', 'mm')
+50.0
+
+&gt;&gt;&gt; change_unit(4, 'kg', 'g')
+4000.0
+
+&gt;&gt;&gt; change_unit(12, '%', '')
+0.12
+
+&gt;&gt;&gt; change_unit(1.24, '', '%')
+124.0
+
+&gt;&gt;&gt; change_unit(2.5, 'min', 's')
+150.0
+
+&gt;&gt;&gt; change_unit(3600, 's', 'h')
+1.0
+
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.find_key"><code class="name flex">
+<span>def <span class="ident">find_key</span></span>(<span>metadata, key, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_key(metadata, key, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Find dictionary in metadata hierarchy containing the specified key.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key: str
+        Key to be searched for (case insensitive).
+        May contain section names separated by `sep`, i.e.
+        &#34;aaa.bbb.ccc&#34; searches &#34;ccc&#34; (can be key-value pair or section)
+        in section &#34;bbb&#34; that needs to be a subsection of section &#34;aaa&#34;.
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    md: dict
+        The innermost dictionary matching some sections of the search key.
+        If `key` is not at all contained in the metadata,
+        the top-level dictionary is returned.
+    key: str
+        The part of the search key that was not found in `md`, or the
+        the final part of the search key, found in `md`.
+
+    Examples
+    --------
+
+    Independent of whether found or not found, you can assign to the
+    returned dictionary with the returned key.
+
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, find_key
+    &gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)), gggg=dict(hhh=6))
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 4
+        eee:
+            ff: 5
+    gggg:
+        hhh: 6
+
+    &gt;&gt;&gt; m, k = find_key(md, &#39;bbbb.ddd&#39;)
+    &gt;&gt;&gt; m[k] = 10
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ccc: 3
+        ddd: 10
+    ...
+
+    &gt;&gt;&gt; m, k = find_key(md, &#39;hhh&#39;)
+    &gt;&gt;&gt; m[k] = 12
+    &gt;&gt;&gt; print_metadata(md)
+    ...
+    gggg:
+        hhh: 12
+
+    &gt;&gt;&gt; m, k = find_key(md, &#39;bbbb.eee.xx&#39;)
+    &gt;&gt;&gt; m[k] = 42
+    &gt;&gt;&gt; print_metadata(md)
+    ...
+        eee:
+            ff: 5
+            xx: 42
+    ...
+    ```
+
+    When searching for sections, the one conaining the searched section
+    is returned:
+    ```py
+    &gt;&gt;&gt; m, k = find_key(md, &#39;eee&#39;)
+    &gt;&gt;&gt; m[k][&#39;yy&#39;] = 46
+    &gt;&gt;&gt; print_metadata(md)
+    ...
+        eee:
+            ff: 5
+            xx: 42
+            yy: 46
+    ...
+    ```
+
+    &#34;&#34;&#34;
+    def find_keys(metadata, keys):
+        key = keys[0].strip().upper()
+        for k in metadata:
+            if k.upper() == key:
+                if len(keys) == 1:
+                    # found key:
+                    return True, metadata, k
+                elif isinstance(metadata[k], dict): 
+                    # keep searching within the next section:
+                    return find_keys(metadata[k], keys[1:])
+        # search in subsections:
+        for k in metadata:
+            if isinstance(metadata[k], dict):
+                found, mm, kk = find_keys(metadata[k], keys)
+                if found:
+                    return True, mm, kk
+        # nothing found:
+        return False, metadata, sep.join(keys)
+
+    if metadata is None:
+        return {}, None
+    ks = key.strip().split(sep)
+    found, mm, kk = find_keys(metadata, ks)
+    return mm, kk</code></pre>
+</details>
+<div class="desc"><p>Find dictionary in metadata hierarchy containing the specified key.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>Key to be searched for (case insensitive).
+May contain section names separated by <code>sep</code>, i.e.
+"aaa.bbb.ccc" searches "ccc" (can be key-value pair or section)
+in section "bbb" that needs to be a subsection of section "aaa".</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>md</code></strong> :&ensp;<code>dict</code></dt>
+<dd>The innermost dictionary matching some sections of the search key.
+If <code>key</code> is not at all contained in the metadata,
+the top-level dictionary is returned.</dd>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>The part of the search key that was not found in <code>md</code>, or the
+the final part of the search key, found in <code>md</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<p>Independent of whether found or not found, you can assign to the
+returned dictionary with the returned key.</p>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, find_key
+&gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4, eee=dict(ff=5)), gggg=dict(hhh=6))
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+bbbb:
+    ccc: 3
+    ddd: 4
+    eee:
+        ff: 5
+gggg:
+    hhh: 6
+
+&gt;&gt;&gt; m, k = find_key(md, 'bbbb.ddd')
+&gt;&gt;&gt; m[k] = 10
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+bbbb:
+    ccc: 3
+    ddd: 10
+...
+
+&gt;&gt;&gt; m, k = find_key(md, 'hhh')
+&gt;&gt;&gt; m[k] = 12
+&gt;&gt;&gt; print_metadata(md)
+...
+gggg:
+    hhh: 12
+
+&gt;&gt;&gt; m, k = find_key(md, 'bbbb.eee.xx')
+&gt;&gt;&gt; m[k] = 42
+&gt;&gt;&gt; print_metadata(md)
+...
+    eee:
+        ff: 5
+        xx: 42
+...
+</code></pre>
+<p>When searching for sections, the one conaining the searched section
+is returned:</p>
+<pre><code class="language-py">&gt;&gt;&gt; m, k = find_key(md, 'eee')
+&gt;&gt;&gt; m[k]['yy'] = 46
+&gt;&gt;&gt; print_metadata(md)
+...
+    eee:
+        ff: 5
+        xx: 42
+        yy: 46
+...
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_number_unit"><code class="name flex">
+<span>def <span class="ident">get_number_unit</span></span>(<span>metadata, keys, sep='.', default=None, default_unit='', remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_number_unit(metadata, keys, sep=&#39;.&#39;, default=None,
+                    default_unit=&#39;&#39;, remove=False):
+    &#34;&#34;&#34;Find a key in metadata and return its number and unit.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Value of the first key found is returned.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None, int, or float
+        Returned value if `key` is not found or the value does
+        not contain a number.
+    default_unit: str
+        Returned unit if `key` is not found or the key&#39;s value does
+        not have a unit.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    v: None, int, or float
+        Value referenced by `key` as float.
+        Without decimal point, an int is returned.
+        If none of the `keys` was found or
+        the key`s value does not contain a number,
+        then `default` is returned.
+    u: str
+        Corresponding unit.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import get_number_unit
+    &gt;&gt;&gt; md = dict(aaaa=&#39;42&#39;, bbbb=&#39;42.3ms&#39;)
+
+    # integer:
+    &gt;&gt;&gt; get_number_unit(md, &#39;aaaa&#39;)
+    (42, &#39;&#39;)
+
+    # float with unit:
+    &gt;&gt;&gt; get_number_unit(md, &#39;bbbb&#39;)
+    (42.3, &#39;ms&#39;)
+
+    # two keys:
+    &gt;&gt;&gt; get_number_unit(md, [&#39;cccc&#39;, &#39;bbbb&#39;])
+    (42.3, &#39;ms&#39;)
+
+    # not found:
+    &gt;&gt;&gt; get_number_unit(md, &#39;cccc&#39;)
+    (None, &#39;&#39;)
+
+    # not found with default value:
+    &gt;&gt;&gt; get_number_unit(md, &#39;cccc&#39;, default=1.0, default_unit=&#39;a.u.&#39;)
+    (1.0, &#39;a.u.&#39;)
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return default, default_unit
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    value = default
+    unit = default_unit
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            v, u, _ = parse_number(m[k])
+            if v is not None:
+                if not u:
+                    u = default_unit
+                if remove:
+                    del m[k]
+                return v, u
+            elif u and unit == default_unit:
+                unit = u
+    return value, unit</code></pre>
+</details>
+<div class="desc"><p>Find a key in metadata and return its number and unit.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys in the metadata to be searched for (case insensitive).
+Value of the first key found is returned.
+May contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None, int,</code> or <code>float</code></dt>
+<dd>Returned value if <code>key</code> is not found or the value does
+not contain a number.</dd>
+<dt><strong><code>default_unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Returned unit if <code>key</code> is not found or the key's value does
+not have a unit.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None, int,</code> or <code>float</code></dt>
+<dd>Value referenced by <code>key</code> as float.
+Without decimal point, an int is returned.
+If none of the <code>keys</code> was found or
+the key`s value does not contain a number,
+then <code>default</code> is returned.</dd>
+<dt><strong><code>u</code></strong> :&ensp;<code>str</code></dt>
+<dd>Corresponding unit.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import get_number_unit
+&gt;&gt;&gt; md = dict(aaaa='42', bbbb='42.3ms')
+
+# integer:
+&gt;&gt;&gt; get_number_unit(md, 'aaaa')
+(42, '')
+
+# float with unit:
+&gt;&gt;&gt; get_number_unit(md, 'bbbb')
+(42.3, 'ms')
+
+# two keys:
+&gt;&gt;&gt; get_number_unit(md, ['cccc', 'bbbb'])
+(42.3, 'ms')
+
+# not found:
+&gt;&gt;&gt; get_number_unit(md, 'cccc')
+(None, '')
+
+# not found with default value:
+&gt;&gt;&gt; get_number_unit(md, 'cccc', default=1.0, default_unit='a.u.')
+(1.0, 'a.u.')
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_number"><code class="name flex">
+<span>def <span class="ident">get_number</span></span>(<span>metadata, unit, keys, sep='.', default=None, remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_number(metadata, unit, keys, sep=&#39;.&#39;, default=None, remove=False):
+    &#34;&#34;&#34;Find a key in metadata and return its value in a given unit.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    unit: str
+        Unit in which to return numerical value referenced by one of the `keys`.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Value of the first key found is returned.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None, int, or float
+        Returned value if `key` is not found or the value does
+        not contain a number.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    v: None or float
+        Value referenced by `key` as float scaled to `unit`.
+        If none of the `keys` was found or
+        the key`s value does not contain a number,
+        then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import get_number
+    &gt;&gt;&gt; md = dict(aaaa=&#39;42&#39;, bbbb=&#39;42.3ms&#39;)
+
+    # milliseconds to seconds:
+    &gt;&gt;&gt; get_number(md, &#39;s&#39;, &#39;bbbb&#39;)
+    0.0423
+
+    # milliseconds to microseconds:
+    &gt;&gt;&gt; get_number(md, &#39;us&#39;, &#39;bbbb&#39;)
+    42300.0
+
+    # value without unit is not scaled:
+    &gt;&gt;&gt; get_number(md, &#39;Hz&#39;, &#39;aaaa&#39;)
+    42
+
+    # two keys:
+    &gt;&gt;&gt; get_number(md, &#39;s&#39;, [&#39;cccc&#39;, &#39;bbbb&#39;])
+    0.0423
+
+    # not found:
+    &gt;&gt;&gt; get_number(md, &#39;s&#39;, &#39;cccc&#39;)
+    None
+
+    # not found with default value:
+    &gt;&gt;&gt; get_number(md, &#39;s&#39;, &#39;cccc&#39;, default=1.0)
+    1.0
+    ```
+
+    &#34;&#34;&#34;
+    v, u = get_number_unit(metadata, keys, sep, None, unit, remove)
+    if v is None:
+        return default
+    else:
+        return change_unit(v, u, unit)</code></pre>
+</details>
+<div class="desc"><p>Find a key in metadata and return its value in a given unit.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit in which to return numerical value referenced by one of the <code>keys</code>.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys in the metadata to be searched for (case insensitive).
+Value of the first key found is returned.
+May contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None, int,</code> or <code>float</code></dt>
+<dd>Returned value if <code>key</code> is not found or the value does
+not contain a number.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None</code> or <code>float</code></dt>
+<dd>Value referenced by <code>key</code> as float scaled to <code>unit</code>.
+If none of the <code>keys</code> was found or
+the key`s value does not contain a number,
+then <code>default</code> is returned.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import get_number
+&gt;&gt;&gt; md = dict(aaaa='42', bbbb='42.3ms')
+
+# milliseconds to seconds:
+&gt;&gt;&gt; get_number(md, 's', 'bbbb')
+0.0423
+
+# milliseconds to microseconds:
+&gt;&gt;&gt; get_number(md, 'us', 'bbbb')
+42300.0
+
+# value without unit is not scaled:
+&gt;&gt;&gt; get_number(md, 'Hz', 'aaaa')
+42
+
+# two keys:
+&gt;&gt;&gt; get_number(md, 's', ['cccc', 'bbbb'])
+0.0423
+
+# not found:
+&gt;&gt;&gt; get_number(md, 's', 'cccc')
+None
+
+# not found with default value:
+&gt;&gt;&gt; get_number(md, 's', 'cccc', default=1.0)
+1.0
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_int"><code class="name flex">
+<span>def <span class="ident">get_int</span></span>(<span>metadata, keys, sep='.', default=None, remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_int(metadata, keys, sep=&#39;.&#39;, default=None, remove=False):
+    &#34;&#34;&#34;Find a key in metadata and return its integer value.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Value of the first key found is returned.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or int
+        Return value if `key` is not found or the value does
+        not contain an integer.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    v: None or int
+        Value referenced by `key` as integer.
+        If none of the `keys` was found,
+        the key&#39;s value does not contain a number or represents
+        a floating point value, then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import get_int
+    &gt;&gt;&gt; md = dict(aaaa=&#39;42&#39;, bbbb=&#39;42.3ms&#39;)
+
+    # integer:
+    &gt;&gt;&gt; get_int(md, &#39;aaaa&#39;)
+    42
+
+    # two keys:
+    &gt;&gt;&gt; get_int(md, [&#39;cccc&#39;, &#39;aaaa&#39;])
+    42
+
+    # float:
+    &gt;&gt;&gt; get_int(md, &#39;bbbb&#39;)
+    None
+
+    # not found:
+    &gt;&gt;&gt; get_int(md, &#39;cccc&#39;)
+    None
+
+    # not found with default value:
+    &gt;&gt;&gt; get_int(md, &#39;cccc&#39;, default=0)
+    0
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return default
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m:
+            v, _, n = parse_number(m[k])
+            if v is not None and n == 0:
+                if remove:
+                    del m[k]
+                return int(v)
+    return default</code></pre>
+</details>
+<div class="desc"><p>Find a key in metadata and return its integer value.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys in the metadata to be searched for (case insensitive).
+Value of the first key found is returned.
+May contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None</code> or <code>int</code></dt>
+<dd>Return value if <code>key</code> is not found or the value does
+not contain an integer.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None</code> or <code>int</code></dt>
+<dd>Value referenced by <code>key</code> as integer.
+If none of the <code>keys</code> was found,
+the key's value does not contain a number or represents
+a floating point value, then <code>default</code> is returned.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import get_int
+&gt;&gt;&gt; md = dict(aaaa='42', bbbb='42.3ms')
+
+# integer:
+&gt;&gt;&gt; get_int(md, 'aaaa')
+42
+
+# two keys:
+&gt;&gt;&gt; get_int(md, ['cccc', 'aaaa'])
+42
+
+# float:
+&gt;&gt;&gt; get_int(md, 'bbbb')
+None
+
+# not found:
+&gt;&gt;&gt; get_int(md, 'cccc')
+None
+
+# not found with default value:
+&gt;&gt;&gt; get_int(md, 'cccc', default=0)
+0
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_bool"><code class="name flex">
+<span>def <span class="ident">get_bool</span></span>(<span>metadata, keys, sep='.', default=None, remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bool(metadata, keys, sep=&#39;.&#39;, default=None, remove=False):
+    &#34;&#34;&#34;Find a key in metadata and return its boolean value.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Value of the first key found is returned.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or bool
+        Return value if `key` is not found or the value does
+        not specify a boolean value.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    v: None or bool
+        Value referenced by `key` as boolean.
+        True if &#39;true&#39;, &#39;yes&#39; (case insensitive) or any number larger than zero.
+        False if &#39;false&#39;, &#39;no&#39; (case insensitive) or any number equal to zero.
+        If none of the `keys` was found or
+        the key&#39;s value does specify a boolean value,
+        then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import get_bool
+    &gt;&gt;&gt; md = dict(aaaa=&#39;TruE&#39;, bbbb=&#39;No&#39;, cccc=0, dddd=1, eeee=True, ffff=&#39;ui&#39;)
+
+    # case insensitive:
+    &gt;&gt;&gt; get_bool(md, &#39;aaaa&#39;)
+    True
+
+    &gt;&gt;&gt; get_bool(md, &#39;bbbb&#39;)
+    False
+
+    &gt;&gt;&gt; get_bool(md, &#39;cccc&#39;)
+    False
+
+    &gt;&gt;&gt; get_bool(md, &#39;dddd&#39;)
+    True
+
+    &gt;&gt;&gt; get_bool(md, &#39;eeee&#39;)
+    True
+
+    # not found:
+    &gt;&gt;&gt; get_bool(md, &#39;ffff&#39;)
+    None
+
+    # two keys (string is preferred over number):
+    &gt;&gt;&gt; get_bool(md, [&#39;cccc&#39;, &#39;aaaa&#39;])
+    True
+
+    # two keys (take first match):
+    &gt;&gt;&gt; get_bool(md, [&#39;cccc&#39;, &#39;ffff&#39;])
+    False
+
+    # not found with default value:
+    &gt;&gt;&gt; get_bool(md, &#39;ffff&#39;, default=False)
+    False
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return default
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    val = default
+    mv = None
+    kv = None
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m and not isinstance(m[k], dict):
+            vs = m[k]
+            v, _, _ = parse_number(vs)
+            if v is not None:
+                val = abs(v) &gt; 1e-8
+                mv = m
+                kv = k
+            elif isinstance(vs, str):
+                if vs.upper() in [&#39;TRUE&#39;, &#39;T&#39;, &#39;YES&#39;, &#39;Y&#39;]:
+                    if remove:
+                        del m[k]
+                    return True
+                if vs.upper() in [&#39;FALSE&#39;, &#39;F&#39;, &#39;NO&#39;, &#39;N&#39;]:
+                    if remove:
+                        del m[k]
+                    return False
+    if not mv is None and not kv is None and remove:
+        del mv[kv]
+    return val</code></pre>
+</details>
+<div class="desc"><p>Find a key in metadata and return its boolean value.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys in the metadata to be searched for (case insensitive).
+Value of the first key found is returned.
+May contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None</code> or <code>bool</code></dt>
+<dd>Return value if <code>key</code> is not found or the value does
+not specify a boolean value.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None</code> or <code>bool</code></dt>
+<dd>Value referenced by <code>key</code> as boolean.
+True if 'true', 'yes' (case insensitive) or any number larger than zero.
+False if 'false', 'no' (case insensitive) or any number equal to zero.
+If none of the <code>keys</code> was found or
+the key's value does specify a boolean value,
+then <code>default</code> is returned.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import get_bool
+&gt;&gt;&gt; md = dict(aaaa='TruE', bbbb='No', cccc=0, dddd=1, eeee=True, ffff='ui')
+
+# case insensitive:
+&gt;&gt;&gt; get_bool(md, 'aaaa')
+True
+
+&gt;&gt;&gt; get_bool(md, 'bbbb')
+False
+
+&gt;&gt;&gt; get_bool(md, 'cccc')
+False
+
+&gt;&gt;&gt; get_bool(md, 'dddd')
+True
+
+&gt;&gt;&gt; get_bool(md, 'eeee')
+True
+
+# not found:
+&gt;&gt;&gt; get_bool(md, 'ffff')
+None
+
+# two keys (string is preferred over number):
+&gt;&gt;&gt; get_bool(md, ['cccc', 'aaaa'])
+True
+
+# two keys (take first match):
+&gt;&gt;&gt; get_bool(md, ['cccc', 'ffff'])
+False
+
+# not found with default value:
+&gt;&gt;&gt; get_bool(md, 'ffff', default=False)
+False
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_datetime"><code class="name flex">
+<span>def <span class="ident">get_datetime</span></span>(<span>metadata,<br>keys=[['DateTimeOriginal'], ['OriginationDate', 'OriginationTime'], ['Location_Time'], ['Timestamp']],<br>sep='.',<br>default=None,<br>remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_datetime(metadata, keys=default_starttime_keys,
+                 sep=&#39;.&#39;, default=None, remove=False):
+    &#34;&#34;&#34;Find keys in metadata and return a datetime.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: tuple of str or list of tuple of str
+        Datetimes can be stored in metadata as two separate key-value pairs,
+        one for the date and one for the time. Or by a single key-value pair
+        for a date-time value. This is why the keys need to be specified in
+        tuples with one or two keys.
+        The value of the first tuple of keys found is returned.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        The default values for the `keys` find the start time of a recording.
+        You can modify the default keys via the `default_starttime_keys` list
+        of the `audiometadata` module.
+    sep: str
+        String that separates section names in `key`.
+    default: None or str
+        Return value if `key` is not found or the value does
+        not contain a string.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    v: None or datetime
+        Datetime referenced by `keys`.
+        If none of the `keys` was found, then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import get_datetime
+    &gt;&gt;&gt; import datetime as dt
+    &gt;&gt;&gt; md = dict(date=&#39;2024-03-02&#39;, time=&#39;10:42:24&#39;,
+                  datetime=&#39;2023-04-15T22:10:00&#39;)
+
+    # separate date and time:
+    &gt;&gt;&gt; get_datetime(md, (&#39;date&#39;, &#39;time&#39;))
+    datetime.datetime(2024, 3, 2, 10, 42, 24)
+
+    # single datetime:
+    &gt;&gt;&gt; get_datetime(md, (&#39;datetime&#39;,))
+    datetime.datetime(2023, 4, 15, 22, 10)
+
+    # two alternative key tuples:
+    &gt;&gt;&gt; get_datetime(md, [(&#39;aaaa&#39;,), (&#39;date&#39;, &#39;time&#39;)])
+    datetime.datetime(2024, 3, 2, 10, 42, 24)
+
+    # not found:
+    &gt;&gt;&gt; get_datetime(md, (&#39;cccc&#39;,))
+    None
+
+    # not found with default value:
+    &gt;&gt;&gt; get_datetime(md, (&#39;cccc&#39;, &#39;dddd&#39;),
+                     default=dt.datetime(2022, 2, 22, 22, 2, 12))
+    datetime.datetime(2022, 2, 22, 22, 2, 12)
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return default
+    if len(keys) &gt; 0 and isinstance(keys[0], str):
+        keys = (keys,)
+    for keyp in keys:
+        if len(keyp) == 1:
+            m, k = find_key(metadata, keyp[0], sep)
+            if k in m:
+                v = m[k]
+                if isinstance(v, dt.datetime):
+                    if remove:
+                        del m[k]
+                    return v
+                elif isinstance(v, str):
+                    if remove:
+                        del m[k]
+                    return dt.datetime.fromisoformat(v)
+        else:
+            md, kd = find_key(metadata, keyp[0], sep)
+            if not kd in md:
+                continue
+            if isinstance(md[kd], dt.date):
+                date = md[kd]
+            elif isinstance(md[kd], str):
+                date = dt.date.fromisoformat(md[kd])
+            else:
+                continue
+            mt, kt = find_key(metadata, keyp[1], sep)
+            if not kt in mt:
+                continue
+            if isinstance(mt[kt], dt.time):
+                time = mt[kt]
+            elif isinstance(mt[kt], str):
+                time = dt.time.fromisoformat(mt[kt])
+            else:
+                continue
+            if remove:
+                del md[kd]
+                del mt[kt]
+            return dt.datetime.combine(date, time)
+    return default</code></pre>
+</details>
+<div class="desc"><p>Find keys in metadata and return a datetime.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>tuple</code> of <code>str</code> or <code>list</code> of <code>tuple</code> of <code>str</code></dt>
+<dd>Datetimes can be stored in metadata as two separate key-value pairs,
+one for the date and one for the time. Or by a single key-value pair
+for a date-time value. This is why the keys need to be specified in
+tuples with one or two keys.
+The value of the first tuple of keys found is returned.
+Keys may contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.
+The default values for the <code>keys</code> find the start time of a recording.
+You can modify the default keys via the <code><a title="audioio.audiometadata.default_starttime_keys" href="#audioio.audiometadata.default_starttime_keys">default_starttime_keys</a></code> list
+of the <code>audiometadata</code> module.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>Return value if <code>key</code> is not found or the value does
+not contain a string.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None</code> or <code>datetime</code></dt>
+<dd>Datetime referenced by <code>keys</code>.
+If none of the <code>keys</code> was found, then <code>default</code> is returned.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import get_datetime
+&gt;&gt;&gt; import datetime as dt
+&gt;&gt;&gt; md = dict(date='2024-03-02', time='10:42:24',
+              datetime='2023-04-15T22:10:00')
+
+# separate date and time:
+&gt;&gt;&gt; get_datetime(md, ('date', 'time'))
+datetime.datetime(2024, 3, 2, 10, 42, 24)
+
+# single datetime:
+&gt;&gt;&gt; get_datetime(md, ('datetime',))
+datetime.datetime(2023, 4, 15, 22, 10)
+
+# two alternative key tuples:
+&gt;&gt;&gt; get_datetime(md, [('aaaa',), ('date', 'time')])
+datetime.datetime(2024, 3, 2, 10, 42, 24)
+
+# not found:
+&gt;&gt;&gt; get_datetime(md, ('cccc',))
+None
+
+# not found with default value:
+&gt;&gt;&gt; get_datetime(md, ('cccc', 'dddd'),
+                 default=dt.datetime(2022, 2, 22, 22, 2, 12))
+datetime.datetime(2022, 2, 22, 22, 2, 12)
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_str"><code class="name flex">
+<span>def <span class="ident">get_str</span></span>(<span>metadata, keys, sep='.', default=None, remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_str(metadata, keys, sep=&#39;.&#39;, default=None, remove=False):
+    &#34;&#34;&#34;Find a key in metadata and return its string value.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    keys: str or list of str
+        Keys in the metadata to be searched for (case insensitive).
+        Value of the first key found is returned.
+        May contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+    sep: str
+        String that separates section names in `key`.
+    default: None or str
+        Return value if `key` is not found or the value does
+        not contain a string.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    v: None or str
+        String value referenced by `key`.
+        If none of the `keys` was found, then `default` is returned.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import get_str
+    &gt;&gt;&gt; md = dict(aaaa=42, bbbb=&#39;hello&#39;)
+
+    # string:
+    &gt;&gt;&gt; get_str(md, &#39;bbbb&#39;)
+    &#39;hello&#39;
+
+    # int as str:
+    &gt;&gt;&gt; get_str(md, &#39;aaaa&#39;)
+    &#39;42&#39;
+
+    # two keys:
+    &gt;&gt;&gt; get_str(md, [&#39;cccc&#39;, &#39;bbbb&#39;])
+    &#39;hello&#39;
+
+    # not found:
+    &gt;&gt;&gt; get_str(md, &#39;cccc&#39;)
+    None
+
+    # not found with default value:
+    &gt;&gt;&gt; get_str(md, &#39;cccc&#39;, default=&#39;-&#39;)
+    &#39;-&#39;
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return default
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    for key in keys:
+        m, k = find_key(metadata, key, sep)
+        if k in m and not isinstance(m[k], dict):
+            v = m[k]
+            if remove:
+                del m[k]
+            return str(v)
+    return default</code></pre>
+</details>
+<div class="desc"><p>Find a key in metadata and return its string value.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys in the metadata to be searched for (case insensitive).
+Value of the first key found is returned.
+May contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>Return value if <code>key</code> is not found or the value does
+not contain a string.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>v</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>String value referenced by <code>key</code>.
+If none of the <code>keys</code> was found, then <code>default</code> is returned.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import get_str
+&gt;&gt;&gt; md = dict(aaaa=42, bbbb='hello')
+
+# string:
+&gt;&gt;&gt; get_str(md, 'bbbb')
+'hello'
+
+# int as str:
+&gt;&gt;&gt; get_str(md, 'aaaa')
+'42'
+
+# two keys:
+&gt;&gt;&gt; get_str(md, ['cccc', 'bbbb'])
+'hello'
+
+# not found:
+&gt;&gt;&gt; get_str(md, 'cccc')
+None
+
+# not found with default value:
+&gt;&gt;&gt; get_str(md, 'cccc', default='-')
+'-'
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.add_sections"><code class="name flex">
+<span>def <span class="ident">add_sections</span></span>(<span>metadata, sections, value=False, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_sections(metadata, sections, value=False, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Add sections to metadata dictionary.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key: str
+        Names of sections to be added to `metadata`.
+        Section names separated by `sep`. 
+    value: bool
+        If True, then the last element in `key` is a key for a value,
+        not a section.
+    sep: str
+        String that separates section names in `key`.
+
+    Returns
+    -------
+    md: dict
+        Dictionary of the last added section.
+    key: str
+        Last key. Only returned if `value` is set to `True`.
+
+    Examples
+    --------
+
+    Add a section and a sub-section to the metadata:
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, add_sections
+    &gt;&gt;&gt; md = dict()
+    &gt;&gt;&gt; m = add_sections(md, &#39;Recording.Location&#39;)
+    &gt;&gt;&gt; m[&#39;Country&#39;] = &#39;Lummerland&#39;
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Location:
+            Country: Lummerland
+    ```
+
+    Add a section with a key-value pair:
+    ```
+    &gt;&gt;&gt; md = dict()
+    &gt;&gt;&gt; m, k = add_sections(md, &#39;Recording.Location&#39;, True)
+    &gt;&gt;&gt; m[k] = &#39;Lummerland&#39;
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Location: Lummerland
+    ```
+
+    Adds well to `find_key()`:
+    ```
+    &gt;&gt;&gt; md = dict(Recording=dict())
+    &gt;&gt;&gt; m, k = find_key(md, &#39;Recording.Location.Country&#39;)
+    &gt;&gt;&gt; m, k = add_sections(m, k, True)
+    &gt;&gt;&gt; m[k] = &#39;Lummerland&#39;
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Location:
+            Country: Lummerland
+    ```
+
+    &#34;&#34;&#34;
+    mm = metadata
+    ks = sections.split(sep)
+    n = len(ks)
+    if value:
+        n -= 1
+    for k in ks[:n]:
+        if len(k) == 0:
+            continue
+        mm[k] = dict()
+        mm = mm[k]
+    if value:
+        return mm, ks[-1]
+    else:
+        return mm</code></pre>
+</details>
+<div class="desc"><p>Add sections to metadata dictionary.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>Names of sections to be added to <code>metadata</code>.
+Section names separated by <code>sep</code>.</dd>
+<dt><strong><code>value</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, then the last element in <code>key</code> is a key for a value,
+not a section.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>key</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>md</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of the last added section.</dd>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>Last key. Only returned if <code>value</code> is set to <code>True</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<p>Add a section and a sub-section to the metadata:</p>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, add_sections
+&gt;&gt;&gt; md = dict()
+&gt;&gt;&gt; m = add_sections(md, 'Recording.Location')
+&gt;&gt;&gt; m['Country'] = 'Lummerland'
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Location:
+        Country: Lummerland
+</code></pre>
+<p>Add a section with a key-value pair:</p>
+<pre><code>&gt;&gt;&gt; md = dict()
+&gt;&gt;&gt; m, k = add_sections(md, 'Recording.Location', True)
+&gt;&gt;&gt; m[k] = 'Lummerland'
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Location: Lummerland
+</code></pre>
+<p>Adds well to <code><a title="audioio.audiometadata.find_key" href="#audioio.audiometadata.find_key">find_key()</a></code>:</p>
+<pre><code>&gt;&gt;&gt; md = dict(Recording=dict())
+&gt;&gt;&gt; m, k = find_key(md, 'Recording.Location.Country')
+&gt;&gt;&gt; m, k = add_sections(m, k, True)
+&gt;&gt;&gt; m[k] = 'Lummerland'
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Location:
+        Country: Lummerland
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.strlist_to_dict"><code class="name flex">
+<span>def <span class="ident">strlist_to_dict</span></span>(<span>mds)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def strlist_to_dict(mds):
+    &#34;&#34;&#34;Convert list of key-value-pair strings to dictionary.
+
+    Parameters
+    ----------
+    mds: None or dict or str or list of str
+        - None - returns empty dictionary.
+        - Flat dictionary - returned as is.
+        - String with key and value separated by &#39;=&#39;.
+        - List of strings with keys and values separated by &#39;=&#39;.
+        Keys may contain section names.
+
+    Returns
+    -------
+    md_dict: dict
+        Flat dictionary with key-value pairs.
+        Keys may contain section names.
+        Values are strings, other types or dictionaries.
+    &#34;&#34;&#34;
+    if mds is None:
+        return {}
+    if isinstance(mds, dict):
+        return mds
+    if not isinstance(mds, (list, tuple, np.ndarray)):
+        mds = (mds,)
+    md_dict = {}
+    for md in mds:
+        k, v = md.split(&#39;=&#39;)
+        k = k.strip()
+        v = v.strip()
+        md_dict[k] = v
+    return md_dict</code></pre>
+</details>
+<div class="desc"><p>Convert list of key-value-pair strings to dictionary.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>mds</code></strong> :&ensp;<code>None</code> or <code>dict</code> or <code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>
+<ul>
+<li>None - returns empty dictionary.</li>
+<li>Flat dictionary - returned as is.</li>
+<li>String with key and value separated by '='.</li>
+<li>List of strings with keys and values separated by '='.
+Keys may contain section names.</li>
+</ul>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>md_dict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Flat dictionary with key-value pairs.
+Keys may contain section names.
+Values are strings, other types or dictionaries.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiometadata.set_metadata"><code class="name flex">
+<span>def <span class="ident">set_metadata</span></span>(<span>metadata, mds, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_metadata(metadata, mds, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Set values of existing metadata.
+
+    Only if a key is found in the metadata, its value is updated.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    mds: dict or str or list of str
+        - Flat dictionary with key-value pairs for updating the metadata.
+          Values can be strings, other types or dictionaries.
+        - String with key and value separated by &#39;=&#39;.
+        - List of strings with key and value separated by &#39;=&#39;.
+        Keys may contain section names separated by `sep`.
+    sep: str
+        String that separates section names in the keys of `md_dict`.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, set_metadata
+    &gt;&gt;&gt; md = dict(Recording=dict(Time=&#39;early&#39;))
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Time: early
+
+    &gt;&gt;&gt; set_metadata(md, {&#39;Artist&#39;: &#39;John Doe&#39;,       # new key-value pair
+                          &#39;Recording.Time&#39;: &#39;late&#39;})  # change value of existing key
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Time   : late
+    ```
+
+    See also
+    --------
+    add_metadata()
+    strlist_to_dict()
+
+    &#34;&#34;&#34;
+    if metadata is None:
+        return
+    md_dict = strlist_to_dict(mds)
+    for k in md_dict:
+        mm, kk = find_key(metadata, k, sep)
+        if kk in mm:
+            mm[kk] = md_dict[k]</code></pre>
+</details>
+<div class="desc"><p>Set values of existing metadata.</p>
+<p>Only if a key is found in the metadata, its value is updated.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>mds</code></strong> :&ensp;<code>dict</code> or <code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>
+<ul>
+<li>Flat dictionary with key-value pairs for updating the metadata.
+Values can be strings, other types or dictionaries.</li>
+<li>String with key and value separated by '='.</li>
+<li>List of strings with key and value separated by '='.
+Keys may contain section names separated by <code>sep</code>.</li>
+</ul>
+</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in the keys of <code>md_dict</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, set_metadata
+&gt;&gt;&gt; md = dict(Recording=dict(Time='early'))
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Time: early
+
+&gt;&gt;&gt; set_metadata(md, {'Artist': 'John Doe',       # new key-value pair
+                      'Recording.Time': 'late'})  # change value of existing key
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Time   : late
+</code></pre>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiometadata.add_metadata" href="#audioio.audiometadata.add_metadata">add_metadata()</a></code>
+<code><a title="audioio.audiometadata.strlist_to_dict" href="#audioio.audiometadata.strlist_to_dict">strlist_to_dict()</a></code></p></div>
+</dd>
+<dt id="audioio.audiometadata.add_metadata"><code class="name flex">
+<span>def <span class="ident">add_metadata</span></span>(<span>metadata, mds, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_metadata(metadata, mds, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Add or modify key-value pairs.
+
+    If a key does not exist, it is added to the metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    mds: dict or str or list of str
+        - Flat dictionary with key-value pairs for updating the metadata.
+          Values can be strings or other types.
+        - String with key and value separated by &#39;=&#39;.
+        - List of strings with key and value separated by &#39;=&#39;.
+        Keys may contain section names separated by `sep`.
+    sep: str
+        String that separates section names in the keys of `md_list`.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, add_metadata
+    &gt;&gt;&gt; md = dict(Recording=dict(Time=&#39;early&#39;))
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Time: early
+
+    &gt;&gt;&gt; add_metadata(md, {&#39;Artist&#39;: &#39;John Doe&#39;,               # new key-value pair
+                          &#39;Recording.Time&#39;: &#39;late&#39;,           # change value of existing key 
+                          &#39;Recording.Quality&#39;: &#39;amazing&#39;,     # new key-value pair in existing section
+                          &#39;Location.Country&#39;: &#39;Lummerland&#39;])  # new key-value pair in new section
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Time   : late
+        Quality: amazing
+    Artist: John Doe
+    Location:
+        Country: Lummerland
+    ```
+
+    See also
+    --------
+    set_metadata()
+    strlist_to_dict()
+
+    &#34;&#34;&#34;
+    if metadata is None:
+        return
+    md_dict = strlist_to_dict(mds)
+    for k in md_dict:
+        mm, kk = find_key(metadata, k, sep)
+        mm, kk = add_sections(mm, kk, True, sep)
+        mm[kk] = md_dict[k]</code></pre>
+</details>
+<div class="desc"><p>Add or modify key-value pairs.</p>
+<p>If a key does not exist, it is added to the metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>mds</code></strong> :&ensp;<code>dict</code> or <code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>
+<ul>
+<li>Flat dictionary with key-value pairs for updating the metadata.
+Values can be strings or other types.</li>
+<li>String with key and value separated by '='.</li>
+<li>List of strings with key and value separated by '='.
+Keys may contain section names separated by <code>sep</code>.</li>
+</ul>
+</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in the keys of <code>md_list</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, add_metadata
+&gt;&gt;&gt; md = dict(Recording=dict(Time='early'))
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Time: early
+
+&gt;&gt;&gt; add_metadata(md, {'Artist': 'John Doe',               # new key-value pair
+                      'Recording.Time': 'late',           # change value of existing key 
+                      'Recording.Quality': 'amazing',     # new key-value pair in existing section
+                      'Location.Country': 'Lummerland'])  # new key-value pair in new section
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Time   : late
+    Quality: amazing
+Artist: John Doe
+Location:
+    Country: Lummerland
+</code></pre>
+<h2 id="see-also">See Also</h2>
+<p><code><a title="audioio.audiometadata.set_metadata" href="#audioio.audiometadata.set_metadata">set_metadata()</a></code>
+<code><a title="audioio.audiometadata.strlist_to_dict" href="#audioio.audiometadata.strlist_to_dict">strlist_to_dict()</a></code></p></div>
+</dd>
+<dt id="audioio.audiometadata.move_metadata"><code class="name flex">
+<span>def <span class="ident">move_metadata</span></span>(<span>src_md, dest_md, keys, new_key=None, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def move_metadata(src_md, dest_md, keys, new_key=None, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Remove a key from metadata and add it to a dictionary.
+
+    Parameters
+    ----------
+    src_md: nested dict
+        Metadata from which a key is removed.
+    dest_md: dict
+        Dictionary to which the found key and its value are added.
+    keys: str or list of str
+        List of keys to be searched for in `src_md`.
+        Move the first one found to `dest_md`.
+        See the `audiometadata.find_key()` function for details.
+    new_key: None or str
+        If specified add the value of the found key as `new_key` to
+        `dest_md`. Otherwise, use the search key.
+    sep: str
+        String that separates section names in `keys`.
+
+    Returns
+    -------
+    moved: bool
+        `True` if key was found and moved to dictionary.
+    
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, move_metadata
+    &gt;&gt;&gt; md = dict(Artist=&#39;John Doe&#39;, Recording=dict(Gain=&#39;1.42mV&#39;))
+    &gt;&gt;&gt; move_metadata(md, md[&#39;Recording&#39;], &#39;Artist&#39;, &#39;Experimentalist&#39;)
+    &gt;&gt;&gt; print_metadata(md)
+    Recording:
+        Gain           : 1.42mV
+        Experimentalist: John Doe
+    ```
+    
+    &#34;&#34;&#34;
+    if not src_md:
+        return False
+    if not isinstance(keys, (list, tuple, np.ndarray)):
+        keys = (keys,)
+    for key in keys:
+        m, k = find_key(src_md, key, sep)
+        if k in m:
+            dest_key = new_key if new_key else k
+            dest_md[dest_key] = m.pop(k)
+            return True
+    return False</code></pre>
+</details>
+<div class="desc"><p>Remove a key from metadata and add it to a dictionary.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>src_md</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata from which a key is removed.</dd>
+<dt><strong><code>dest_md</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary to which the found key and its value are added.</dd>
+<dt><strong><code>keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>List of keys to be searched for in <code>src_md</code>.
+Move the first one found to <code>dest_md</code>.
+See the <code>audiometadata.find_key()</code> function for details.</dd>
+<dt><strong><code>new_key</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>If specified add the value of the found key as <code>new_key</code> to
+<code>dest_md</code>. Otherwise, use the search key.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>keys</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>moved</code></strong> :&ensp;<code>bool</code></dt>
+<dd><code>True</code> if key was found and moved to dictionary.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, move_metadata
+&gt;&gt;&gt; md = dict(Artist='John Doe', Recording=dict(Gain='1.42mV'))
+&gt;&gt;&gt; move_metadata(md, md['Recording'], 'Artist', 'Experimentalist')
+&gt;&gt;&gt; print_metadata(md)
+Recording:
+    Gain           : 1.42mV
+    Experimentalist: John Doe
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.remove_metadata"><code class="name flex">
+<span>def <span class="ident">remove_metadata</span></span>(<span>metadata, key_list, sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_metadata(metadata, key_list, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Remove key-value pairs or sections from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+    key_list: str or list of str
+        List of keys to key-value pairs or sections to be removed
+        from the metadata.
+    sep: str
+        String that separates section names in the keys of `key_list`.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, remove_metadata
+    &gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4))
+    &gt;&gt;&gt; remove_metadata(md, (&#39;ccc&#39;,))
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    bbbb:
+        ddd: 4
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return
+    if not isinstance(key_list, (list, tuple, np.ndarray)):
+        key_list = (key_list,)
+    for k in key_list:
+        mm, kk = find_key(metadata, k, sep)
+        if kk in mm:
+            del mm[kk]</code></pre>
+</details>
+<div class="desc"><p>Remove key-value pairs or sections from metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+<dt><strong><code>key_list</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>List of keys to key-value pairs or sections to be removed
+from the metadata.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in the keys of <code>key_list</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, remove_metadata
+&gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict(ccc=3, ddd=4))
+&gt;&gt;&gt; remove_metadata(md, ('ccc',))
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+bbbb:
+    ddd: 4
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.cleanup_metadata"><code class="name flex">
+<span>def <span class="ident">cleanup_metadata</span></span>(<span>metadata)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cleanup_metadata(metadata):
+    &#34;&#34;&#34;Remove empty sections from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata.
+
+    Examples
+    --------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, cleanup_metadata
+    &gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict())
+    &gt;&gt;&gt; cleanup_metadata(md)
+    &gt;&gt;&gt; print_metadata(md)
+    aaaa: 2
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return
+    for k in list(metadata):
+        if isinstance(metadata[k], dict):
+            if len(metadata[k]) == 0:
+                del metadata[k]
+            else:
+                cleanup_metadata(metadata[k])</code></pre>
+</details>
+<div class="desc"><p>Remove empty sections from metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, cleanup_metadata
+&gt;&gt;&gt; md = dict(aaaa=2, bbbb=dict())
+&gt;&gt;&gt; cleanup_metadata(md)
+&gt;&gt;&gt; print_metadata(md)
+aaaa: 2
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.get_gain"><code class="name flex">
+<span>def <span class="ident">get_gain</span></span>(<span>metadata, gain_key=['gain'], sep='.', default=None, default_unit='', remove=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_gain(metadata, gain_key=default_gain_keys, sep=&#39;.&#39;,
+             default=None, default_unit=&#39;&#39;, remove=False):
+    &#34;&#34;&#34;Get gain and unit from metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata with key-value pairs.
+    gain_key: str or list of str
+        Key in the file&#39;s metadata that holds some gain information.
+        If found, the data will be multiplied with the gain,
+        and if available, the corresponding unit is returned.
+        See the `audiometadata.find_key()` function for details.
+        You can modify the default keys via the `default_gain_keys` list
+        of the `audiometadata` module.
+    sep: str
+        String that separates section names in `gain_key`.
+    default: None or float
+        Returned value if no valid gain was found in `metadata`.
+    default_unit: str
+        Returned unit if no valid gain was found in `metadata`.
+    remove: bool
+        If `True`, remove the found key from `metadata`.
+
+    Returns
+    -------
+    fac: float
+        Gain factor. If not found in metadata return 1.
+    unit: string
+        Unit of the data if found in the metadata, otherwise &#34;a.u.&#34;.
+    &#34;&#34;&#34;
+    v, u = get_number_unit(metadata, gain_key, sep, default,
+                           default_unit, remove)
+    # fix some TeeGrid gains:
+    if len(u) &gt;= 2 and u[-2:] == &#39;/V&#39;:
+        u = u[:-2]
+    return v, u</code></pre>
+</details>
+<div class="desc"><p>Get gain and unit from metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata with key-value pairs.</dd>
+<dt><strong><code>gain_key</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Key in the file's metadata that holds some gain information.
+If found, the data will be multiplied with the gain,
+and if available, the corresponding unit is returned.
+See the <code>audiometadata.find_key()</code> function for details.
+You can modify the default keys via the <code><a title="audioio.audiometadata.default_gain_keys" href="#audioio.audiometadata.default_gain_keys">default_gain_keys</a></code> list
+of the <code>audiometadata</code> module.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>gain_key</code>.</dd>
+<dt><strong><code>default</code></strong> :&ensp;<code>None</code> or <code>float</code></dt>
+<dd>Returned value if no valid gain was found in <code>metadata</code>.</dd>
+<dt><strong><code>default_unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Returned unit if no valid gain was found in <code>metadata</code>.</dd>
+<dt><strong><code>remove</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>True</code>, remove the found key from <code>metadata</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Gain factor. If not found in metadata return 1.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>string</code></dt>
+<dd>Unit of the data if found in the metadata, otherwise "a.u.".</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiometadata.update_gain"><code class="name flex">
+<span>def <span class="ident">update_gain</span></span>(<span>metadata, fac, gain_key=['gain'], sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_gain(metadata, fac, gain_key=default_gain_keys, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Update gain setting in metadata.
+
+    Searches for the first appearance of a gain key in the metadata
+    hierarchy. If found, divide the gain value by `fac`.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    fac: float
+        Factor that was used to scale the data.
+    gain_key: str or list of str
+        Key in the file&#39;s metadata that holds some gain information.
+        If found, the data will be multiplied with the gain,
+        and if available, the corresponding unit is returned.
+        See the `audiometadata.find_key()` function for details.
+        You can modify the default keys via the `default_gain_keys` list
+        of the `audiometadata` module.
+    sep: str
+        String that separates section names in `gain_key`.
+
+    Returns
+    -------
+    done: bool
+        True if gain has been found and set.
+
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, update_gain
+    &gt;&gt;&gt; md = dict(Artist=&#39;John Doe&#39;, Recording=dict(gain=&#39;1.4mV&#39;))
+    &gt;&gt;&gt; update_gain(md, 2)
+    &gt;&gt;&gt; print_metadata(md)
+    Artist: John Doe
+    Recording:
+        gain: 0.70mV
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return False
+    if not isinstance(gain_key, (list, tuple, np.ndarray)):
+        gain_key = (gain_key,)
+    for gk in gain_key:
+        m, k = find_key(metadata, gk, sep)
+        if k in m and not isinstance(m[k], dict):
+            vs = m[k]
+            if isinstance(vs, (int, float)):
+                m[k] = vs/fac
+            else:
+                v, u, n = parse_number(vs)
+                if not v is None:
+                    # fix some TeeGrid gains:
+                    if len(u) &gt;= 2 and u[-2:] == &#39;/V&#39;:
+                        u = u[:-2]
+                    m[k] = f&#39;{v/fac:.{n+1}f}{u}&#39;
+                    return True
+    return False</code></pre>
+</details>
+<div class="desc"><p>Update gain setting in metadata.</p>
+<p>Searches for the first appearance of a gain key in the metadata
+hierarchy. If found, divide the gain value by <code>fac</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata to be updated.</dd>
+<dt><strong><code>fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Factor that was used to scale the data.</dd>
+<dt><strong><code>gain_key</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Key in the file's metadata that holds some gain information.
+If found, the data will be multiplied with the gain,
+and if available, the corresponding unit is returned.
+See the <code>audiometadata.find_key()</code> function for details.
+You can modify the default keys via the <code><a title="audioio.audiometadata.default_gain_keys" href="#audioio.audiometadata.default_gain_keys">default_gain_keys</a></code> list
+of the <code>audiometadata</code> module.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>gain_key</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>done</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True if gain has been found and set.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, update_gain
+&gt;&gt;&gt; md = dict(Artist='John Doe', Recording=dict(gain='1.4mV'))
+&gt;&gt;&gt; update_gain(md, 2)
+&gt;&gt;&gt; print_metadata(md)
+Artist: John Doe
+Recording:
+    gain: 0.70mV
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.set_starttime"><code class="name flex">
+<span>def <span class="ident">set_starttime</span></span>(<span>metadata,<br>datetime_value,<br>time_keys=[['DateTimeOriginal'], ['OriginationDate', 'OriginationTime'], ['Location_Time'], ['Timestamp']])</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_starttime(metadata, datetime_value,
+                  time_keys=default_starttime_keys):
+    &#34;&#34;&#34;Set all start-of-recording times in metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    datetime_value: datetime
+        Start date and time of the recording.
+    time_keys: tuple of str or list of tuple of str
+        Keys to fields denoting calender times, i.e. dates and times.
+        Datetimes can be stored in metadata as two separate key-value pairs,
+        one for the date and one for the time. Or by a single key-value pair
+        for a date-time values. This is why the keys need to be specified in
+        tuples with one or two keys.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default time keys via the `default_starttime_keys`
+        list of the `audiometadata` module.
+
+    Returns
+    -------
+    success: bool
+        True if at least one time has been set.
+
+    Example
+    -------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, set_starttime
+    &gt;&gt;&gt; md = dict(DateTimeOriginal=&#39;2023-04-15T22:10:00&#39;,
+                  OtherTime=&#39;2023-05-16T23:20:10&#39;,
+                  BEXT=dict(OriginationDate=&#39;2024-03-02&#39;,
+                            OriginationTime=&#39;10:42:24&#39;))
+    &gt;&gt;&gt; set_starttime(md, &#39;2024-06-17T22:10:05&#39;)
+    &gt;&gt;&gt; print_metadata(md)
+    DateTimeOriginal: 2024-06-17T22:10:05
+    OtherTime       : 2024-06-17T22:10:05
+    BEXT:
+        OriginationDate: 2024-06-17
+        OriginationTime: 22:10:05
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return False
+    if isinstance(datetime_value, str):
+        datetime_value = dt.datetime.fromisoformat(datetime_value)
+    success = False
+    if len(time_keys) &gt; 0 and isinstance(time_keys[0], str):
+        time_keys = (time_keys,)
+    for key in time_keys:
+        if len(key) == 1:
+            # datetime:
+            m, k = find_key(metadata, key[0])
+            if k in m and not isinstance(m[k], dict):
+                if isinstance(m[k], dt.datetime):
+                    m[k] = datetime_value
+                else:
+                    m[k] = datetime_value.isoformat(timespec=&#39;seconds&#39;)
+                success = True
+        else:
+            # separate date and time:
+            md, kd = find_key(metadata, key[0])
+            if not kd in md or isinstance(md[kd], dict):
+                continue
+            if isinstance(md[kd], dt.date):
+                md[kd] = datetime_value.date()
+            else:
+                md[kd] = datetime_value.date().isoformat()
+            mt, kt = find_key(metadata, key[1])
+            if not kt in mt or isinstance(mt[kt], dict):
+                continue
+            if isinstance(mt[kt], dt.time):
+                mt[kt] = datetime_value.time()
+            else:
+                mt[kt] = datetime_value.time().isoformat(timespec=&#39;seconds&#39;)
+            success = True
+    return success</code></pre>
+</details>
+<div class="desc"><p>Set all start-of-recording times in metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata to be updated.</dd>
+<dt><strong><code>datetime_value</code></strong> :&ensp;<code>datetime</code></dt>
+<dd>Start date and time of the recording.</dd>
+<dt><strong><code>time_keys</code></strong> :&ensp;<code>tuple</code> of <code>str</code> or <code>list</code> of <code>tuple</code> of <code>str</code></dt>
+<dd>Keys to fields denoting calender times, i.e. dates and times.
+Datetimes can be stored in metadata as two separate key-value pairs,
+one for the date and one for the time. Or by a single key-value pair
+for a date-time values. This is why the keys need to be specified in
+tuples with one or two keys.
+Keys may contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.
+You can modify the default time keys via the <code><a title="audioio.audiometadata.default_starttime_keys" href="#audioio.audiometadata.default_starttime_keys">default_starttime_keys</a></code>
+list of the <code>audiometadata</code> module.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>success</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True if at least one time has been set.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, set_starttime
+&gt;&gt;&gt; md = dict(DateTimeOriginal='2023-04-15T22:10:00',
+              OtherTime='2023-05-16T23:20:10',
+              BEXT=dict(OriginationDate='2024-03-02',
+                        OriginationTime='10:42:24'))
+&gt;&gt;&gt; set_starttime(md, '2024-06-17T22:10:05')
+&gt;&gt;&gt; print_metadata(md)
+DateTimeOriginal: 2024-06-17T22:10:05
+OtherTime       : 2024-06-17T22:10:05
+BEXT:
+    OriginationDate: 2024-06-17
+    OriginationTime: 22:10:05
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.update_starttime"><code class="name flex">
+<span>def <span class="ident">update_starttime</span></span>(<span>metadata,<br>deltat,<br>rate,<br>time_keys=[['DateTimeOriginal'], ['OriginationDate', 'OriginationTime'], ['Location_Time'], ['Timestamp']],<br>ref_keys=['TimeReference'])</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_starttime(metadata, deltat, rate,
+                     time_keys=default_starttime_keys,
+                     ref_keys=default_timeref_keys):
+    &#34;&#34;&#34;Update start-of-recording times in metadata.
+
+    Add `deltat` to `time_keys`and `ref_keys` fields in the metadata.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    deltat: float
+        Time in seconds to be added to start times.
+    rate: float
+        Sampling rate of the data in Hertz.
+    time_keys: tuple of str or list of tuple of str
+        Keys to fields denoting calender times, i.e. dates and times.
+        Datetimes can be stored in metadata as two separate key-value pairs,
+        one for the date and one for the time. Or by a single key-value pair
+        for a date-time values. This is why the keys need to be specified in
+        tuples with one or two keys.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default time keys via the `default_starttime_keys`
+        list of the `audiometadata` module.
+    ref_keys: str or list of str
+        Keys to time references, i.e. integers in seconds relative to
+        a reference time.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default reference keys via the
+        `default_timeref_keys` list of the `audiometadata` module.
+
+    Returns
+    -------
+    success: bool
+        True if at least one time has been updated.
+
+    Example
+    -------
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, update_starttime
+    &gt;&gt;&gt; md = dict(DateTimeOriginal=&#39;2023-04-15T22:10:00&#39;,
+                  OtherTime=&#39;2023-05-16T23:20:10&#39;,
+                  BEXT=dict(OriginationDate=&#39;2024-03-02&#39;,
+                            OriginationTime=&#39;10:42:24&#39;,
+                            TimeReference=123456))
+    &gt;&gt;&gt; update_starttime(md, 4.2, 48000)
+    &gt;&gt;&gt; print_metadata(md)
+    DateTimeOriginal: 2023-04-15T22:10:04
+    OtherTime       : 2023-05-16T23:20:10
+    BEXT:
+        OriginationDate: 2024-03-02
+        OriginationTime: 10:42:28
+        TimeReference  : 325056
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return False
+    if not isinstance(deltat, dt.timedelta):
+        deltat = dt.timedelta(seconds=deltat)
+    success = False
+    if len(time_keys) &gt; 0 and isinstance(time_keys[0], str):
+        time_keys = (time_keys,)
+    for key in time_keys:
+        if len(key) == 1:
+            # datetime:
+            m, k = find_key(metadata, key[0])
+            if k in m and not isinstance(m[k], dict):
+                if isinstance(m[k], dt.datetime):
+                    m[k] += deltat
+                else:
+                    datetime = dt.datetime.fromisoformat(m[k]) + deltat
+                    m[k] = datetime.isoformat(timespec=&#39;seconds&#39;)
+                success = True
+        else:
+            # separate date and time:
+            md, kd = find_key(metadata, key[0])
+            if not kd in md or isinstance(md[kd], dict):
+                continue
+            if isinstance(md[kd], dt.date):
+                date = md[kd]
+                is_date = True
+            else:
+                date = dt.date.fromisoformat(md[kd])
+                is_date = False
+            mt, kt = find_key(metadata, key[1])
+            if not kt in mt or isinstance(mt[kt], dict):
+                continue
+            if isinstance(mt[kt], dt.time):
+                time = mt[kt]
+                is_time = True
+            else:
+                time = dt.time.fromisoformat(mt[kt])
+                is_time = False
+            datetime = dt.datetime.combine(date, time) + deltat
+            md[kd] = datetime.date() if is_date else datetime.date().isoformat()
+            mt[kt] = datetime.time() if is_time else datetime.time().isoformat(timespec=&#39;seconds&#39;)
+            success = True
+    # time reference in samples:
+    if isinstance(ref_keys, str):
+        ref_keys = (ref_keys,)
+    for key in ref_keys:
+        m, k = find_key(metadata, key)
+        if k in m and not isinstance(m[k], dict):
+            is_int = isinstance(m[k], int)
+            tref = int(m[k])
+            tref += int(np.round(deltat.total_seconds()*rate))
+            m[k] = tref if is_int else f&#39;{tref}&#39;
+            success = True
+    return success</code></pre>
+</details>
+<div class="desc"><p>Update start-of-recording times in metadata.</p>
+<p>Add <code>deltat</code> to <code>time_keys</code>and <code>ref_keys</code> fields in the metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata to be updated.</dd>
+<dt><strong><code>deltat</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time in seconds to be added to start times.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>time_keys</code></strong> :&ensp;<code>tuple</code> of <code>str</code> or <code>list</code> of <code>tuple</code> of <code>str</code></dt>
+<dd>Keys to fields denoting calender times, i.e. dates and times.
+Datetimes can be stored in metadata as two separate key-value pairs,
+one for the date and one for the time. Or by a single key-value pair
+for a date-time values. This is why the keys need to be specified in
+tuples with one or two keys.
+Keys may contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.
+You can modify the default time keys via the <code><a title="audioio.audiometadata.default_starttime_keys" href="#audioio.audiometadata.default_starttime_keys">default_starttime_keys</a></code>
+list of the <code>audiometadata</code> module.</dd>
+<dt><strong><code>ref_keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys to time references, i.e. integers in seconds relative to
+a reference time.
+Keys may contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.
+You can modify the default reference keys via the
+<code><a title="audioio.audiometadata.default_timeref_keys" href="#audioio.audiometadata.default_timeref_keys">default_timeref_keys</a></code> list of the <code>audiometadata</code> module.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>success</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True if at least one time has been updated.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, update_starttime
+&gt;&gt;&gt; md = dict(DateTimeOriginal='2023-04-15T22:10:00',
+              OtherTime='2023-05-16T23:20:10',
+              BEXT=dict(OriginationDate='2024-03-02',
+                        OriginationTime='10:42:24',
+                        TimeReference=123456))
+&gt;&gt;&gt; update_starttime(md, 4.2, 48000)
+&gt;&gt;&gt; print_metadata(md)
+DateTimeOriginal: 2023-04-15T22:10:04
+OtherTime       : 2023-05-16T23:20:10
+BEXT:
+    OriginationDate: 2024-03-02
+    OriginationTime: 10:42:28
+    TimeReference  : 325056
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.bext_history_str"><code class="name flex">
+<span>def <span class="ident">bext_history_str</span></span>(<span>encoding, rate, channels, text=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bext_history_str(encoding, rate, channels, text=None):
+    &#34;&#34;&#34; Assemble a string for the BEXT CodingHistory field.
+
+    Parameters
+    ----------
+    encoding: str or None
+        Encoding of the data.
+    rate: int or float
+        Sampling rate in Hertz.
+    channels: int
+        Number of channels.
+    text: str or None
+        Optional free text.
+
+    Returns
+    -------
+    s: str
+        String for the BEXT CodingHistory field,
+        something like &#34;A=PCM_16,F=44100,W=16,M=stereo,T=cut out&#34;
+    &#34;&#34;&#34;
+    codes = []
+    bits = None
+    if encoding is not None:
+        if encoding[:3] == &#39;PCM&#39;:
+            bits = int(encoding[4:])
+            encoding = &#39;PCM&#39;
+        codes.append(f&#39;A={encoding}&#39;)
+    codes.append(f&#39;F={rate:.0f}&#39;)
+    if bits is not None:
+        codes.append(f&#39;W={bits}&#39;)
+    mode = None
+    if channels == 1:
+        mode = &#39;mono&#39;
+    elif channels == 2:
+        mode = &#39;stereo&#39;
+    if mode is not None:
+        codes.append(f&#39;M={mode}&#39;)
+    if text is not None:
+        codes.append(f&#39;T={text.rstrip()}&#39;)
+    return &#39;,&#39;.join(codes)</code></pre>
+</details>
+<div class="desc"><p>Assemble a string for the BEXT CodingHistory field.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data.</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
+<dd>Sampling rate in Hertz.</dd>
+<dt><strong><code>channels</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of channels.</dd>
+<dt><strong><code>text</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Optional free text.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>s</code></strong> :&ensp;<code>str</code></dt>
+<dd>String for the BEXT CodingHistory field,
+something like "A=PCM_16,F=44100,W=16,M=stereo,T=cut out"</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiometadata.add_history"><code class="name flex">
+<span>def <span class="ident">add_history</span></span>(<span>metadata,<br>history,<br>new_key=None,<br>pre_history=None,<br>history_keys=['History', 'CodingHistory', 'BWF_CODING_HISTORY'],<br>sep='.')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_history(metadata, history, new_key=None, pre_history=None,
+                history_keys=default_history_keys, sep=&#39;.&#39;):
+    &#34;&#34;&#34;Add a string describing coding history to metadata.
+    
+    Add `history` to the `history_keys` fields in the metadata.  If
+    none of these fields are present but `new_key` is specified, then
+    assign `pre_history` and `history` to this key. If this key does
+    not exist in the metadata, it is created.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Metadata to be updated.
+    history: str
+        String to be added to the history.
+    new_key: str or None
+        Sections and name of a history key to be added to `metadata`.
+        Section names are separated by `sep`.
+    pre_history: str or None
+        If a new key `new_key` is created, then assign this string followed
+        by `history`.
+    history_keys: str or list of str
+        Keys to fields where to add `history`.
+        Keys may contain section names separated by `sep`. 
+        See `audiometadata.find_key()` for details.
+        You can modify the default history keys via the `default_history_keys`
+        list of the `audiometadata` module.
+    sep: str
+        String that separates section names in `new_key` and `history_keys`.
+
+    Returns
+    -------
+    success: bool
+        True if the history string has beend added to the metadata.
+
+    Example
+    -------
+    Add string to existing history key-value pair:
+    ```
+    &gt;&gt;&gt; from audioio import add_history
+    &gt;&gt;&gt; md = dict(aaa=&#39;xyz&#39;, BEXT=dict(CodingHistory=&#39;original recordings&#39;))
+    &gt;&gt;&gt; add_history(md, &#39;just a snippet&#39;)
+    &gt;&gt;&gt; print(md[&#39;BEXT&#39;][&#39;CodingHistory&#39;])
+    original recordings
+    just a snippet
+    ```
+
+    Assign string to new key-value pair:
+    ```
+    &gt;&gt;&gt; md = dict(aaa=&#39;xyz&#39;, BEXT=dict(OriginationDate=&#39;2024-02-12&#39;))
+    &gt;&gt;&gt; add_history(md, &#39;just a snippet&#39;, &#39;BEXT.CodingHistory&#39;, &#39;original data&#39;)
+    &gt;&gt;&gt; print(md[&#39;BEXT&#39;][&#39;CodingHistory&#39;])
+    original data
+    just a snippet
+    ```
+
+    &#34;&#34;&#34;
+    if not metadata:
+        return False
+    if isinstance(history_keys, str):
+        history_keys = (history_keys,)
+    success = False
+    for keys in history_keys:
+        m, k = find_key(metadata, keys)
+        if k in m and not isinstance(m[k], dict):
+            s = m[k]
+            if len(s) &gt;= 1 and s[-1] != &#39;\n&#39; and s[-1] != &#39;\r&#39;:
+                s += &#39;\r\n&#39;
+            s += history
+            m[k] = s
+            success = True
+    if not success and new_key:
+        m, k = find_key(metadata, new_key, sep)
+        m, k = add_sections(m, k, True, sep)
+        s = &#39;&#39;
+        if pre_history is not None:
+            s = pre_history
+        if len(s) &gt;= 1 and s[-1] != &#39;\n&#39; and s[-1] != &#39;\r&#39;:
+            s += &#39;\r\n&#39;
+        s += history
+        m[k] = s
+        success = True
+    return success</code></pre>
+</details>
+<div class="desc"><p>Add a string describing coding history to metadata.</p>
+<p>Add <code>history</code> to the <code>history_keys</code> fields in the metadata.
+If
+none of these fields are present but <code>new_key</code> is specified, then
+assign <code>pre_history</code> and <code>history</code> to this key. If this key does
+not exist in the metadata, it is created.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata to be updated.</dd>
+<dt><strong><code>history</code></strong> :&ensp;<code>str</code></dt>
+<dd>String to be added to the history.</dd>
+<dt><strong><code>new_key</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Sections and name of a history key to be added to <code>metadata</code>.
+Section names are separated by <code>sep</code>.</dd>
+<dt><strong><code>pre_history</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>If a new key <code>new_key</code> is created, then assign this string followed
+by <code>history</code>.</dd>
+<dt><strong><code>history_keys</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Keys to fields where to add <code>history</code>.
+Keys may contain section names separated by <code>sep</code>.
+See <code>audiometadata.find_key()</code> for details.
+You can modify the default history keys via the <code><a title="audioio.audiometadata.default_history_keys" href="#audioio.audiometadata.default_history_keys">default_history_keys</a></code>
+list of the <code>audiometadata</code> module.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>new_key</code> and <code>history_keys</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>success</code></strong> :&ensp;<code>bool</code></dt>
+<dd>True if the history string has beend added to the metadata.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<p>Add string to existing history key-value pair:</p>
+<pre><code>&gt;&gt;&gt; from audioio import add_history
+&gt;&gt;&gt; md = dict(aaa='xyz', BEXT=dict(CodingHistory='original recordings'))
+&gt;&gt;&gt; add_history(md, 'just a snippet')
+&gt;&gt;&gt; print(md['BEXT']['CodingHistory'])
+original recordings
+just a snippet
+</code></pre>
+<p>Assign string to new key-value pair:</p>
+<pre><code>&gt;&gt;&gt; md = dict(aaa='xyz', BEXT=dict(OriginationDate='2024-02-12'))
+&gt;&gt;&gt; add_history(md, 'just a snippet', 'BEXT.CodingHistory', 'original data')
+&gt;&gt;&gt; print(md['BEXT']['CodingHistory'])
+original data
+just a snippet
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.add_unwrap"><code class="name flex">
+<span>def <span class="ident">add_unwrap</span></span>(<span>metadata, thresh, clip=0, unit='')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_unwrap(metadata, thresh, clip=0, unit=&#39;&#39;):
+    &#34;&#34;&#34;Add unwrap infos to metadata.
+
+    If `audiotools.unwrap()` was applied to the data, then this
+    function adds relevant infos to the metadata. If there is an INFO
+    section in the metadata, the unwrap infos are added to this
+    section, otherwise they are added to the top level of the metadata
+    hierarchy.
+
+    The threshold `thresh` used for unwrapping is saved under the key
+    &#39;UnwrapThreshold&#39; as a string. If `clip` is larger than zero, then
+    the clip level is saved under the key &#39;UnwrapClippedAmplitude&#39; as
+    a string.
+
+    Parameters
+    ----------
+    md: nested dict
+        Metadata to be updated.
+    thresh: float
+        Threshold used for unwrapping.
+    clip: float
+        Level at which unwrapped data have been clipped.
+    unit: str
+        Unit of `thresh` and `clip`.
+
+    Examples
+    --------
+
+    ```
+    &gt;&gt;&gt; from audioio import print_metadata, add_unwrap
+    &gt;&gt;&gt; md = dict(INFO=dict(Time=&#39;early&#39;))
+    &gt;&gt;&gt; add_unwrap(md, 0.6, 1.0)
+    &gt;&gt;&gt; print_metadata(md)
+    INFO:
+        Time                  : early
+        UnwrapThreshold       : 0.60
+        UnwrapClippedAmplitude: 1.00
+    ```
+
+    &#34;&#34;&#34;
+    if metadata is None:
+        return
+    md = metadata
+    for k in metadata:
+        if k.strip().upper() == &#39;INFO&#39;:
+            md = metadata[&#39;INFO&#39;]
+            break
+    md[&#39;UnwrapThreshold&#39;] = f&#39;{thresh:.2f}{unit}&#39;
+    if clip &gt; 0:
+        md[&#39;UnwrapClippedAmplitude&#39;] = f&#39;{clip:.2f}{unit}&#39;</code></pre>
+</details>
+<div class="desc"><p>Add unwrap infos to metadata.</p>
+<p>If <code>audiotools.unwrap()</code> was applied to the data, then this
+function adds relevant infos to the metadata. If there is an INFO
+section in the metadata, the unwrap infos are added to this
+section, otherwise they are added to the top level of the metadata
+hierarchy.</p>
+<p>The threshold <code>thresh</code> used for unwrapping is saved under the key
+'UnwrapThreshold' as a string. If <code>clip</code> is larger than zero, then
+the clip level is saved under the key 'UnwrapClippedAmplitude' as
+a string.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>md</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata to be updated.</dd>
+<dt><strong><code>thresh</code></strong> :&ensp;<code>float</code></dt>
+<dd>Threshold used for unwrapping.</dd>
+<dt><strong><code>clip</code></strong> :&ensp;<code>float</code></dt>
+<dd>Level at which unwrapped data have been clipped.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of <code>thresh</code> and <code>clip</code>.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; from audioio import print_metadata, add_unwrap
+&gt;&gt;&gt; md = dict(INFO=dict(Time='early'))
+&gt;&gt;&gt; add_unwrap(md, 0.6, 1.0)
+&gt;&gt;&gt; print_metadata(md)
+INFO:
+    Time                  : early
+    UnwrapThreshold       : 0.60
+    UnwrapClippedAmplitude: 1.00
+</code></pre></div>
+</dd>
+<dt id="audioio.audiometadata.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>file_pathes, list_format, list_metadata, list_cues, list_chunks)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo(file_pathes, list_format, list_metadata, list_cues, list_chunks):
+    &#34;&#34;&#34;Print metadata and markers of audio files.
+
+    Parameters
+    ----------
+    file_pathes: list of str
+        Pathes of audio files.
+    list_format: bool
+        If True, list file format only.
+    list_metadata: bool
+        If True, list metadata only.
+    list_cues: bool
+        If True, list markers/cues only.
+    list_chunks: bool
+        If True, list all chunks contained in a riff/wave file.
+    &#34;&#34;&#34;
+    from .audioloader import AudioLoader
+    from .audiomarkers import print_markers
+    from .riffmetadata import read_chunk_tags
+    for filepath in file_pathes:
+        if len(file_pathes) &gt; 1 and (list_cues or list_metadata or
+                                     list_format or list_chunks):
+            print(filepath)
+        if list_chunks:
+            chunks = read_chunk_tags(filepath)
+            print(f&#39;  {&#34;chunk tag&#34;:10s} {&#34;position&#34;:10s}  {&#34;size&#34;:10s}&#39;)
+            for tag in chunks:
+                pos = chunks[tag][0] - 8
+                size = chunks[tag][1] + 8
+                print(f&#39;  {tag:9s} {pos:10d} {size:10d}&#39;)
+            if len(file_pathes) &gt; 1:
+                print()
+            continue
+        with AudioLoader(filepath, 1, 0, verbose=0) as sf:
+            fmt_md = sf.format_dict()
+            meta_data = sf.metadata()
+            locs, labels = sf.markers()
+            if list_cues:
+                if len(locs) &gt; 0:
+                    print_markers(locs, labels)
+            elif list_metadata:
+                print_metadata(meta_data, replace=&#39;.&#39;)
+            elif list_format:
+                print_metadata(fmt_md)
+            else:
+                print(&#39;file:&#39;)
+                print_metadata(fmt_md, &#39;  &#39;)
+                if len(meta_data) &gt; 0:
+                    print()
+                    print(&#39;metadata:&#39;)
+                    print_metadata(meta_data, &#39;  &#39;, replace=&#39;.&#39;)
+                if len(locs) &gt; 0:
+                    print()
+                    print(&#39;markers:&#39;)
+                    print_markers(locs, labels)
+                if len(file_pathes) &gt; 1:
+                    print()
+        if len(file_pathes) &gt; 1:
+            print()</code></pre>
+</details>
+<div class="desc"><p>Print metadata and markers of audio files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>file_pathes</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Pathes of audio files.</dd>
+<dt><strong><code>list_format</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, list file format only.</dd>
+<dt><strong><code>list_metadata</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, list metadata only.</dd>
+<dt><strong><code>list_cues</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, list markers/cues only.</dd>
+<dt><strong><code>list_chunks</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, list all chunks contained in a riff/wave file.</dd>
+</dl></div>
+</dd>
+<dt id="audioio.audiometadata.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*cargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*cargs):
+    &#34;&#34;&#34;Call demo with command line arguments.
+
+    Parameters
+    ----------
+    cargs: list of strings
+        Command line arguments as provided by sys.argv[1:]
+    &#34;&#34;&#34;
+    # command line arguments:
+    parser = argparse.ArgumentParser(add_help=True,
+        description=&#39;Convert audio file formats.&#39;,
+        epilog=f&#39;version {__version__} by Benda-Lab (2020-{__year__})&#39;)
+    parser.add_argument(&#39;--version&#39;, action=&#39;version&#39;, version=__version__)
+    parser.add_argument(&#39;-f&#39;, dest=&#39;dataformat&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list file format only&#39;)
+    parser.add_argument(&#39;-m&#39;, dest=&#39;metadata&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list metadata only&#39;)
+    parser.add_argument(&#39;-c&#39;, dest=&#39;cues&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list cues/markers only&#39;)
+    parser.add_argument(&#39;-t&#39;, dest=&#39;chunks&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list tags of all riff/wave chunks contained in the file&#39;)
+    parser.add_argument(&#39;files&#39;, type=str, nargs=&#39;+&#39;,
+                        help=&#39;audio file&#39;)
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
+    
+    # expand wildcard patterns:
+    files = []
+    if os.name == &#39;nt&#39;:
+        for fn in args.files:
+            files.extend(glob.glob(fn))
+    else:
+        files = args.files
+
+    demo(files, args.dataformat, args.metadata, args.cues, args.chunks)</code></pre>
+</details>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cargs</code></strong> :&ensp;<code>list</code> of <code>strings</code></dt>
+<dd>Command line arguments as provided by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#functions">Functions</a><ul>
+<li><a href="#output">Output</a></li>
+<li><a href="#flatten">Flatten</a></li>
+<li><a href="#parse-numbers-with-units">Parse numbers with units</a></li>
+<li><a href="#find-and-get-values">Find and get values</a></li>
+<li><a href="#organize-metadata">Organize metadata</a></li>
+<li><a href="#special-metadata-fields">Special metadata fields</a></li>
+</ul>
+</li>
+<li><a href="#command-line-script">Command line script</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="audioio" href="index.html">audioio</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="audioio.audiometadata.unit_prefixes" href="#audioio.audiometadata.unit_prefixes">unit_prefixes</a></code></li>
+<li><code><a title="audioio.audiometadata.default_starttime_keys" href="#audioio.audiometadata.default_starttime_keys">default_starttime_keys</a></code></li>
+<li><code><a title="audioio.audiometadata.default_gain_keys" href="#audioio.audiometadata.default_gain_keys">default_gain_keys</a></code></li>
+<li><code><a title="audioio.audiometadata.default_timeref_keys" href="#audioio.audiometadata.default_timeref_keys">default_timeref_keys</a></code></li>
+<li><code><a title="audioio.audiometadata.default_history_keys" href="#audioio.audiometadata.default_history_keys">default_history_keys</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="audioio.audiometadata.write_metadata_text" href="#audioio.audiometadata.write_metadata_text">write_metadata_text</a></code></li>
+<li><code><a title="audioio.audiometadata.print_metadata" href="#audioio.audiometadata.print_metadata">print_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.flatten_metadata" href="#audioio.audiometadata.flatten_metadata">flatten_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.unflatten_metadata" href="#audioio.audiometadata.unflatten_metadata">unflatten_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.parse_number" href="#audioio.audiometadata.parse_number">parse_number</a></code></li>
+<li><code><a title="audioio.audiometadata.change_unit" href="#audioio.audiometadata.change_unit">change_unit</a></code></li>
+<li><code><a title="audioio.audiometadata.find_key" href="#audioio.audiometadata.find_key">find_key</a></code></li>
+<li><code><a title="audioio.audiometadata.get_number_unit" href="#audioio.audiometadata.get_number_unit">get_number_unit</a></code></li>
+<li><code><a title="audioio.audiometadata.get_number" href="#audioio.audiometadata.get_number">get_number</a></code></li>
+<li><code><a title="audioio.audiometadata.get_int" href="#audioio.audiometadata.get_int">get_int</a></code></li>
+<li><code><a title="audioio.audiometadata.get_bool" href="#audioio.audiometadata.get_bool">get_bool</a></code></li>
+<li><code><a title="audioio.audiometadata.get_datetime" href="#audioio.audiometadata.get_datetime">get_datetime</a></code></li>
+<li><code><a title="audioio.audiometadata.get_str" href="#audioio.audiometadata.get_str">get_str</a></code></li>
+<li><code><a title="audioio.audiometadata.add_sections" href="#audioio.audiometadata.add_sections">add_sections</a></code></li>
+<li><code><a title="audioio.audiometadata.strlist_to_dict" href="#audioio.audiometadata.strlist_to_dict">strlist_to_dict</a></code></li>
+<li><code><a title="audioio.audiometadata.set_metadata" href="#audioio.audiometadata.set_metadata">set_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.add_metadata" href="#audioio.audiometadata.add_metadata">add_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.move_metadata" href="#audioio.audiometadata.move_metadata">move_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.remove_metadata" href="#audioio.audiometadata.remove_metadata">remove_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.cleanup_metadata" href="#audioio.audiometadata.cleanup_metadata">cleanup_metadata</a></code></li>
+<li><code><a title="audioio.audiometadata.get_gain" href="#audioio.audiometadata.get_gain">get_gain</a></code></li>
+<li><code><a title="audioio.audiometadata.update_gain" href="#audioio.audiometadata.update_gain">update_gain</a></code></li>
+<li><code><a title="audioio.audiometadata.set_starttime" href="#audioio.audiometadata.set_starttime">set_starttime</a></code></li>
+<li><code><a title="audioio.audiometadata.update_starttime" href="#audioio.audiometadata.update_starttime">update_starttime</a></code></li>
+<li><code><a title="audioio.audiometadata.bext_history_str" href="#audioio.audiometadata.bext_history_str">bext_history_str</a></code></li>
+<li><code><a title="audioio.audiometadata.add_history" href="#audioio.audiometadata.add_history">add_history</a></code></li>
+<li><code><a title="audioio.audiometadata.add_unwrap" href="#audioio.audiometadata.add_unwrap">add_unwrap</a></code></li>
+<li><code><a title="audioio.audiometadata.demo" href="#audioio.audiometadata.demo">demo</a></code></li>
+<li><code><a title="audioio.audiometadata.main" href="#audioio.audiometadata.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
