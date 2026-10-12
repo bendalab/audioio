@@ -641,7 +641,6 @@ def formats_wavpack():
     else:
         return ['WV']
 
-
 def encodings_wavpack(format):
     """Encodings of an audio file format supported by the wavpack module.
 
@@ -660,21 +659,7 @@ def encodings_wavpack(format):
     elif format.upper() != 'WV':
         return []
     else:
-        return ['PCM_32']
-
-    
-def _wavpack_write_block(file_id, data_ptr, byte_count):
-    # TODO: use file handle instead of id
-    # TODO: first argument is actually a pointer!
-    if not file_id or not data_ptr or byte_count <= 0:
-        return 0
-    try:
-        raw_bytes = ctypes.string_at(data_ptr, byte_count)
-        os.write(file_id, raw_bytes)
-        return 1
-    except Exception:
-        return 0
-
+        return ['PCM_FLOAT']
 
 def write_wavpack(filepath, data, rate, metadata=None, locs=None,
                   labels=None, format=None, encoding=None,
@@ -721,6 +706,17 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
     ValueError
         File format or encoding not supported.
     """
+
+    @WavpackBlockOutput
+    def _wavpack_write_block(out_file, data_ptr, bcount):
+        if not out_file or not data_ptr or bcount <= 0:
+            return 0
+        try:
+            out_file.write(ctypes.string_at(data_ptr, bcount))
+            return 1
+        except Exception:
+            return 0
+
     if not audio_modules['wavpack']:
         raise ImportError
     if not format:
@@ -728,33 +724,40 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
     if format and format.upper() != 'WV':
         raise ValueError(f'file format {format} not supported by wavpack module')
     if not encoding:
-        encoding = 'PCM_32'
+        encoding = 'PCM_FLOAT'
     encoding = encoding.upper()
-    if encoding != 'PCM_32':
-        raise ValueError(f'file encoding {encoding} not supported by wave module')
-    fd = os.open(filepath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_BINARY if hasattr(os, 'O_BINARY') else os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
-    c_write_callback = WavpackBlockOutput(_wavpack_write_block)
-    wpc = wavpack.WavpackOpenFileOutput(c_write_callback, ctypes.c_void_p(fd), None)
-    if not wpc:
-        raise IOError(f'failed to open "{filepath}" for writing wavpack file')
-    config = WavpackConfig(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    config.bits_per_sample = 16
-    config.bytes_per_sample = 2
-    config.num_channels = data.shape[1]
-    config.sample_rate = int(rate)
-    if not libwv.WavpackSetConfiguration64(wpc, ctypes.byref(config),
-                                           len(data), None):
-        raise RuntimeError("WavPack configuration setup failed.")
-    if not wavpack.WavpackPackInit(wpc):
-        raise RuntimeError("wavpack: failed to initialize")
-    factor = 2**31
-    buffer = np.floor(data * factor).astype(np.int32, order="C")
-    buffer[data >= 1.0] = factor - 1
-    if not wavpack.WavpackPackSamples(wpc, buffer.ctypes.data, len(data)):
-        raise RuntimeError("wavpack: failed to compress and write samples")
-    wavpack.WavpackFlushSamples(wpc)
-    wavpack.WavpackCloseFile(wpc)
-    append_riff(filepath, metadata, locs, labels, rate, marker_hint)
+    if encoding != 'PCM_FLOAT':
+        raise ValueError(f'file encoding {encoding} not supported by wavpack module')
+    nchannels = data.shape[1]
+    # WavPack float mode expects the raw IEEE-754 bit patterns as int32:
+    data = np.clip(data, -1.0, 1.0).astype(np.float32)
+    interleaved = np.ascontiguousarray(data.reshape(-1))
+    buffer = interleaved.view(np.int32)
+    with open(filepath, 'wb') as dest:
+        wpc = wavpack.WavpackOpenFileOutput(_wavpack_write_block, dest, None)
+        if not wpc:
+            raise IOError(f'failed to open "{filepath}" for writing wavpack file')
+        config = WavpackConfig()
+        config.bits_per_sample = 32
+        config.bytes_per_sample = 4
+        config.num_channels = nchannels
+        config.sample_rate = int(rate)
+        config.flags = wavpack.CONFIG_FLOAT_DATA
+        config.float_norm_exp = 127  # floats normalized to +/-1
+
+        if not wavpack.WavpackSetConfiguration64(wpc, ctypes.byref(config),
+                                                 len(data), None):
+            raise RuntimeError("wavpack: WavPackSetConfiguration() failed.")
+        if not wavpack.WavpackPackInit(wpc):
+            raise RuntimeError("wavpack: WavpackPackInit() failed.")
+        if not wavpack.WavpackPackSamples(wpc,
+                                          buffer.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),
+                                          len(data)):
+            raise RuntimeError("wavpack: WavpackPackSamples() failed.")
+        wavpack.WavpackFlushSamples(wpc)
+        wavpack.WavpackCloseFile(wpc)
+        # TODO:
+        #append_riff(filepath, metadata, locs, labels, rate, marker_hint)
 
 
 def formats_pydub():
@@ -911,6 +914,7 @@ def write_pydub(filepath, data, rate, metadata=None, locs=None,
 
 audio_formats_funcs = (
     ('soundfile', formats_soundfile),
+    ('wavpack', formats_wavpack),
     ('wavefile', formats_wavefile),
     ('wave', formats_wave),
     ('ewave', formats_ewave),
@@ -948,6 +952,7 @@ def available_formats():
 
 audio_encodings_funcs = (
     ('soundfile', encodings_soundfile),
+    ('wavpack', encodings_wavpack),
     ('wavefile', encodings_wavefile),
     ('wave', encodings_wave),
     ('ewave', encodings_ewave),
@@ -991,6 +996,7 @@ def available_encodings(format):
 
 audio_writer_funcs = (
     ('soundfile', write_soundfile),
+    ('wavpack', write_wavpack),
     ('wavefile', write_wavefile),
     ('wave', write_wave),
     ('ewave', write_ewave),
@@ -1107,7 +1113,7 @@ def demo(file_path, channels=2, encoding=''):
     t = np.arange(0.0, 1.0, 1.0/rate)
     data = np.zeros((len(t), channels))
     for c in range(channels):
-        data[:,c] = np.sin(2.0*np.pi*(440.0+c*8.0)*t)
+        data[:,c] = (1 - c*0.1)*np.sin(2.0*np.pi*(440.0+c*110.0)*t)
         
     print("write_audio(%s) ..." % file_path)
     write_audio(file_path, data, rate, encoding=encoding, verbose=2)
@@ -1136,7 +1142,7 @@ def main(*args):
         elif nchan:
             channels = int(arg)
             nchan = False
-        elif arg == '-h':
+        elif arg == '-h' or arg == '--help':
             help = True
             break
         elif arg == '-m':

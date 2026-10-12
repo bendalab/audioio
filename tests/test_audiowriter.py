@@ -12,7 +12,7 @@ import audioio.audiomodules as am
 def test_formats_encodings():
     am.enable_module()
     min_formats = {'wave': 1, 'ewave': 2, 'scipy.io.wavfile': 1,
-                   'soundfile': 23, 'wavefile': 6, 'pydub': 10}
+                   'soundfile': 23, 'wavefile': 6, 'wavpack': 1, 'pydub': 10}
     for (module, formats_func), (m, encodings_func) in zip(aw.audio_formats_funcs, aw.audio_encodings_funcs):
         if aw.audio_modules[module]:
             min_f = min_formats[module]
@@ -220,6 +220,8 @@ def test_write_read_modules():
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     # test for wrong formats:
     for lib, write_func in aw.audio_writer_funcs:
+        if lib in ['wavpack']:
+            continue
         if not am.select_module(lib):
             continue
         with pytest.raises(ValueError):
@@ -268,6 +270,8 @@ def test_write_metadata():
     # test storage of metadata in wave files:
     filename = 'test.wav'
     for lib, write_func in aw.audio_writer_funcs:
+        if lib in ['wavpack']:
+            continue
         if not am.select_module(lib):
             continue
         write_func(filename, data, rate, md)

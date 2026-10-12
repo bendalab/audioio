@@ -285,10 +285,10 @@ try:
                                              ctypes.POINTER(ctypes.c_int32),
                                              ctypes.c_uint32]
     WavpackBlockOutput = ctypes.CFUNCTYPE(
-        ctypes.c_int,       # return type
-        ctypes.c_void_p,    # void *id (holds file descriptor/object reference)
-        ctypes.c_void_p,    # void *data (pointer to the block buffer)
-        ctypes.c_int32      # int32_t bcount (number of bytes to write)
+        ctypes.c_int,                    # return type
+        ctypes.py_object,                # id (holds file descriptor reference)
+        ctypes.POINTER(ctypes.c_ubyte),  # data (pointer to the block buffer)
+        ctypes.c_int32                   # bcount (number of bytes to write)
     )
     class WavpackConfig(ctypes.Structure):
         _fields_ = [('bitrate', ctypes.c_float),
@@ -304,14 +304,15 @@ try:
                     ('worker_threads', ctypes.c_int32),
                     ('sample_rate', ctypes.c_int32),
                     ('channel_mask', ctypes.c_int32),
-                    ('md5_checksum', ctypes.c_char*16),
-                    ('md5_read', ctypes.c_char),
+                    ('md5_checksum', ctypes.c_ubyte*16),
+                    ('md5_read', ctypes.c_ubyte),
                     ('num_tag_strings', ctypes.c_int),
-                    ('tag_strings', ctypes.c_char_p)]
+                    ('tag_strings', ctypes.POINTER(ctypes.c_char_p))]
+    wavpack.CONFIG_FLOAT_DATA = 0x80 # internal flag from wavpack_local.h: IEEE 32-bit float data
     wavpack.WavpackOpenFileOutput.restype = ctypes.c_void_p
     wavpack.WavpackOpenFileOutput.argtypes = [WavpackBlockOutput,
-                                              ctypes.c_void_p,
-                                              ctypes.c_void_p]
+                                              ctypes.py_object,
+                                              ctypes.py_object]
     wavpack.WavpackSetConfiguration64.restype = ctypes.c_int
     wavpack.WavpackSetConfiguration64.argtypes = [ctypes.c_void_p,
                                                   ctypes.POINTER(WavpackConfig),
@@ -321,7 +322,7 @@ try:
     wavpack.WavpackPackInit.argtypes = [ctypes.c_void_p]
     wavpack.WavpackPackSamples.restype = ctypes.c_int
     wavpack.WavpackPackSamples.argtypes = [ctypes.c_void_p,
-                                           ctypes.c_void_p,
+                                           ctypes.POINTER(ctypes.c_int32),
                                            ctypes.c_uint32]
     wavpack.WavpackFlushSamples.restype = ctypes.c_int
     wavpack.WavpackFlushSamples.argtypes = [ctypes.c_void_p]
@@ -334,7 +335,7 @@ except (OSError, AttributeError):   # no library or too old
 audio_deb_packages['wavpack'] = 'libwavpack1'
 audio_rpm_packages['wavpack'] = 'wavpack-libs'
 audio_brew_packages['wavpack'] = 'wavpack'
-audio_infos['wavpack'] = """The wavpack library reads WavPack files, a lossless compression of audio data.
+audio_infos['wavpack'] = """The wavpack library reads and writes WavPack files, a lossless compression of audio data.
 It is called via ctypes, no python package is needed.
 For documentation see https://www.wavpack.com"""
         
