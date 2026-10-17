@@ -706,8 +706,10 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
     ValueError
         File format or encoding not supported.
     """
+    if not audio_modules['wavpack']:
+        raise ImportError
 
-    @WavpackBlockOutput
+    @wavpack.WavpackBlockOutput
     def _wavpack_write_block(out_file, data_ptr, bcount):
         if not out_file or not data_ptr or bcount <= 0:
             return 0
@@ -717,8 +719,6 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
         except Exception:
             return 0
 
-    if not audio_modules['wavpack']:
-        raise ImportError
     if not format:
         format = format_from_extension(filepath)
     if format and format.upper() != 'WV':

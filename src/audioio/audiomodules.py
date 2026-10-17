@@ -284,7 +284,7 @@ try:
     wavpack.WavpackUnpackSamples.argtypes = [ctypes.c_void_p,
                                              ctypes.POINTER(ctypes.c_int32),
                                              ctypes.c_uint32]
-    WavpackBlockOutput = ctypes.CFUNCTYPE(
+    wavpack.WavpackBlockOutput = ctypes.CFUNCTYPE(
         ctypes.c_int,                    # return type
         ctypes.py_object,                # id (holds file descriptor reference)
         ctypes.POINTER(ctypes.c_ubyte),  # data (pointer to the block buffer)
@@ -310,7 +310,7 @@ try:
                     ('tag_strings', ctypes.POINTER(ctypes.c_char_p))]
     wavpack.CONFIG_FLOAT_DATA = 0x80 # internal flag from wavpack_local.h: IEEE 32-bit float data
     wavpack.WavpackOpenFileOutput.restype = ctypes.c_void_p
-    wavpack.WavpackOpenFileOutput.argtypes = [WavpackBlockOutput,
+    wavpack.WavpackOpenFileOutput.argtypes = [wavpack.WavpackBlockOutput,
                                               ctypes.py_object,
                                               ctypes.py_object]
     wavpack.WavpackSetConfiguration64.restype = ctypes.c_int
