@@ -760,6 +760,8 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
         #append_riff(filepath, metadata, locs, labels, rate, marker_hint)
 
 
+pydub_formats = None
+
 def formats_pydub():
     """Audio file formats supported by the Pydub module.
 
@@ -770,6 +772,9 @@ def formats_pydub():
     """
     if not audio_modules['pydub']:
         return []
+    global pydub_formats
+    if pydub_formats is not None:
+        return pydub_formats
     formats = []
     command = [pydub.AudioSegment.converter, '-formats']
     with open(os.devnull, 'rb') as devnull:
@@ -785,7 +790,10 @@ def formats_pydub():
             cols = line.split()
             if len(cols) > 2 and 'E' in cols[0]:
                 formats.append(cols[1].upper())
+    pydub_formats = formats
     return formats
+
+pydub_encodings = None
 
 def encodings_pydub(format):
     """Encodings of an audio file format supported by the Pydub module.
@@ -810,6 +818,9 @@ def encodings_pydub(format):
         return []
     if format.upper() not in formats_pydub():
         return []
+    global pydup_encodings
+    if pydub_encodings is not None:
+        return pydub_encodings
     encodings = []
     command = [pydub.AudioSegment.converter, '-encoders']
     with open(os.devnull, 'rb') as devnull:
@@ -828,6 +839,7 @@ def encodings_pydub(format):
                 if encoding in pydub_encodings:
                     encoding = pydub_encodings[encoding]
                 encodings.append(encoding.upper())
+    pydup_encodings = encodings
     return encodings
 
 def write_pydub(filepath, data, rate, metadata=None, locs=None,

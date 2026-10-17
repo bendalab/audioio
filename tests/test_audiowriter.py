@@ -31,8 +31,8 @@ def test_formats_encodings():
     for f in formats:
         encodings = aw.available_encodings(f)
         assert len(encodings) >= 1, 'available_encodings() did not return enough encodings for format %s' % f
-                
 
+        
 def test_write_read():
 
     def check(rate_write, data_write, rate_read, data_read, lib, encoding):
