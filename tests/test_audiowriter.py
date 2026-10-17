@@ -1,4 +1,5 @@
 import pytest
+import os
 import numpy as np
 
 from pathlib import Path
@@ -38,11 +39,14 @@ def test_write_read():
     def check(rate_write, data_write, rate_read, data_read, lib, encoding):
         assert rate_write == pytest.approx(rate_read), 'rates differ for module %s with encoding %s' % (lib, encoding)
         assert len(data_write) == len(data_read), 'frames %d %d differ for module %s with encoding %s' % (len(data_write), len(data_read), lib, encoding)
-        assert len(data_write.shape) == len(data_read.shape), 'shape len differs for module %s with encoding %s' % (lib, encoding)
         assert len(data_read.shape) == 2, 'shape differs from 2 for module %s with encoding %s' % (lib, encoding)
+        chs = data_write.shape[1] if len(data_write.shape) > 1 else 1
+        assert data_read.shape[1] == chs, f'read in data must be a 2-D array with {chs} columns'
         assert data_write.shape[0] == data_read.shape[0], 'shape[0] differs for module %s with encoding %s' % (lib, encoding)
-        assert data_write.shape[1] == data_read.shape[1], 'shape[1] differs for module %s with encoding %s' % (lib, encoding)
         assert data_read.dtype == np.float64, 'read in data are not doubles for module %s with encoding %s' % (lib, encoding)
+        if data_write.ndim == 1:
+            data_write = data_write.reshape((-1, 1))
+        print(data_write.shape, data_read.shape)
         n = min([len(data_write), len(data_read)])
         max_error = np.max(np.abs(data_write[:n] - data_read[:n]))
         print('maximum error = %g' % max_error)
@@ -54,195 +58,121 @@ def test_write_read():
     duration = 10.0
     t = np.arange(0.0, duration, 1.0/rate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    data = data.reshape((-1, 1))
 
-    # parameter for wav file:
-    filename = 'test.wav'
-    format = 'wav'
-    encodings = ['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'PCM_U8', 'ALAW', 'ULAW', '']
-    encodings_with_read_error = ['G721_32', 'GSM610', ''] # soundfile: raise ValueError("frames must be specified for non-seekable files") in sf.read()
-    encodings_with_seek_error = ['IMA_ADPCM', 'MS_ADPCM', ''] # soundfile: RuntimeError: Internal psf_fseek() failed.
+    # modules, formats, and encodings:
+    write_modules = am.installed_modules('fileio') + ['audioio']
+    write_modules.remove('audioread')
+    read_modules = list(write_modules)
+    formats = [['WAV'] for _ in range(len(write_modules))]
+    encodings = [['PCM_16', 'PCM_24', 'PCM_32', 'PCM_64', 'FLOAT', 'DOUBLE', 'PCM_U8'] for _ in range(len(write_modules))]
+    if 'pydub' in write_modules:
+        i = write_modules.index('pydub')
+        read_modules[i] = 'audioread'
+        #formats[i] = ['MP3']
+        #encodings[i] = ['']
+    if 'wavpack' in write_modules:
+        i = write_modules.index('wavpack')
+        formats[i] = ['WV']
+        encodings[i] = ['']
+    if 'soundfile' in write_modules:
+        i = write_modules.index('soundfile')
+        formats[i].append('OGG')
+        encodings[i].append('VORBIS')
+    formats[-1].append('OGG')
+    encodings[-1].append('VORBIS')
+    
+    # encodings_with_read_error = ['G721_32', 'GSM610', ''] # soundfile: raise ValueError("frames must be specified for non-seekable files") in sf.read()
+    # encodings_with_seek_error = ['IMA_ADPCM', 'MS_ADPCM', ''] # soundfile: RuntimeError: Internal psf_fseek() failed.
 
-    # parameter for ogg file:
-    ## filename = 'test.ogg'
-    ## format = 'OGG'
-    ## encodings = ['VORBIS']
-
-    mpeg_filename = 'test.mp3'
-
-    # fix parameter:
-    format = format.upper()
-
-    for channels in [1, 2, 4, 8, 16]:
+    for channels in [0, 1, 2, 4, 8, 16]:
 
         # generate data:
-        if channels > 1:
+        if channels == 0:
+            channels = 1
+        elif channels == 1:
+            data = data.reshape((-1, 1))
+        else:
             for k in range(data.shape[1], channels):
                 data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
-        print('channels = %d' % channels)
+        print(f'channels = {channels}')
 
         # write, read, and check:
-        for lib in am.installed_modules('fileio'):
-            if lib in ['audioread', 'pydub', 'wavpack']:
-                continue
+        for wlib, rlib, fmts, encs in zip(write_modules, read_modules, formats, encodings):
             print()
-            print('%s module:' % lib)
-            am.select_module(lib)
-            for encoding in encodings:
-                encoding = encoding.upper()
-                if encoding == '' or encoding in aw.available_encodings(format):
+            print(f'{wlib} module:')
+            for format in fmts:
+                if wlib == 'audioio':
+                    am.enable_module()
+                else:
+                    am.select_module(wlib)
+                if not format in aw.available_formats():
+                    continue
+                filename = Path('test.' + format.lower())
+                for encoding in encs:
+                    if encoding != '' and not encoding in aw.available_encodings(format):
+                        continue
                     print(encoding)
-                    aw.write_audio(filename, data, rate, format=format, encoding=encoding, verbose=2)
-                    data_read, rate_read = al.load_audio(filename, verbose=2)
-                    check(rate, data, rate_read, data_read, lib, encoding)
-
-        """
-        if 'audioread' in am.installed_modules('fileio') and 'pydub' in am.installed_modules('fileio'):
-            am.select_module('pydub')
-            aw.write_audio(mpeg_filename, data, rate)
-            am.select_module('audioread')
-            data_read, rate_read = al.load_audio(mpeg_filename, verbose=2)
-            check(rate, data, rate_read, data_read, 'pydub', '')
-        """ 
-
-        am.enable_module()
-        print()
-        print('audioio')
-        for encoding in encodings:
-            encoding = encoding.upper()
-            if encoding == '' or encoding in aw.available_encodings(format):
-                print(encoding)
-                aw.write_audio(filename, data, rate, format=format, encoding=encoding)
-                data_read, rate_read = al.load_audio(filename, verbose=0)
-                check(rate, data, rate_read, data_read, 'audioio', encoding)
-    Path(filename).unlink(True)
-    Path(mpeg_filename).unlink(True)
-
-    
-def test_dimensions():
-    am.enable_module()
-    print('1-D data')
-    filename = 'test.wav'
-    rate = 44100.0
-    duration = 10.0
-    t = np.arange(0.0, duration, 1.0/rate)
-    data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
-                                  'audioread' not in am.installed_modules('fileio')):
-            continue
-        print('%s module...' % lib)
-        am.select_module(lib)
-        aw.write_audio(filename, data, rate)
-        if lib == 'pydub':
-            am.select_module('audioread')
-        data_read, rate_read = al.load_audio(filename)
-        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
-        assert data_read.shape[1] == 1, 'read in data must be a 2-D array with one column'
-
-    print('2-D data one channel')
-    filename = 'test.wav'
-    rate = 44100.0
-    duration = 10.0
-    t = np.arange(0.0, duration, 1.0/rate)
-    data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    data = data.reshape((-1, 1))
-    for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
-                                  'audioread' not in am.installed_modules('fileio')):
-            continue
-        print('%s module...' % lib)
-        am.select_module(lib)
-        aw.write_audio(filename, data, rate)
-        if lib == 'pydub':
-            am.select_module('audioread')
-        data_read, rate_read = al.load_audio(filename)
-        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
-        assert data_read.shape[1] == 1, 'read in data must be a 2-D array with one column'
-        assert data_read.shape == data.shape, 'input and output data must have same shape'
-
-    print('2-D data two channel')
-    filename = 'test.wav'
-    rate = 44100.0
-    duration = 10.0
-    t = np.arange(0.0, duration, 1.0/rate)
-    data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    data = data.reshape((-1, 2))
-    for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
-                                  'audioread' not in am.installed_modules('fileio')):
-            continue
-        print('%s module...' % lib)
-        am.select_module(lib)
-        aw.write_audio(filename, data, rate)
-        if lib == 'pydub':
-            am.select_module('audioread')
-        data_read, rate_read = al.load_audio(filename)
-        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
-        assert data_read.shape[1] == 2, 'read in data must be a 2-D array with two columns'
-        assert data_read.shape == data.shape, 'input and output data must have same shape'
-    am.enable_module()
-
-    
-def test_dimensions_pathlib():
-    am.enable_module()
-    print('2-D data two channel')
-    filename = Path('test.wav')
-    rate = 44100.0
-    duration = 10.0
-    t = np.arange(0.0, duration, 1.0/rate)
-    data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    data = data.reshape((-1, 2))
-    for lib in am.installed_modules('fileio'):
-        if lib in ['audioread', 'wavpack'] or (lib == 'pydub' and
-                                  'audioread' not in am.installed_modules('fileio')):
-            continue
-        print('%s module...' % lib)
-        am.select_module(lib)
-        aw.write_audio(filename, data, rate)
-        if lib == 'pydub':
-            am.select_module('audioread')
-        data_read, rate_read = al.load_audio(filename)
-        assert len(data_read.shape) == 2, 'read in data must be a 2-D array'
-        assert data_read.shape[1] == 2, 'read in data must be a 2-D array with two columns'
-        assert data_read.shape == data.shape, 'input and output data must have same shape'
-    am.enable_module()
+                    # pathlib:
+                    if wlib != 'audioio':
+                        am.select_module(wlib)
+                    aw.write_audio(filename, data, rate, format=format, encoding=encoding)
+                    if wlib != 'audioio':
+                        am.select_module(rlib)
+                    data_read, rate_read = al.load_audio(filename)
+                    check(rate, data, rate_read, data_read, wlib, encoding)
+                    # str filename:
+                    if wlib != 'audioio':
+                        am.select_module(wlib)
+                    aw.write_audio(os.fspath(filename), data, rate, format=format, encoding=encoding)
+                    if wlib != 'audioio':
+                        am.select_module(rlib)
+                    data_read, rate_read = al.load_audio(os.fspath(filename))
+                filename.unlink(True)
+                am.enable_module()
 
 
-def test_write_read_modules():
+def test_write_modules():
     am.enable_module()
     # generate data:
-    filename = 'test.wav'
-    format = 'wav'
     rate = 44100.0
     duration = 10.0
     t = np.arange(int(duration*rate))/rate
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     # test for wrong formats:
     for lib, write_func in aw.audio_writer_funcs:
+        filename = Path('test.wav')
+        format = 'wav'
         if lib in ['wavpack']:
-            continue
+            filename = Path('test.wv')
+            format = 'wv'
         if not am.select_module(lib):
             continue
         with pytest.raises(ValueError):
             write_func(filename, data, rate, format='xxx')
         write_func(filename, data, rate, format='')
-        Path(filename).unlink(True)
+        filename.unlink(True)
         with pytest.raises(ValueError):
             write_func(filename, data, rate, encoding='xxx')
         write_func(filename, data, rate, encoding='')
-        Path(filename).unlink(True)
+        filename.unlink(True)
         am.enable_module()
+    filename = Path('test.wav')
+    format = 'wav'
     with pytest.raises(IOError):
         aw.write_audio(filename, data, rate, format='xxx')
     aw.write_audio(filename, data, rate, format='')
-    Path(filename).unlink(True)
+    filename.unlink(True)
     with pytest.raises(IOError):
         aw.write_audio(filename, data, rate, encoding='xxx')
     aw.write_audio(filename, data, rate, encoding='')
-    Path(filename).unlink(True)
+    filename.unlink(True)
     # test for not available modules:
     for lib, write_func in aw.audio_writer_funcs:
+        filename = Path('test.wav')
+        format = 'wav'
+        if lib in ['wavpack']:
+            filename = Path('test.wv')
+            format = 'wv'
         am.disable_module(lib)
         with pytest.raises(ImportError):
             write_func(filename, data, rate)

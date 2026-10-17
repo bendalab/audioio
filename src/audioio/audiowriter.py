@@ -728,7 +728,11 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
     encoding = encoding.upper()
     if encoding != 'PCM_FLOAT':
         raise ValueError(f'file encoding {encoding} not supported by wavpack module')
-    nchannels = data.shape[1]
+    nchannels = 1
+    if len(data.shape) > 1:
+        nchannels = data.shape[1]
+    else:
+        data = data.reshape((-1, 1))
     # WavPack float mode expects the raw IEEE-754 bit patterns as int32:
     data = np.clip(data, -1.0, 1.0).astype(np.float32)
     interleaved = np.ascontiguousarray(data.reshape(-1))
