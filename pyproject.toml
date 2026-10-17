@@ -18,7 +18,7 @@ maintainers = [
 ]
 description = "Platform independent interfacing of numpy arrays of floats with audio files and devices for scientific data analysis."
 readme = "README.md"
-license = "GPL-3.0-or-later)"
+license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
