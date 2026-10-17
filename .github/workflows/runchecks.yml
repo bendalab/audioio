@@ -25,6 +25,7 @@ jobs:
           pip install pyaudio
           pip install sounddevice
           pip install soundcard
+          pip install libwavpack1
           pip install pytest pytest-cov
           pip install build
           pip install pdoc3
