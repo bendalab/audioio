@@ -196,13 +196,13 @@ def test_write_metadata():
     duration = 10.0
     t = np.arange(int(duration*rate))/rate
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
-    md = dict(Amplifier='Teensy_Amp')
+    md = dict(Amplifier='Teensy_Amp', Location='Beach', Time='future')
     # test storage of metadata in wave files:
     filename = 'test.wav'
     for lib, write_func in aw.audio_writer_funcs:
-        if lib in ['wavpack']:
-            continue
         if not am.select_module(lib):
+            continue
+        if not 'WAV' in aw.available_formats():
             continue
         write_func(filename, data, rate, md)
         mmd = al.metadata(filename)
@@ -230,6 +230,14 @@ def test_write_metadata():
         mmd = al.metadata(filename)
         Path(filename).unlink(True)
         assert len(mmd) == 0, 'metadata for mp3 files'
+    am.enable_module()
+    # test storage of metadata in wavpack files:
+    if am.audio_modules['wavpack']:
+        filename = 'test.wv'
+        aw.write_wavpack(filename, data, rate, md)
+        mmd = al.metadata(filename)
+        Path(filename).unlink(True)
+        assert md == mmd, 'metadata for wavpack'
         am.enable_module()
 
         

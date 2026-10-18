@@ -25,10 +25,12 @@ import sys
 import subprocess
 import numpy as np
 
+from io import BytesIO
 from pathlib import Path
 from .audiomodules import *
 from .riffmetadata import write_wave as audioio_write_wave
-from .riffmetadata import append_riff
+from .riffmetadata import append_riff, write_riff_chunk
+from .riffmetadata import append_metadata_riff, append_markers_riff
 
 
 def format_from_extension(filepath):
@@ -737,6 +739,13 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
     data = np.clip(data, -1.0, 1.0).astype(np.float32)
     interleaved = np.ascontiguousarray(data.reshape(-1))
     buffer = interleaved.view(np.int32)
+    # metadata:
+    meta_buffer = BytesIO()
+    write_riff_chunk(meta_buffer)
+    append_metadata_riff(meta_buffer, metadata)
+    append_markers_riff(meta_buffer, locs, labels, marker_hint)
+    meta_bytes = meta_buffer.getvalue()
+    # write wavpack file:
     with open(filepath, 'wb') as dest:
         wpc = wavpack.WavpackOpenFileOutput(_wavpack_write_block, dest, None)
         if not wpc:
@@ -752,6 +761,8 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
         if not wavpack.WavpackSetConfiguration64(wpc, ctypes.byref(config),
                                                  len(data), None):
             raise RuntimeError("wavpack: WavPackSetConfiguration() failed.")
+        if not wavpack.WavpackAddWrapper(wpc, meta_bytes, len(meta_bytes)):
+            raise RuntimeError("wavpack: WavpackAddWrapper() failed.")
         if not wavpack.WavpackPackInit(wpc):
             raise RuntimeError("wavpack: WavpackPackInit() failed.")
         if not wavpack.WavpackPackSamples(wpc,
@@ -760,8 +771,6 @@ def write_wavpack(filepath, data, rate, metadata=None, locs=None,
             raise RuntimeError("wavpack: WavpackPackSamples() failed.")
         wavpack.WavpackFlushSamples(wpc)
         wavpack.WavpackCloseFile(wpc)
-        # TODO:
-        #append_riff(filepath, metadata, locs, labels, rate, marker_hint)
 
 
 pydub_formats = None

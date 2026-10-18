@@ -313,6 +313,10 @@ try:
     wavpack.WavpackOpenFileOutput.argtypes = [wavpack.WavpackBlockOutput,
                                               ctypes.py_object,
                                               ctypes.py_object]
+    wavpack.WavpackAddWrapper.restype = ctypes.c_int
+    wavpack.WavpackAddWrapper.argtypes = [ctypes.c_void_p,
+                                          ctypes.c_char_p,
+                                          ctypes.c_uint]
     wavpack.WavpackSetConfiguration64.restype = ctypes.c_int
     wavpack.WavpackSetConfiguration64.argtypes = [ctypes.c_void_p,
                                                   ctypes.POINTER(WavpackConfig),
