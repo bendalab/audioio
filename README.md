@@ -345,6 +345,7 @@ Reading and writing audio files:
 - [wave](https://docs.python.org/3.8/library/wave.html): simple wave file interface of the python standard library.
 - [ewave](https://github.com/melizalab/py-ewave): extended wave files. 
 - [scipy.io.wavfile](http://docs.scipy.org/doc/scipy/reference/io.html): simple scipy wave file interface.
+- [wavpack](https://www.wavpack.com): a powerful, lossless audio compression file-format.
 - [SoundFile](http://python-soundfile.readthedocs.org): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
 - [wavefile](https://github.com/vokimon/python-wavefile): support of many open source audio file formats via [libsndfile](http://www.mega-nerd.com/libsndfile).
 - [audioread](https://github.com/beetbox/audioread): mpeg file support.
